@@ -46,4 +46,61 @@ public class ProcessG6Controller {
         Page<ProcessG6> page = new Page<>();
         page.setSize(11L);
         page.setCurrent(num);
-        page.se
+        page.setDesc("ID");
+
+        Map<String,Object> params = new HashMap();
+        params.put("id",id);
+
+        IPage<ProcessG6> pages =null;
+        //根据登录用户id 获取用户拥有角色ID
+        List<Long> userRoleIdList = userRoleService.findByRoleIdList(Long.valueOf(id));
+        for (Long r :userRoleIdList){
+            //判断是否为系统管理员，是则获取所有的列表信息
+            if (r.intValue()==1){
+                pages =  processG6Service.pageListAdmin(page);
+            }else {
+                //列表(根据角色信息获取)
+                pages = processG6Service.pageList(page, params);
+            }
+        }
+        //IPage<Analysis> pages = analysisService.pageList(page,params);
+
+        List<SysPermission> permissionList = sysPermissionService.findByPermission(id);
+
+        model.addAttribute("permissionList",permissionList);
+        model.addAttribute("nickName", SessionUtils.getUserNickName(request));
+        model.addAttribute("list", pages.getRecords());
+        System.out.println("数据》》》》》》"+pages.getRecords());
+        //model.addAttribute("activeType", 6);
+        model.addAttribute("pageNum", num);
+        model.addAttribute("process", new ProcessG6());
+        model.addAttribute("pages", pages.getPages());
+        model.addAttribute("total", pages.getTotal());
+
+
+        return new ModelAndView("/process/g6");
+    }
+
+
+    /**
+     * 保存接口
+     * @param processG6
+     */
+    @ResponseBody
+    @RequestMapping("/save")
+    public void add(@RequestBody ProcessG6 processG6){
+
+        processG6Service.save(processG6);
+    }
+
+   /* @GetMapping("/{num}")
+    public ModelAndView index(Model model, @PathVariable Long num, HttpServletRequest request) {
+
+        model.addAttribute("activeType", 6);
+
+        return new ModelAndView("/sys/g6");
+    }*/
+
+
+
+}
