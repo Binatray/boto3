@@ -342,4 +342,74 @@ public class SysRoleController {
             //删除角色与虚拟关系
             roleVirtualService.deleteBatch(new Long[]{a});
             //保存角色与虚拟关系
-            List<SysRoleVirtualTables> virtualIdList = new Arra
+            List<SysRoleVirtualTables> virtualIdList = new ArrayList<>(role.getVirtualIdList().size());
+            for (Long virtualId : role.getVirtualIdList()) {
+                SysRoleVirtualTables fun = new SysRoleVirtualTables();
+                fun.setVirtualId(virtualId.intValue());
+                fun.setRoleId(role.getId());
+                virtualIdList.add(fun);
+            }
+            roleVirtualService.saveBatch(virtualIdList);
+
+            //删除角色与分析关系
+            roleAnalysisService.deleteBatch(new Long[]{a});
+            //保存角色与分析关系
+            List<SysRoleAnalysis> analysisIdList = new ArrayList<>(role.getAnalysisIdList().size());
+            for (Long viewId : role.getAnalysisIdList()) {
+                SysRoleAnalysis fun = new SysRoleAnalysis();
+                fun.setAnalysisId(viewId.intValue());
+                fun.setRoleId(role.getId());
+                analysisIdList.add(fun);
+            }
+            roleAnalysisService.saveBatch(analysisIdList);
+
+
+            return new Result<String>(ResultEnum.SECCUSS);
+        } else {
+            return new Result<String>(ResultEnum.FAIL);
+        }
+    }
+
+
+    /**
+     * 删除角色
+     */
+    @RequestMapping("/delete")
+    @ResponseBody
+    public Result delete(@RequestBody Long[] roleIds) {
+
+
+        if (roleService.removeByIds(Arrays.asList(roleIds))) {
+
+            //删除角色与菜单关联
+            rolePermissionService.deleteBatch(roleIds);
+
+            //删除角色与部门关联
+            roleDeptService.deleteBatch(roleIds);
+
+            //删除角色与真实库关联
+            roleRealDbService.deleteBatch(roleIds);
+
+            //删除角色与视图库关联
+            roleViewService.deleteBatch(roleIds);
+
+            //删除角色与函数关联
+            roleFunService.deleteBatch(roleIds);
+
+            //删除角色与虚拟关系
+            roleVirtualService.deleteBatch(roleIds);
+
+            //删除角色与分析关系
+            roleAnalysisService.deleteBatch(roleIds);
+
+            //删除角色与用户关联
+            //    sysUserRoleService.deleteBatch(roleIds);
+
+            return new Result<String>(ResultEnum.SECCUSS);
+        } else {
+            return new Result<String>(ResultEnum.FAIL);
+        }
+    }
+
+
+}
