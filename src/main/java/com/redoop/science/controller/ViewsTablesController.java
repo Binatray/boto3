@@ -295,4 +295,15 @@ public class ViewsTablesController {
     }*/
     @RequestMapping("/delete/{id}")
     @ResponseBody
-    public Result
+    public Result<String> delete(@PathVariable Integer id) {
+        if (viewsTablesService.removeById(id)) {
+
+            roleViewService.deleteViewsTables(id);
+            return new Result<String>(ResultEnum.SECCUSS);
+        } else {
+            return new Result<String>(ResultEnum.FAIL);
+        }
+    }
+
+
+}
