@@ -30,4 +30,53 @@ import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Qualifier("userDetailsServiceImpl")
- 
+    @Autowired
+    private UserDetailsService userDetailsService;
+    @Autowired
+    private AuthenticationFailureHandler authenticationFailureHandler;
+    @Autowired
+    private AuthenticationSuccessHandler authenticationSuccessHandler;
+    @Autowired
+    private FindByIndexNameSessionRepository<? extends Session> redisOperationsSessionRepository;
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+
+                //允许访问静态资源
+                .antMatchers("/css/**", "/fonts/**", "/img/**", "/js/**", "/favicon.ico","/analysis/**","/api/**","/process/**").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl("/login/form")
+                .successHandler(authenticationSuccessHandler)
+                .failureHandler(authenticationFailureHandler).permitAll()
+                .and()
+                .exceptionHandling().accessDeniedPage("/error/401")
+                .and()
+                .csrf().disable();
+        http.sessionManagement().maximumSessions(5).maxSessionsPreventsLogin(false).expiredUrl("/login?expired=true")
+                .sessionRegistry(sessionRegistry());
+
+        http.logout().logoutSuccessUrl("/login");
+    }
+
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    SpringSessionBackedSessionRegistry sessionRegistry() {
+        return new SpringSessionBackedSessionRegistry<>(this.redisOperationsSessionRepository);
+    }
+
+
+}
