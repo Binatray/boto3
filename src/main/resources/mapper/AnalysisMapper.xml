@@ -1,0 +1,25 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redoop.science.mapper.AnalysisMapper">
+
+    <select id="pageList" resultType="com.redoop.science.entity.Analysis" parameterType="hashmap">
+        SELECT DISTINCT a.* FROM analysis a
+        LEFT JOIN sys_role_analysis b on a.ID = b.ANALYSIS_ID
+        LEFT JOIN sys_user_role c ON b.ROLE_ID = c.ROLE_ID
+        <where>
+            and a.ID  is not NULL
+            <if test="params.id!=null"> AND c.USER_ID =#{params.id}</if>
+        </where>
+    </select>
+
+
+    <select id="pageListAdmin" resultType="com.redoop.science.entity.Analysis" parameterType="hashmap">
+        SELECT DISTINCT a.* FROM analysis a
+        LEFT JOIN sys_role_analysis b on a.ID = b.ANALYSIS_ID
+        LEFT JOIN sys_user_role c ON b.ROLE_ID = c.ROLE_ID
+        <where>
+            and a.ID  is not NULL
+        </where>
+    </select>
+</mapper>

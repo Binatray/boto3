@@ -1,0 +1,119 @@
+
+server:
+  port: 8090
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/*.xml
+    #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.redoop.science.entity
+  global-config:
+    db-config:
+      #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
+      id-type: AUTO
+      #字段策略 0:"忽略判断",1:"非 NULL 判断"),2:"非空判断"
+      field-strategy: NOT_EMPTY
+      #驼峰下划线转换
+      table-underline: true
+      #mp2.3+ 全局表前缀 mp_
+      #table-prefix: mp_
+      #刷新mapper 调试神器
+      #refresh-mapper: true
+      #数据库大写下划线转换
+      #capital-mode: true
+      # Sequence序列接口实现类配置
+      #key-generator: com.baomidou.mybatisplus.incrementer.OracleKeyGenerator
+      #逻辑删除配置（下面3个配置）
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      #sql-injector: com.baomidou.mybatisplus.mapper.LogicSqlInjector
+      #自定义填充策略接口实现
+    #meta-object-handler: com.baomidou.mybatisplus.core.handlers.MetaObjectHandler
+  configuration:
+    #配置返回数据库(column下划线命名&&返回java实体是驼峰命名)，自动匹配无需as（没开启这个，SQL需要写as： select user_id as userId）
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    #配置JdbcTypeForNull, oracle数据库必须配置
+    jdbc-type-for-null: 'null'
+spring:
+## server port
+  application:
+    name: data-science
+  datasource:
+    name: data-science
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      #\u57FA\u672C\u5C5E\u6027
+      jdbc:
+      url: jdbc:mysql://127.0.0.1:3306/data_science?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=TRUE&useSSL=false&allowPublicKeyRetrieval=true
+      #url: jdbc:mysql://192.168.0.122:3306/data_science?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&autoReconnect=true&rewriteBatchedStatements=TRUE&useSSL=false&allowPublicKeyRetrieval=true
+      username: root
+      password: root
+      #password: Redoop123$%^
+#      username: root
+#      password: Alansun&**@7882
+      #\u76D1\u63A7
+      filters: stat
+      #\u914D\u7F6E\u521D\u59CB\u5316
+      initial-size: 1
+      min-idle: 1
+      max-active: 20
+      max-wait: 60000
+      #\u95F4\u9694\u591A\u4E45\u8FDB\u884C\u4E00\u6B21\u68C0\u6D4B\uFF0C\u68C0\u6D4B\u9700\u8981\u5173\u95ED\u7684\u7A7A\u95F2\u8FDE\u63A5
+      time-between-eviction-runs-millis: 60000
+      #\u4E00\u4E2A\u8FDE\u63A5\u5728\u6C60\u4E2D\u6700\u5C0F\u751F\u5B58\u7684\u65F6\u95F4
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 'x'
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      #\u6253\u5F00PSCache\uFF0C\u5E76\u6307\u5B9A\u6BCF\u4E2A\u8FDE\u63A5\u4E0APSCache\u7684\u5927\u5C0F\u3002oracle\u8BBE\u4E3Atrue\uFF0Cmysql\u8BBE\u4E3Afalse\u3002\u5206\u5E93\u5206\u8868\u8F83\u591A\u63A8\u8350\u8BBE\u7F6E\u4E3Afalse
+      pool-prepared-statements: false
+      max-pool-prepared-statement-per-connection-size: 20
+  thymeleaf:
+    cache: false
+    mode: HTML
+    encoding: utf-8
+    prefix: classpath:/templates
+  session:
+    store-type: REDIS
+    redis:
+      flush-mode: ON_SAVE
+    timeout: 1h
+  redis:
+    host: 127.0.0.1 # Redis server host.
+    password:
+    port: 6379
+#    cluster: #集群配置
+#      max-redirects: 3
+#      nodes:
+#      - 127.0.0.1:6379
+    lettuce:
+      pool:
+        max-active:  100 # 连接池最大连接数（使用负值表示没有限制）
+        max-idle: 100 # 连接池中的最大空闲连接
+        min-idle: 50 # 连接池中的最小空闲连接
+        max-wait: 1M # 连接池最大阻塞等待时间（使用负值表示没有限制）
+    timeout: 1M
+
+#actuator
+##运行状态 actuator监控
+#endpoints:
+#  enabled: true
+#  info:
+#    sensitive: false
+#  health:
+#    sensitive: false
+#management:
+#  ##服务路径
+#  context-path: /
+#  ##服务端口
+#  port: 8081
+  management:
+    endpoints:
+      web:
+        exposure:
+          include:  ["*"]
+seasbase:
+  mlsql:
+    ip: 127.0.0.1
+    port: 9003
