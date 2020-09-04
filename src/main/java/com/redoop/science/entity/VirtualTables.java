@@ -1,30 +1,26 @@
+
 package com.redoop.science.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
-import java.util.Date;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import lombok.experimental.Accessors;
-
-import javax.validation.constraints.Max;
-import javax.validation.constraints.NotEmpty;
 
 /**
  * <p>
- * 注册函数
+ * 虚拟表
  * </p>
  *
  * @author Alan
- * @since 2018-10-16
+ * @since 2018-09-13
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class RegFunction implements Serializable {
+public class VirtualTables implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,16 +34,7 @@ public class RegFunction implements Serializable {
      * 名称
      */
     @TableField("NAME")
-    @NotEmpty
-    @Max(value = 50,message = "函数名不得超过50个字符")
     private String name;
-
-    /**
-     * 函数
-     */
-    @TableField("CODE")
-    @NotEmpty
-    private String code;
 
     /**
      * 注释
@@ -71,7 +58,7 @@ public class RegFunction implements Serializable {
      * 创建日期
      */
     @TableField("CREATE_DATE")
-    private Date createDate;
+    private LocalDateTime createDate;
 
     /**
      * 操作人编号
@@ -84,6 +71,24 @@ public class RegFunction implements Serializable {
      */
     @TableField("OPERATION_TIME")
     private LocalDateTime operationTime;
+
+    /**
+     * 真实库id
+     */
+    @TableField("DB_ID")
+    private String dbId;
+
+    /**
+     * 真实库名称
+     */
+    @TableField("DB_NAME")
+    private String dbName;
+
+    /**
+     * 查询内容
+     */
+    @TableField("CODE")
+    private String code;
 
 
 }
