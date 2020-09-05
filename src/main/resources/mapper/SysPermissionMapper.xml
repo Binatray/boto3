@@ -1,0 +1,45 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redoop.science.mapper.SysPermissionMapper">
+    <resultMap id="sysPermission" type="com.redoop.science.entity.SysPermission">
+        <id property="id" column="ID"/>
+        <result property="name" column="NAME"/>
+        <result property="description" column="DESCRIPTION"/>
+        <result property="url" column="URL"/>
+        <result property="pid" column="PID"/>
+        <result property="parentId" column="PARENT_ID"/>
+        <result property="perms" column="PERMS"/>
+        <result property="type" column="TYPE"/>
+        <result property="icon" column="ICON"/>
+        <result property="orderNum" column="ORDER_NUM"/>
+    </resultMap>
+
+    <resultMap id="sysPermissionDto" type="com.redoop.science.dto.sys.SysPermissionDto" extends="sysPermission">
+        <collection property="roles" column="ID" select="com.redoop.science.mapper.SysRoleMapper.findByPermissionId"/>
+    </resultMap>
+    <sql id="base">
+        T.ID
+        ,T.NAME
+        ,T.DESCRIPTION
+        ,T.URL
+        ,T.PID
+        ,T.PARENT_ID
+        ,T.PERMS
+        ,T.TYPE
+        ,T.ICON
+        ,T.ORDER_NUM
+    </sql>
+    <select id="findListPermissionDto" resultMap="sysPermissionDto">
+        select
+        <include refid="base"/>
+        from SYS_PERMISSION T where T.TYPE != 0
+    </select>
+
+    <select id="findByPermission" resultMap="sysPermissionDto">
+        SELECT c.* FROM	sys_user_role a
+        LEFT JOIN sys_role_permission b ON a.ROLE_ID = b.ROLE_ID
+        LEFT JOIN sys_permission c ON  b.PERMISSION_ID = c.ID
+        WHERE a.USER_ID = #{id} and c.TYPE !=0 GROUP BY c.ID
+    </select>
+</mapper>

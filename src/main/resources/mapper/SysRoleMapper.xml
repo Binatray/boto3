@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redoop.science.mapper.SysRoleMapper">
+    <resultMap id="sysRole" type="com.redoop.science.entity.SysRole">
+        <result property="id" column="ID"/>
+        <result property="name" column="NAME"/>
+    </resultMap>
+
+
+    <select id="findByUserId" resultMap="sysRole" parameterType="Integer">
+      select * from  SYS_ROLE T where T.id in (SELECT ROLE_ID FROM sys_user_role WHERE USER_ID = #{userId} )
+    </select>
+    <select id="findByPermissionId" resultType="string" parameterType="Integer">
+      select name from  SYS_ROLE T where T.id in (SELECT ROLE_ID FROM SYS_ROLE_PERMISSION WHERE PERMISSION_ID = #{permissionId} )
+    </select>
+</mapper>

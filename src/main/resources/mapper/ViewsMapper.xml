@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redoop.science.mapper.ViewsMapper">
+
+    <resultMap id="viewsResult" type="com.redoop.science.entity.Views">
+        <id property="id" column="ID"/>
+        <result property="name" column="NAME"/>
+        <result property="remark" column="REMARK"/>
+        <result property="creatorId" column="CREATOR_ID"/>
+        <result property="creatorName" column="CREATOR_NAME"/>
+        <result property="createDate" column="CREATE_DATE"/>
+        <result property="operationId" column="OPERATION_ID"/>
+        <result property="operationTime" column="OPERATION_TIME"/>
+
+    </resultMap>
+
+   <!-- <resultMap type="com.redoop.science.dto.ViewsDto" id="viewsTablesResult"
+               extends="viewsResult">
+        &lt;!&ndash; collection中不是javaType而是ofType,通过property也知道是list，即多个。
+        extends属性，即在父resultMap的基础上再加上子resultMap的结果，在这里即再加上部门的信息。 &ndash;&gt;
+        <collection property="viewsTablesList" ofType="com.redoop.science.entity.ViewsTables">
+            <id property="id" column="ID"  />
+            <result property="name" column="NAME"/>
+        </collection>
+
+    </resultMap>-->
+
+    <resultMap id="viewsTablesResult" type="com.redoop.science.dto.ViewsDto" extends="viewsResult">
+
+        <collection property="viewsTablesList" ofType="com.redoop.science.entity.ViewsTables"
+                    select="com.redoop.science.mapper.ViewsTablesMapper.findByViewsId" javaType="ArrayList" column="id">
+        </collection>
+    </resultMap>
+    <!--视图表集合 -->
+
+
+
+    <select id="findViewsTables" resultType="list" resultMap="viewsTablesResult" parameterType="map">
+
+      SELECT * FROM views
+<!--        <where>
+            <if test="">AND  </if>
+        </where>-->
+    </select>
+
+
+    <select id="findByRole" resultType="com.redoop.science.entity.Views" parameterType="hashmap">
+        <!-- SELECT d.* FROM sys_user a LEFT JOIN sys_user_role b ON a.ID = b.USER_ID
+         LEFT JOIN sys_role_real_db c on b.ROLE_ID = c.ROLE_ID
+         LEFT JOIN real_db d on c.REAL_DB_ID = d.ID
+         <where>
+             and d.ID  is not NULL
+             <if test="params.nickName!=null"> AND a.NICK_NAME = #{params.nickName}</if>
+
+         </where>-->
+
+        SELECT
+        d.*
+        FROM
+        views_tables a
+        LEFT JOIN sys_role_views_tables b ON a.ID = b.VIEW_TABLES_ID
+        LEFT JOIN sys_user_role c ON b.ROLE_ID = c.ROLE_ID
+        LEFT JOIN views d on a.VIEWS_ID = d.ID
+        <where>
+            <if test="params.id!=null"> AND c.USER_ID =#{params.id}</if>
+            GROUP BY d.ID
+        </where>
+    </select>
+
+
+    <select id="findById" resultType="list" resultMap="viewsTablesResult" parameterType="map">
+        SELECT a.* FROM views a
+        LEFT JOIN sys_role_views_tables b ON a.ID = b.VIEW_TABLES_ID
+        LEFT JOIN sys_user_role c ON b.ROLE_ID = c.ROLE_ID
+         WHERE c.USER_ID = #{id} AND a.ID IS NOT NULL
+    </select>
+
+
+
+
+
+    <select id="pageListAdmin" resultType="com.redoop.science.entity.Views" parameterType="hashmap">
+        SELECT
+        distinct d.*
+        FROM
+        views_tables a
+        LEFT JOIN sys_role_views_tables b ON a.ID = b.VIEW_TABLES_ID
+        LEFT JOIN sys_user_role c ON b.ROLE_ID = c.ROLE_ID
+        LEFT JOIN views d on a.VIEWS_ID = d.ID
+            GROUP BY d.ID
+    </select>
+
+</mapper>

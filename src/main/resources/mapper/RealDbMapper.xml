@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redoop.science.mapper.RealDbMapper">
+
+<!--
+<resultMap id="RealDbResultMap" type="com.redoop.science.entity.RealDb">
+      <id column="id" property="id" jdbcType="INTEGER" />
+      <result column="name" property="NAME" jdbcType="VARCHAR" />
+      <result column="remark" property="REMARK" jdbcType="VARCHAR" />
+      <result column="creatorId" property="CREATOR_ID" jdbcType="INTEGER" />
+      <result column="creatorName" property="CREATOR_NAME" jdbcType="VARCHAR" />
+
+
+      <result column="createDate" property="CREATE_DATE" jdbcType="DATE" />
+      <result column="operationId" property="OPERATION_ID" jdbcType="INTEGER" />
+      <result column="operationTime" property="OPERATION_TIME" jdbcType="DATE" />
+      <result column="port" property="IP" jdbcType="INTEGER" />
+      <result column="ip" property="operatorIp" jdbcType="VARCHAR" />
+      <result column="dbType" property="DB_TYPE" jdbcType="INTEGER" />
+      <result column="nikeName" property="NIKE_NAME" jdbcType="VARCHAR" />
+      <result column="dbName" property="DB_NAME" jdbcType="VARCHAR" />
+      <result column="dbPassword" property="DB_PASSWORD" jdbcType="VARCHAR" />
+
+</resultMap>
+-->
+
+      <!-- <select id="findByNikeName" resultMap="RealDbResultMap"  parameterType="String">
+          SELECT  * from real_db where NIKE_NAME = #{NIKE_NAME};
+       </select>
+-->
+
+    <select id="findByRole" resultType="com.redoop.science.entity.RealDb" parameterType="hashmap">
+       <!-- SELECT d.* FROM sys_user a LEFT JOIN sys_user_role b ON a.ID = b.USER_ID
+        LEFT JOIN sys_role_real_db c on b.ROLE_ID = c.ROLE_ID
+        LEFT JOIN real_db d on c.REAL_DB_ID = d.ID
+        <where>
+            and d.ID  is not NULL
+            <if test="params.nickName!=null"> AND a.NICK_NAME = #{params.nickName}</if>
+
+        </where>-->
+        SELECT distinct  a.* FROM real_db a
+        LEFT JOIN sys_role_real_db b on a.ID = b.REAL_DB_ID
+        LEFT JOIN sys_user_role c on b.ROLE_ID = c.ROLE_ID
+
+        <where>
+        and a.ID  is not NULL
+        <if test="params.id!=null"> AND c.USER_ID =#{params.id}</if>
+        </where>
+    </select>
+
+    <select id="pageListAdmin" resultType="com.redoop.science.entity.RealDb" parameterType="hashmap">
+        SELECT distinct  a.* FROM real_db a
+        LEFT JOIN sys_role_real_db b on a.ID = b.REAL_DB_ID
+        LEFT JOIN sys_user_role c on b.ROLE_ID = c.ROLE_ID
+
+        <where>
+            and a.ID  is not NULL
+
+        </where>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redoop.science.mapper.RegFunctionMapper">
+
+
+    <select id="findByRole" resultType="com.redoop.science.entity.RegFunction" parameterType="hashmap">
+        <!-- SELECT d.* FROM sys_user a LEFT JOIN sys_user_role b ON a.ID = b.USER_ID
+         LEFT JOIN sys_role_real_db c on b.ROLE_ID = c.ROLE_ID
+         LEFT JOIN real_db d on c.REAL_DB_ID = d.ID
+         <where>
+             and d.ID  is not NULL
+             <if test="params.nickName!=null"> AND a.NICK_NAME = #{params.nickName}</if>
+
+         </where>-->
+        SELECT distinct a.* FROM reg_function a
+        LEFT JOIN sys_role_function b on a.ID = b.FUNCTION_ID
+        LEFT JOIN sys_user_role c ON b.ROLE_ID = c.ROLE_ID
+
+        <where>
+            and a.ID  is not NULL
+            <if test="params.id!=null"> AND c.USER_ID =#{params.id}</if>
+        </where>
+    </select>
+
+    <select id="pageListAdmin" resultType="com.redoop.science.entity.RegFunction" parameterType="hashmap">
+        SELECT distinct a.* FROM reg_function a
+        LEFT JOIN sys_role_function b on a.ID = b.FUNCTION_ID
+        LEFT JOIN sys_user_role c ON b.ROLE_ID = c.ROLE_ID
+
+        <where>
+            and a.ID  is not NULL
+        </where>
+    </select>
+
+</mapper>

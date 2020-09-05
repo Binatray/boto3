@@ -1,0 +1,33 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.redoop.science.mapper.ViewsTablesMapper">
+
+    <select id="findByRole" resultType="com.redoop.science.entity.ViewsTables" parameterType="hashmap">
+        SELECT
+        a.*
+        FROM
+        views_tables a
+        LEFT JOIN sys_role_views_tables b ON a.ID = b.VIEW_TABLES_ID
+        LEFT JOIN sys_user_role c ON b.ROLE_ID = c.ROLE_ID
+        <where>
+            and a.ID is not NULL
+            <if test="params.id!=null">AND c.USER_ID =#{params.id}</if>
+        </where>
+    </select>
+
+    <select id="pageListAdmin" resultType="com.redoop.science.entity.ViewsTables" parameterType="hashmap">
+        SELECT
+        a.*
+        FROM
+        views_tables a
+        LEFT JOIN sys_role_views_tables b ON a.ID = b.VIEW_TABLES_ID
+        LEFT JOIN sys_user_role c ON b.ROLE_ID = c.ROLE_ID
+        <where>
+            and a.ID is not NULL
+        </where>
+    </select>
+
+
+
+</mapper>

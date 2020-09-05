@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.redoop.science.mapper.ProcessG6Mapper">
+<mapper namespace="com.redoop.science.mapper.VirtualTablesMapper">
 
-    <select id="pageList" resultType="com.redoop.science.entity.ProcessG6" parameterType="hashmap">
-        SELECT DISTINCT a.* FROM process a
-        LEFT JOIN sys_role_process b on a.ID = b.PROCESS_ID
+    <select id="pageList" resultType="com.redoop.science.entity.VirtualTables" parameterType="hashmap">
+
+        SELECT a.* FROM virtual_tables a
+        LEFT JOIN sys_role_virtual_tables b ON a.ID = b.VIRTUAL_ID
         LEFT JOIN sys_user_role c ON b.ROLE_ID = c.ROLE_ID
+
         <where>
             and a.ID  is not NULL
             <if test="params.id!=null"> AND c.USER_ID =#{params.id}</if>
         </where>
     </select>
 
+    <select id="pageListAdmin" resultType="com.redoop.science.entity.VirtualTables" parameterType="hashmap">
 
-    <select id="pageListAdmin" resultType="com.redoop.science.entity.ProcessG6" parameterType="hashmap">
-        SELECT DISTINCT a.* FROM process a
-        LEFT JOIN sys_role_process b on a.ID = b.PROCESS_ID
+        SELECT distinct a.* FROM virtual_tables a
+        LEFT JOIN sys_role_virtual_tables b ON a.ID = b.VIRTUAL_ID
         LEFT JOIN sys_user_role c ON b.ROLE_ID = c.ROLE_ID
         <where>
             and a.ID  is not NULL
