@@ -14031,3 +14031,7599 @@ Editor.$uid = 0;
     this.toUpperCase = function() {
         var originalRange = this.getSelectionRange();
         if (this.selection.isEmpty()) {
+            this.selection.selectWord();
+        }
+
+        var range = this.getSelectionRange();
+        var text = this.session.getTextRange(range);
+        this.session.replace(range, text.toUpperCase());
+        this.selection.setSelectionRange(originalRange);
+    };
+    this.indent = function() {
+        var session = this.session;
+        var range = this.getSelectionRange();
+
+        if (range.start.row < range.end.row) {
+            var rows = this.$getSelectedRows();
+            session.indentRows(rows.first, rows.last, "\t");
+            return;
+        } else if (range.start.column < range.end.column) {
+            var text = session.getTextRange(range);
+            if (!/^\s+$/.test(text)) {
+                var rows = this.$getSelectedRows();
+                session.indentRows(rows.first, rows.last, "\t");
+                return;
+            }
+        }
+        
+        var line = session.getLine(range.start.row);
+        var position = range.start;
+        var size = session.getTabSize();
+        var column = session.documentToScreenColumn(position.row, position.column);
+
+        if (this.session.getUseSoftTabs()) {
+            var count = (size - column % size);
+            var indentString = lang.stringRepeat(" ", count);
+        } else {
+            var count = column % size;
+            while (line[range.start.column - 1] == " " && count) {
+                range.start.column--;
+                count--;
+            }
+            this.selection.setSelectionRange(range);
+            indentString = "\t";
+        }
+        return this.insert(indentString);
+    };
+    this.blockIndent = function() {
+        var rows = this.$getSelectedRows();
+        this.session.indentRows(rows.first, rows.last, "\t");
+    };
+    this.blockOutdent = function() {
+        var selection = this.session.getSelection();
+        this.session.outdentRows(selection.getRange());
+    };
+    this.sortLines = function() {
+        var rows = this.$getSelectedRows();
+        var session = this.session;
+
+        var lines = [];
+        for (var i = rows.first; i <= rows.last; i++)
+            lines.push(session.getLine(i));
+
+        lines.sort(function(a, b) {
+            if (a.toLowerCase() < b.toLowerCase()) return -1;
+            if (a.toLowerCase() > b.toLowerCase()) return 1;
+            return 0;
+        });
+
+        var deleteRange = new Range(0, 0, 0, 0);
+        for (var i = rows.first; i <= rows.last; i++) {
+            var line = session.getLine(i);
+            deleteRange.start.row = i;
+            deleteRange.end.row = i;
+            deleteRange.end.column = line.length;
+            session.replace(deleteRange, lines[i-rows.first]);
+        }
+    };
+    this.toggleCommentLines = function() {
+        var state = this.session.getState(this.getCursorPosition().row);
+        var rows = this.$getSelectedRows();
+        this.session.getMode().toggleCommentLines(state, this.session, rows.first, rows.last);
+    };
+
+    this.toggleBlockComment = function() {
+        var cursor = this.getCursorPosition();
+        var state = this.session.getState(cursor.row);
+        var range = this.getSelectionRange();
+        this.session.getMode().toggleBlockComment(state, this.session, range, cursor);
+    };
+    this.getNumberAt = function(row, column) {
+        var _numberRx = /[\-]?[0-9]+(?:\.[0-9]+)?/g;
+        _numberRx.lastIndex = 0;
+
+        var s = this.session.getLine(row);
+        while (_numberRx.lastIndex < column) {
+            var m = _numberRx.exec(s);
+            if(m.index <= column && m.index+m[0].length >= column){
+                var number = {
+                    value: m[0],
+                    start: m.index,
+                    end: m.index+m[0].length
+                };
+                return number;
+            }
+        }
+        return null;
+    };
+    this.modifyNumber = function(amount) {
+        var row = this.selection.getCursor().row;
+        var column = this.selection.getCursor().column;
+        var charRange = new Range(row, column-1, row, column);
+
+        var c = this.session.getTextRange(charRange);
+        if (!isNaN(parseFloat(c)) && isFinite(c)) {
+            var nr = this.getNumberAt(row, column);
+            if (nr) {
+                var fp = nr.value.indexOf(".") >= 0 ? nr.start + nr.value.indexOf(".") + 1 : nr.end;
+                var decimals = nr.start + nr.value.length - fp;
+
+                var t = parseFloat(nr.value);
+                t *= Math.pow(10, decimals);
+
+
+                if(fp !== nr.end && column < fp){
+                    amount *= Math.pow(10, nr.end - column - 1);
+                } else {
+                    amount *= Math.pow(10, nr.end - column);
+                }
+
+                t += amount;
+                t /= Math.pow(10, decimals);
+                var nnr = t.toFixed(decimals);
+                var replaceRange = new Range(row, nr.start, row, nr.end);
+                this.session.replace(replaceRange, nnr);
+                this.moveCursorTo(row, Math.max(nr.start +1, column + nnr.length - nr.value.length));
+
+            }
+        } else {
+            this.toggleWord();
+        }
+    };
+
+    this.$toggleWordPairs = [
+        ["first", "last"],
+        ["true", "false"],
+        ["yes", "no"],
+        ["width", "height"],
+        ["top", "bottom"],
+        ["right", "left"],
+        ["on", "off"],
+        ["x", "y"],
+        ["get", "set"],
+        ["max", "min"],
+        ["horizontal", "vertical"],
+        ["show", "hide"],
+        ["add", "remove"],
+        ["up", "down"],
+        ["before", "after"],
+        ["even", "odd"],
+        ["inside", "outside"],
+        ["next", "previous"],
+        ["increase", "decrease"],
+        ["attach", "detach"],
+        ["&&", "||"],
+        ["==", "!="]
+    ];
+
+    this.toggleWord = function () {
+        var row = this.selection.getCursor().row;
+        var column = this.selection.getCursor().column;
+        this.selection.selectWord();
+        var currentState = this.getSelectedText();
+        var currWordStart = this.selection.getWordRange().start.column;
+        var wordParts = currentState.replace(/([a-z]+|[A-Z]+)(?=[A-Z_]|$)/g, '$1 ').split(/\s/);
+        var delta = column - currWordStart - 1;
+        if (delta < 0) delta = 0;
+        var curLength = 0, itLength = 0;
+        var that = this;
+        if (currentState.match(/[A-Za-z0-9_]+/)) {
+            wordParts.forEach(function (item, i) {
+                itLength = curLength + item.length;
+                if (delta >= curLength && delta <= itLength) {
+                    currentState = item;
+                    that.selection.clearSelection();
+                    that.moveCursorTo(row, curLength + currWordStart);
+                    that.selection.selectTo(row, itLength + currWordStart);
+                }
+                curLength = itLength;
+            });
+        }
+
+        var wordPairs = this.$toggleWordPairs;
+        var reg;
+        for (var i = 0; i < wordPairs.length; i++) {
+            var item = wordPairs[i];
+            for (var j = 0; j <= 1; j++) {
+                var negate = +!j;
+                var firstCondition = currentState.match(new RegExp('^\\s?_?(' + lang.escapeRegExp(item[j]) + ')\\s?$', 'i'));
+                if (firstCondition) {
+                    var secondCondition = currentState.match(new RegExp('([_]|^|\\s)(' + lang.escapeRegExp(firstCondition[1]) + ')($|\\s)', 'g'));
+                    if (secondCondition) {
+                        reg = currentState.replace(new RegExp(lang.escapeRegExp(item[j]), 'i'), function (result) {
+                            var res = item[negate];
+                            if (result.toUpperCase() == result) {
+                                res = res.toUpperCase();
+                            } else if (result.charAt(0).toUpperCase() == result.charAt(0)) {
+                                res = res.substr(0, 0) + item[negate].charAt(0).toUpperCase() + res.substr(1);
+                            }
+                            return res;
+                        });
+                        this.insert(reg);
+                        reg = "";
+                    }
+                }
+            }
+        }
+    };
+    this.removeLines = function() {
+        var rows = this.$getSelectedRows();
+        this.session.removeFullLines(rows.first, rows.last);
+        this.clearSelection();
+    };
+
+    this.duplicateSelection = function() {
+        var sel = this.selection;
+        var doc = this.session;
+        var range = sel.getRange();
+        var reverse = sel.isBackwards();
+        if (range.isEmpty()) {
+            var row = range.start.row;
+            doc.duplicateLines(row, row);
+        } else {
+            var point = reverse ? range.start : range.end;
+            var endPoint = doc.insert(point, doc.getTextRange(range), false);
+            range.start = point;
+            range.end = endPoint;
+
+            sel.setSelectionRange(range, reverse);
+        }
+    };
+    this.moveLinesDown = function() {
+        this.$moveLines(1, false);
+    };
+    this.moveLinesUp = function() {
+        this.$moveLines(-1, false);
+    };
+    this.moveText = function(range, toPosition, copy) {
+        return this.session.moveText(range, toPosition, copy);
+    };
+    this.copyLinesUp = function() {
+        this.$moveLines(-1, true);
+    };
+    this.copyLinesDown = function() {
+        this.$moveLines(1, true);
+    };
+    this.$moveLines = function(dir, copy) {
+        var rows, moved;
+        var selection = this.selection;
+        if (!selection.inMultiSelectMode || this.inVirtualSelectionMode) {
+            var range = selection.toOrientedRange();
+            rows = this.$getSelectedRows(range);
+            moved = this.session.$moveLines(rows.first, rows.last, copy ? 0 : dir);
+            if (copy && dir == -1) moved = 0;
+            range.moveBy(moved, 0);
+            selection.fromOrientedRange(range);
+        } else {
+            var ranges = selection.rangeList.ranges;
+            selection.rangeList.detach(this.session);
+            this.inVirtualSelectionMode = true;
+            
+            var diff = 0;
+            var totalDiff = 0;
+            var l = ranges.length;
+            for (var i = 0; i < l; i++) {
+                var rangeIndex = i;
+                ranges[i].moveBy(diff, 0);
+                rows = this.$getSelectedRows(ranges[i]);
+                var first = rows.first;
+                var last = rows.last;
+                while (++i < l) {
+                    if (totalDiff) ranges[i].moveBy(totalDiff, 0);
+                    var subRows = this.$getSelectedRows(ranges[i]);
+                    if (copy && subRows.first != last)
+                        break;
+                    else if (!copy && subRows.first > last + 1)
+                        break;
+                    last = subRows.last;
+                }
+                i--;
+                diff = this.session.$moveLines(first, last, copy ? 0 : dir);
+                if (copy && dir == -1) rangeIndex = i + 1;
+                while (rangeIndex <= i) {
+                    ranges[rangeIndex].moveBy(diff, 0);
+                    rangeIndex++;
+                }
+                if (!copy) diff = 0;
+                totalDiff += diff;
+            }
+            
+            selection.fromOrientedRange(selection.ranges[0]);
+            selection.rangeList.attach(this.session);
+            this.inVirtualSelectionMode = false;
+        }
+    };
+    this.$getSelectedRows = function(range) {
+        range = (range || this.getSelectionRange()).collapseRows();
+
+        return {
+            first: this.session.getRowFoldStart(range.start.row),
+            last: this.session.getRowFoldEnd(range.end.row)
+        };
+    };
+
+    this.onCompositionStart = function(compositionState) {
+        this.renderer.showComposition(compositionState);
+    };
+
+    this.onCompositionUpdate = function(text) {
+        this.renderer.setCompositionText(text);
+    };
+
+    this.onCompositionEnd = function() {
+        this.renderer.hideComposition();
+    };
+    this.getFirstVisibleRow = function() {
+        return this.renderer.getFirstVisibleRow();
+    };
+    this.getLastVisibleRow = function() {
+        return this.renderer.getLastVisibleRow();
+    };
+    this.isRowVisible = function(row) {
+        return (row >= this.getFirstVisibleRow() && row <= this.getLastVisibleRow());
+    };
+    this.isRowFullyVisible = function(row) {
+        return (row >= this.renderer.getFirstFullyVisibleRow() && row <= this.renderer.getLastFullyVisibleRow());
+    };
+    this.$getVisibleRowCount = function() {
+        return this.renderer.getScrollBottomRow() - this.renderer.getScrollTopRow() + 1;
+    };
+
+    this.$moveByPage = function(dir, select) {
+        var renderer = this.renderer;
+        var config = this.renderer.layerConfig;
+        var rows = dir * Math.floor(config.height / config.lineHeight);
+
+        if (select === true) {
+            this.selection.$moveSelection(function(){
+                this.moveCursorBy(rows, 0);
+            });
+        } else if (select === false) {
+            this.selection.moveCursorBy(rows, 0);
+            this.selection.clearSelection();
+        }
+
+        var scrollTop = renderer.scrollTop;
+
+        renderer.scrollBy(0, rows * config.lineHeight);
+        if (select != null)
+            renderer.scrollCursorIntoView(null, 0.5);
+
+        renderer.animateScrolling(scrollTop);
+    };
+    this.selectPageDown = function() {
+        this.$moveByPage(1, true);
+    };
+    this.selectPageUp = function() {
+        this.$moveByPage(-1, true);
+    };
+    this.gotoPageDown = function() {
+       this.$moveByPage(1, false);
+    };
+    this.gotoPageUp = function() {
+        this.$moveByPage(-1, false);
+    };
+    this.scrollPageDown = function() {
+        this.$moveByPage(1);
+    };
+    this.scrollPageUp = function() {
+        this.$moveByPage(-1);
+    };
+    this.scrollToRow = function(row) {
+        this.renderer.scrollToRow(row);
+    };
+    this.scrollToLine = function(line, center, animate, callback) {
+        this.renderer.scrollToLine(line, center, animate, callback);
+    };
+    this.centerSelection = function() {
+        var range = this.getSelectionRange();
+        var pos = {
+            row: Math.floor(range.start.row + (range.end.row - range.start.row) / 2),
+            column: Math.floor(range.start.column + (range.end.column - range.start.column) / 2)
+        };
+        this.renderer.alignCursor(pos, 0.5);
+    };
+    this.getCursorPosition = function() {
+        return this.selection.getCursor();
+    };
+    this.getCursorPositionScreen = function() {
+        return this.session.documentToScreenPosition(this.getCursorPosition());
+    };
+    this.getSelectionRange = function() {
+        return this.selection.getRange();
+    };
+    this.selectAll = function() {
+        this.selection.selectAll();
+    };
+    this.clearSelection = function() {
+        this.selection.clearSelection();
+    };
+    this.moveCursorTo = function(row, column) {
+        this.selection.moveCursorTo(row, column);
+    };
+    this.moveCursorToPosition = function(pos) {
+        this.selection.moveCursorToPosition(pos);
+    };
+    this.jumpToMatching = function(select, expand) {
+        var cursor = this.getCursorPosition();
+        var iterator = new TokenIterator(this.session, cursor.row, cursor.column);
+        var prevToken = iterator.getCurrentToken();
+        var token = prevToken || iterator.stepForward();
+
+        if (!token) return;
+        var matchType;
+        var found = false;
+        var depth = {};
+        var i = cursor.column - token.start;
+        var bracketType;
+        var brackets = {
+            ")": "(",
+            "(": "(",
+            "]": "[",
+            "[": "[",
+            "{": "{",
+            "}": "{"
+        };
+        
+        do {
+            if (token.value.match(/[{}()\[\]]/g)) {
+                for (; i < token.value.length && !found; i++) {
+                    if (!brackets[token.value[i]]) {
+                        continue;
+                    }
+
+                    bracketType = brackets[token.value[i]] + '.' + token.type.replace("rparen", "lparen");
+
+                    if (isNaN(depth[bracketType])) {
+                        depth[bracketType] = 0;
+                    }
+
+                    switch (token.value[i]) {
+                        case '(':
+                        case '[':
+                        case '{':
+                            depth[bracketType]++;
+                            break;
+                        case ')':
+                        case ']':
+                        case '}':
+                            depth[bracketType]--;
+
+                            if (depth[bracketType] === -1) {
+                                matchType = 'bracket';
+                                found = true;
+                            }
+                        break;
+                    }
+                }
+            }
+            else if (token.type.indexOf('tag-name') !== -1) {
+                if (isNaN(depth[token.value])) {
+                    depth[token.value] = 0;
+                }
+                
+                if (prevToken.value === '<') {
+                    depth[token.value]++;
+                }
+                else if (prevToken.value === '</') {
+                    depth[token.value]--;
+                }
+                
+                if (depth[token.value] === -1) {
+                    matchType = 'tag';
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                prevToken = token;
+                token = iterator.stepForward();
+                i = 0;
+            }
+        } while (token && !found);
+        if (!matchType)
+            return;
+
+        var range, pos;
+        if (matchType === 'bracket') {
+            range = this.session.getBracketRange(cursor);
+            if (!range) {
+                range = new Range(
+                    iterator.getCurrentTokenRow(),
+                    iterator.getCurrentTokenColumn() + i - 1,
+                    iterator.getCurrentTokenRow(),
+                    iterator.getCurrentTokenColumn() + i - 1
+                );
+                pos = range.start;
+                if (expand || pos.row === cursor.row && Math.abs(pos.column - cursor.column) < 2)
+                    range = this.session.getBracketRange(pos);
+            }
+        }
+        else if (matchType === 'tag') {
+            if (token && token.type.indexOf('tag-name') !== -1) 
+                var tag = token.value;
+            else
+                return;
+
+            range = new Range(
+                iterator.getCurrentTokenRow(),
+                iterator.getCurrentTokenColumn() - 2,
+                iterator.getCurrentTokenRow(),
+                iterator.getCurrentTokenColumn() - 2
+            );
+            if (range.compare(cursor.row, cursor.column) === 0) {
+                found = false;
+                do {
+                    token = prevToken;
+                    prevToken = iterator.stepBackward();
+                    
+                    if (prevToken) {
+                        if (prevToken.type.indexOf('tag-close') !== -1) {
+                            range.setEnd(iterator.getCurrentTokenRow(), iterator.getCurrentTokenColumn() + 1);
+                        }
+
+                        if (token.value === tag && token.type.indexOf('tag-name') !== -1) {
+                            if (prevToken.value === '<') {
+                                depth[tag]++;
+                            }
+                            else if (prevToken.value === '</') {
+                                depth[tag]--;
+                            }
+                            
+                            if (depth[tag] === 0)
+                                found = true;
+                        }
+                    }
+                } while (prevToken && !found);
+            }
+            if (token && token.type.indexOf('tag-name')) {
+                pos = range.start;
+                if (pos.row == cursor.row && Math.abs(pos.column - cursor.column) < 2)
+                    pos = range.end;
+            }
+        }
+
+        pos = range && range.cursor || pos;
+        if (pos) {
+            if (select) {
+                if (range && expand) {
+                    this.selection.setRange(range);
+                } else if (range && range.isEqual(this.getSelectionRange())) {
+                    this.clearSelection();
+                } else {
+                    this.selection.selectTo(pos.row, pos.column);
+                }
+            } else {
+                this.selection.moveTo(pos.row, pos.column);
+            }
+        }
+    };
+    this.gotoLine = function(lineNumber, column, animate) {
+        this.selection.clearSelection();
+        this.session.unfold({row: lineNumber - 1, column: column || 0});
+        this.exitMultiSelectMode && this.exitMultiSelectMode();
+        this.moveCursorTo(lineNumber - 1, column || 0);
+
+        if (!this.isRowFullyVisible(lineNumber - 1))
+            this.scrollToLine(lineNumber - 1, true, animate);
+    };
+    this.navigateTo = function(row, column) {
+        this.selection.moveTo(row, column);
+    };
+    this.navigateUp = function(times) {
+        if (this.selection.isMultiLine() && !this.selection.isBackwards()) {
+            var selectionStart = this.selection.anchor.getPosition();
+            return this.moveCursorToPosition(selectionStart);
+        }
+        this.selection.clearSelection();
+        this.selection.moveCursorBy(-times || -1, 0);
+    };
+    this.navigateDown = function(times) {
+        if (this.selection.isMultiLine() && this.selection.isBackwards()) {
+            var selectionEnd = this.selection.anchor.getPosition();
+            return this.moveCursorToPosition(selectionEnd);
+        }
+        this.selection.clearSelection();
+        this.selection.moveCursorBy(times || 1, 0);
+    };
+    this.navigateLeft = function(times) {
+        if (!this.selection.isEmpty()) {
+            var selectionStart = this.getSelectionRange().start;
+            this.moveCursorToPosition(selectionStart);
+        }
+        else {
+            times = times || 1;
+            while (times--) {
+                this.selection.moveCursorLeft();
+            }
+        }
+        this.clearSelection();
+    };
+    this.navigateRight = function(times) {
+        if (!this.selection.isEmpty()) {
+            var selectionEnd = this.getSelectionRange().end;
+            this.moveCursorToPosition(selectionEnd);
+        }
+        else {
+            times = times || 1;
+            while (times--) {
+                this.selection.moveCursorRight();
+            }
+        }
+        this.clearSelection();
+    };
+    this.navigateLineStart = function() {
+        this.selection.moveCursorLineStart();
+        this.clearSelection();
+    };
+    this.navigateLineEnd = function() {
+        this.selection.moveCursorLineEnd();
+        this.clearSelection();
+    };
+    this.navigateFileEnd = function() {
+        this.selection.moveCursorFileEnd();
+        this.clearSelection();
+    };
+    this.navigateFileStart = function() {
+        this.selection.moveCursorFileStart();
+        this.clearSelection();
+    };
+    this.navigateWordRight = function() {
+        this.selection.moveCursorWordRight();
+        this.clearSelection();
+    };
+    this.navigateWordLeft = function() {
+        this.selection.moveCursorWordLeft();
+        this.clearSelection();
+    };
+    this.replace = function(replacement, options) {
+        if (options)
+            this.$search.set(options);
+
+        var range = this.$search.find(this.session);
+        var replaced = 0;
+        if (!range)
+            return replaced;
+
+        if (this.$tryReplace(range, replacement)) {
+            replaced = 1;
+        }
+
+        this.selection.setSelectionRange(range);
+        this.renderer.scrollSelectionIntoView(range.start, range.end);
+
+        return replaced;
+    };
+    this.replaceAll = function(replacement, options) {
+        if (options) {
+            this.$search.set(options);
+        }
+
+        var ranges = this.$search.findAll(this.session);
+        var replaced = 0;
+        if (!ranges.length)
+            return replaced;
+
+        var selection = this.getSelectionRange();
+        this.selection.moveTo(0, 0);
+
+        for (var i = ranges.length - 1; i >= 0; --i) {
+            if(this.$tryReplace(ranges[i], replacement)) {
+                replaced++;
+            }
+        }
+
+        this.selection.setSelectionRange(selection);
+
+        return replaced;
+    };
+
+    this.$tryReplace = function(range, replacement) {
+        var input = this.session.getTextRange(range);
+        replacement = this.$search.replace(input, replacement);
+        if (replacement !== null) {
+            range.end = this.session.replace(range, replacement);
+            return range;
+        } else {
+            return null;
+        }
+    };
+    this.getLastSearchOptions = function() {
+        return this.$search.getOptions();
+    };
+    this.find = function(needle, options, animate) {
+        if (!options)
+            options = {};
+
+        if (typeof needle == "string" || needle instanceof RegExp)
+            options.needle = needle;
+        else if (typeof needle == "object")
+            oop.mixin(options, needle);
+
+        var range = this.selection.getRange();
+        if (options.needle == null) {
+            needle = this.session.getTextRange(range)
+                || this.$search.$options.needle;
+            if (!needle) {
+                range = this.session.getWordRange(range.start.row, range.start.column);
+                needle = this.session.getTextRange(range);
+            }
+            this.$search.set({needle: needle});
+        }
+
+        this.$search.set(options);
+        if (!options.start)
+            this.$search.set({start: range});
+
+        var newRange = this.$search.find(this.session);
+        if (options.preventScroll)
+            return newRange;
+        if (newRange) {
+            this.revealRange(newRange, animate);
+            return newRange;
+        }
+        if (options.backwards)
+            range.start = range.end;
+        else
+            range.end = range.start;
+        this.selection.setRange(range);
+    };
+    this.findNext = function(options, animate) {
+        this.find({skipCurrent: true, backwards: false}, options, animate);
+    };
+    this.findPrevious = function(options, animate) {
+        this.find(options, {skipCurrent: true, backwards: true}, animate);
+    };
+
+    this.revealRange = function(range, animate) {
+        this.session.unfold(range);
+        this.selection.setSelectionRange(range);
+
+        var scrollTop = this.renderer.scrollTop;
+        this.renderer.scrollSelectionIntoView(range.start, range.end, 0.5);
+        if (animate !== false)
+            this.renderer.animateScrolling(scrollTop);
+    };
+    this.undo = function() {
+        this.session.getUndoManager().undo(this.session);
+        this.renderer.scrollCursorIntoView(null, 0.5);
+    };
+    this.redo = function() {
+        this.session.getUndoManager().redo(this.session);
+        this.renderer.scrollCursorIntoView(null, 0.5);
+    };
+    this.destroy = function() {
+        this.renderer.destroy();
+        this._signal("destroy", this);
+        if (this.session) {
+            this.session.destroy();
+        }
+    };
+    this.setAutoScrollEditorIntoView = function(enable) {
+        if (!enable)
+            return;
+        var rect;
+        var self = this;
+        var shouldScroll = false;
+        if (!this.$scrollAnchor)
+            this.$scrollAnchor = document.createElement("div");
+        var scrollAnchor = this.$scrollAnchor;
+        scrollAnchor.style.cssText = "position:absolute";
+        this.container.insertBefore(scrollAnchor, this.container.firstChild);
+        var onChangeSelection = this.on("changeSelection", function() {
+            shouldScroll = true;
+        });
+        var onBeforeRender = this.renderer.on("beforeRender", function() {
+            if (shouldScroll)
+                rect = self.renderer.container.getBoundingClientRect();
+        });
+        var onAfterRender = this.renderer.on("afterRender", function() {
+            if (shouldScroll && rect && (self.isFocused()
+                || self.searchBox && self.searchBox.isFocused())
+            ) {
+                var renderer = self.renderer;
+                var pos = renderer.$cursorLayer.$pixelPos;
+                var config = renderer.layerConfig;
+                var top = pos.top - config.offset;
+                if (pos.top >= 0 && top + rect.top < 0) {
+                    shouldScroll = true;
+                } else if (pos.top < config.height &&
+                    pos.top + rect.top + config.lineHeight > window.innerHeight) {
+                    shouldScroll = false;
+                } else {
+                    shouldScroll = null;
+                }
+                if (shouldScroll != null) {
+                    scrollAnchor.style.top = top + "px";
+                    scrollAnchor.style.left = pos.left + "px";
+                    scrollAnchor.style.height = config.lineHeight + "px";
+                    scrollAnchor.scrollIntoView(shouldScroll);
+                }
+                shouldScroll = rect = null;
+            }
+        });
+        this.setAutoScrollEditorIntoView = function(enable) {
+            if (enable)
+                return;
+            delete this.setAutoScrollEditorIntoView;
+            this.off("changeSelection", onChangeSelection);
+            this.renderer.off("afterRender", onAfterRender);
+            this.renderer.off("beforeRender", onBeforeRender);
+        };
+    };
+
+
+    this.$resetCursorStyle = function() {
+        var style = this.$cursorStyle || "ace";
+        var cursorLayer = this.renderer.$cursorLayer;
+        if (!cursorLayer)
+            return;
+        cursorLayer.setSmoothBlinking(/smooth/.test(style));
+        cursorLayer.isBlinking = !this.$readOnly && style != "wide";
+        dom.setCssClass(cursorLayer.element, "ace_slim-cursors", /slim/.test(style));
+    };
+
+}).call(Editor.prototype);
+
+
+
+config.defineOptions(Editor.prototype, "editor", {
+    selectionStyle: {
+        set: function(style) {
+            this.onSelectionChange();
+            this._signal("changeSelectionStyle", {data: style});
+        },
+        initialValue: "line"
+    },
+    highlightActiveLine: {
+        set: function() {this.$updateHighlightActiveLine();},
+        initialValue: true
+    },
+    highlightSelectedWord: {
+        set: function(shouldHighlight) {this.$onSelectionChange();},
+        initialValue: true
+    },
+    readOnly: {
+        set: function(readOnly) {
+            this.textInput.setReadOnly(readOnly);
+            this.$resetCursorStyle(); 
+        },
+        initialValue: false
+    },
+    copyWithEmptySelection: {
+        set: function(value) {
+            this.textInput.setCopyWithEmptySelection(value);
+        },
+        initialValue: false
+    },
+    cursorStyle: {
+        set: function(val) { this.$resetCursorStyle(); },
+        values: ["ace", "slim", "smooth", "wide"],
+        initialValue: "ace"
+    },
+    mergeUndoDeltas: {
+        values: [false, true, "always"],
+        initialValue: true
+    },
+    behavioursEnabled: {initialValue: true},
+    wrapBehavioursEnabled: {initialValue: true},
+    autoScrollEditorIntoView: {
+        set: function(val) {this.setAutoScrollEditorIntoView(val);}
+    },
+    keyboardHandler: {
+        set: function(val) { this.setKeyboardHandler(val); },
+        get: function() { return this.$keybindingId; },
+        handlesSet: true
+    },
+    value: {
+        set: function(val) { this.session.setValue(val); },
+        get: function() { return this.getValue(); },
+        handlesSet: true,
+        hidden: true
+    },
+    session: {
+        set: function(val) { this.setSession(val); },
+        get: function() { return this.session; },
+        handlesSet: true,
+        hidden: true
+    },
+    
+    showLineNumbers: {
+        set: function(show) {
+            this.renderer.$gutterLayer.setShowLineNumbers(show);
+            this.renderer.$loop.schedule(this.renderer.CHANGE_GUTTER);
+            if (show && this.$relativeLineNumbers)
+                relativeNumberRenderer.attach(this);
+            else
+                relativeNumberRenderer.detach(this);
+        },
+        initialValue: true
+    },
+    relativeLineNumbers: {
+        set: function(value) {
+            if (this.$showLineNumbers && value)
+                relativeNumberRenderer.attach(this);
+            else
+                relativeNumberRenderer.detach(this);
+        }
+    },
+
+    hScrollBarAlwaysVisible: "renderer",
+    vScrollBarAlwaysVisible: "renderer",
+    highlightGutterLine: "renderer",
+    animatedScroll: "renderer",
+    showInvisibles: "renderer",
+    showPrintMargin: "renderer",
+    printMarginColumn: "renderer",
+    printMargin: "renderer",
+    fadeFoldWidgets: "renderer",
+    showFoldWidgets: "renderer",
+    displayIndentGuides: "renderer",
+    showGutter: "renderer",
+    fontSize: "renderer",
+    fontFamily: "renderer",
+    maxLines: "renderer",
+    minLines: "renderer",
+    scrollPastEnd: "renderer",
+    fixedWidthGutter: "renderer",
+    theme: "renderer",
+    hasCssTransforms: "renderer",
+    maxPixelHeight: "renderer",
+    useTextareaForIME: "renderer",
+
+    scrollSpeed: "$mouseHandler",
+    dragDelay: "$mouseHandler",
+    dragEnabled: "$mouseHandler",
+    focusTimeout: "$mouseHandler",
+    tooltipFollowsMouse: "$mouseHandler",
+
+    firstLineNumber: "session",
+    overwrite: "session",
+    newLineMode: "session",
+    useWorker: "session",
+    useSoftTabs: "session",
+    navigateWithinSoftTabs: "session",
+    tabSize: "session",
+    wrap: "session",
+    indentedSoftWrap: "session",
+    foldStyle: "session",
+    mode: "session"
+});
+
+
+var relativeNumberRenderer = {
+    getText: function(session, row) {
+        return (Math.abs(session.selection.lead.row - row) || (row + 1 + (row < 9 ? "\xb7" : ""))) + "";
+    },
+    getWidth: function(session, lastLineNumber, config) {
+        return Math.max(
+            lastLineNumber.toString().length,
+            (config.lastRow + 1).toString().length,
+            2
+        ) * config.characterWidth;
+    },
+    update: function(e, editor) {
+        editor.renderer.$loop.schedule(editor.renderer.CHANGE_GUTTER);
+    },
+    attach: function(editor) {
+        editor.renderer.$gutterLayer.$renderer = this;
+        editor.on("changeSelection", this.update);
+        this.update(null, editor);
+    },
+    detach: function(editor) {
+        if (editor.renderer.$gutterLayer.$renderer == this)
+            editor.renderer.$gutterLayer.$renderer = null;
+        editor.off("changeSelection", this.update);
+        this.update(null, editor);
+    }
+};
+
+exports.Editor = Editor;
+});
+
+define("ace/undomanager",["require","exports","module","ace/range"], function(require, exports, module) {
+"use strict";
+var UndoManager = function() {
+    this.$maxRev = 0;
+    this.$fromUndo = false;
+    this.reset();
+};
+
+(function() {
+    
+    this.addSession = function(session) {
+        this.$session = session;
+    };
+    this.add = function(delta, allowMerge, session) {
+        if (this.$fromUndo) return;
+        if (delta == this.$lastDelta) return;
+        if (allowMerge === false || !this.lastDeltas) {
+            this.lastDeltas = [];
+            this.$undoStack.push(this.lastDeltas);
+            delta.id = this.$rev = ++this.$maxRev;
+        }
+        if (delta.action == "remove" || delta.action == "insert")
+            this.$lastDelta = delta;
+        this.lastDeltas.push(delta);
+    };
+    
+    this.addSelection = function(selection, rev) {
+        this.selections.push({
+            value: selection,
+            rev: rev || this.$rev
+        });
+    };
+    
+    this.startNewGroup = function() {
+        this.lastDeltas = null;
+        return this.$rev;
+    };
+    
+    this.markIgnored = function(from, to) {
+        if (to == null) to = this.$rev + 1;
+        var stack = this.$undoStack;
+        for (var i = stack.length; i--;) {
+            var delta = stack[i][0];
+            if (delta.id <= from)
+                break;
+            if (delta.id < to)
+                delta.ignore = true;
+        }
+        this.lastDeltas = null;
+    };
+    
+    this.getSelection = function(rev, after) {
+        var stack = this.selections;
+        for (var i = stack.length; i--;) {
+            var selection = stack[i];
+            if (selection.rev < rev) {
+                if (after)
+                    selection = stack[i + 1];
+                return selection;
+            }
+        }
+    };
+    
+    this.getRevision = function() {
+        return this.$rev;
+    };
+    
+    this.getDeltas = function(from, to) {
+        if (to == null) to = this.$rev + 1;
+        var stack = this.$undoStack;
+        var end = null, start = 0;
+        for (var i = stack.length; i--;) {
+            var delta = stack[i][0];
+            if (delta.id < to && !end)
+                end = i+1;
+            if (delta.id <= from) {
+                start = i + 1;
+                break;
+            }
+        }
+        return stack.slice(start, end);
+    };
+    
+    this.getChangedRanges = function(from, to) {
+        if (to == null) to = this.$rev + 1;
+        
+    };
+    
+    this.getChangedLines = function(from, to) {
+        if (to == null) to = this.$rev + 1;
+        
+    };
+    this.undo = function(session, dontSelect) {
+        this.lastDeltas = null;
+        var stack = this.$undoStack;
+        
+        if (!rearrangeUndoStack(stack, stack.length))
+            return;
+        
+        if (!session)
+            session = this.$session;
+        
+        if (this.$redoStackBaseRev !== this.$rev && this.$redoStack.length)
+            this.$redoStack = [];
+        
+        this.$fromUndo = true;
+        
+        var deltaSet = stack.pop();
+        var undoSelectionRange = null;
+        if (deltaSet && deltaSet.length) {
+            undoSelectionRange = session.undoChanges(deltaSet, dontSelect);
+            this.$redoStack.push(deltaSet);
+            this.$syncRev();
+        }
+        
+        this.$fromUndo = false;
+
+        return undoSelectionRange;
+    };
+    this.redo = function(session, dontSelect) {
+        this.lastDeltas = null;
+        
+        if (!session)
+            session = this.$session;
+        
+        this.$fromUndo = true;
+        if (this.$redoStackBaseRev != this.$rev) {
+            var diff = this.getDeltas(this.$redoStackBaseRev, this.$rev + 1);
+            rebaseRedoStack(this.$redoStack, diff);
+            this.$redoStackBaseRev = this.$rev;
+            this.$redoStack.forEach(function(x) {
+                x[0].id = ++this.$maxRev;
+            }, this);
+        }
+        var deltaSet = this.$redoStack.pop();
+        var redoSelectionRange = null;
+        
+        if (deltaSet) {
+            redoSelectionRange = session.redoChanges(deltaSet, dontSelect);
+            this.$undoStack.push(deltaSet);
+            this.$syncRev();
+        }
+        this.$fromUndo = false;
+        
+        return redoSelectionRange;
+    };
+    
+    this.$syncRev = function() {
+        var stack = this.$undoStack;
+        var nextDelta = stack[stack.length - 1];
+        var id = nextDelta && nextDelta[0].id || 0;
+        this.$redoStackBaseRev = id;
+        this.$rev = id;
+    };
+    this.reset = function() {
+        this.lastDeltas = null;
+        this.$lastDelta = null;
+        this.$undoStack = [];
+        this.$redoStack = [];
+        this.$rev = 0;
+        this.mark = 0;
+        this.$redoStackBaseRev = this.$rev;
+        this.selections = [];
+    };
+    this.canUndo = function() {
+        return this.$undoStack.length > 0;
+    };
+    this.canRedo = function() {
+        return this.$redoStack.length > 0;
+    };
+    this.bookmark = function(rev) {
+        if (rev == undefined)
+            rev = this.$rev;
+        this.mark = rev;
+    };
+    this.isAtBookmark = function() {
+        return this.$rev === this.mark;
+    };
+    
+    this.toJSON = function() {
+        
+    };
+    
+    this.fromJSON = function() {
+        
+    };
+    
+    this.hasUndo = this.canUndo;
+    this.hasRedo = this.canRedo;
+    this.isClean = this.isAtBookmark;
+    this.markClean = this.bookmark;
+    
+    this.$prettyPrint = function(delta) {
+        if (delta) return stringifyDelta(delta);
+        return stringifyDelta(this.$undoStack) + "\n---\n" + stringifyDelta(this.$redoStack);
+    };
+}).call(UndoManager.prototype);
+
+function rearrangeUndoStack(stack, pos) {
+    for (var i = pos; i--; ) {
+        var deltaSet = stack[i];
+        if (deltaSet && !deltaSet[0].ignore) {
+            while(i < pos - 1) {
+                var swapped = swapGroups(stack[i], stack[i + 1]);
+                stack[i] = swapped[0];
+                stack[i + 1] = swapped[1];
+                i++;
+            }
+            return true;
+        }
+    }
+}
+
+var Range = require("./range").Range;
+var cmp = Range.comparePoints;
+var comparePoints = Range.comparePoints;
+
+function $updateMarkers(delta) {
+    var isInsert = delta.action == "insert";
+    var start = delta.start;
+    var end = delta.end;
+    var rowShift = (end.row - start.row) * (isInsert ? 1 : -1);
+    var colShift = (end.column - start.column) * (isInsert ? 1 : -1);
+    if (isInsert) end = start;
+
+    for (var i in this.marks) {
+        var point = this.marks[i];
+        var cmp = comparePoints(point, start);
+        if (cmp < 0) {
+            continue; // delta starts after the range
+        }
+        if (cmp === 0) {
+            if (isInsert) {
+                if (point.bias == 1) {
+                    cmp = 1;
+                }
+                else {
+                    point.bias == -1;
+                    continue;
+                }
+            }
+        }
+        var cmp2 = isInsert ? cmp : comparePoints(point, end);
+        if (cmp2 > 0) {
+            point.row += rowShift;
+            point.column += point.row == end.row ? colShift : 0;
+            continue;
+        }
+        if (!isInsert && cmp2 <= 0) {
+            point.row = start.row;
+            point.column = start.column;
+            if (cmp2 === 0)
+                point.bias = 1;
+        }
+    }
+}
+
+
+
+function clonePos(pos) {
+    return {row: pos.row,column: pos.column};
+}
+function cloneDelta(d) {
+    return {
+        start: clonePos(d.start),
+        end: clonePos(d.end),
+        action: d.action,
+        lines: d.lines.slice()
+    };
+}
+function stringifyDelta(d) {
+    d = d || this;
+    if (Array.isArray(d)) {
+        return d.map(stringifyDelta).join("\n");
+    }
+    var type = "";
+    if (d.action) {
+        type = d.action == "insert" ? "+" : "-";
+        type += "[" + d.lines + "]";
+    } else if (d.value) {
+        if (Array.isArray(d.value)) {
+            type = d.value.map(stringifyRange).join("\n");
+        } else {
+            type = stringifyRange(d.value);
+        }
+    }
+    if (d.start) {
+        type += stringifyRange(d);
+    }
+    if (d.id || d.rev) {
+        type += "\t(" + (d.id || d.rev) + ")";
+    }
+    return type;
+}
+function stringifyRange(r) {
+    return r.start.row + ":" + r.start.column 
+        + "=>" + r.end.row + ":" + r.end.column;
+}
+
+function swap(d1, d2) {
+    var i1 = d1.action == "insert";
+    var i2 = d2.action == "insert";
+    
+    if (i1 && i2) {
+        if (cmp(d2.start, d1.end) >= 0) {
+            shift(d2, d1, -1);
+        } else if (cmp(d2.start, d1.start) <= 0) {
+            shift(d1, d2, +1);
+        } else {
+            return null;
+        }
+    } else if (i1 && !i2) {
+        if (cmp(d2.start, d1.end) >= 0) {
+            shift(d2, d1, -1);
+        } else if (cmp(d2.end, d1.start) <= 0) {
+            shift(d1, d2, -1);
+        } else {
+            return null;
+        }
+    } else if (!i1 && i2) {
+        if (cmp(d2.start, d1.start) >= 0) {
+            shift(d2, d1, +1);
+        } else if (cmp(d2.start, d1.start) <= 0) {
+            shift(d1, d2, +1);
+        } else {
+            return null;
+        }
+    } else if (!i1 && !i2) {
+        if (cmp(d2.start, d1.start) >= 0) {
+            shift(d2, d1, +1);
+        } else if (cmp(d2.end, d1.start) <= 0) {
+            shift(d1, d2, -1);
+        } else {
+            return null;
+        }
+    }
+    return [d2, d1];
+}
+function swapGroups(ds1, ds2) {
+    for (var i = ds1.length; i--; ) {
+        for (var j = 0; j < ds2.length; j++) {
+            if (!swap(ds1[i], ds2[j])) {
+                while (i < ds1.length) {
+                    while (j--) {
+                        swap(ds2[j], ds1[i]);
+                    }
+                    j = ds2.length;
+                    i++;
+                }                
+                return [ds1, ds2];
+            }
+        }
+    }
+    ds1.selectionBefore = ds2.selectionBefore = 
+    ds1.selectionAfter = ds2.selectionAfter = null;
+    return [ds2, ds1];
+}
+function xform(d1, c1) {
+    var i1 = d1.action == "insert";
+    var i2 = c1.action == "insert";
+    
+    if (i1 && i2) {
+        if (cmp(d1.start, c1.start) < 0) {
+            shift(c1, d1, 1);
+        } else {
+            shift(d1, c1, 1);
+        }
+    } else if (i1 && !i2) {
+        if (cmp(d1.start, c1.end) >= 0) {
+            shift(d1, c1, -1);
+        } else if (cmp(d1.start, c1.start) <= 0) {
+            shift(c1, d1, +1);
+        } else {
+            shift(d1, Range.fromPoints(c1.start, d1.start), -1);
+            shift(c1, d1, +1);
+        }
+    } else if (!i1 && i2) {
+        if (cmp(c1.start, d1.end) >= 0) {
+            shift(c1, d1, -1);
+        } else if (cmp(c1.start, d1.start) <= 0) {
+            shift(d1, c1, +1);
+        } else {
+            shift(c1, Range.fromPoints(d1.start, c1.start), -1);
+            shift(d1, c1, +1);
+        }
+    } else if (!i1 && !i2) {
+        if (cmp(c1.start, d1.end) >= 0) {
+            shift(c1, d1, -1);
+        } else if (cmp(c1.end, d1.start) <= 0) {
+            shift(d1, c1, -1);
+        } else {
+            var before, after;
+            if (cmp(d1.start, c1.start) < 0) {
+                before = d1;
+                d1 = splitDelta(d1, c1.start);
+            }
+            if (cmp(d1.end, c1.end) > 0) {
+                after = splitDelta(d1, c1.end);
+            }
+
+            shiftPos(c1.end, d1.start, d1.end, -1);
+            if (after && !before) {
+                d1.lines = after.lines;
+                d1.start = after.start;
+                d1.end = after.end;
+                after = d1;
+            }
+
+            return [c1, before, after].filter(Boolean);
+        }
+    }
+    return [c1, d1];
+}
+    
+function shift(d1, d2, dir) {
+    shiftPos(d1.start, d2.start, d2.end, dir);
+    shiftPos(d1.end, d2.start, d2.end, dir);
+}
+function shiftPos(pos, start, end, dir) {
+    if (pos.row == (dir == 1 ? start : end).row) {
+        pos.column += dir * (end.column - start.column);
+    }
+    pos.row += dir * (end.row - start.row);
+}
+function splitDelta(c, pos) {
+    var lines = c.lines;
+    var end = c.end;
+    c.end = clonePos(pos);    
+    var rowsBefore = c.end.row - c.start.row;
+    var otherLines = lines.splice(rowsBefore, lines.length);
+    
+    var col = rowsBefore ? pos.column : pos.column - c.start.column;
+    lines.push(otherLines[0].substring(0, col));
+    otherLines[0] = otherLines[0].substr(col)   ; 
+    var rest = {
+        start: clonePos(pos),
+        end: end,
+        lines: otherLines,
+        action: c.action
+    };
+    return rest;
+}
+
+function moveDeltasByOne(redoStack, d) {
+    d = cloneDelta(d);
+    for (var j = redoStack.length; j--;) {
+        var deltaSet = redoStack[j];
+        for (var i = 0; i < deltaSet.length; i++) {
+            var x = deltaSet[i];
+            var xformed = xform(x, d);
+            d = xformed[0];
+            if (xformed.length != 2) {
+                if (xformed[2]) {
+                    deltaSet.splice(i + 1, 1, xformed[1], xformed[2]);
+                    i++;
+                } else if (!xformed[1]) {
+                    deltaSet.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+        if (!deltaSet.length) {
+            redoStack.splice(j, 1); 
+        }
+    }
+    return redoStack;
+}
+function rebaseRedoStack(redoStack, deltaSets) {
+    for (var i = 0; i < deltaSets.length; i++) {
+        var deltas = deltaSets[i];
+        for (var j = 0; j < deltas.length; j++) {
+            moveDeltasByOne(redoStack, deltas[j]);
+        }
+    }
+}
+
+exports.UndoManager = UndoManager;
+
+});
+
+define("ace/layer/lines",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
+"use strict";
+
+var dom = require("../lib/dom");
+
+var Lines = function(element, canvasHeight) {
+    this.element = element;
+    this.canvasHeight = canvasHeight || 500000;
+    this.element.style.height = (this.canvasHeight * 2) + "px";
+    
+    this.cells = [];
+    this.cellCache = [];
+    this.$offsetCoefficient = 0;
+};
+
+(function() {
+    
+    this.moveContainer = function(config) {
+        dom.translate(this.element, 0, -((config.firstRowScreen * config.lineHeight) % this.canvasHeight) - config.offset * this.$offsetCoefficient);
+    };    
+    
+    this.pageChanged = function(oldConfig, newConfig) {
+        return (
+            Math.floor((oldConfig.firstRowScreen * oldConfig.lineHeight) / this.canvasHeight) !==
+            Math.floor((newConfig.firstRowScreen * newConfig.lineHeight) / this.canvasHeight)
+        );
+    };
+    
+    this.computeLineTop = function(row, config, session) {
+        var screenTop = config.firstRowScreen * config.lineHeight;
+        var screenPage = Math.floor(screenTop / this.canvasHeight);
+        var lineTop = session.documentToScreenRow(row, 0) * config.lineHeight;
+        return lineTop - (screenPage * this.canvasHeight);
+    };
+    
+    this.computeLineHeight = function(row, config, session) {
+        return config.lineHeight * session.getRowLength(row);
+    };
+    
+    this.getLength = function() {
+        return this.cells.length;
+    };
+    
+    this.get = function(index) {
+        return this.cells[index];
+    };
+    
+    this.shift = function() {
+        this.$cacheCell(this.cells.shift());
+    };
+    
+    this.pop = function() {
+        this.$cacheCell(this.cells.pop());
+    };
+    
+    this.push = function(cell) {
+        if (Array.isArray(cell)) {
+            this.cells.push.apply(this.cells, cell);
+            var fragment = dom.createFragment(this.element);
+            for (var i=0; i<cell.length; i++) {
+                fragment.appendChild(cell[i].element);
+            }
+            this.element.appendChild(fragment);
+         } else {
+            this.cells.push(cell);
+            this.element.appendChild(cell.element);
+         }
+    };
+    
+    this.unshift = function(cell) {
+        if (Array.isArray(cell)) {
+            this.cells.unshift.apply(this.cells, cell);
+            var fragment = dom.createFragment(this.element);
+            for (var i=0; i<cell.length; i++) {
+                fragment.appendChild(cell[i].element);
+            }
+            if (this.element.firstChild)
+                this.element.insertBefore(fragment, this.element.firstChild);
+            else
+                this.element.appendChild(fragment);
+         } else {
+            this.cells.unshift(cell);
+            this.element.insertAdjacentElement("afterbegin", cell.element);
+         }
+    };
+    
+    this.last = function() {
+        if (this.cells.length)
+            return this.cells[this.cells.length-1];
+        else
+            return null;
+    };
+    
+    this.$cacheCell = function(cell) {
+        if (!cell)
+            return;
+            
+        cell.element.remove();
+        this.cellCache.push(cell);
+    };
+    
+    this.createCell = function(row, config, session, initElement) {
+        var cell = this.cellCache.pop();
+        if (!cell) {
+            var element = dom.createElement("div");
+            if (initElement)
+                initElement(element);
+            
+            this.element.appendChild(element);
+            
+            cell = {
+                element: element,
+                text: "",
+                row: row
+            };
+        }
+        cell.row = row;
+        
+        return cell;
+    };
+    
+}).call(Lines.prototype);
+
+exports.Lines = Lines;
+
+});
+
+define("ace/layer/gutter",["require","exports","module","ace/lib/dom","ace/lib/oop","ace/lib/lang","ace/lib/event_emitter","ace/layer/lines"], function(require, exports, module) {
+"use strict";
+
+var dom = require("../lib/dom");
+var oop = require("../lib/oop");
+var lang = require("../lib/lang");
+var EventEmitter = require("../lib/event_emitter").EventEmitter;
+var Lines = require("./lines").Lines;
+
+var Gutter = function(parentEl) {
+    this.element = dom.createElement("div");
+    this.element.className = "ace_layer ace_gutter-layer";
+    parentEl.appendChild(this.element);
+    this.setShowFoldWidgets(this.$showFoldWidgets);
+    
+    this.gutterWidth = 0;
+
+    this.$annotations = [];
+    this.$updateAnnotations = this.$updateAnnotations.bind(this);
+    
+    this.$lines = new Lines(this.element);
+    this.$lines.$offsetCoefficient = 1;
+};
+
+(function() {
+
+    oop.implement(this, EventEmitter);
+
+    this.setSession = function(session) {
+        if (this.session)
+            this.session.removeEventListener("change", this.$updateAnnotations);
+        this.session = session;
+        if (session)
+            session.on("change", this.$updateAnnotations);
+    };
+
+    this.addGutterDecoration = function(row, className) {
+        if (window.console)
+            console.warn && console.warn("deprecated use session.addGutterDecoration");
+        this.session.addGutterDecoration(row, className);
+    };
+
+    this.removeGutterDecoration = function(row, className) {
+        if (window.console)
+            console.warn && console.warn("deprecated use session.removeGutterDecoration");
+        this.session.removeGutterDecoration(row, className);
+    };
+
+    this.setAnnotations = function(annotations) {
+        this.$annotations = [];
+        for (var i = 0; i < annotations.length; i++) {
+            var annotation = annotations[i];
+            var row = annotation.row;
+            var rowInfo = this.$annotations[row];
+            if (!rowInfo)
+                rowInfo = this.$annotations[row] = {text: []};
+           
+            var annoText = annotation.text;
+            annoText = annoText ? lang.escapeHTML(annoText) : annotation.html || "";
+
+            if (rowInfo.text.indexOf(annoText) === -1)
+                rowInfo.text.push(annoText);
+
+            var type = annotation.type;
+            if (type == "error")
+                rowInfo.className = " ace_error";
+            else if (type == "warning" && rowInfo.className != " ace_error")
+                rowInfo.className = " ace_warning";
+            else if (type == "info" && (!rowInfo.className))
+                rowInfo.className = " ace_info";
+        }
+    };
+
+    this.$updateAnnotations = function (delta) {
+        if (!this.$annotations.length)
+            return;
+        var firstRow = delta.start.row;
+        var len = delta.end.row - firstRow;
+        if (len === 0) {
+        } else if (delta.action == 'remove') {
+            this.$annotations.splice(firstRow, len + 1, null);
+        } else {
+            var args = new Array(len + 1);
+            args.unshift(firstRow, 1);
+            this.$annotations.splice.apply(this.$annotations, args);
+        }
+    };
+
+    this.update = function(config) {
+        this.config = config;
+        
+        var session = this.session;
+        var firstRow = config.firstRow;
+        var lastRow = Math.min(config.lastRow + config.gutterOffset,  // needed to compensate for hor scollbar
+            session.getLength() - 1);
+            
+        this.oldLastRow = lastRow;
+        this.config = config;
+        
+        this.$lines.moveContainer(config);
+        this.$updateCursorRow();
+            
+        var fold = session.getNextFoldLine(firstRow);
+        var foldStart = fold ? fold.start.row : Infinity;
+
+        var cell = null;
+        var index = -1;
+        var row = firstRow;
+        
+        while (true) {
+            if (row > foldStart) {
+                row = fold.end.row + 1;
+                fold = session.getNextFoldLine(row, fold);
+                foldStart = fold ? fold.start.row : Infinity;
+            }
+            if (row > lastRow) {
+                while (this.$lines.getLength() > index + 1)
+                    this.$lines.pop();
+                    
+                break;
+            }
+
+            cell = this.$lines.get(++index);
+            if (cell) {
+                cell.row = row;
+            } else {
+                cell = this.$lines.createCell(row, config, this.session, onCreateCell);
+                this.$lines.push(cell);
+            }
+
+            this.$renderCell(cell, config, fold, row);
+            row++;
+        }
+        
+        this._signal("afterRender");
+        this.$updateGutterWidth(config);
+    };
+
+    this.$updateGutterWidth = function(config) {
+        var session = this.session;
+        
+        var gutterRenderer = session.gutterRenderer || this.$renderer;
+        
+        var firstLineNumber = session.$firstLineNumber;
+        var lastLineText = this.$lines.last() ? this.$lines.last().text : "";
+        
+        if (this.$fixedWidth || session.$useWrapMode)
+            lastLineText = session.getLength() + firstLineNumber;
+
+        var gutterWidth = gutterRenderer 
+            ? gutterRenderer.getWidth(session, lastLineText, config)
+            : lastLineText.toString().length * config.characterWidth;
+        
+        var padding = this.$padding || this.$computePadding();
+        gutterWidth += padding.left + padding.right;
+        if (gutterWidth !== this.gutterWidth && !isNaN(gutterWidth)) {
+            this.gutterWidth = gutterWidth;
+            this.element.parentNode.style.width = 
+            this.element.style.width = Math.ceil(this.gutterWidth) + "px";
+            this._signal("changeGutterWidth", gutterWidth);
+        }
+    };
+    
+    this.$updateCursorRow = function() {
+        if (!this.$highlightGutterLine)
+            return;
+            
+        var position = this.session.selection.getCursor();
+        if (this.$cursorRow === position.row)
+            return;
+        
+        this.$cursorRow = position.row;
+    };
+    
+    this.updateLineHighlight = function() {
+        if (!this.$highlightGutterLine)
+            return;
+        var row = this.session.selection.cursor.row;
+        this.$cursorRow = row;
+
+        if (this.$cursorCell && this.$cursorCell.row == row)
+            return;
+        if (this.$cursorCell)
+            this.$cursorCell.element.className = this.$cursorCell.element.className.replace("ace_gutter-active-line ", "");
+        var cells = this.$lines.cells;
+        this.$cursorCell = null;
+        for (var i = 0; i < cells.length; i++) {
+            var cell = cells[i];
+            if (cell.row >= this.$cursorRow) {
+                if (cell.row > this.$cursorRow) {
+                    var fold = this.session.getFoldLine(this.$cursorRow);
+                    if (i > 0 && fold && fold.start.row == cells[i - 1].row)
+                        cell = cells[i - 1];
+                    else
+                        break;
+                }
+                cell.element.className = "ace_gutter-active-line " + cell.element.className;
+                this.$cursorCell = cell;
+                break;
+            }
+        }
+    };
+    
+    this.scrollLines = function(config) {
+        var oldConfig = this.config;
+        this.config = config;
+        
+        this.$updateCursorRow();
+        if (this.$lines.pageChanged(oldConfig, config))
+            return this.update(config);
+        
+        this.$lines.moveContainer(config);
+
+        var lastRow = Math.min(config.lastRow + config.gutterOffset,  // needed to compensate for hor scollbar
+            this.session.getLength() - 1);
+        var oldLastRow = this.oldLastRow;
+        this.oldLastRow = lastRow;
+        
+        if (!oldConfig || oldLastRow < config.firstRow)
+            return this.update(config);
+
+        if (lastRow < oldConfig.firstRow)
+            return this.update(config);
+
+        if (oldConfig.firstRow < config.firstRow)
+            for (var row=this.session.getFoldedRowCount(oldConfig.firstRow, config.firstRow - 1); row>0; row--)
+                this.$lines.shift();
+
+        if (oldLastRow > lastRow)
+            for (var row=this.session.getFoldedRowCount(lastRow + 1, oldLastRow); row>0; row--)
+                this.$lines.pop();
+
+        if (config.firstRow < oldConfig.firstRow) {
+            this.$lines.unshift(this.$renderLines(config, config.firstRow, oldConfig.firstRow - 1));
+        }
+
+        if (lastRow > oldLastRow) {
+            this.$lines.push(this.$renderLines(config, oldLastRow + 1, lastRow));
+        }
+        
+        this.updateLineHighlight();
+        
+        this._signal("afterRender");
+        this.$updateGutterWidth(config);
+    };
+
+    this.$renderLines = function(config, firstRow, lastRow) {
+        var fragment = [];
+        var row = firstRow;
+        var foldLine = this.session.getNextFoldLine(row);
+        var foldStart = foldLine ? foldLine.start.row : Infinity;
+
+        while (true) {
+            if (row > foldStart) {
+                row = foldLine.end.row+1;
+                foldLine = this.session.getNextFoldLine(row, foldLine);
+                foldStart = foldLine ? foldLine.start.row : Infinity;
+            }
+            if (row > lastRow)
+                break;
+
+            var cell = this.$lines.createCell(row, config, this.session, onCreateCell);
+            this.$renderCell(cell, config, foldLine, row);
+            fragment.push(cell);
+
+            row++;
+        }
+        return fragment;
+    };
+    
+    this.$renderCell = function(cell, config, fold, row) {
+        var element = cell.element;
+        
+        var session = this.session;
+        
+        var textNode = element.childNodes[0];
+        var foldWidget = element.childNodes[1];
+
+        var firstLineNumber = session.$firstLineNumber;
+        
+        var breakpoints = session.$breakpoints;
+        var decorations = session.$decorations;
+        var gutterRenderer = session.gutterRenderer || this.$renderer;
+        var foldWidgets = this.$showFoldWidgets && session.foldWidgets;
+        var foldStart = fold ? fold.start.row : Number.MAX_VALUE;
+        
+        var className = "ace_gutter-cell ";
+        if (this.$highlightGutterLine) {
+            if (row == this.$cursorRow || (fold && row < this.$cursorRow && row >= foldStart &&  this.$cursorRow <= fold.end.row)) {
+                className += "ace_gutter-active-line ";
+                if (this.$cursorCell != cell) {
+                    if (this.$cursorCell)
+                        this.$cursorCell.element.className = this.$cursorCell.element.className.replace("ace_gutter-active-line ", "");
+                    this.$cursorCell = cell;
+                }
+            }
+        }
+        
+        if (breakpoints[row])
+            className += breakpoints[row];
+        if (decorations[row])
+            className += decorations[row];
+        if (this.$annotations[row])
+            className += this.$annotations[row].className;
+        if (element.className != className)
+            element.className = className;
+
+        if (foldWidgets) {
+            var c = foldWidgets[row];
+            if (c == null)
+                c = foldWidgets[row] = session.getFoldWidget(row);
+        }
+
+        if (c) {
+            var className = "ace_fold-widget ace_" + c;
+            if (c == "start" && row == foldStart && row < fold.end.row)
+                className += " ace_closed";
+            else
+                className += " ace_open";
+            if (foldWidget.className != className)
+                foldWidget.className = className;
+
+            var foldHeight = config.lineHeight + "px";
+            dom.setStyle(foldWidget.style, "height", foldHeight);
+            dom.setStyle(foldWidget.style, "display", "inline-block");
+        } else {
+            if (foldWidget) {
+                dom.setStyle(foldWidget.style, "display", "none");
+            }
+        }
+        
+        var text = (gutterRenderer
+            ? gutterRenderer.getText(session, row)
+            : row + firstLineNumber).toString();
+            
+        if (text !== textNode.data) {
+            textNode.data = text;
+        }
+        
+        dom.setStyle(cell.element.style, "height", this.$lines.computeLineHeight(row, config, session) + "px");
+        dom.setStyle(cell.element.style, "top", this.$lines.computeLineTop(row, config, session) + "px");
+        
+        cell.text = text;
+        return cell;
+    };
+
+    this.$fixedWidth = false;
+    
+    this.$highlightGutterLine = true;
+    this.$renderer = "";
+    this.setHighlightGutterLine = function(highlightGutterLine) {
+        this.$highlightGutterLine = highlightGutterLine;
+    };
+    
+    this.$showLineNumbers = true;
+    this.$renderer = "";
+    this.setShowLineNumbers = function(show) {
+        this.$renderer = !show && {
+            getWidth: function() {return "";},
+            getText: function() {return "";}
+        };
+    };
+    
+    this.getShowLineNumbers = function() {
+        return this.$showLineNumbers;
+    };
+    
+    this.$showFoldWidgets = true;
+    this.setShowFoldWidgets = function(show) {
+        if (show)
+            dom.addCssClass(this.element, "ace_folding-enabled");
+        else
+            dom.removeCssClass(this.element, "ace_folding-enabled");
+
+        this.$showFoldWidgets = show;
+        this.$padding = null;
+    };
+    
+    this.getShowFoldWidgets = function() {
+        return this.$showFoldWidgets;
+    };
+
+    this.$computePadding = function() {
+        if (!this.element.firstChild)
+            return {left: 0, right: 0};
+        var style = dom.computedStyle(this.element.firstChild);
+        this.$padding = {};
+        this.$padding.left = (parseInt(style.borderLeftWidth) || 0)
+            + (parseInt(style.paddingLeft) || 0) + 1;
+        this.$padding.right = (parseInt(style.borderRightWidth) || 0)
+            + (parseInt(style.paddingRight) || 0);
+        return this.$padding;
+    };
+
+    this.getRegion = function(point) {
+        var padding = this.$padding || this.$computePadding();
+        var rect = this.element.getBoundingClientRect();
+        if (point.x < padding.left + rect.left)
+            return "markers";
+        if (this.$showFoldWidgets && point.x > rect.right - padding.right)
+            return "foldWidgets";
+    };
+
+}).call(Gutter.prototype);
+
+function onCreateCell(element) {
+    var textNode = document.createTextNode('');
+    element.appendChild(textNode);
+    
+    var foldWidget = dom.createElement("span");
+    element.appendChild(foldWidget);
+    
+    return element;
+}
+
+exports.Gutter = Gutter;
+
+});
+
+define("ace/layer/marker",["require","exports","module","ace/range","ace/lib/dom"], function(require, exports, module) {
+"use strict";
+
+var Range = require("../range").Range;
+var dom = require("../lib/dom");
+
+var Marker = function(parentEl) {
+    this.element = dom.createElement("div");
+    this.element.className = "ace_layer ace_marker-layer";
+    parentEl.appendChild(this.element);
+};
+
+(function() {
+
+    this.$padding = 0;
+
+    this.setPadding = function(padding) {
+        this.$padding = padding;
+    };
+    this.setSession = function(session) {
+        this.session = session;
+    };
+    
+    this.setMarkers = function(markers) {
+        this.markers = markers;
+    };
+    
+    this.elt = function(className, css) {
+        var x = this.i != -1 && this.element.childNodes[this.i];
+        if (!x) {
+            x = document.createElement("div");
+            this.element.appendChild(x);
+            this.i = -1;
+        } else {
+            this.i++;
+        }
+        x.style.cssText = css;
+        x.className = className;
+    };
+
+    this.update = function(config) {
+        if (!config) return;
+
+        this.config = config;
+
+        this.i = 0;
+        var html;
+        for (var key in this.markers) {
+            var marker = this.markers[key];
+
+            if (!marker.range) {
+                marker.update(html, this, this.session, config);
+                continue;
+            }
+
+            var range = marker.range.clipRows(config.firstRow, config.lastRow);
+            if (range.isEmpty()) continue;
+
+            range = range.toScreenRange(this.session);
+            if (marker.renderer) {
+                var top = this.$getTop(range.start.row, config);
+                var left = this.$padding + range.start.column * config.characterWidth;
+                marker.renderer(html, range, left, top, config);
+            } else if (marker.type == "fullLine") {
+                this.drawFullLineMarker(html, range, marker.clazz, config);
+            } else if (marker.type == "screenLine") {
+                this.drawScreenLineMarker(html, range, marker.clazz, config);
+            } else if (range.isMultiLine()) {
+                if (marker.type == "text")
+                    this.drawTextMarker(html, range, marker.clazz, config);
+                else
+                    this.drawMultiLineMarker(html, range, marker.clazz, config);
+            } else {
+                this.drawSingleLineMarker(html, range, marker.clazz + " ace_start" + " ace_br15", config);
+            }
+        }
+        if (this.i !=-1) {
+            while (this.i < this.element.childElementCount)
+                this.element.removeChild(this.element.lastChild);
+        }
+    };
+
+    this.$getTop = function(row, layerConfig) {
+        return (row - layerConfig.firstRowScreen) * layerConfig.lineHeight;
+    };
+
+    function getBorderClass(tl, tr, br, bl) {
+        return (tl ? 1 : 0) | (tr ? 2 : 0) | (br ? 4 : 0) | (bl ? 8 : 0);
+    }
+    this.drawTextMarker = function(stringBuilder, range, clazz, layerConfig, extraStyle) {
+        var session = this.session;
+        var start = range.start.row;
+        var end = range.end.row;
+        var row = start;
+        var prev = 0; 
+        var curr = 0;
+        var next = session.getScreenLastRowColumn(row);
+        var lineRange = new Range(row, range.start.column, row, curr);
+        for (; row <= end; row++) {
+            lineRange.start.row = lineRange.end.row = row;
+            lineRange.start.column = row == start ? range.start.column : session.getRowWrapIndent(row);
+            lineRange.end.column = next;
+            prev = curr;
+            curr = next;
+            next = row + 1 < end ? session.getScreenLastRowColumn(row + 1) : row == end ? 0 : range.end.column;
+            this.drawSingleLineMarker(stringBuilder, lineRange, 
+                clazz + (row == start  ? " ace_start" : "") + " ace_br"
+                    + getBorderClass(row == start || row == start + 1 && range.start.column, prev < curr, curr > next, row == end),
+                layerConfig, row == end ? 0 : 1, extraStyle);
+        }
+    };
+    this.drawMultiLineMarker = function(stringBuilder, range, clazz, config, extraStyle) {
+        var padding = this.$padding;
+        var height = config.lineHeight;
+        var top = this.$getTop(range.start.row, config);
+        var left = padding + range.start.column * config.characterWidth;
+        extraStyle = extraStyle || "";
+
+        if (this.session.$bidiHandler.isBidiRow(range.start.row)) {
+           var range1 = range.clone();
+           range1.end.row = range1.start.row;
+           range1.end.column = this.session.getLine(range1.start.row).length;
+           this.drawBidiSingleLineMarker(stringBuilder, range1, clazz + " ace_br1 ace_start", config, null, extraStyle);
+        } else {
+            this.elt(
+                clazz + " ace_br1 ace_start",
+                "height:"+ height+ "px;"+ "right:0;"+ "top:"+top+ "px;left:"+ left+ "px;" + (extraStyle || "")
+            );
+        }
+        if (this.session.$bidiHandler.isBidiRow(range.end.row)) {
+           var range1 = range.clone();
+           range1.start.row = range1.end.row;
+           range1.start.column = 0;
+           this.drawBidiSingleLineMarker(stringBuilder, range1, clazz + " ace_br12", config, null, extraStyle);
+        } else {
+            top = this.$getTop(range.end.row, config);
+            var width = range.end.column * config.characterWidth;
+
+            this.elt(
+                clazz + " ace_br12",
+                "height:"+ height+ "px;"+
+                "width:"+ width+ "px;"+
+                "top:"+ top+ "px;"+
+                "left:"+ padding+ "px;"+ (extraStyle || "")
+            );
+        }
+        height = (range.end.row - range.start.row - 1) * config.lineHeight;
+        if (height <= 0)
+            return;
+        top = this.$getTop(range.start.row + 1, config);
+        
+        var radiusClass = (range.start.column ? 1 : 0) | (range.end.column ? 0 : 8);
+
+        this.elt(
+            clazz + (radiusClass ? " ace_br" + radiusClass : ""),
+            "height:"+ height+ "px;"+
+            "right:0;"+
+            "top:"+ top+ "px;"+
+            "left:"+ padding+ "px;"+ (extraStyle || "")
+        );
+    };
+    this.drawSingleLineMarker = function(stringBuilder, range, clazz, config, extraLength, extraStyle) {
+        if (this.session.$bidiHandler.isBidiRow(range.start.row))
+            return this.drawBidiSingleLineMarker(stringBuilder, range, clazz, config, extraLength, extraStyle);
+        var height = config.lineHeight;
+        var width = (range.end.column + (extraLength || 0) - range.start.column) * config.characterWidth;
+
+        var top = this.$getTop(range.start.row, config);
+        var left = this.$padding + range.start.column * config.characterWidth;
+
+        this.elt(
+            clazz,
+            "height:"+ height+ "px;"+
+            "width:"+ width+ "px;"+
+            "top:"+ top+ "px;"+
+            "left:"+ left+ "px;"+ (extraStyle || "")
+        );
+    };
+    this.drawBidiSingleLineMarker = function(stringBuilder, range, clazz, config, extraLength, extraStyle) {
+        var height = config.lineHeight, top = this.$getTop(range.start.row, config), padding = this.$padding;
+        var selections = this.session.$bidiHandler.getSelections(range.start.column, range.end.column);
+
+        selections.forEach(function(selection) {
+            this.elt(
+                clazz,
+                "height:" + height + "px;" +
+                "width:" + selection.width + (extraLength || 0) + "px;" +
+                "top:" + top + "px;" +
+                "left:" + (padding + selection.left) + "px;" + (extraStyle || "")
+            );
+        }, this);
+    };
+
+    this.drawFullLineMarker = function(stringBuilder, range, clazz, config, extraStyle) {
+        var top = this.$getTop(range.start.row, config);
+        var height = config.lineHeight;
+        if (range.start.row != range.end.row)
+            height += this.$getTop(range.end.row, config) - top;
+
+        this.elt(
+            clazz,
+            "height:"+ height+ "px;"+
+            "top:"+ top+ "px;"+
+            "left:0;right:0;"+ (extraStyle || "")
+        );
+    };
+    
+    this.drawScreenLineMarker = function(stringBuilder, range, clazz, config, extraStyle) {
+        var top = this.$getTop(range.start.row, config);
+        var height = config.lineHeight;
+
+        this.elt(
+            clazz,
+            "height:"+ height+ "px;"+
+            "top:"+ top+ "px;"+
+            "left:0;right:0;"+ (extraStyle || "")
+        );
+    };
+
+}).call(Marker.prototype);
+
+exports.Marker = Marker;
+
+});
+
+define("ace/layer/text",["require","exports","module","ace/lib/oop","ace/lib/dom","ace/lib/lang","ace/layer/lines","ace/lib/event_emitter"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var dom = require("../lib/dom");
+var lang = require("../lib/lang");
+var Lines = require("./lines").Lines;
+var EventEmitter = require("../lib/event_emitter").EventEmitter;
+
+var Text = function(parentEl) {
+    this.dom = dom; 
+    this.element = this.dom.createElement("div");
+    this.element.className = "ace_layer ace_text-layer";
+    parentEl.appendChild(this.element);
+    this.$updateEolChar = this.$updateEolChar.bind(this);
+    this.$lines = new Lines(this.element);
+};
+
+(function() {
+
+    oop.implement(this, EventEmitter);
+
+    this.EOF_CHAR = "\xB6";
+    this.EOL_CHAR_LF = "\xAC";
+    this.EOL_CHAR_CRLF = "\xa4";
+    this.EOL_CHAR = this.EOL_CHAR_LF;
+    this.TAB_CHAR = "\u2014"; //"\u21E5";
+    this.SPACE_CHAR = "\xB7";
+    this.$padding = 0;
+    this.MAX_LINE_LENGTH = 10000;
+
+    this.$updateEolChar = function() {
+        var doc = this.session.doc;
+        var unixMode = doc.getNewLineCharacter() == "\n" && doc.getNewLineMode() != "windows";
+        var EOL_CHAR = unixMode ? this.EOL_CHAR_LF : this.EOL_CHAR_CRLF;
+        if (this.EOL_CHAR != EOL_CHAR) {
+            this.EOL_CHAR = EOL_CHAR;
+            return true;
+        }
+    };
+
+    this.setPadding = function(padding) {
+        this.$padding = padding;
+        this.element.style.margin = "0 " + padding + "px";
+    };
+
+    this.getLineHeight = function() {
+        return this.$fontMetrics.$characterSize.height || 0;
+    };
+
+    this.getCharacterWidth = function() {
+        return this.$fontMetrics.$characterSize.width || 0;
+    };
+    
+    this.$setFontMetrics = function(measure) {
+        this.$fontMetrics = measure;
+        this.$fontMetrics.on("changeCharacterSize", function(e) {
+            this._signal("changeCharacterSize", e);
+        }.bind(this));
+        this.$pollSizeChanges();
+    };
+
+    this.checkForSizeChanges = function() {
+        this.$fontMetrics.checkForSizeChanges();
+    };
+    this.$pollSizeChanges = function() {
+        return this.$pollSizeChangesTimer = this.$fontMetrics.$pollSizeChanges();
+    };
+    this.setSession = function(session) {
+        this.session = session;
+        if (session)
+            this.$computeTabString();
+    };
+
+    this.showInvisibles = false;
+    this.setShowInvisibles = function(showInvisibles) {
+        if (this.showInvisibles == showInvisibles)
+            return false;
+
+        this.showInvisibles = showInvisibles;
+        this.$computeTabString();
+        return true;
+    };
+
+    this.displayIndentGuides = true;
+    this.setDisplayIndentGuides = function(display) {
+        if (this.displayIndentGuides == display)
+            return false;
+
+        this.displayIndentGuides = display;
+        this.$computeTabString();
+        return true;
+    };
+
+    this.$tabStrings = [];
+    this.onChangeTabSize =
+    this.$computeTabString = function() {
+        var tabSize = this.session.getTabSize();
+        this.tabSize = tabSize;
+        var tabStr = this.$tabStrings = [0];
+        for (var i = 1; i < tabSize + 1; i++) {
+            if (this.showInvisibles) {
+                var span = this.dom.createElement("span");
+                span.className = "ace_invisible ace_invisible_tab";
+                span.textContent = lang.stringRepeat(this.TAB_CHAR, i);
+                tabStr.push(span);
+            } else {
+                tabStr.push(this.dom.createTextNode(lang.stringRepeat(" ", i), this.element));
+            }
+        }
+        if (this.displayIndentGuides) {
+            this.$indentGuideRe =  /\s\S| \t|\t |\s$/;
+            var className = "ace_indent-guide";
+            var spaceClass = "";
+            var tabClass = "";
+            if (this.showInvisibles) {
+                className += " ace_invisible";
+                spaceClass = " ace_invisible_space";
+                tabClass = " ace_invisible_tab";
+                var spaceContent = lang.stringRepeat(this.SPACE_CHAR, this.tabSize);
+                var tabContent = lang.stringRepeat(this.TAB_CHAR, this.tabSize);
+            } else {
+                var spaceContent = lang.stringRepeat(" ", this.tabSize);
+                var tabContent = spaceContent;
+            }
+
+            var span = this.dom.createElement("span");
+            span.className = className + spaceClass;
+            span.textContent = spaceContent;
+            this.$tabStrings[" "] = span;
+            
+            var span = this.dom.createElement("span");
+            span.className = className + tabClass;
+            span.textContent = tabContent;
+            this.$tabStrings["\t"] = span;
+        }
+    };
+
+    this.updateLines = function(config, firstRow, lastRow) {
+        if (this.config.lastRow != config.lastRow ||
+            this.config.firstRow != config.firstRow) {
+            return this.update(config);
+        }
+        
+        this.config = config;
+
+        var first = Math.max(firstRow, config.firstRow);
+        var last = Math.min(lastRow, config.lastRow);
+
+        var lineElements = this.element.childNodes;
+        var lineElementsIdx = 0;
+
+        for (var row = config.firstRow; row < first; row++) {
+            var foldLine = this.session.getFoldLine(row);
+            if (foldLine) {
+                if (foldLine.containsRow(first)) {
+                    first = foldLine.start.row;
+                    break;
+                } else {
+                    row = foldLine.end.row;
+                }
+            }
+            lineElementsIdx ++;
+        }
+
+        var heightChanged = false;
+        var row = first;
+        var foldLine = this.session.getNextFoldLine(row);
+        var foldStart = foldLine ? foldLine.start.row : Infinity;
+
+        while (true) {
+            if (row > foldStart) {
+                row = foldLine.end.row+1;
+                foldLine = this.session.getNextFoldLine(row, foldLine);
+                foldStart = foldLine ? foldLine.start.row :Infinity;
+            }
+            if (row > last)
+                break;
+
+            var lineElement = lineElements[lineElementsIdx++];
+            if (lineElement) {
+                this.dom.removeChildren(lineElement);
+                this.$renderLine(
+                    lineElement, row, row == foldStart ? foldLine : false
+                );
+                var height = (config.lineHeight * this.session.getRowLength(row)) + "px";
+                if (lineElement.style.height != height) {
+                    heightChanged = true;
+                    lineElement.style.height = height;
+                }
+            }
+            row++;
+        }
+        if (heightChanged) {
+            while (lineElementsIdx < this.$lines.cells.length) {
+                var cell = this.$lines.cells[lineElementsIdx++];
+                cell.element.style.top = this.$lines.computeLineTop(cell.row, config, this.session) + "px";
+            }
+        }
+    };
+
+    this.scrollLines = function(config) {
+        var oldConfig = this.config;
+        this.config = config;
+
+        if (this.$lines.pageChanged(oldConfig, config))
+            return this.update(config);
+            
+        this.$lines.moveContainer(config);
+        
+        var lastRow = config.lastRow;
+        var oldLastRow = oldConfig ? oldConfig.lastRow : -1;
+
+        if (!oldConfig || oldLastRow < config.firstRow)
+            return this.update(config);
+
+        if (lastRow < oldConfig.firstRow)
+            return this.update(config);
+
+        if (!oldConfig || oldConfig.lastRow < config.firstRow)
+            return this.update(config);
+
+        if (config.lastRow < oldConfig.firstRow)
+            return this.update(config);
+
+        if (oldConfig.firstRow < config.firstRow)
+            for (var row=this.session.getFoldedRowCount(oldConfig.firstRow, config.firstRow - 1); row>0; row--)
+                this.$lines.shift();
+
+        if (oldConfig.lastRow > config.lastRow)
+            for (var row=this.session.getFoldedRowCount(config.lastRow + 1, oldConfig.lastRow); row>0; row--)
+                this.$lines.pop();
+
+        if (config.firstRow < oldConfig.firstRow) {
+            this.$lines.unshift(this.$renderLinesFragment(config, config.firstRow, oldConfig.firstRow - 1));
+        }
+
+        if (config.lastRow > oldConfig.lastRow) {
+            this.$lines.push(this.$renderLinesFragment(config, oldConfig.lastRow + 1, config.lastRow));
+        }
+    };
+
+    this.$renderLinesFragment = function(config, firstRow, lastRow) {
+        var fragment = [];
+        var row = firstRow;
+        var foldLine = this.session.getNextFoldLine(row);
+        var foldStart = foldLine ? foldLine.start.row : Infinity;
+
+        while (true) {
+            if (row > foldStart) {
+                row = foldLine.end.row+1;
+                foldLine = this.session.getNextFoldLine(row, foldLine);
+                foldStart = foldLine ? foldLine.start.row : Infinity;
+            }
+            if (row > lastRow)
+                break;
+
+            var line = this.$lines.createCell(row, config, this.session);
+            
+            var lineEl = line.element;
+            this.dom.removeChildren(lineEl);
+            dom.setStyle(lineEl.style, "height", this.$lines.computeLineHeight(row, config, this.session) + "px");
+            dom.setStyle(lineEl.style, "top", this.$lines.computeLineTop(row, config, this.session) + "px");
+            this.$renderLine(lineEl, row, row == foldStart ? foldLine : false);
+
+            if (this.$useLineGroups()) {
+                lineEl.className = "ace_line_group";
+            } else {
+                lineEl.className = "ace_line";
+            }
+            fragment.push(line);
+
+            row++;
+        }
+        return fragment;
+    };
+
+    this.update = function(config) {
+        this.$lines.moveContainer(config);
+        
+        this.config = config;
+
+        var firstRow = config.firstRow;
+        var lastRow = config.lastRow;
+
+        var lines = this.$lines;
+        while (lines.getLength())
+            lines.pop();
+            
+        lines.push(this.$renderLinesFragment(config, firstRow, lastRow));
+    };
+
+    this.$textToken = {
+        "text": true,
+        "rparen": true,
+        "lparen": true
+    };
+
+    this.$renderToken = function(parent, screenColumn, token, value) {
+        var self = this;
+        var re = /(\t)|( +)|([\x00-\x1f\x80-\xa0\xad\u1680\u180E\u2000-\u200f\u2028\u2029\u202F\u205F\uFEFF\uFFF9-\uFFFC]+)|(\u3000)|([\u1100-\u115F\u11A3-\u11A7\u11FA-\u11FF\u2329-\u232A\u2E80-\u2E99\u2E9B-\u2EF3\u2F00-\u2FD5\u2FF0-\u2FFB\u3001-\u303E\u3041-\u3096\u3099-\u30FF\u3105-\u312D\u3131-\u318E\u3190-\u31BA\u31C0-\u31E3\u31F0-\u321E\u3220-\u3247\u3250-\u32FE\u3300-\u4DBF\u4E00-\uA48C\uA490-\uA4C6\uA960-\uA97C\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFAFF\uFE10-\uFE19\uFE30-\uFE52\uFE54-\uFE66\uFE68-\uFE6B\uFF01-\uFF60\uFFE0-\uFFE6]|[\uD800-\uDBFF][\uDC00-\uDFFF])/g;
+        
+        var valueFragment = this.dom.createFragment(this.element);
+
+        var m;
+        var i = 0;
+        while (m = re.exec(value)) {
+            var tab = m[1];
+            var simpleSpace = m[2];
+            var controlCharacter = m[3];
+            var cjkSpace = m[4];
+            var cjk = m[5];
+            
+            if (!self.showInvisibles && simpleSpace)
+                continue;
+
+            var before = i != m.index ? value.slice(i, m.index) : "";
+
+            i = m.index + m[0].length;
+            
+            if (before) {
+                valueFragment.appendChild(this.dom.createTextNode(before, this.element));
+            }
+                
+            if (tab) {
+                var tabSize = self.session.getScreenTabSize(screenColumn + m.index);
+                valueFragment.appendChild(self.$tabStrings[tabSize].cloneNode(true));
+                screenColumn += tabSize - 1;
+            } else if (simpleSpace) {
+                if (self.showInvisibles) {
+                    var span = this.dom.createElement("span");
+                    span.className = "ace_invisible ace_invisible_space";
+                    span.textContent = lang.stringRepeat(self.SPACE_CHAR, simpleSpace.length);
+                    valueFragment.appendChild(span);
+                } else {
+                    valueFragment.appendChild(this.com.createTextNode(simpleSpace, this.element));
+                }
+            } else if (controlCharacter) {
+                var span = this.dom.createElement("span");
+                span.className = "ace_invisible ace_invisible_space ace_invalid";
+                span.textContent = lang.stringRepeat(self.SPACE_CHAR, controlCharacter.length);
+                valueFragment.appendChild(span);
+            } else if (cjkSpace) {
+                var space = self.showInvisibles ? self.SPACE_CHAR : "";
+                screenColumn += 1;
+                
+                var span = this.dom.createElement("span");
+                span.style.width = (self.config.characterWidth * 2) + "px";
+                span.className = self.showInvisibles ? "ace_cjk ace_invisible ace_invisible_space" : "ace_cjk";
+                span.textContent = self.showInvisibles ? self.SPACE_CHAR : "";
+                valueFragment.appendChild(span);
+            } else if (cjk) {
+                screenColumn += 1;
+                var span = dom.createElement("span");
+                span.style.width = (self.config.characterWidth * 2) + "px";
+                span.className = "ace_cjk";
+                span.textContent = cjk;
+                valueFragment.appendChild(span);
+            }
+        }
+        
+        valueFragment.appendChild(this.dom.createTextNode(i ? value.slice(i) : value, this.element));
+
+        if (!this.$textToken[token.type]) {
+            var classes = "ace_" + token.type.replace(/\./g, " ace_");
+            var span = this.dom.createElement("span");
+            if (token.type == "fold")
+                span.style.width = (token.value.length * this.config.characterWidth) + "px";
+                
+            span.className = classes;
+            span.appendChild(valueFragment);
+            
+            parent.appendChild(span);
+        }
+        else {
+            parent.appendChild(valueFragment);
+        }
+        
+        return screenColumn + value.length;
+    };
+
+    this.renderIndentGuide = function(parent, value, max) {
+        var cols = value.search(this.$indentGuideRe);
+        if (cols <= 0 || cols >= max)
+            return value;
+        if (value[0] == " ") {
+            cols -= cols % this.tabSize;
+            var count = cols/this.tabSize;
+            for (var i=0; i<count; i++) {
+                parent.appendChild(this.$tabStrings[" "].cloneNode(true));
+            }
+            return value.substr(cols);
+        } else if (value[0] == "\t") {
+            for (var i=0; i<cols; i++) {
+                parent.appendChild(this.$tabStrings["\t"].cloneNode(true));
+            }
+            return value.substr(cols);
+        }
+        return value;
+    };
+
+    this.$createLineElement = function(parent) {
+        var lineEl = this.dom.createElement("div");
+        lineEl.className = "ace_line";
+        lineEl.style.height = this.config.lineHeight + "px";
+        
+        return lineEl;
+    };
+
+    this.$renderWrappedLine = function(parent, tokens, splits) {
+        var chars = 0;
+        var split = 0;
+        var splitChars = splits[0];
+        var screenColumn = 0;
+
+        var lineEl = this.$createLineElement();
+        parent.appendChild(lineEl);
+        
+        for (var i = 0; i < tokens.length; i++) {
+            var token = tokens[i];
+            var value = token.value;
+            if (i == 0 && this.displayIndentGuides) {
+                chars = value.length;
+                value = this.renderIndentGuide(lineEl, value, splitChars);
+                if (!value)
+                    continue;
+                chars -= value.length;
+            }
+
+            if (chars + value.length < splitChars) {
+                screenColumn = this.$renderToken(lineEl, screenColumn, token, value);
+                chars += value.length;
+            } else {
+                while (chars + value.length >= splitChars) {
+                    screenColumn = this.$renderToken(
+                        lineEl, screenColumn,
+                        token, value.substring(0, splitChars - chars)
+                    );
+                    value = value.substring(splitChars - chars);
+                    chars = splitChars;
+
+                    lineEl = this.$createLineElement();
+                    parent.appendChild(lineEl);
+
+                    lineEl.appendChild(this.dom.createTextNode(lang.stringRepeat("\xa0", splits.indent), this.element));
+
+                    split ++;
+                    screenColumn = 0;
+                    splitChars = splits[split] || Number.MAX_VALUE;
+                }
+                if (value.length != 0) {
+                    chars += value.length;
+                    screenColumn = this.$renderToken(
+                        lineEl, screenColumn, token, value
+                    );
+                }
+            }
+        }
+    };
+
+    this.$renderSimpleLine = function(parent, tokens) {
+        var screenColumn = 0;
+        var token = tokens[0];
+        var value = token.value;
+        if (this.displayIndentGuides)
+            value = this.renderIndentGuide(parent, value);
+        if (value)
+            screenColumn = this.$renderToken(parent, screenColumn, token, value);
+        for (var i = 1; i < tokens.length; i++) {
+            token = tokens[i];
+            value = token.value;
+            if (screenColumn + value.length > this.MAX_LINE_LENGTH)
+                return this.$renderOverflowMessage(parent, screenColumn, token, value);
+            screenColumn = this.$renderToken(parent, screenColumn, token, value);
+        }
+    };
+    
+    this.$renderOverflowMessage = function(parent, screenColumn, token, value) {
+        this.$renderToken(parent, screenColumn, token,
+            value.slice(0, this.MAX_LINE_LENGTH - screenColumn));
+            
+        var overflowEl = this.dom.createElement("span");
+        overflowEl.className = "ace_inline_button ace_keyword ace_toggle_wrap";
+        overflowEl.style.position = "absolute";
+        overflowEl.style.right = "0";
+        overflowEl.textContent = "<click to see more...>";
+        
+        parent.appendChild(overflowEl);        
+    };
+    this.$renderLine = function(parent, row, foldLine) {
+        if (!foldLine && foldLine != false)
+            foldLine = this.session.getFoldLine(row);
+
+        if (foldLine)
+            var tokens = this.$getFoldLineTokens(row, foldLine);
+        else
+            var tokens = this.session.getTokens(row);
+
+        var lastLineEl = parent;
+        if (tokens.length) {
+            var splits = this.session.getRowSplitData(row);
+            if (splits && splits.length) {
+                this.$renderWrappedLine(parent, tokens, splits);
+                var lastLineEl = parent.lastChild;
+            } else {
+                var lastLineEl = parent;
+                if (this.$useLineGroups()) {
+                    lastLineEl = this.$createLineElement();
+                    parent.appendChild(lastLineEl);
+                }
+                this.$renderSimpleLine(lastLineEl, tokens);
+            }
+        } else if (this.$useLineGroups()) {
+            lastLineEl = this.$createLineElement();
+            parent.appendChild(lastLineEl);
+        }
+
+        if (this.showInvisibles && lastLineEl) {
+            if (foldLine)
+                row = foldLine.end.row;
+
+            var invisibleEl = this.dom.createElement("span");
+            invisibleEl.className = "ace_invisible ace_invisible_eol";
+            invisibleEl.textContent = row == this.session.getLength() - 1 ? this.EOF_CHAR : this.EOL_CHAR;
+            
+            lastLineEl.appendChild(invisibleEl);
+        }
+    };
+
+    this.$getFoldLineTokens = function(row, foldLine) {
+        var session = this.session;
+        var renderTokens = [];
+
+        function addTokens(tokens, from, to) {
+            var idx = 0, col = 0;
+            while ((col + tokens[idx].value.length) < from) {
+                col += tokens[idx].value.length;
+                idx++;
+
+                if (idx == tokens.length)
+                    return;
+            }
+            if (col != from) {
+                var value = tokens[idx].value.substring(from - col);
+                if (value.length > (to - from))
+                    value = value.substring(0, to - from);
+
+                renderTokens.push({
+                    type: tokens[idx].type,
+                    value: value
+                });
+
+                col = from + value.length;
+                idx += 1;
+            }
+
+            while (col < to && idx < tokens.length) {
+                var value = tokens[idx].value;
+                if (value.length + col > to) {
+                    renderTokens.push({
+                        type: tokens[idx].type,
+                        value: value.substring(0, to - col)
+                    });
+                } else
+                    renderTokens.push(tokens[idx]);
+                col += value.length;
+                idx += 1;
+            }
+        }
+
+        var tokens = session.getTokens(row);
+        foldLine.walk(function(placeholder, row, column, lastColumn, isNewRow) {
+            if (placeholder != null) {
+                renderTokens.push({
+                    type: "fold",
+                    value: placeholder
+                });
+            } else {
+                if (isNewRow)
+                    tokens = session.getTokens(row);
+
+                if (tokens.length)
+                    addTokens(tokens, lastColumn, column);
+            }
+        }, foldLine.end.row, this.session.getLine(foldLine.end.row).length);
+
+        return renderTokens;
+    };
+
+    this.$useLineGroups = function() {
+        return this.session.getUseWrapMode();
+    };
+
+    this.destroy = function() {};
+}).call(Text.prototype);
+
+exports.Text = Text;
+
+});
+
+define("ace/layer/cursor",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
+"use strict";
+
+var dom = require("../lib/dom");
+
+var Cursor = function(parentEl) {
+    this.element = dom.createElement("div");
+    this.element.className = "ace_layer ace_cursor-layer";
+    parentEl.appendChild(this.element);
+    
+    this.isVisible = false;
+    this.isBlinking = true;
+    this.blinkInterval = 1000;
+    this.smoothBlinking = false;
+
+    this.cursors = [];
+    this.cursor = this.addCursor();
+    dom.addCssClass(this.element, "ace_hidden-cursors");
+    this.$updateCursors = this.$updateOpacity.bind(this);
+};
+
+(function() {
+    
+    this.$updateOpacity = function(val) {
+        var cursors = this.cursors;
+        for (var i = cursors.length; i--; )
+            dom.setStyle(cursors[i].style, "opacity", val ? "" : "0");
+    };
+
+    this.$startCssAnimation = function() {
+        var cursors = this.cursors;
+        for (var i = cursors.length; i--; )
+            cursors[i].style.animationDuration = this.blinkInterval + "ms";
+
+        setTimeout(function() {
+            dom.addCssClass(this.element, "ace_animate-blinking");
+        }.bind(this));
+    };
+    
+    this.$stopCssAnimation = function() {
+        dom.removeCssClass(this.element, "ace_animate-blinking");
+    };
+
+    this.$padding = 0;
+    this.setPadding = function(padding) {
+        this.$padding = padding;
+    };
+
+    this.setSession = function(session) {
+        this.session = session;
+    };
+
+    this.setBlinking = function(blinking) {
+        if (blinking != this.isBlinking) {
+            this.isBlinking = blinking;
+            this.restartTimer();
+        }
+    };
+
+    this.setBlinkInterval = function(blinkInterval) {
+        if (blinkInterval != this.blinkInterval) {
+            this.blinkInterval = blinkInterval;
+            this.restartTimer();
+        }
+    };
+
+    this.setSmoothBlinking = function(smoothBlinking) {
+        if (smoothBlinking != this.smoothBlinking) {
+            this.smoothBlinking = smoothBlinking;
+            dom.setCssClass(this.element, "ace_smooth-blinking", smoothBlinking);
+            this.$updateCursors(true);
+            this.restartTimer();
+        }
+    };
+
+    this.addCursor = function() {
+        var el = dom.createElement("div");
+        el.className = "ace_cursor";
+        this.element.appendChild(el);
+        this.cursors.push(el);
+        return el;
+    };
+
+    this.removeCursor = function() {
+        if (this.cursors.length > 1) {
+            var el = this.cursors.pop();
+            el.parentNode.removeChild(el);
+            return el;
+        }
+    };
+
+    this.hideCursor = function() {
+        this.isVisible = false;
+        dom.addCssClass(this.element, "ace_hidden-cursors");
+        this.restartTimer();
+    };
+
+    this.showCursor = function() {
+        this.isVisible = true;
+        dom.removeCssClass(this.element, "ace_hidden-cursors");
+        this.restartTimer();
+    };
+
+    this.restartTimer = function() {
+        var update = this.$updateCursors;
+        clearInterval(this.intervalId);
+        clearTimeout(this.timeoutId);
+        this.$stopCssAnimation();
+
+        if (this.smoothBlinking) {
+            dom.removeCssClass(this.element, "ace_smooth-blinking");
+        }
+        
+        update(true);
+
+        if (!this.isBlinking || !this.blinkInterval || !this.isVisible) {
+            this.$stopCssAnimation();
+            return;
+        }
+
+        if (this.smoothBlinking) {
+            setTimeout(function(){
+                dom.addCssClass(this.element, "ace_smooth-blinking");
+            }.bind(this));
+        }
+        
+        if (dom.HAS_CSS_ANIMATION) {
+            this.$startCssAnimation();
+        } else {
+            var blink = function(){
+                this.timeoutId = setTimeout(function() {
+                    update(false);
+                }, 0.6 * this.blinkInterval);
+            }.bind(this);
+    
+            this.intervalId = setInterval(function() {
+                update(true);
+                blink();
+            }, this.blinkInterval);
+            blink();
+        }
+    };
+
+    this.getPixelPosition = function(position, onScreen) {
+        if (!this.config || !this.session)
+            return {left : 0, top : 0};
+
+        if (!position)
+            position = this.session.selection.getCursor();
+        var pos = this.session.documentToScreenPosition(position);
+        var cursorLeft = this.$padding + (this.session.$bidiHandler.isBidiRow(pos.row, position.row)
+            ? this.session.$bidiHandler.getPosLeft(pos.column)
+            : pos.column * this.config.characterWidth);
+
+        var cursorTop = (pos.row - (onScreen ? this.config.firstRowScreen : 0)) *
+            this.config.lineHeight;
+
+        return {left : cursorLeft, top : cursorTop};
+    };
+
+    this.isCursorInView = function(pixelPos, config) {
+        return pixelPos.top >= 0 && pixelPos.top < config.maxHeight;
+    };
+
+    this.update = function(config) {
+        this.config = config;
+
+        var selections = this.session.$selectionMarkers;
+        var i = 0, cursorIndex = 0;
+
+        if (selections === undefined || selections.length === 0){
+            selections = [{cursor: null}];
+        }
+
+        for (var i = 0, n = selections.length; i < n; i++) {
+            var pixelPos = this.getPixelPosition(selections[i].cursor, true);
+            if ((pixelPos.top > config.height + config.offset ||
+                 pixelPos.top < 0) && i > 1) {
+                continue;
+            }
+
+            var element = this.cursors[cursorIndex++] || this.addCursor();
+            var style = element.style;
+            
+            if (!this.drawCursor) {
+                if (!this.isCursorInView(pixelPos, config)) {
+                    dom.setStyle(style, "display", "none");
+                } else {
+                    dom.setStyle(style, "display", "block");
+                    dom.translate(element, pixelPos.left, pixelPos.top);
+                    dom.setStyle(style, "width", Math.round(config.characterWidth) + "px");
+                    dom.setStyle(style, "height", config.lineHeight + "px");
+                }
+            } else {
+                this.drawCursor(element, pixelPos, config, selections[i], this.session);
+            }
+        }
+        while (this.cursors.length > cursorIndex)
+            this.removeCursor();
+
+        var overwrite = this.session.getOverwrite();
+        this.$setOverwrite(overwrite);
+        this.$pixelPos = pixelPos;
+        this.restartTimer();
+    };
+    
+    this.drawCursor = null;
+
+    this.$setOverwrite = function(overwrite) {
+        if (overwrite != this.overwrite) {
+            this.overwrite = overwrite;
+            if (overwrite)
+                dom.addCssClass(this.element, "ace_overwrite-cursors");
+            else
+                dom.removeCssClass(this.element, "ace_overwrite-cursors");
+        }
+    };
+
+    this.destroy = function() {
+        clearInterval(this.intervalId);
+        clearTimeout(this.timeoutId);
+    };
+
+}).call(Cursor.prototype);
+
+exports.Cursor = Cursor;
+
+});
+
+define("ace/scrollbar",["require","exports","module","ace/lib/oop","ace/lib/dom","ace/lib/event","ace/lib/event_emitter"], function(require, exports, module) {
+"use strict";
+
+var oop = require("./lib/oop");
+var dom = require("./lib/dom");
+var event = require("./lib/event");
+var EventEmitter = require("./lib/event_emitter").EventEmitter;
+var MAX_SCROLL_H = 0x8000;
+var ScrollBar = function(parent) {
+    this.element = dom.createElement("div");
+    this.element.className = "ace_scrollbar ace_scrollbar" + this.classSuffix;
+
+    this.inner = dom.createElement("div");
+    this.inner.className = "ace_scrollbar-inner";
+    this.element.appendChild(this.inner);
+
+    parent.appendChild(this.element);
+
+    this.setVisible(false);
+    this.skipEvent = false;
+
+    event.addListener(this.element, "scroll", this.onScroll.bind(this));
+    event.addListener(this.element, "mousedown", event.preventDefault);
+};
+
+(function() {
+    oop.implement(this, EventEmitter);
+
+    this.setVisible = function(isVisible) {
+        this.element.style.display = isVisible ? "" : "none";
+        this.isVisible = isVisible;
+        this.coeff = 1;
+    };
+}).call(ScrollBar.prototype);
+var VScrollBar = function(parent, renderer) {
+    ScrollBar.call(this, parent);
+    this.scrollTop = 0;
+    this.scrollHeight = 0;
+    renderer.$scrollbarWidth = 
+    this.width = dom.scrollbarWidth(parent.ownerDocument);
+    this.inner.style.width =
+    this.element.style.width = (this.width || 15) + 5 + "px";
+    this.$minWidth = 0;
+};
+
+oop.inherits(VScrollBar, ScrollBar);
+
+(function() {
+
+    this.classSuffix = '-v';
+    this.onScroll = function() {
+        if (!this.skipEvent) {
+            this.scrollTop = this.element.scrollTop;
+            if (this.coeff != 1) {
+                var h = this.element.clientHeight / this.scrollHeight;
+                this.scrollTop = this.scrollTop * (1 - h) / (this.coeff - h);
+            }
+            this._emit("scroll", {data: this.scrollTop});
+        }
+        this.skipEvent = false;
+    };
+    this.getWidth = function() {
+        return Math.max(this.isVisible ? this.width : 0, this.$minWidth || 0);
+    };
+    this.setHeight = function(height) {
+        this.element.style.height = height + "px";
+    };
+    this.setInnerHeight = 
+    this.setScrollHeight = function(height) {
+        this.scrollHeight = height;
+        if (height > MAX_SCROLL_H) {
+            this.coeff = MAX_SCROLL_H / height;
+            height = MAX_SCROLL_H;
+        } else if (this.coeff != 1) {
+            this.coeff = 1;
+        }
+        this.inner.style.height = height + "px";
+    };
+    this.setScrollTop = function(scrollTop) {
+        if (this.scrollTop != scrollTop) {
+            this.skipEvent = true;
+            this.scrollTop = scrollTop;
+            this.element.scrollTop = scrollTop * this.coeff;
+        }
+    };
+
+}).call(VScrollBar.prototype);
+var HScrollBar = function(parent, renderer) {
+    ScrollBar.call(this, parent);
+    this.scrollLeft = 0;
+    this.height = renderer.$scrollbarWidth;
+    this.inner.style.height =
+    this.element.style.height = (this.height || 15) + 5 + "px";
+};
+
+oop.inherits(HScrollBar, ScrollBar);
+
+(function() {
+
+    this.classSuffix = '-h';
+    this.onScroll = function() {
+        if (!this.skipEvent) {
+            this.scrollLeft = this.element.scrollLeft;
+            this._emit("scroll", {data: this.scrollLeft});
+        }
+        this.skipEvent = false;
+    };
+    this.getHeight = function() {
+        return this.isVisible ? this.height : 0;
+    };
+    this.setWidth = function(width) {
+        this.element.style.width = width + "px";
+    };
+    this.setInnerWidth = function(width) {
+        this.inner.style.width = width + "px";
+    };
+    this.setScrollWidth = function(width) {
+        this.inner.style.width = width + "px";
+    };
+    this.setScrollLeft = function(scrollLeft) {
+        if (this.scrollLeft != scrollLeft) {
+            this.skipEvent = true;
+            this.scrollLeft = this.element.scrollLeft = scrollLeft;
+        }
+    };
+
+}).call(HScrollBar.prototype);
+
+
+exports.ScrollBar = VScrollBar; // backward compatibility
+exports.ScrollBarV = VScrollBar; // backward compatibility
+exports.ScrollBarH = HScrollBar; // backward compatibility
+
+exports.VScrollBar = VScrollBar;
+exports.HScrollBar = HScrollBar;
+});
+
+define("ace/renderloop",["require","exports","module","ace/lib/event"], function(require, exports, module) {
+"use strict";
+
+var event = require("./lib/event");
+
+
+var RenderLoop = function(onRender, win) {
+    this.onRender = onRender;
+    this.pending = false;
+    this.changes = 0;
+    this.window = win || window;
+    var _self = this;
+    this._flush = function(ts) {
+        var changes = _self.changes;
+
+        if (changes) {
+            event.blockIdle(100);
+            _self.changes = 0;
+            _self.onRender(changes);
+        }
+        
+        if (_self.changes)
+            _self.schedule();
+    };
+};
+
+(function() {
+
+    this.schedule = function(change) {
+        this.changes = this.changes | change;
+        if (this.changes) {
+            event.nextFrame(this._flush);
+        }
+    };
+
+}).call(RenderLoop.prototype);
+
+exports.RenderLoop = RenderLoop;
+});
+
+define("ace/layer/font_metrics",["require","exports","module","ace/lib/oop","ace/lib/dom","ace/lib/lang","ace/lib/event","ace/lib/useragent","ace/lib/event_emitter"], function(require, exports, module) {
+
+var oop = require("../lib/oop");
+var dom = require("../lib/dom");
+var lang = require("../lib/lang");
+var event = require("../lib/event");
+var useragent = require("../lib/useragent");
+var EventEmitter = require("../lib/event_emitter").EventEmitter;
+
+var CHAR_COUNT = 256;
+var USE_OBSERVER = typeof ResizeObserver == "function";
+var L = 200;
+
+var FontMetrics = exports.FontMetrics = function(parentEl) {
+    this.el = dom.createElement("div");
+    this.$setMeasureNodeStyles(this.el.style, true);
+    
+    this.$main = dom.createElement("div");
+    this.$setMeasureNodeStyles(this.$main.style);
+    
+    this.$measureNode = dom.createElement("div");
+    this.$setMeasureNodeStyles(this.$measureNode.style);
+    
+    
+    this.el.appendChild(this.$main);
+    this.el.appendChild(this.$measureNode);
+    parentEl.appendChild(this.el);
+    
+    this.$measureNode.innerHTML = lang.stringRepeat("X", CHAR_COUNT);
+    
+    this.$characterSize = {width: 0, height: 0};
+    
+    
+    if (USE_OBSERVER)
+        this.$addObserver();
+    else
+        this.checkForSizeChanges();
+};
+
+(function() {
+
+    oop.implement(this, EventEmitter);
+        
+    this.$characterSize = {width: 0, height: 0};
+    
+    this.$setMeasureNodeStyles = function(style, isRoot) {
+        style.width = style.height = "auto";
+        style.left = style.top = "0px";
+        style.visibility = "hidden";
+        style.position = "absolute";
+        style.whiteSpace = "pre";
+
+        if (useragent.isIE < 8) {
+            style["font-family"] = "inherit";
+        } else {
+            style.font = "inherit";
+        }
+        style.overflow = isRoot ? "hidden" : "visible";
+    };
+
+    this.checkForSizeChanges = function(size) {
+        if (size === undefined)
+            size = this.$measureSizes();
+        if (size && (this.$characterSize.width !== size.width || this.$characterSize.height !== size.height)) {
+            this.$measureNode.style.fontWeight = "bold";
+            var boldSize = this.$measureSizes();
+            this.$measureNode.style.fontWeight = "";
+            this.$characterSize = size;
+            this.charSizes = Object.create(null);
+            this.allowBoldFonts = boldSize && boldSize.width === size.width && boldSize.height === size.height;
+            this._emit("changeCharacterSize", {data: size});
+        }
+    };
+    
+    this.$addObserver = function() {
+        var self = this;
+        this.$observer = new window.ResizeObserver(function(e) {
+            var rect = e[0].contentRect;
+            self.checkForSizeChanges({
+                height: rect.height,
+                width: rect.width / CHAR_COUNT
+            });
+        });
+        this.$observer.observe(this.$measureNode);
+    };
+
+    this.$pollSizeChanges = function() {
+        if (this.$pollSizeChangesTimer || this.$observer)
+            return this.$pollSizeChangesTimer;
+        var self = this;
+        
+        return this.$pollSizeChangesTimer = event.onIdle(function cb() {
+            self.checkForSizeChanges();
+            event.onIdle(cb, 500);
+        }, 500);
+    };
+    
+    this.setPolling = function(val) {
+        if (val) {
+            this.$pollSizeChanges();
+        } else if (this.$pollSizeChangesTimer) {
+            clearInterval(this.$pollSizeChangesTimer);
+            this.$pollSizeChangesTimer = 0;
+        }
+    };
+
+    this.$measureSizes = function(node) {
+        var size = {
+            height: (node || this.$measureNode).clientHeight,
+            width: (node || this.$measureNode).clientWidth / CHAR_COUNT
+        };
+        if (size.width === 0 || size.height === 0)
+            return null;
+        return size;
+    };
+
+    this.$measureCharWidth = function(ch) {
+        this.$main.innerHTML = lang.stringRepeat(ch, CHAR_COUNT);
+        var rect = this.$main.getBoundingClientRect();
+        return rect.width / CHAR_COUNT;
+    };
+    
+    this.getCharacterWidth = function(ch) {
+        var w = this.charSizes[ch];
+        if (w === undefined) {
+            w = this.charSizes[ch] = this.$measureCharWidth(ch) / this.$characterSize.width;
+        }
+        return w;
+    };
+
+    this.destroy = function() {
+        clearInterval(this.$pollSizeChangesTimer);
+        if (this.$observer)
+            this.$observer.disconnect();
+        if (this.el && this.el.parentNode)
+            this.el.parentNode.removeChild(this.el);
+    };
+
+    
+    this.$getZoom = function getZoom(element) {
+        if (!element) return 1;
+        return (window.getComputedStyle(element).zoom || 1) * getZoom(element.parentElement);
+    };
+    this.$initTransformMeasureNodes = function() {
+        var t = function(t, l) {
+            return ["div", {
+                style: "position: absolute;top:" + t + "px;left:" + l + "px;"
+            }];
+        };
+        this.els = dom.buildDom([t(0, 0), t(L, 0), t(0, L), t(L, L)], this.el);
+    };
+    this.transformCoordinates = function(clientPos, elPos) {
+        if (clientPos) {
+            var zoom = this.$getZoom(this.el);
+            clientPos = mul(1 / zoom, clientPos);
+        }
+        function solve(l1, l2, r) {
+            var det = l1[1] * l2[0] - l1[0] * l2[1];
+            return [
+                (-l2[1] * r[0] + l2[0] * r[1]) / det,
+                (+l1[1] * r[0] - l1[0] * r[1]) / det
+            ];
+        }
+        function sub(a, b) { return [a[0] - b[0], a[1] - b[1]]; }
+        function add(a, b) { return [a[0] + b[0], a[1] + b[1]]; }
+        function mul(a, b) { return [a * b[0], a * b[1]]; }
+
+        if (!this.els)
+            this.$initTransformMeasureNodes();
+        
+        function p(el) {
+            var r = el.getBoundingClientRect();
+            return [r.left, r.top];
+        }
+
+        var a = p(this.els[0]);
+        var b = p(this.els[1]);
+        var c = p(this.els[2]);
+        var d = p(this.els[3]);
+
+        var h = solve(sub(d, b), sub(d, c), sub(add(b, c), add(d, a)));
+
+        var m1 = mul(1 + h[0], sub(b, a));
+        var m2 = mul(1 + h[1], sub(c, a));
+        
+        if (elPos) {
+            var x = elPos;
+            var k = h[0] * x[0] / L + h[1] * x[1] / L + 1;
+            var ut = add(mul(x[0], m1), mul(x[1], m2));
+            return  add(mul(1 / k / L, ut), a);
+        }
+        var u = sub(clientPos, a);
+        var f = solve(sub(m1, mul(h[0], u)), sub(m2, mul(h[1], u)), u);
+        return mul(L, f);
+    };
+    
+}).call(FontMetrics.prototype);
+
+});
+
+define("ace/virtual_renderer",["require","exports","module","ace/lib/oop","ace/lib/dom","ace/config","ace/layer/gutter","ace/layer/marker","ace/layer/text","ace/layer/cursor","ace/scrollbar","ace/scrollbar","ace/renderloop","ace/layer/font_metrics","ace/lib/event_emitter","ace/lib/useragent"], function(require, exports, module) {
+"use strict";
+
+var oop = require("./lib/oop");
+var dom = require("./lib/dom");
+var config = require("./config");
+var GutterLayer = require("./layer/gutter").Gutter;
+var MarkerLayer = require("./layer/marker").Marker;
+var TextLayer = require("./layer/text").Text;
+var CursorLayer = require("./layer/cursor").Cursor;
+var HScrollBar = require("./scrollbar").HScrollBar;
+var VScrollBar = require("./scrollbar").VScrollBar;
+var RenderLoop = require("./renderloop").RenderLoop;
+var FontMetrics = require("./layer/font_metrics").FontMetrics;
+var EventEmitter = require("./lib/event_emitter").EventEmitter;
+var editorCss = "\
+.ace_br1 {border-top-left-radius    : 3px;}\
+.ace_br2 {border-top-right-radius   : 3px;}\
+.ace_br3 {border-top-left-radius    : 3px; border-top-right-radius:    3px;}\
+.ace_br4 {border-bottom-right-radius: 3px;}\
+.ace_br5 {border-top-left-radius    : 3px; border-bottom-right-radius: 3px;}\
+.ace_br6 {border-top-right-radius   : 3px; border-bottom-right-radius: 3px;}\
+.ace_br7 {border-top-left-radius    : 3px; border-top-right-radius:    3px; border-bottom-right-radius: 3px;}\
+.ace_br8 {border-bottom-left-radius : 3px;}\
+.ace_br9 {border-top-left-radius    : 3px; border-bottom-left-radius:  3px;}\
+.ace_br10{border-top-right-radius   : 3px; border-bottom-left-radius:  3px;}\
+.ace_br11{border-top-left-radius    : 3px; border-top-right-radius:    3px; border-bottom-left-radius:  3px;}\
+.ace_br12{border-bottom-right-radius: 3px; border-bottom-left-radius:  3px;}\
+.ace_br13{border-top-left-radius    : 3px; border-bottom-right-radius: 3px; border-bottom-left-radius:  3px;}\
+.ace_br14{border-top-right-radius   : 3px; border-bottom-right-radius: 3px; border-bottom-left-radius:  3px;}\
+.ace_br15{border-top-left-radius    : 3px; border-top-right-radius:    3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px;}\
+.ace_editor {\
+position: relative;\
+overflow: hidden;\
+font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;\
+direction: ltr;\
+text-align: left;\
+-webkit-tap-highlight-color: rgba(0, 0, 0, 0);\
+}\
+.ace_scroller {\
+position: absolute;\
+overflow: hidden;\
+top: 0;\
+bottom: 0;\
+background-color: inherit;\
+-ms-user-select: none;\
+-moz-user-select: none;\
+-webkit-user-select: none;\
+user-select: none;\
+cursor: text;\
+}\
+.ace_content {\
+position: absolute;\
+box-sizing: border-box;\
+min-width: 100%;\
+contain: style size layout;\
+}\
+.ace_dragging .ace_scroller:before{\
+position: absolute;\
+top: 0;\
+left: 0;\
+right: 0;\
+bottom: 0;\
+content: '';\
+background: rgba(250, 250, 250, 0.01);\
+z-index: 1000;\
+}\
+.ace_dragging.ace_dark .ace_scroller:before{\
+background: rgba(0, 0, 0, 0.01);\
+}\
+.ace_selecting, .ace_selecting * {\
+cursor: text !important;\
+}\
+.ace_gutter {\
+position: absolute;\
+overflow : hidden;\
+width: auto;\
+top: 0;\
+bottom: 0;\
+left: 0;\
+cursor: default;\
+z-index: 4;\
+-ms-user-select: none;\
+-moz-user-select: none;\
+-webkit-user-select: none;\
+user-select: none;\
+contain: style size layout;\
+}\
+.ace_gutter-active-line {\
+position: absolute;\
+left: 0;\
+right: 0;\
+}\
+.ace_scroller.ace_scroll-left {\
+box-shadow: 17px 0 16px -16px rgba(0, 0, 0, 0.4) inset;\
+}\
+.ace_gutter-cell {\
+position: absolute;\
+top: 0;\
+left: 0;\
+right: 0;\
+padding-left: 19px;\
+padding-right: 6px;\
+background-repeat: no-repeat;\
+}\
+.ace_gutter-cell.ace_error {\
+background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAABOFBMVEX/////////QRswFAb/Ui4wFAYwFAYwFAaWGAfDRymzOSH/PxswFAb/SiUwFAYwFAbUPRvjQiDllog5HhHdRybsTi3/Tyv9Tir+Syj/UC3////XurebMBIwFAb/RSHbPx/gUzfdwL3kzMivKBAwFAbbvbnhPx66NhowFAYwFAaZJg8wFAaxKBDZurf/RB6mMxb/SCMwFAYwFAbxQB3+RB4wFAb/Qhy4Oh+4QifbNRcwFAYwFAYwFAb/QRzdNhgwFAYwFAbav7v/Uy7oaE68MBK5LxLewr/r2NXewLswFAaxJw4wFAbkPRy2PyYwFAaxKhLm1tMwFAazPiQwFAaUGAb/QBrfOx3bvrv/VC/maE4wFAbRPBq6MRO8Qynew8Dp2tjfwb0wFAbx6eju5+by6uns4uH9/f36+vr/GkHjAAAAYnRSTlMAGt+64rnWu/bo8eAA4InH3+DwoN7j4eLi4xP99Nfg4+b+/u9B/eDs1MD1mO7+4PHg2MXa347g7vDizMLN4eG+Pv7i5evs/v79yu7S3/DV7/498Yv24eH+4ufQ3Ozu/v7+y13sRqwAAADLSURBVHjaZc/XDsFgGIBhtDrshlitmk2IrbHFqL2pvXf/+78DPokj7+Fz9qpU/9UXJIlhmPaTaQ6QPaz0mm+5gwkgovcV6GZzd5JtCQwgsxoHOvJO15kleRLAnMgHFIESUEPmawB9ngmelTtipwwfASilxOLyiV5UVUyVAfbG0cCPHig+GBkzAENHS0AstVF6bacZIOzgLmxsHbt2OecNgJC83JERmePUYq8ARGkJx6XtFsdddBQgZE2nPR6CICZhawjA4Fb/chv+399kfR+MMMDGOQAAAABJRU5ErkJggg==\");\
+background-repeat: no-repeat;\
+background-position: 2px center;\
+}\
+.ace_gutter-cell.ace_warning {\
+background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAmVBMVEX///8AAAD///8AAAAAAABPSzb/5sAAAAB/blH/73z/ulkAAAAAAAD85pkAAAAAAAACAgP/vGz/rkDerGbGrV7/pkQICAf////e0IsAAAD/oED/qTvhrnUAAAD/yHD/njcAAADuv2r/nz//oTj/p064oGf/zHAAAAA9Nir/tFIAAAD/tlTiuWf/tkIAAACynXEAAAAAAAAtIRW7zBpBAAAAM3RSTlMAABR1m7RXO8Ln31Z36zT+neXe5OzooRDfn+TZ4p3h2hTf4t3k3ucyrN1K5+Xaks52Sfs9CXgrAAAAjklEQVR42o3PbQ+CIBQFYEwboPhSYgoYunIqqLn6/z8uYdH8Vmdnu9vz4WwXgN/xTPRD2+sgOcZjsge/whXZgUaYYvT8QnuJaUrjrHUQreGczuEafQCO/SJTufTbroWsPgsllVhq3wJEk2jUSzX3CUEDJC84707djRc5MTAQxoLgupWRwW6UB5fS++NV8AbOZgnsC7BpEAAAAABJRU5ErkJggg==\");\
+background-position: 2px center;\
+}\
+.ace_gutter-cell.ace_info {\
+background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAAAAAA6mKC9AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAAJ0Uk5TAAB2k804AAAAPklEQVQY02NgIB68QuO3tiLznjAwpKTgNyDbMegwisCHZUETUZV0ZqOquBpXj2rtnpSJT1AEnnRmL2OgGgAAIKkRQap2htgAAAAASUVORK5CYII=\");\
+background-position: 2px center;\
+}\
+.ace_dark .ace_gutter-cell.ace_info {\
+background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAJFBMVEUAAAChoaGAgIAqKiq+vr6tra1ZWVmUlJSbm5s8PDxubm56enrdgzg3AAAAAXRSTlMAQObYZgAAAClJREFUeNpjYMAPdsMYHegyJZFQBlsUlMFVCWUYKkAZMxZAGdxlDMQBAG+TBP4B6RyJAAAAAElFTkSuQmCC\");\
+}\
+.ace_scrollbar {\
+contain: strict;\
+position: absolute;\
+right: 0;\
+bottom: 0;\
+z-index: 6;\
+}\
+.ace_scrollbar-inner {\
+position: absolute;\
+cursor: text;\
+left: 0;\
+top: 0;\
+}\
+.ace_scrollbar-v{\
+overflow-x: hidden;\
+overflow-y: scroll;\
+top: 0;\
+}\
+.ace_scrollbar-h {\
+overflow-x: scroll;\
+overflow-y: hidden;\
+left: 0;\
+}\
+.ace_print-margin {\
+position: absolute;\
+height: 100%;\
+}\
+.ace_text-input {\
+position: absolute;\
+z-index: 0;\
+width: 0.5em;\
+height: 1em;\
+opacity: 0;\
+background: transparent;\
+-moz-appearance: none;\
+appearance: none;\
+border: none;\
+resize: none;\
+outline: none;\
+overflow: hidden;\
+font: inherit;\
+padding: 0 1px;\
+margin: 0 -1px;\
+contain: strict;\
+-ms-user-select: text;\
+-moz-user-select: text;\
+-webkit-user-select: text;\
+user-select: text;\
+white-space: pre!important;\
+}\
+.ace_text-input.ace_composition {\
+background: transparent;\
+color: inherit;\
+z-index: 1000;\
+opacity: 1;\
+}\
+.ace_composition_placeholder { color: transparent }\
+.ace_composition_marker { \
+border-bottom: 1px solid;\
+position: absolute;\
+border-radius: 0;\
+margin-top: 1px;\
+}\
+[ace_nocontext=true] {\
+transform: none!important;\
+filter: none!important;\
+perspective: none!important;\
+clip-path: none!important;\
+mask : none!important;\
+contain: none!important;\
+perspective: none!important;\
+mix-blend-mode: initial!important;\
+z-index: auto;\
+}\
+.ace_layer {\
+z-index: 1;\
+position: absolute;\
+overflow: hidden;\
+word-wrap: normal;\
+white-space: pre;\
+height: 100%;\
+width: 100%;\
+box-sizing: border-box;\
+pointer-events: none;\
+}\
+.ace_gutter-layer {\
+position: relative;\
+width: auto;\
+text-align: right;\
+pointer-events: auto;\
+height: 1000000px;\
+contain: style size layout;\
+}\
+.ace_text-layer {\
+font: inherit !important;\
+position: absolute;\
+height: 1000000px;\
+width: 1000000px;\
+contain: style size layout;\
+}\
+.ace_text-layer > .ace_line, .ace_text-layer > .ace_line_group {\
+contain: style size layout;\
+position: absolute;\
+top: 0;\
+left: 0;\
+right: 0;\
+}\
+.ace_hidpi .ace_text-layer,\
+.ace_hidpi .ace_gutter-layer,\
+.ace_hidpi .ace_content,\
+.ace_hidpi .ace_gutter {\
+contain: strict;\
+will-change: transform;\
+}\
+.ace_hidpi .ace_text-layer > .ace_line, \
+.ace_hidpi .ace_text-layer > .ace_line_group {\
+contain: strict;\
+}\
+.ace_cjk {\
+display: inline-block;\
+text-align: center;\
+}\
+.ace_cursor-layer {\
+z-index: 4;\
+}\
+.ace_cursor {\
+z-index: 4;\
+position: absolute;\
+box-sizing: border-box;\
+border-left: 2px solid;\
+transform: translatez(0);\
+}\
+.ace_multiselect .ace_cursor {\
+border-left-width: 1px;\
+}\
+.ace_slim-cursors .ace_cursor {\
+border-left-width: 1px;\
+}\
+.ace_overwrite-cursors .ace_cursor {\
+border-left-width: 0;\
+border-bottom: 1px solid;\
+}\
+.ace_hidden-cursors .ace_cursor {\
+opacity: 0.2;\
+}\
+.ace_smooth-blinking .ace_cursor {\
+transition: opacity 0.18s;\
+}\
+.ace_animate-blinking .ace_cursor {\
+animation-duration: 1000ms;\
+animation-timing-function: step-end;\
+animation-name: blink-ace-animate;\
+animation-iteration-count: infinite;\
+}\
+.ace_animate-blinking.ace_smooth-blinking .ace_cursor {\
+animation-duration: 1000ms;\
+animation-timing-function: ease-in-out;\
+animation-name: blink-ace-animate-smooth;\
+}\
+@keyframes blink-ace-animate {\
+from, to { opacity: 1; }\
+60% { opacity: 0; }\
+}\
+@keyframes blink-ace-animate-smooth {\
+from, to { opacity: 1; }\
+45% { opacity: 1; }\
+60% { opacity: 0; }\
+85% { opacity: 0; }\
+}\
+.ace_marker-layer .ace_step, .ace_marker-layer .ace_stack {\
+position: absolute;\
+z-index: 3;\
+}\
+.ace_marker-layer .ace_selection {\
+position: absolute;\
+z-index: 5;\
+}\
+.ace_marker-layer .ace_bracket {\
+position: absolute;\
+z-index: 6;\
+}\
+.ace_marker-layer .ace_active-line {\
+position: absolute;\
+z-index: 2;\
+}\
+.ace_marker-layer .ace_selected-word {\
+position: absolute;\
+z-index: 4;\
+box-sizing: border-box;\
+}\
+.ace_line .ace_fold {\
+box-sizing: border-box;\
+display: inline-block;\
+height: 11px;\
+margin-top: -2px;\
+vertical-align: middle;\
+background-image:\
+url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAJCAYAAADU6McMAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJpJREFUeNpi/P//PwOlgAXGYGRklAVSokD8GmjwY1wasKljQpYACtpCFeADcHVQfQyMQAwzwAZI3wJKvCLkfKBaMSClBlR7BOQikCFGQEErIH0VqkabiGCAqwUadAzZJRxQr/0gwiXIal8zQQPnNVTgJ1TdawL0T5gBIP1MUJNhBv2HKoQHHjqNrA4WO4zY0glyNKLT2KIfIMAAQsdgGiXvgnYAAAAASUVORK5CYII=\"),\
+url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAA3CAYAAADNNiA5AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAACJJREFUeNpi+P//fxgTAwPDBxDxD078RSX+YeEyDFMCIMAAI3INmXiwf2YAAAAASUVORK5CYII=\");\
+background-repeat: no-repeat, repeat-x;\
+background-position: center center, top left;\
+color: transparent;\
+border: 1px solid black;\
+border-radius: 2px;\
+cursor: pointer;\
+pointer-events: auto;\
+}\
+.ace_dark .ace_fold {\
+}\
+.ace_fold:hover{\
+background-image:\
+url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABEAAAAJCAYAAADU6McMAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJpJREFUeNpi/P//PwOlgAXGYGRklAVSokD8GmjwY1wasKljQpYACtpCFeADcHVQfQyMQAwzwAZI3wJKvCLkfKBaMSClBlR7BOQikCFGQEErIH0VqkabiGCAqwUadAzZJRxQr/0gwiXIal8zQQPnNVTgJ1TdawL0T5gBIP1MUJNhBv2HKoQHHjqNrA4WO4zY0glyNKLT2KIfIMAAQsdgGiXvgnYAAAAASUVORK5CYII=\"),\
+url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAA3CAYAAADNNiA5AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAACBJREFUeNpi+P//fz4TAwPDZxDxD5X4i5fLMEwJgAADAEPVDbjNw87ZAAAAAElFTkSuQmCC\");\
+}\
+.ace_tooltip {\
+background-color: #FFF;\
+background-image: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.1));\
+border: 1px solid gray;\
+border-radius: 1px;\
+box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);\
+color: black;\
+max-width: 100%;\
+padding: 3px 4px;\
+position: fixed;\
+z-index: 999999;\
+box-sizing: border-box;\
+cursor: default;\
+white-space: pre;\
+word-wrap: break-word;\
+line-height: normal;\
+font-style: normal;\
+font-weight: normal;\
+letter-spacing: normal;\
+pointer-events: none;\
+}\
+.ace_folding-enabled > .ace_gutter-cell {\
+padding-right: 13px;\
+}\
+.ace_fold-widget {\
+box-sizing: border-box;\
+margin: 0 -12px 0 1px;\
+display: none;\
+width: 11px;\
+vertical-align: top;\
+background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAANElEQVR42mWKsQ0AMAzC8ixLlrzQjzmBiEjp0A6WwBCSPgKAXoLkqSot7nN3yMwR7pZ32NzpKkVoDBUxKAAAAABJRU5ErkJggg==\");\
+background-repeat: no-repeat;\
+background-position: center;\
+border-radius: 3px;\
+border: 1px solid transparent;\
+cursor: pointer;\
+}\
+.ace_folding-enabled .ace_fold-widget {\
+display: inline-block;   \
+}\
+.ace_fold-widget.ace_end {\
+background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAANElEQVR42m3HwQkAMAhD0YzsRchFKI7sAikeWkrxwScEB0nh5e7KTPWimZki4tYfVbX+MNl4pyZXejUO1QAAAABJRU5ErkJggg==\");\
+}\
+.ace_fold-widget.ace_closed {\
+background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAGCAYAAAAG5SQMAAAAOUlEQVR42jXKwQkAMAgDwKwqKD4EwQ26sSOkVWjgIIHAzPiCgaqiqnJHZnKICBERHN194O5b9vbLuAVRL+l0YWnZAAAAAElFTkSuQmCCXA==\");\
+}\
+.ace_fold-widget:hover {\
+border: 1px solid rgba(0, 0, 0, 0.3);\
+background-color: rgba(255, 255, 255, 0.2);\
+box-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);\
+}\
+.ace_fold-widget:active {\
+border: 1px solid rgba(0, 0, 0, 0.4);\
+background-color: rgba(0, 0, 0, 0.05);\
+box-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);\
+}\
+.ace_dark .ace_fold-widget {\
+background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHklEQVQIW2P4//8/AzoGEQ7oGCaLLAhWiSwB146BAQCSTPYocqT0AAAAAElFTkSuQmCC\");\
+}\
+.ace_dark .ace_fold-widget.ace_end {\
+background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAH0lEQVQIW2P4//8/AxQ7wNjIAjDMgC4AxjCVKBirIAAF0kz2rlhxpAAAAABJRU5ErkJggg==\");\
+}\
+.ace_dark .ace_fold-widget.ace_closed {\
+background-image: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAAFCAYAAACAcVaiAAAAHElEQVQIW2P4//+/AxAzgDADlOOAznHAKgPWAwARji8UIDTfQQAAAABJRU5ErkJggg==\");\
+}\
+.ace_dark .ace_fold-widget:hover {\
+box-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);\
+background-color: rgba(255, 255, 255, 0.1);\
+}\
+.ace_dark .ace_fold-widget:active {\
+box-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);\
+}\
+.ace_inline_button {\
+border: 1px solid lightgray;\
+display: inline-block;\
+margin: -1px 8px;\
+padding: 0 5px;\
+pointer-events: auto;\
+cursor: pointer;\
+}\
+.ace_inline_button:hover {\
+border-color: gray;\
+background: rgba(200,200,200,0.2);\
+display: inline-block;\
+pointer-events: auto;\
+}\
+.ace_fold-widget.ace_invalid {\
+background-color: #FFB4B4;\
+border-color: #DE5555;\
+}\
+.ace_fade-fold-widgets .ace_fold-widget {\
+transition: opacity 0.4s ease 0.05s;\
+opacity: 0;\
+}\
+.ace_fade-fold-widgets:hover .ace_fold-widget {\
+transition: opacity 0.05s ease 0.05s;\
+opacity:1;\
+}\
+.ace_underline {\
+text-decoration: underline;\
+}\
+.ace_bold {\
+font-weight: bold;\
+}\
+.ace_nobold .ace_bold {\
+font-weight: normal;\
+}\
+.ace_italic {\
+font-style: italic;\
+}\
+.ace_error-marker {\
+background-color: rgba(255, 0, 0,0.2);\
+position: absolute;\
+z-index: 9;\
+}\
+.ace_highlight-marker {\
+background-color: rgba(255, 255, 0,0.2);\
+position: absolute;\
+z-index: 8;\
+}\
+.ace_text-input-ios {\
+position: absolute !important;\
+top: -100000px !important;\
+left: -100000px !important;\
+}\
+";
+
+var useragent = require("./lib/useragent");
+var HIDE_TEXTAREA = useragent.isIE;
+
+dom.importCssString(editorCss, "ace_editor.css");
+
+var VirtualRenderer = function(container, theme) {
+    var _self = this;
+
+    this.container = container || dom.createElement("div");
+
+    dom.addCssClass(this.container, "ace_editor");
+    if (dom.HI_DPI) dom.addCssClass(this.container, "ace_hidpi");
+
+    this.setTheme(theme);
+
+    this.$gutter = dom.createElement("div");
+    this.$gutter.className = "ace_gutter";
+    this.container.appendChild(this.$gutter);
+    this.$gutter.setAttribute("aria-hidden", true);
+
+    this.scroller = dom.createElement("div");
+    this.scroller.className = "ace_scroller";
+    
+    this.container.appendChild(this.scroller);
+
+    this.content = dom.createElement("div");
+    this.content.className = "ace_content";
+    this.scroller.appendChild(this.content);
+
+    this.$gutterLayer = new GutterLayer(this.$gutter);
+    this.$gutterLayer.on("changeGutterWidth", this.onGutterResize.bind(this));
+
+    this.$markerBack = new MarkerLayer(this.content);
+
+    var textLayer = this.$textLayer = new TextLayer(this.content);
+    this.canvas = textLayer.element;
+
+    this.$markerFront = new MarkerLayer(this.content);
+
+    this.$cursorLayer = new CursorLayer(this.content);
+    this.$horizScroll = false;
+    this.$vScroll = false;
+
+    this.scrollBar = 
+    this.scrollBarV = new VScrollBar(this.container, this);
+    this.scrollBarH = new HScrollBar(this.container, this);
+    this.scrollBarV.addEventListener("scroll", function(e) {
+        if (!_self.$scrollAnimation)
+            _self.session.setScrollTop(e.data - _self.scrollMargin.top);
+    });
+    this.scrollBarH.addEventListener("scroll", function(e) {
+        if (!_self.$scrollAnimation)
+            _self.session.setScrollLeft(e.data - _self.scrollMargin.left);
+    });
+
+    this.scrollTop = 0;
+    this.scrollLeft = 0;
+
+    this.cursorPos = {
+        row : 0,
+        column : 0
+    };
+
+    this.$fontMetrics = new FontMetrics(this.container);
+    this.$textLayer.$setFontMetrics(this.$fontMetrics);
+    this.$textLayer.addEventListener("changeCharacterSize", function(e) {
+        _self.updateCharacterSize();
+        _self.onResize(true, _self.gutterWidth, _self.$size.width, _self.$size.height);
+        _self._signal("changeCharacterSize", e);
+    });
+
+    this.$size = {
+        width: 0,
+        height: 0,
+        scrollerHeight: 0,
+        scrollerWidth: 0,
+        $dirty: true
+    };
+
+    this.layerConfig = {
+        width : 1,
+        padding : 0,
+        firstRow : 0,
+        firstRowScreen: 0,
+        lastRow : 0,
+        lineHeight : 0,
+        characterWidth : 0,
+        minHeight : 1,
+        maxHeight : 1,
+        offset : 0,
+        height : 1,
+        gutterOffset: 1
+    };
+    
+    this.scrollMargin = {
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        v: 0,
+        h: 0
+    };
+    
+    this.margin = {
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        v: 0,
+        h: 0
+    };
+    
+    this.$keepTextAreaAtCursor = true;
+
+    this.$loop = new RenderLoop(
+        this.$renderChanges.bind(this),
+        this.container.ownerDocument.defaultView
+    );
+    this.$loop.schedule(this.CHANGE_FULL);
+
+    this.updateCharacterSize();
+    this.setPadding(4);
+    config.resetOptions(this);
+    config._emit("renderer", this);
+};
+
+(function() {
+
+    this.CHANGE_CURSOR = 1;
+    this.CHANGE_MARKER = 2;
+    this.CHANGE_GUTTER = 4;
+    this.CHANGE_SCROLL = 8;
+    this.CHANGE_LINES = 16;
+    this.CHANGE_TEXT = 32;
+    this.CHANGE_SIZE = 64;
+    this.CHANGE_MARKER_BACK = 128;
+    this.CHANGE_MARKER_FRONT = 256;
+    this.CHANGE_FULL = 512;
+    this.CHANGE_H_SCROLL = 1024;
+
+    oop.implement(this, EventEmitter);
+
+    this.updateCharacterSize = function() {
+        if (this.$textLayer.allowBoldFonts != this.$allowBoldFonts) {
+            this.$allowBoldFonts = this.$textLayer.allowBoldFonts;
+            this.setStyle("ace_nobold", !this.$allowBoldFonts);
+        }
+
+        this.layerConfig.characterWidth =
+        this.characterWidth = this.$textLayer.getCharacterWidth();
+        this.layerConfig.lineHeight =
+        this.lineHeight = this.$textLayer.getLineHeight();
+        this.$updatePrintMargin();
+    };
+    this.setSession = function(session) {
+        if (this.session)
+            this.session.doc.off("changeNewLineMode", this.onChangeNewLineMode);
+            
+        this.session = session;
+        if (session && this.scrollMargin.top && session.getScrollTop() <= 0)
+            session.setScrollTop(-this.scrollMargin.top);
+
+        this.$cursorLayer.setSession(session);
+        this.$markerBack.setSession(session);
+        this.$markerFront.setSession(session);
+        this.$gutterLayer.setSession(session);
+        this.$textLayer.setSession(session);
+        if (!session)
+            return;
+        
+        this.$loop.schedule(this.CHANGE_FULL);
+        this.session.$setFontMetrics(this.$fontMetrics);
+        this.scrollBarH.scrollLeft = this.scrollBarV.scrollTop = null;
+        
+        this.onChangeNewLineMode = this.onChangeNewLineMode.bind(this);
+        this.onChangeNewLineMode();
+        this.session.doc.on("changeNewLineMode", this.onChangeNewLineMode);
+    };
+    this.updateLines = function(firstRow, lastRow, force) {
+        if (lastRow === undefined)
+            lastRow = Infinity;
+
+        if (!this.$changedLines) {
+            this.$changedLines = {
+                firstRow: firstRow,
+                lastRow: lastRow
+            };
+        }
+        else {
+            if (this.$changedLines.firstRow > firstRow)
+                this.$changedLines.firstRow = firstRow;
+
+            if (this.$changedLines.lastRow < lastRow)
+                this.$changedLines.lastRow = lastRow;
+        }
+        if (this.$changedLines.lastRow < this.layerConfig.firstRow) {
+            if (force)
+                this.$changedLines.lastRow = this.layerConfig.lastRow;
+            else
+                return;
+        }
+        if (this.$changedLines.firstRow > this.layerConfig.lastRow)
+            return;
+        this.$loop.schedule(this.CHANGE_LINES);
+    };
+
+    this.onChangeNewLineMode = function() {
+        this.$loop.schedule(this.CHANGE_TEXT);
+        this.$textLayer.$updateEolChar();
+        this.session.$bidiHandler.setEolChar(this.$textLayer.EOL_CHAR);
+    };
+    
+    this.onChangeTabSize = function() {
+        this.$loop.schedule(this.CHANGE_TEXT | this.CHANGE_MARKER);
+        this.$textLayer.onChangeTabSize();
+    };
+    this.updateText = function() {
+        this.$loop.schedule(this.CHANGE_TEXT);
+    };
+    this.updateFull = function(force) {
+        if (force)
+            this.$renderChanges(this.CHANGE_FULL, true);
+        else
+            this.$loop.schedule(this.CHANGE_FULL);
+    };
+    this.updateFontSize = function() {
+        this.$textLayer.checkForSizeChanges();
+    };
+
+    this.$changes = 0;
+    this.$updateSizeAsync = function() {
+        if (this.$loop.pending)
+            this.$size.$dirty = true;
+        else
+            this.onResize();
+    };
+    this.onResize = function(force, gutterWidth, width, height) {
+        if (this.resizing > 2)
+            return;
+        else if (this.resizing > 0)
+            this.resizing++;
+        else
+            this.resizing = force ? 1 : 0;
+        var el = this.container;
+        if (!height)
+            height = el.clientHeight || el.scrollHeight;
+        if (!width)
+            width = el.clientWidth || el.scrollWidth;
+        var changes = this.$updateCachedSize(force, gutterWidth, width, height);
+
+        
+        if (!this.$size.scrollerHeight || (!width && !height))
+            return this.resizing = 0;
+
+        if (force)
+            this.$gutterLayer.$padding = null;
+
+        if (force)
+            this.$renderChanges(changes | this.$changes, true);
+        else
+            this.$loop.schedule(changes | this.$changes);
+
+        if (this.resizing)
+            this.resizing = 0;
+        this.scrollBarV.scrollLeft = this.scrollBarV.scrollTop = null;
+    };
+    
+    this.$updateCachedSize = function(force, gutterWidth, width, height) {
+        height -= (this.$extraHeight || 0);
+        var changes = 0;
+        var size = this.$size;
+        var oldSize = {
+            width: size.width,
+            height: size.height,
+            scrollerHeight: size.scrollerHeight,
+            scrollerWidth: size.scrollerWidth
+        };
+        if (height && (force || size.height != height)) {
+            size.height = height;
+            changes |= this.CHANGE_SIZE;
+
+            size.scrollerHeight = size.height;
+            if (this.$horizScroll)
+                size.scrollerHeight -= this.scrollBarH.getHeight();
+            this.scrollBarV.element.style.bottom = this.scrollBarH.getHeight() + "px";
+
+            changes = changes | this.CHANGE_SCROLL;
+        }
+
+        if (width && (force || size.width != width)) {
+            changes |= this.CHANGE_SIZE;
+            size.width = width;
+            
+            if (gutterWidth == null)
+                gutterWidth = this.$showGutter ? this.$gutter.offsetWidth : 0;
+            
+            this.gutterWidth = gutterWidth;
+            
+            dom.setStyle(this.scrollBarH.element.style, "left", gutterWidth + "px");
+            dom.setStyle(this.scroller.style, "left", gutterWidth + this.margin.left + "px");
+            size.scrollerWidth = Math.max(0, width - gutterWidth - this.scrollBarV.getWidth() - this.margin.h);
+            dom.setStyle(this.$gutter.style, "left", this.margin.left + "px");
+            
+            var right = this.scrollBarV.getWidth() + "px";
+            dom.setStyle(this.scrollBarH.element.style, "right", right);
+            dom.setStyle(this.scroller.style, "right", right);
+            dom.setStyle(this.scroller.style, "bottom", this.scrollBarH.getHeight());
+
+            if (this.session && this.session.getUseWrapMode() && this.adjustWrapLimit() || force) {
+                changes |= this.CHANGE_FULL;
+            }
+        }
+        
+        size.$dirty = !width || !height;
+
+        if (changes)
+            this._signal("resize", oldSize);
+
+        return changes;
+    };
+
+    this.onGutterResize = function(width) {
+        var gutterWidth = this.$showGutter ? width : 0;
+        if (gutterWidth != this.gutterWidth)
+            this.$changes |= this.$updateCachedSize(true, gutterWidth, this.$size.width, this.$size.height);
+
+        if (this.session.getUseWrapMode() && this.adjustWrapLimit()) {
+            this.$loop.schedule(this.CHANGE_FULL);
+        } else if (this.$size.$dirty) {
+            this.$loop.schedule(this.CHANGE_FULL);
+        } else {
+            this.$computeLayerConfig();
+        }
+    };
+    this.adjustWrapLimit = function() {
+        var availableWidth = this.$size.scrollerWidth - this.$padding * 2;
+        var limit = Math.floor(availableWidth / this.characterWidth);
+        return this.session.adjustWrapLimit(limit, this.$showPrintMargin && this.$printMarginColumn);
+    };
+    this.setAnimatedScroll = function(shouldAnimate){
+        this.setOption("animatedScroll", shouldAnimate);
+    };
+    this.getAnimatedScroll = function() {
+        return this.$animatedScroll;
+    };
+    this.setShowInvisibles = function(showInvisibles) {
+        this.setOption("showInvisibles", showInvisibles);
+        this.session.$bidiHandler.setShowInvisibles(showInvisibles);
+    };
+    this.getShowInvisibles = function() {
+        return this.getOption("showInvisibles");
+    };
+    this.getDisplayIndentGuides = function() {
+        return this.getOption("displayIndentGuides");
+    };
+
+    this.setDisplayIndentGuides = function(display) {
+        this.setOption("displayIndentGuides", display);
+    };
+    this.setShowPrintMargin = function(showPrintMargin) {
+        this.setOption("showPrintMargin", showPrintMargin);
+    };
+    this.getShowPrintMargin = function() {
+        return this.getOption("showPrintMargin");
+    };
+    this.setPrintMarginColumn = function(showPrintMargin) {
+        this.setOption("printMarginColumn", showPrintMargin);
+    };
+    this.getPrintMarginColumn = function() {
+        return this.getOption("printMarginColumn");
+    };
+    this.getShowGutter = function(){
+        return this.getOption("showGutter");
+    };
+    this.setShowGutter = function(show){
+        return this.setOption("showGutter", show);
+    };
+
+    this.getFadeFoldWidgets = function(){
+        return this.getOption("fadeFoldWidgets");
+    };
+
+    this.setFadeFoldWidgets = function(show) {
+        this.setOption("fadeFoldWidgets", show);
+    };
+
+    this.setHighlightGutterLine = function(shouldHighlight) {
+        this.setOption("highlightGutterLine", shouldHighlight);
+    };
+
+    this.getHighlightGutterLine = function() {
+        return this.getOption("highlightGutterLine");
+    };
+
+    this.$updatePrintMargin = function() {
+        if (!this.$showPrintMargin && !this.$printMarginEl)
+            return;
+
+        if (!this.$printMarginEl) {
+            var containerEl = dom.createElement("div");
+            containerEl.className = "ace_layer ace_print-margin-layer";
+            this.$printMarginEl = dom.createElement("div");
+            this.$printMarginEl.className = "ace_print-margin";
+            containerEl.appendChild(this.$printMarginEl);
+            this.content.insertBefore(containerEl, this.content.firstChild);
+        }
+
+        var style = this.$printMarginEl.style;
+        style.left = Math.round(this.characterWidth * this.$printMarginColumn + this.$padding) + "px";
+        style.visibility = this.$showPrintMargin ? "visible" : "hidden";
+        
+        if (this.session && this.session.$wrap == -1)
+            this.adjustWrapLimit();
+    };
+    this.getContainerElement = function() {
+        return this.container;
+    };
+    this.getMouseEventTarget = function() {
+        return this.scroller;
+    };
+    this.getTextAreaContainer = function() {
+        return this.container;
+    };
+    this.$moveTextAreaToCursor = function() {
+        var style = this.textarea.style;
+        if (!this.$keepTextAreaAtCursor) {
+            dom.translate(this.textarea, -100, 0);
+            return;
+        }
+        var pixelPos = this.$cursorLayer.$pixelPos;
+        if (!pixelPos)
+            return;
+        var composition = this.$composition;
+        if (composition && composition.markerRange)
+            pixelPos = this.$cursorLayer.getPixelPosition(composition.markerRange.start, true);
+        
+        var config = this.layerConfig;
+        var posTop = pixelPos.top;
+        var posLeft = pixelPos.left;
+        posTop -= config.offset;
+
+        var h = composition && composition.useTextareaForIME ? this.lineHeight : HIDE_TEXTAREA ? 0 : 1;
+        if (posTop < 0 || posTop > config.height - h) {
+            dom.translate(this.textarea, 0, 0);
+            return;
+        }
+
+        var w = 1;
+        if (!composition) {
+            posTop += this.lineHeight;
+        }
+        else {
+            if (composition.useTextareaForIME) {
+                var val = this.textarea.value;
+                w = this.characterWidth * (this.session.$getStringScreenWidth(val)[0]);
+                h += 2;
+            }
+            else {
+                posTop += this.lineHeight + 2;
+            }
+        }
+        
+        posLeft -= this.scrollLeft;
+        if (posLeft > this.$size.scrollerWidth - w)
+            posLeft = this.$size.scrollerWidth - w;
+
+        posLeft += this.gutterWidth + this.margin.left;
+
+        dom.setStyle(style, "height", h + "px");
+        dom.setStyle(style, "width", w + "px");
+        dom.translate(this.textarea, Math.min(posLeft, this.$size.scrollerWidth - w), Math.min(posTop, this.$size.height - h));
+    };
+    this.getFirstVisibleRow = function() {
+        return this.layerConfig.firstRow;
+    };
+    this.getFirstFullyVisibleRow = function() {
+        return this.layerConfig.firstRow + (this.layerConfig.offset === 0 ? 0 : 1);
+    };
+    this.getLastFullyVisibleRow = function() {
+        var config = this.layerConfig;
+        var lastRow = config.lastRow;
+        var top = this.session.documentToScreenRow(lastRow, 0) * config.lineHeight;
+        if (top - this.session.getScrollTop() > config.height - config.lineHeight)
+            return lastRow - 1;
+        return lastRow;
+    };
+    this.getLastVisibleRow = function() {
+        return this.layerConfig.lastRow;
+    };
+
+    this.$padding = null;
+    this.setPadding = function(padding) {
+        this.$padding = padding;
+        this.$textLayer.setPadding(padding);
+        this.$cursorLayer.setPadding(padding);
+        this.$markerFront.setPadding(padding);
+        this.$markerBack.setPadding(padding);
+        this.$loop.schedule(this.CHANGE_FULL);
+        this.$updatePrintMargin();
+    };
+    
+    this.setScrollMargin = function(top, bottom, left, right) {
+        var sm = this.scrollMargin;
+        sm.top = top|0;
+        sm.bottom = bottom|0;
+        sm.right = right|0;
+        sm.left = left|0;
+        sm.v = sm.top + sm.bottom;
+        sm.h = sm.left + sm.right;
+        if (sm.top && this.scrollTop <= 0 && this.session)
+            this.session.setScrollTop(-sm.top);
+        this.updateFull();
+    };
+    
+    this.setMargin = function(top, bottom, left, right) {
+        var sm = this.margin;
+        sm.top = top|0;
+        sm.bottom = bottom|0;
+        sm.right = right|0;
+        sm.left = left|0;
+        sm.v = sm.top + sm.bottom;
+        sm.h = sm.left + sm.right;
+        this.$updateCachedSize(true, this.gutterWidth, this.$size.width, this.$size.height);
+        this.updateFull();
+    };
+    this.getHScrollBarAlwaysVisible = function() {
+        return this.$hScrollBarAlwaysVisible;
+    };
+    this.setHScrollBarAlwaysVisible = function(alwaysVisible) {
+        this.setOption("hScrollBarAlwaysVisible", alwaysVisible);
+    };
+    this.getVScrollBarAlwaysVisible = function() {
+        return this.$vScrollBarAlwaysVisible;
+    };
+    this.setVScrollBarAlwaysVisible = function(alwaysVisible) {
+        this.setOption("vScrollBarAlwaysVisible", alwaysVisible);
+    };
+
+    this.$updateScrollBarV = function() {
+        var scrollHeight = this.layerConfig.maxHeight;
+        var scrollerHeight = this.$size.scrollerHeight;
+        if (!this.$maxLines && this.$scrollPastEnd) {
+            scrollHeight -= (scrollerHeight - this.lineHeight) * this.$scrollPastEnd;
+            if (this.scrollTop > scrollHeight - scrollerHeight) {
+                scrollHeight = this.scrollTop + scrollerHeight;
+                this.scrollBarV.scrollTop = null;
+            }
+        }
+        this.scrollBarV.setScrollHeight(scrollHeight + this.scrollMargin.v);
+        this.scrollBarV.setScrollTop(this.scrollTop + this.scrollMargin.top);
+    };
+    this.$updateScrollBarH = function() {
+        this.scrollBarH.setScrollWidth(this.layerConfig.width + 2 * this.$padding + this.scrollMargin.h);
+        this.scrollBarH.setScrollLeft(this.scrollLeft + this.scrollMargin.left);
+    };
+    
+    this.$frozen = false;
+    this.freeze = function() {
+        this.$frozen = true;
+    };
+    
+    this.unfreeze = function() {
+        this.$frozen = false;
+    };
+
+    this.$renderChanges = function(changes, force) {
+        if (this.$changes) {
+            changes |= this.$changes;
+            this.$changes = 0;
+        }
+        if ((!this.session || !this.container.offsetWidth || this.$frozen) || (!changes && !force)) {
+            this.$changes |= changes;
+            return; 
+        } 
+        if (this.$size.$dirty) {
+            this.$changes |= changes;
+            return this.onResize(true);
+        }
+        if (!this.lineHeight) {
+            this.$textLayer.checkForSizeChanges();
+        }
+        
+        this._signal("beforeRender");
+        
+        if (this.session && this.session.$bidiHandler)
+            this.session.$bidiHandler.updateCharacterWidths(this.$fontMetrics);
+
+        var config = this.layerConfig;
+        if (changes & this.CHANGE_FULL ||
+            changes & this.CHANGE_SIZE ||
+            changes & this.CHANGE_TEXT ||
+            changes & this.CHANGE_LINES ||
+            changes & this.CHANGE_SCROLL ||
+            changes & this.CHANGE_H_SCROLL
+        ) {
+            changes |= this.$computeLayerConfig();
+            if (config.firstRow != this.layerConfig.firstRow && config.firstRowScreen == this.layerConfig.firstRowScreen) {
+                var st = this.scrollTop + (config.firstRow - this.layerConfig.firstRow) * this.lineHeight;
+                if (st > 0) {
+                    this.scrollTop = st;
+                    changes = changes | this.CHANGE_SCROLL;
+                    changes |= this.$computeLayerConfig();
+                }
+            }
+            config = this.layerConfig;
+            this.$updateScrollBarV();
+            if (changes & this.CHANGE_H_SCROLL)
+                this.$updateScrollBarH();
+            
+            dom.translate(this.content, -this.scrollLeft, -config.offset);
+            
+            var width = config.width + 2 * this.$padding + "px";
+            var height = config.minHeight + "px";
+            
+            dom.setStyle(this.content.style, "width", width);
+            dom.setStyle(this.content.style, "height", height);
+        }
+        if (changes & this.CHANGE_H_SCROLL) {
+            dom.translate(this.content, -this.scrollLeft, -config.offset);
+            this.scroller.className = this.scrollLeft <= 0 ? "ace_scroller" : "ace_scroller ace_scroll-left";
+        }
+        if (changes & this.CHANGE_FULL) {
+            this.$textLayer.update(config);
+            if (this.$showGutter)
+                this.$gutterLayer.update(config);
+            this.$markerBack.update(config);
+            this.$markerFront.update(config);
+            this.$cursorLayer.update(config);
+            this.$moveTextAreaToCursor();
+            this._signal("afterRender");
+            return;
+        }
+        if (changes & this.CHANGE_SCROLL) {
+            if (changes & this.CHANGE_TEXT || changes & this.CHANGE_LINES)
+                this.$textLayer.update(config);
+            else
+                this.$textLayer.scrollLines(config);
+
+            if (this.$showGutter) {
+                if (changes & this.CHANGE_GUTTER || changes & this.CHANGE_LINES)
+                    this.$gutterLayer.update(config);
+                else
+                    this.$gutterLayer.scrollLines(config);
+            }
+            this.$markerBack.update(config);
+            this.$markerFront.update(config);
+            this.$cursorLayer.update(config);
+            this.$moveTextAreaToCursor();
+            this._signal("afterRender");
+            return;
+        }
+
+        if (changes & this.CHANGE_TEXT) {
+            this.$textLayer.update(config);
+            if (this.$showGutter)
+                this.$gutterLayer.update(config);
+        }
+        else if (changes & this.CHANGE_LINES) {
+            if (this.$updateLines() || (changes & this.CHANGE_GUTTER) && this.$showGutter)
+                this.$gutterLayer.update(config);
+        }
+        else if (changes & this.CHANGE_TEXT || changes & this.CHANGE_GUTTER) {
+            if (this.$showGutter)
+                this.$gutterLayer.update(config);
+        }
+        else if (changes & this.CHANGE_CURSOR) {
+            if (this.$highlightGutterLine)
+                this.$gutterLayer.updateLineHighlight(config);
+        }
+
+        if (changes & this.CHANGE_CURSOR) {
+            this.$cursorLayer.update(config);
+            this.$moveTextAreaToCursor();
+        }
+
+        if (changes & (this.CHANGE_MARKER | this.CHANGE_MARKER_FRONT)) {
+            this.$markerFront.update(config);
+        }
+
+        if (changes & (this.CHANGE_MARKER | this.CHANGE_MARKER_BACK)) {
+            this.$markerBack.update(config);
+        }
+
+        this._signal("afterRender");
+    };
+
+    
+    this.$autosize = function() {
+        var height = this.session.getScreenLength() * this.lineHeight;
+        var maxHeight = this.$maxLines * this.lineHeight;
+        var desiredHeight = Math.min(maxHeight, 
+            Math.max((this.$minLines || 1) * this.lineHeight, height)
+        ) + this.scrollMargin.v + (this.$extraHeight || 0);
+        if (this.$horizScroll)
+            desiredHeight += this.scrollBarH.getHeight();
+        if (this.$maxPixelHeight && desiredHeight > this.$maxPixelHeight)
+            desiredHeight = this.$maxPixelHeight;
+        
+        var hideScrollbars = desiredHeight <= 2 * this.lineHeight;
+        var vScroll = !hideScrollbars && height > maxHeight;
+        
+        if (desiredHeight != this.desiredHeight ||
+            this.$size.height != this.desiredHeight || vScroll != this.$vScroll) {
+            if (vScroll != this.$vScroll) {
+                this.$vScroll = vScroll;
+                this.scrollBarV.setVisible(vScroll);
+            }
+            
+            var w = this.container.clientWidth;
+            this.container.style.height = desiredHeight + "px";
+            this.$updateCachedSize(true, this.$gutterWidth, w, desiredHeight);
+            this.desiredHeight = desiredHeight;
+            
+            this._signal("autosize");
+        }
+    };
+    
+    this.$computeLayerConfig = function() {
+        var session = this.session;
+        var size = this.$size;
+        
+        var hideScrollbars = size.height <= 2 * this.lineHeight;
+        var screenLines = this.session.getScreenLength();
+        var maxHeight = screenLines * this.lineHeight;
+
+        var longestLine = this.$getLongestLine();
+        
+        var horizScroll = !hideScrollbars && (this.$hScrollBarAlwaysVisible ||
+            size.scrollerWidth - longestLine - 2 * this.$padding < 0);
+
+        var hScrollChanged = this.$horizScroll !== horizScroll;
+        if (hScrollChanged) {
+            this.$horizScroll = horizScroll;
+            this.scrollBarH.setVisible(horizScroll);
+        }
+        var vScrollBefore = this.$vScroll; // autosize can change vscroll value in which case we need to update longestLine
+        if (this.$maxLines && this.lineHeight > 1)
+            this.$autosize();
+
+        var offset = this.scrollTop % this.lineHeight;
+        var minHeight = size.scrollerHeight + this.lineHeight;
+        
+        var scrollPastEnd = !this.$maxLines && this.$scrollPastEnd
+            ? (size.scrollerHeight - this.lineHeight) * this.$scrollPastEnd
+            : 0;
+        maxHeight += scrollPastEnd;
+        
+        var sm = this.scrollMargin;
+        this.session.setScrollTop(Math.max(-sm.top,
+            Math.min(this.scrollTop, maxHeight - size.scrollerHeight + sm.bottom)));
+
+        this.session.setScrollLeft(Math.max(-sm.left, Math.min(this.scrollLeft, 
+            longestLine + 2 * this.$padding - size.scrollerWidth + sm.right)));
+        
+        var vScroll = !hideScrollbars && (this.$vScrollBarAlwaysVisible ||
+            size.scrollerHeight - maxHeight + scrollPastEnd < 0 || this.scrollTop > sm.top);
+        var vScrollChanged = vScrollBefore !== vScroll;
+        if (vScrollChanged) {
+            this.$vScroll = vScroll;
+            this.scrollBarV.setVisible(vScroll);
+        }
+
+        var lineCount = Math.ceil(minHeight / this.lineHeight) - 1;
+        var firstRow = Math.max(0, Math.round((this.scrollTop - offset) / this.lineHeight));
+        var lastRow = firstRow + lineCount;
+        var firstRowScreen, firstRowHeight;
+        var lineHeight = this.lineHeight;
+        firstRow = session.screenToDocumentRow(firstRow, 0);
+        var foldLine = session.getFoldLine(firstRow);
+        if (foldLine) {
+            firstRow = foldLine.start.row;
+        }
+
+        firstRowScreen = session.documentToScreenRow(firstRow, 0);
+        firstRowHeight = session.getRowLength(firstRow) * lineHeight;
+
+        lastRow = Math.min(session.screenToDocumentRow(lastRow, 0), session.getLength() - 1);
+        minHeight = size.scrollerHeight + session.getRowLength(lastRow) * lineHeight +
+                                                firstRowHeight;
+
+        offset = this.scrollTop - firstRowScreen * lineHeight;
+
+        var changes = 0;
+        if (this.layerConfig.width != longestLine || hScrollChanged) 
+            changes = this.CHANGE_H_SCROLL;
+        if (hScrollChanged || vScrollChanged) {
+            changes = this.$updateCachedSize(true, this.gutterWidth, size.width, size.height);
+            this._signal("scrollbarVisibilityChanged");
+            if (vScrollChanged)
+                longestLine = this.$getLongestLine();
+        }
+        
+        this.layerConfig = {
+            width : longestLine,
+            padding : this.$padding,
+            firstRow : firstRow,
+            firstRowScreen: firstRowScreen,
+            lastRow : lastRow,
+            lineHeight : lineHeight,
+            characterWidth : this.characterWidth,
+            minHeight : minHeight,
+            maxHeight : maxHeight,
+            offset : offset,
+            gutterOffset : lineHeight ? Math.max(0, Math.ceil((offset + size.height - size.scrollerHeight) / lineHeight)) : 0,
+            height : this.$size.scrollerHeight
+        };
+
+        if (this.session.$bidiHandler)
+            this.session.$bidiHandler.setContentWidth(longestLine - this.$padding);
+
+        return changes;
+    };
+
+    this.$updateLines = function() {
+        if (!this.$changedLines) return;
+        var firstRow = this.$changedLines.firstRow;
+        var lastRow = this.$changedLines.lastRow;
+        this.$changedLines = null;
+
+        var layerConfig = this.layerConfig;
+
+        if (firstRow > layerConfig.lastRow + 1) { return; }
+        if (lastRow < layerConfig.firstRow) { return; }
+        if (lastRow === Infinity) {
+            if (this.$showGutter)
+                this.$gutterLayer.update(layerConfig);
+            this.$textLayer.update(layerConfig);
+            return;
+        }
+        this.$textLayer.updateLines(layerConfig, firstRow, lastRow);
+        return true;
+    };
+
+    this.$getLongestLine = function() {
+        var charCount = this.session.getScreenWidth();
+        if (this.showInvisibles && !this.session.$useWrapMode)
+            charCount += 1;
+            
+        if (this.$textLayer && charCount > this.$textLayer.MAX_LINE_LENGTH)
+            charCount = this.$textLayer.MAX_LINE_LENGTH + 30;
+
+        return Math.max(this.$size.scrollerWidth - 2 * this.$padding, Math.round(charCount * this.characterWidth));
+    };
+    this.updateFrontMarkers = function() {
+        this.$markerFront.setMarkers(this.session.getMarkers(true));
+        this.$loop.schedule(this.CHANGE_MARKER_FRONT);
+    };
+    this.updateBackMarkers = function() {
+        this.$markerBack.setMarkers(this.session.getMarkers());
+        this.$loop.schedule(this.CHANGE_MARKER_BACK);
+    };
+    this.addGutterDecoration = function(row, className){
+        this.$gutterLayer.addGutterDecoration(row, className);
+    };
+    this.removeGutterDecoration = function(row, className){
+        this.$gutterLayer.removeGutterDecoration(row, className);
+    };
+    this.updateBreakpoints = function(rows) {
+        this.$loop.schedule(this.CHANGE_GUTTER);
+    };
+    this.setAnnotations = function(annotations) {
+        this.$gutterLayer.setAnnotations(annotations);
+        this.$loop.schedule(this.CHANGE_GUTTER);
+    };
+    this.updateCursor = function() {
+        this.$loop.schedule(this.CHANGE_CURSOR);
+    };
+    this.hideCursor = function() {
+        this.$cursorLayer.hideCursor();
+    };
+    this.showCursor = function() {
+        this.$cursorLayer.showCursor();
+    };
+
+    this.scrollSelectionIntoView = function(anchor, lead, offset) {
+        this.scrollCursorIntoView(anchor, offset);
+        this.scrollCursorIntoView(lead, offset);
+    };
+    this.scrollCursorIntoView = function(cursor, offset, $viewMargin) {
+        if (this.$size.scrollerHeight === 0)
+            return;
+
+        var pos = this.$cursorLayer.getPixelPosition(cursor);
+
+        var left = pos.left;
+        var top = pos.top;
+        
+        var topMargin = $viewMargin && $viewMargin.top || 0;
+        var bottomMargin = $viewMargin && $viewMargin.bottom || 0;
+        
+        var scrollTop = this.$scrollAnimation ? this.session.getScrollTop() : this.scrollTop;
+        
+        if (scrollTop + topMargin > top) {
+            if (offset && scrollTop + topMargin > top + this.lineHeight)
+                top -= offset * this.$size.scrollerHeight;
+            if (top === 0)
+                top = -this.scrollMargin.top;
+            this.session.setScrollTop(top);
+        } else if (scrollTop + this.$size.scrollerHeight - bottomMargin < top + this.lineHeight) {
+            if (offset && scrollTop + this.$size.scrollerHeight - bottomMargin < top -  this.lineHeight)
+                top += offset * this.$size.scrollerHeight;
+            this.session.setScrollTop(top + this.lineHeight + bottomMargin - this.$size.scrollerHeight);
+        }
+
+        var scrollLeft = this.scrollLeft;
+
+        if (scrollLeft > left) {
+            if (left < this.$padding + 2 * this.layerConfig.characterWidth)
+                left = -this.scrollMargin.left;
+            this.session.setScrollLeft(left);
+        } else if (scrollLeft + this.$size.scrollerWidth < left + this.characterWidth) {
+            this.session.setScrollLeft(Math.round(left + this.characterWidth - this.$size.scrollerWidth));
+        } else if (scrollLeft <= this.$padding && left - scrollLeft < this.characterWidth) {
+            this.session.setScrollLeft(0);
+        }
+    };
+    this.getScrollTop = function() {
+        return this.session.getScrollTop();
+    };
+    this.getScrollLeft = function() {
+        return this.session.getScrollLeft();
+    };
+    this.getScrollTopRow = function() {
+        return this.scrollTop / this.lineHeight;
+    };
+    this.getScrollBottomRow = function() {
+        return Math.max(0, Math.floor((this.scrollTop + this.$size.scrollerHeight) / this.lineHeight) - 1);
+    };
+    this.scrollToRow = function(row) {
+        this.session.setScrollTop(row * this.lineHeight);
+    };
+
+    this.alignCursor = function(cursor, alignment) {
+        if (typeof cursor == "number")
+            cursor = {row: cursor, column: 0};
+
+        var pos = this.$cursorLayer.getPixelPosition(cursor);
+        var h = this.$size.scrollerHeight - this.lineHeight;
+        var offset = pos.top - h * (alignment || 0);
+
+        this.session.setScrollTop(offset);
+        return offset;
+    };
+
+    this.STEPS = 8;
+    this.$calcSteps = function(fromValue, toValue){
+        var i = 0;
+        var l = this.STEPS;
+        var steps = [];
+
+        var func  = function(t, x_min, dx) {
+            return dx * (Math.pow(t - 1, 3) + 1) + x_min;
+        };
+
+        for (i = 0; i < l; ++i)
+            steps.push(func(i / this.STEPS, fromValue, toValue - fromValue));
+
+        return steps;
+    };
+    this.scrollToLine = function(line, center, animate, callback) {
+        var pos = this.$cursorLayer.getPixelPosition({row: line, column: 0});
+        var offset = pos.top;
+        if (center)
+            offset -= this.$size.scrollerHeight / 2;
+
+        var initialScroll = this.scrollTop;
+        this.session.setScrollTop(offset);
+        if (animate !== false)
+            this.animateScrolling(initialScroll, callback);
+    };
+
+    this.animateScrolling = function(fromValue, callback) {
+        var toValue = this.scrollTop;
+        if (!this.$animatedScroll)
+            return;
+        var _self = this;
+        
+        if (fromValue == toValue)
+            return;
+        
+        if (this.$scrollAnimation) {
+            var oldSteps = this.$scrollAnimation.steps;
+            if (oldSteps.length) {
+                fromValue = oldSteps[0];
+                if (fromValue == toValue)
+                    return;
+            }
+        }
+        
+        var steps = _self.$calcSteps(fromValue, toValue);
+        this.$scrollAnimation = {from: fromValue, to: toValue, steps: steps};
+
+        clearInterval(this.$timer);
+
+        _self.session.setScrollTop(steps.shift());
+        _self.session.$scrollTop = toValue;
+        this.$timer = setInterval(function() {
+            if (steps.length) {
+                _self.session.setScrollTop(steps.shift());
+                _self.session.$scrollTop = toValue;
+            } else if (toValue != null) {
+                _self.session.$scrollTop = -1;
+                _self.session.setScrollTop(toValue);
+                toValue = null;
+            } else {
+                _self.$timer = clearInterval(_self.$timer);
+                _self.$scrollAnimation = null;
+                callback && callback();
+            }
+        }, 10);
+    };
+    this.scrollToY = function(scrollTop) {
+        if (this.scrollTop !== scrollTop) {
+            this.$loop.schedule(this.CHANGE_SCROLL);
+            this.scrollTop = scrollTop;
+        }
+    };
+    this.scrollToX = function(scrollLeft) {
+        if (this.scrollLeft !== scrollLeft)
+            this.scrollLeft = scrollLeft;
+        this.$loop.schedule(this.CHANGE_H_SCROLL);
+    };
+    this.scrollTo = function(x, y) {
+        this.session.setScrollTop(y);
+        this.session.setScrollLeft(y);
+    };
+    this.scrollBy = function(deltaX, deltaY) {
+        deltaY && this.session.setScrollTop(this.session.getScrollTop() + deltaY);
+        deltaX && this.session.setScrollLeft(this.session.getScrollLeft() + deltaX);
+    };
+    this.isScrollableBy = function(deltaX, deltaY) {
+        if (deltaY < 0 && this.session.getScrollTop() >= 1 - this.scrollMargin.top)
+           return true;
+        if (deltaY > 0 && this.session.getScrollTop() + this.$size.scrollerHeight
+            - this.layerConfig.maxHeight < -1 + this.scrollMargin.bottom)
+           return true;
+        if (deltaX < 0 && this.session.getScrollLeft() >= 1 - this.scrollMargin.left)
+            return true;
+        if (deltaX > 0 && this.session.getScrollLeft() + this.$size.scrollerWidth
+            - this.layerConfig.width < -1 + this.scrollMargin.right)
+           return true;
+    };
+
+    this.pixelToScreenCoordinates = function(x, y) {
+        var canvasPos;
+        if (this.$hasCssTransforms) {
+            canvasPos = {top:0, left: 0};
+            var p = this.$fontMetrics.transformCoordinates([x, y]);
+            x = p[1] - this.gutterWidth - this.margin.left;
+            y = p[0];
+        } else {
+            canvasPos = this.scroller.getBoundingClientRect();
+        }
+        
+        var offsetX = x + this.scrollLeft - canvasPos.left - this.$padding;
+        var offset = offsetX / this.characterWidth;
+        var row = Math.floor((y + this.scrollTop - canvasPos.top) / this.lineHeight);
+        var col = this.$blockCursor ? Math.floor(offset) : Math.round(offset);
+
+        return {row: row, column: col, side: offset - col > 0 ? 1 : -1, offsetX:  offsetX};
+    };
+
+    this.screenToTextCoordinates = function(x, y) {
+        var canvasPos;
+        if (this.$hasCssTransforms) {
+            canvasPos = {top:0, left: 0};
+            var p = this.$fontMetrics.transformCoordinates([x, y]);
+            x = p[1] - this.gutterWidth - this.margin.left;
+            y = p[0];
+        } else {
+            canvasPos = this.scroller.getBoundingClientRect();
+        }
+
+        var offsetX = x + this.scrollLeft - canvasPos.left - this.$padding;
+        var offset = offsetX / this.characterWidth;
+        var col = this.$blockCursor ? Math.floor(offset) : Math.round(offset);
+
+        var row = Math.floor((y + this.scrollTop - canvasPos.top) / this.lineHeight);
+
+        return this.session.screenToDocumentPosition(row, Math.max(col, 0), offsetX);
+    };
+    this.textToScreenCoordinates = function(row, column) {
+        var canvasPos = this.scroller.getBoundingClientRect();
+        var pos = this.session.documentToScreenPosition(row, column);
+
+        var x = this.$padding + (this.session.$bidiHandler.isBidiRow(pos.row, row)
+             ? this.session.$bidiHandler.getPosLeft(pos.column)
+             : Math.round(pos.column * this.characterWidth));
+        
+        var y = pos.row * this.lineHeight;
+
+        return {
+            pageX: canvasPos.left + x - this.scrollLeft,
+            pageY: canvasPos.top + y - this.scrollTop
+        };
+    };
+    this.visualizeFocus = function() {
+        dom.addCssClass(this.container, "ace_focus");
+    };
+    this.visualizeBlur = function() {
+        dom.removeCssClass(this.container, "ace_focus");
+    };
+    this.showComposition = function(composition) {
+        this.$composition = composition;
+        if (!composition.cssText) {
+            composition.cssText = this.textarea.style.cssText;
+            composition.keepTextAreaAtCursor = this.$keepTextAreaAtCursor;
+        }
+        composition.useTextareaForIME = this.$useTextareaForIME;
+        
+        if (this.$useTextareaForIME) {
+            this.$keepTextAreaAtCursor = true;
+            dom.addCssClass(this.textarea, "ace_composition");
+            this.textarea.style.cssText = "";
+            this.$moveTextAreaToCursor();
+            this.$cursorLayer.element.style.display = "none";
+        }
+        else {            
+            composition.markerId = this.session.addMarker(composition.markerRange, "ace_composition_marker", "text");
+        }
+    };
+    this.setCompositionText = function(text) {
+        var cursor = this.session.selection.cursor;
+        this.addToken(text, "composition_placeholder", cursor.row, cursor.column);
+        this.$moveTextAreaToCursor();
+    };
+    this.hideComposition = function() {
+        if (!this.$composition)
+            return;
+        
+        if (this.$composition.markerId)
+            this.session.removeMarker(this.$composition.markerId);
+
+        dom.removeCssClass(this.textarea, "ace_composition");
+        this.$keepTextAreaAtCursor = this.$composition.keepTextAreaAtCursor;
+        this.textarea.style.cssText = this.$composition.cssText;
+        this.$composition = null;
+        this.$cursorLayer.element.style.display = "";
+    };
+    
+    this.addToken = function(text, type, row, column) {
+        var session = this.session;
+        session.bgTokenizer.lines[row] = null;
+        var newToken = {type: type, value: text};
+        var tokens = session.getTokens(row);
+        if (column == null) {
+            tokens.push(newToken);
+        } else {
+            var l = 0;
+            for (var i =0; i < tokens.length; i++) {
+                var token = tokens[i];
+                l += token.value.length;
+                if (column <= l) {
+                    var diff = token.value.length - (l - column);
+                    var before = token.value.slice(0, diff);
+                    var after = token.value.slice(diff);
+    
+                    tokens.splice(i, 1, {type: token.type, value: before},  newToken,  {type: token.type, value: after});
+                    break;
+                }
+            }
+        }
+        this.updateLines(row, row);
+    };
+    this.setTheme = function(theme, cb) {
+        var _self = this;
+        this.$themeId = theme;
+        _self._dispatchEvent('themeChange',{theme:theme});
+
+        if (!theme || typeof theme == "string") {
+            var moduleName = theme || this.$options.theme.initialValue;
+            config.loadModule(["theme", moduleName], afterLoad);
+        } else {
+            afterLoad(theme);
+        }
+
+        function afterLoad(module) {
+            if (_self.$themeId != theme)
+                return cb && cb();
+            if (!module || !module.cssClass)
+                throw new Error("couldn't load module " + theme + " or it didn't call define");
+            if (module.$id)
+                _self.$themeId = module.$id;
+            dom.importCssString(
+                module.cssText,
+                module.cssClass,
+                _self.container
+            );
+
+            if (_self.theme)
+                dom.removeCssClass(_self.container, _self.theme.cssClass);
+
+            var padding = "padding" in module ? module.padding 
+                : "padding" in (_self.theme || {}) ? 4 : _self.$padding;
+            if (_self.$padding && padding != _self.$padding)
+                _self.setPadding(padding);
+            _self.$theme = module.cssClass;
+
+            _self.theme = module;
+            dom.addCssClass(_self.container, module.cssClass);
+            dom.setCssClass(_self.container, "ace_dark", module.isDark);
+            if (_self.$size) {
+                _self.$size.width = 0;
+                _self.$updateSizeAsync();
+            }
+
+            _self._dispatchEvent('themeLoaded', {theme:module});
+            cb && cb();
+        }
+    };
+    this.getTheme = function() {
+        return this.$themeId;
+    };
+    this.setStyle = function(style, include) {
+        dom.setCssClass(this.container, style, include !== false);
+    };
+    this.unsetStyle = function(style) {
+        dom.removeCssClass(this.container, style);
+    };
+    
+    this.setCursorStyle = function(style) {
+        dom.setStyle(this.scroller.style, "cursor", style);
+    };
+    this.setMouseCursor = function(cursorStyle) {
+        dom.setStyle(this.scroller.style, "cursor", cursorStyle);
+    };
+    
+    this.attachToShadowRoot = function() {
+        dom.importCssString(editorCss, "ace_editor.css", this.container);
+    };
+    this.destroy = function() {
+        this.$fontMetrics.destroy();
+        this.$cursorLayer.destroy();
+    };
+
+}).call(VirtualRenderer.prototype);
+
+
+config.defineOptions(VirtualRenderer.prototype, "renderer", {
+    animatedScroll: {initialValue: false},
+    showInvisibles: {
+        set: function(value) {
+            if (this.$textLayer.setShowInvisibles(value))
+                this.$loop.schedule(this.CHANGE_TEXT);
+        },
+        initialValue: false
+    },
+    showPrintMargin: {
+        set: function() { this.$updatePrintMargin(); },
+        initialValue: true
+    },
+    printMarginColumn: {
+        set: function() { this.$updatePrintMargin(); },
+        initialValue: 80
+    },
+    printMargin: {
+        set: function(val) {
+            if (typeof val == "number")
+                this.$printMarginColumn = val;
+            this.$showPrintMargin = !!val;
+            this.$updatePrintMargin();
+        },
+        get: function() {
+            return this.$showPrintMargin && this.$printMarginColumn; 
+        }
+    },
+    showGutter: {
+        set: function(show){
+            this.$gutter.style.display = show ? "block" : "none";
+            this.$loop.schedule(this.CHANGE_FULL);
+            this.onGutterResize();
+        },
+        initialValue: true
+    },
+    fadeFoldWidgets: {
+        set: function(show) {
+            dom.setCssClass(this.$gutter, "ace_fade-fold-widgets", show);
+        },
+        initialValue: false
+    },
+    showFoldWidgets: {
+        set: function(show) {
+            this.$gutterLayer.setShowFoldWidgets(show);
+            this.$loop.schedule(this.CHANGE_GUTTER);
+        },
+        initialValue: true
+    },
+    displayIndentGuides: {
+        set: function(show) {
+            if (this.$textLayer.setDisplayIndentGuides(show))
+                this.$loop.schedule(this.CHANGE_TEXT);
+        },
+        initialValue: true
+    },
+    highlightGutterLine: {
+        set: function(shouldHighlight) {
+            this.$gutterLayer.setHighlightGutterLine(shouldHighlight);
+            this.$loop.schedule(this.CHANGE_GUTTER);
+        },
+        initialValue: true
+    },
+    hScrollBarAlwaysVisible: {
+        set: function(val) {
+            if (!this.$hScrollBarAlwaysVisible || !this.$horizScroll)
+                this.$loop.schedule(this.CHANGE_SCROLL);
+        },
+        initialValue: false
+    },
+    vScrollBarAlwaysVisible: {
+        set: function(val) {
+            if (!this.$vScrollBarAlwaysVisible || !this.$vScroll)
+                this.$loop.schedule(this.CHANGE_SCROLL);
+        },
+        initialValue: false
+    },
+    fontSize: {
+        set: function(size) {
+            if (typeof size == "number")
+                size = size + "px";
+            this.container.style.fontSize = size;
+            this.updateFontSize();
+        },
+        initialValue: 12
+    },
+    fontFamily: {
+        set: function(name) {
+            this.container.style.fontFamily = name;
+            this.updateFontSize();
+        }
+    },
+    maxLines: {
+        set: function(val) {
+            this.updateFull();
+        }
+    },
+    minLines: {
+        set: function(val) {
+            if (!(this.$minLines < 0x1ffffffffffff))
+                this.$minLines = 0;
+            this.updateFull();
+        }
+    },
+    maxPixelHeight: {
+        set: function(val) {
+            this.updateFull();
+        },
+        initialValue: 0
+    },
+    scrollPastEnd: {
+        set: function(val) {
+            val = +val || 0;
+            if (this.$scrollPastEnd == val)
+                return;
+            this.$scrollPastEnd = val;
+            this.$loop.schedule(this.CHANGE_SCROLL);
+        },
+        initialValue: 0,
+        handlesSet: true
+    },
+    fixedWidthGutter: {
+        set: function(val) {
+            this.$gutterLayer.$fixedWidth = !!val;
+            this.$loop.schedule(this.CHANGE_GUTTER);
+        }
+    },
+    theme: {
+        set: function(val) { this.setTheme(val); },
+        get: function() { return this.$themeId || this.theme; },
+        initialValue: "./theme/textmate",
+        handlesSet: true
+    },
+    hasCssTransforms: {
+    },
+    useTextareaForIME: {
+        initialValue: !useragent.isMobile && !useragent.isIE
+    }
+});
+
+exports.VirtualRenderer = VirtualRenderer;
+});
+
+define("ace/worker/worker_client",["require","exports","module","ace/lib/oop","ace/lib/net","ace/lib/event_emitter","ace/config"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var net = require("../lib/net");
+var EventEmitter = require("../lib/event_emitter").EventEmitter;
+var config = require("../config");
+
+function $workerBlob(workerUrl) {
+    var script = "importScripts('" + net.qualifyURL(workerUrl) + "');";
+    try {
+        return new Blob([script], {"type": "application/javascript"});
+    } catch (e) { // Backwards-compatibility
+        var BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+        var blobBuilder = new BlobBuilder();
+        blobBuilder.append(script);
+        return blobBuilder.getBlob("application/javascript");
+    }
+}
+
+function createWorker(workerUrl) {
+    if (typeof Worker == "undefined")
+        return { postMessage: function() {}, terminate: function() {} };
+    var blob = $workerBlob(workerUrl);
+    var URL = window.URL || window.webkitURL;
+    var blobURL = URL.createObjectURL(blob);
+    return new Worker(blobURL);
+}
+
+var WorkerClient = function(topLevelNamespaces, mod, classname, workerUrl, importScripts) {
+    this.$sendDeltaQueue = this.$sendDeltaQueue.bind(this);
+    this.changeListener = this.changeListener.bind(this);
+    this.onMessage = this.onMessage.bind(this);
+    if (require.nameToUrl && !require.toUrl)
+        require.toUrl = require.nameToUrl;
+    
+    if (config.get("packaged") || !require.toUrl) {
+        workerUrl = workerUrl || config.moduleUrl(mod, "worker");
+    } else {
+        var normalizePath = this.$normalizePath;
+        workerUrl = workerUrl || normalizePath(require.toUrl("ace/worker/worker.js", null, "_"));
+
+        var tlns = {};
+        topLevelNamespaces.forEach(function(ns) {
+            tlns[ns] = normalizePath(require.toUrl(ns, null, "_").replace(/(\.js)?(\?.*)?$/, ""));
+        });
+    }
+
+    this.$worker = createWorker(workerUrl);
+    if (importScripts) {
+        this.send("importScripts", importScripts);
+    }
+    this.$worker.postMessage({
+        init : true,
+        tlns : tlns,
+        module : mod,
+        classname : classname
+    });
+
+    this.callbackId = 1;
+    this.callbacks = {};
+
+    this.$worker.onmessage = this.onMessage;
+};
+
+(function(){
+
+    oop.implement(this, EventEmitter);
+
+    this.onMessage = function(e) {
+        var msg = e.data;
+        switch (msg.type) {
+            case "event":
+                this._signal(msg.name, {data: msg.data});
+                break;
+            case "call":
+                var callback = this.callbacks[msg.id];
+                if (callback) {
+                    callback(msg.data);
+                    delete this.callbacks[msg.id];
+                }
+                break;
+            case "error":
+                this.reportError(msg.data);
+                break;
+            case "log":
+                window.console && console.log && console.log.apply(console, msg.data);
+                break;
+        }
+    };
+    
+    this.reportError = function(err) {
+        window.console && console.error && console.error(err);
+    };
+
+    this.$normalizePath = function(path) {
+        return net.qualifyURL(path);
+    };
+
+    this.terminate = function() {
+        this._signal("terminate", {});
+        this.deltaQueue = null;
+        this.$worker.terminate();
+        this.$worker = null;
+        if (this.$doc)
+            this.$doc.off("change", this.changeListener);
+        this.$doc = null;
+    };
+
+    this.send = function(cmd, args) {
+        this.$worker.postMessage({command: cmd, args: args});
+    };
+
+    this.call = function(cmd, args, callback) {
+        if (callback) {
+            var id = this.callbackId++;
+            this.callbacks[id] = callback;
+            args.push(id);
+        }
+        this.send(cmd, args);
+    };
+
+    this.emit = function(event, data) {
+        try {
+            if (data.data && data.data.err)
+                data.data.err = {message: data.data.err.message, stack: data.data.err.stack, code: data.data.err.code};
+            this.$worker.postMessage({event: event, data: {data: data.data}});
+        }
+        catch(ex) {
+            console.error(ex.stack);
+        }
+    };
+
+    this.attachToDocument = function(doc) {
+        if (this.$doc)
+            this.terminate();
+
+        this.$doc = doc;
+        this.call("setValue", [doc.getValue()]);
+        doc.on("change", this.changeListener);
+    };
+
+    this.changeListener = function(delta) {
+        if (!this.deltaQueue) {
+            this.deltaQueue = [];
+            setTimeout(this.$sendDeltaQueue, 0);
+        }
+        if (delta.action == "insert")
+            this.deltaQueue.push(delta.start, delta.lines);
+        else
+            this.deltaQueue.push(delta.start, delta.end);
+    };
+
+    this.$sendDeltaQueue = function() {
+        var q = this.deltaQueue;
+        if (!q) return;
+        this.deltaQueue = null;
+        if (q.length > 50 && q.length > this.$doc.getLength() >> 1) {
+            this.call("setValue", [this.$doc.getValue()]);
+        } else
+            this.emit("change", {data: q});
+    };
+
+}).call(WorkerClient.prototype);
+
+
+var UIWorkerClient = function(topLevelNamespaces, mod, classname) {
+    this.$sendDeltaQueue = this.$sendDeltaQueue.bind(this);
+    this.changeListener = this.changeListener.bind(this);
+    this.callbackId = 1;
+    this.callbacks = {};
+    this.messageBuffer = [];
+
+    var main = null;
+    var emitSync = false;
+    var sender = Object.create(EventEmitter);
+    var _self = this;
+
+    this.$worker = {};
+    this.$worker.terminate = function() {};
+    this.$worker.postMessage = function(e) {
+        _self.messageBuffer.push(e);
+        if (main) {
+            if (emitSync)
+                setTimeout(processNext);
+            else
+                processNext();
+        }
+    };
+    this.setEmitSync = function(val) { emitSync = val; };
+
+    var processNext = function() {
+        var msg = _self.messageBuffer.shift();
+        if (msg.command)
+            main[msg.command].apply(main, msg.args);
+        else if (msg.event)
+            sender._signal(msg.event, msg.data);
+    };
+
+    sender.postMessage = function(msg) {
+        _self.onMessage({data: msg});
+    };
+    sender.callback = function(data, callbackId) {
+        this.postMessage({type: "call", id: callbackId, data: data});
+    };
+    sender.emit = function(name, data) {
+        this.postMessage({type: "event", name: name, data: data});
+    };
+
+    config.loadModule(["worker", mod], function(Main) {
+        main = new Main[classname](sender);
+        while (_self.messageBuffer.length)
+            processNext();
+    });
+};
+
+UIWorkerClient.prototype = WorkerClient.prototype;
+
+exports.UIWorkerClient = UIWorkerClient;
+exports.WorkerClient = WorkerClient;
+exports.createWorker = createWorker;
+
+
+});
+
+define("ace/placeholder",["require","exports","module","ace/range","ace/lib/event_emitter","ace/lib/oop"], function(require, exports, module) {
+"use strict";
+
+var Range = require("./range").Range;
+var EventEmitter = require("./lib/event_emitter").EventEmitter;
+var oop = require("./lib/oop");
+
+var PlaceHolder = function(session, length, pos, others, mainClass, othersClass) {
+    var _self = this;
+    this.length = length;
+    this.session = session;
+    this.doc = session.getDocument();
+    this.mainClass = mainClass;
+    this.othersClass = othersClass;
+    this.$onUpdate = this.onUpdate.bind(this);
+    this.doc.on("change", this.$onUpdate);
+    this.$others = others;
+    
+    this.$onCursorChange = function() {
+        setTimeout(function() {
+            _self.onCursorChange();
+        });
+    };
+    
+    this.$pos = pos;
+    var undoStack = session.getUndoManager().$undoStack || session.getUndoManager().$undostack || {length: -1};
+    this.$undoStackDepth = undoStack.length;
+    this.setup();
+
+    session.selection.on("changeCursor", this.$onCursorChange);
+};
+
+(function() {
+
+    oop.implement(this, EventEmitter);
+    this.setup = function() {
+        var _self = this;
+        var doc = this.doc;
+        var session = this.session;
+        
+        this.selectionBefore = session.selection.toJSON();
+        if (session.selection.inMultiSelectMode)
+            session.selection.toSingleRange();
+
+        this.pos = doc.createAnchor(this.$pos.row, this.$pos.column);
+        var pos = this.pos;
+        pos.$insertRight = true;
+        pos.detach();
+        pos.markerId = session.addMarker(new Range(pos.row, pos.column, pos.row, pos.column + this.length), this.mainClass, null, false);
+        this.others = [];
+        this.$others.forEach(function(other) {
+            var anchor = doc.createAnchor(other.row, other.column);
+            anchor.$insertRight = true;
+            anchor.detach();
+            _self.others.push(anchor);
+        });
+        session.setUndoSelect(false);
+    };
+    this.showOtherMarkers = function() {
+        if (this.othersActive) return;
+        var session = this.session;
+        var _self = this;
+        this.othersActive = true;
+        this.others.forEach(function(anchor) {
+            anchor.markerId = session.addMarker(new Range(anchor.row, anchor.column, anchor.row, anchor.column+_self.length), _self.othersClass, null, false);
+        });
+    };
+    this.hideOtherMarkers = function() {
+        if (!this.othersActive) return;
+        this.othersActive = false;
+        for (var i = 0; i < this.others.length; i++) {
+            this.session.removeMarker(this.others[i].markerId);
+        }
+    };
+    this.onUpdate = function(delta) {
+        if (this.$updating)
+            return this.updateAnchors(delta);
+            
+        var range = delta;
+        if (range.start.row !== range.end.row) return;
+        if (range.start.row !== this.pos.row) return;
+        this.$updating = true;
+        var lengthDiff = delta.action === "insert" ? range.end.column - range.start.column : range.start.column - range.end.column;
+        var inMainRange = range.start.column >= this.pos.column && range.start.column <= this.pos.column + this.length + 1;
+        var distanceFromStart = range.start.column - this.pos.column;
+        
+        this.updateAnchors(delta);
+        
+        if (inMainRange)
+            this.length += lengthDiff;
+
+        if (inMainRange && !this.session.$fromUndo) {
+            if (delta.action === 'insert') {
+                for (var i = this.others.length - 1; i >= 0; i--) {
+                    var otherPos = this.others[i];
+                    var newPos = {row: otherPos.row, column: otherPos.column + distanceFromStart};
+                    this.doc.insertMergedLines(newPos, delta.lines);
+                }
+            } else if (delta.action === 'remove') {
+                for (var i = this.others.length - 1; i >= 0; i--) {
+                    var otherPos = this.others[i];
+                    var newPos = {row: otherPos.row, column: otherPos.column + distanceFromStart};
+                    this.doc.remove(new Range(newPos.row, newPos.column, newPos.row, newPos.column - lengthDiff));
+                }
+            }
+        }
+        
+        this.$updating = false;
+        this.updateMarkers();
+    };
+    
+    this.updateAnchors = function(delta) {
+        this.pos.onChange(delta);
+        for (var i = this.others.length; i--;)
+            this.others[i].onChange(delta);
+        this.updateMarkers();
+    };
+    
+    this.updateMarkers = function() {
+        if (this.$updating)
+            return;
+        var _self = this;
+        var session = this.session;
+        var updateMarker = function(pos, className) {
+            session.removeMarker(pos.markerId);
+            pos.markerId = session.addMarker(new Range(pos.row, pos.column, pos.row, pos.column+_self.length), className, null, false);
+        };
+        updateMarker(this.pos, this.mainClass);
+        for (var i = this.others.length; i--;)
+            updateMarker(this.others[i], this.othersClass);
+    };
+
+    this.onCursorChange = function(event) {
+        if (this.$updating || !this.session) return;
+        var pos = this.session.selection.getCursor();
+        if (pos.row === this.pos.row && pos.column >= this.pos.column && pos.column <= this.pos.column + this.length) {
+            this.showOtherMarkers();
+            this._emit("cursorEnter", event);
+        } else {
+            this.hideOtherMarkers();
+            this._emit("cursorLeave", event);
+        }
+    };    
+    this.detach = function() {
+        this.session.removeMarker(this.pos && this.pos.markerId);
+        this.hideOtherMarkers();
+        this.doc.removeEventListener("change", this.$onUpdate);
+        this.session.selection.removeEventListener("changeCursor", this.$onCursorChange);
+        this.session.setUndoSelect(true);
+        this.session = null;
+    };
+    this.cancel = function() {
+        if (this.$undoStackDepth === -1)
+            return;
+        var undoManager = this.session.getUndoManager();
+        var undosRequired = (undoManager.$undoStack || undoManager.$undostack).length - this.$undoStackDepth;
+        for (var i = 0; i < undosRequired; i++) {
+            undoManager.undo(this.session, true);
+        }
+        if (this.selectionBefore)
+            this.session.selection.fromJSON(this.selectionBefore);
+    };
+}).call(PlaceHolder.prototype);
+
+
+exports.PlaceHolder = PlaceHolder;
+});
+
+define("ace/mouse/multi_select_handler",["require","exports","module","ace/lib/event","ace/lib/useragent"], function(require, exports, module) {
+
+var event = require("../lib/event");
+var useragent = require("../lib/useragent");
+function isSamePoint(p1, p2) {
+    return p1.row == p2.row && p1.column == p2.column;
+}
+
+function onMouseDown(e) {
+    var ev = e.domEvent;
+    var alt = ev.altKey;
+    var shift = ev.shiftKey;
+    var ctrl = ev.ctrlKey;
+    var accel = e.getAccelKey();
+    var button = e.getButton();
+    
+    if (ctrl && useragent.isMac)
+        button = ev.button;
+
+    if (e.editor.inMultiSelectMode && button == 2) {
+        e.editor.textInput.onContextMenu(e.domEvent);
+        return;
+    }
+    
+    if (!ctrl && !alt && !accel) {
+        if (button === 0 && e.editor.inMultiSelectMode)
+            e.editor.exitMultiSelectMode();
+        return;
+    }
+    
+    if (button !== 0)
+        return;
+
+    var editor = e.editor;
+    var selection = editor.selection;
+    var isMultiSelect = editor.inMultiSelectMode;
+    var pos = e.getDocumentPosition();
+    var cursor = selection.getCursor();
+    var inSelection = e.inSelection() || (selection.isEmpty() && isSamePoint(pos, cursor));
+
+    var mouseX = e.x, mouseY = e.y;
+    var onMouseSelection = function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    };
+    
+    var session = editor.session;
+    var screenAnchor = editor.renderer.pixelToScreenCoordinates(mouseX, mouseY);
+    var screenCursor = screenAnchor;
+    
+    var selectionMode;
+    if (editor.$mouseHandler.$enableJumpToDef) {
+        if (ctrl && alt || accel && alt)
+            selectionMode = shift ? "block" : "add";
+        else if (alt && editor.$blockSelectEnabled)
+            selectionMode = "block";
+    } else {
+        if (accel && !alt) {
+            selectionMode = "add";
+            if (!isMultiSelect && shift)
+                return;
+        } else if (alt && editor.$blockSelectEnabled) {
+            selectionMode = "block";
+        }
+    }
+    
+    if (selectionMode && useragent.isMac && ev.ctrlKey) {
+        editor.$mouseHandler.cancelContextMenu();
+    }
+
+    if (selectionMode == "add") {
+        if (!isMultiSelect && inSelection)
+            return; // dragging
+
+        if (!isMultiSelect) {
+            var range = selection.toOrientedRange();
+            editor.addSelectionMarker(range);
+        }
+
+        var oldRange = selection.rangeList.rangeAtPoint(pos);
+        
+        editor.inVirtualSelectionMode = true;
+        
+        if (shift) {
+            oldRange = null;
+            range = selection.ranges[0] || range;
+            editor.removeSelectionMarker(range);
+        }
+        editor.once("mouseup", function() {
+            var tmpSel = selection.toOrientedRange();
+
+            if (oldRange && tmpSel.isEmpty() && isSamePoint(oldRange.cursor, tmpSel.cursor))
+                selection.substractPoint(tmpSel.cursor);
+            else {
+                if (shift) {
+                    selection.substractPoint(range.cursor);
+                } else if (range) {
+                    editor.removeSelectionMarker(range);
+                    selection.addRange(range);
+                }
+                selection.addRange(tmpSel);
+            }
+            editor.inVirtualSelectionMode = false;
+        });
+
+    } else if (selectionMode == "block") {
+        e.stop();
+        editor.inVirtualSelectionMode = true;        
+        var initialRange;
+        var rectSel = [];
+        var blockSelect = function() {
+            var newCursor = editor.renderer.pixelToScreenCoordinates(mouseX, mouseY);
+            var cursor = session.screenToDocumentPosition(newCursor.row, newCursor.column, newCursor.offsetX);
+
+            if (isSamePoint(screenCursor, newCursor) && isSamePoint(cursor, selection.lead))
+                return;
+            screenCursor = newCursor;
+            
+            editor.selection.moveToPosition(cursor);
+            editor.renderer.scrollCursorIntoView();
+
+            editor.removeSelectionMarkers(rectSel);
+            rectSel = selection.rectangularRangeBlock(screenCursor, screenAnchor);
+            if (editor.$mouseHandler.$clickSelection && rectSel.length == 1 && rectSel[0].isEmpty())
+                rectSel[0] = editor.$mouseHandler.$clickSelection.clone();
+            rectSel.forEach(editor.addSelectionMarker, editor);
+            editor.updateSelectionMarkers();
+        };
+        if (isMultiSelect && !accel) {
+            selection.toSingleRange();
+        } else if (!isMultiSelect && accel) {
+            initialRange = selection.toOrientedRange();
+            editor.addSelectionMarker(initialRange);
+        }
+        
+        if (shift)
+            screenAnchor = session.documentToScreenPosition(selection.lead);            
+        else
+            selection.moveToPosition(pos);
+        
+        screenCursor = {row: -1, column: -1};
+
+        var onMouseSelectionEnd = function(e) {
+            blockSelect();
+            clearInterval(timerId);
+            editor.removeSelectionMarkers(rectSel);
+            if (!rectSel.length)
+                rectSel = [selection.toOrientedRange()];
+            if (initialRange) {
+                editor.removeSelectionMarker(initialRange);
+                selection.toSingleRange(initialRange);
+            }
+            for (var i = 0; i < rectSel.length; i++)
+                selection.addRange(rectSel[i]);
+            editor.inVirtualSelectionMode = false;
+            editor.$mouseHandler.$clickSelection = null;
+        };
+
+        var onSelectionInterval = blockSelect;
+
+        event.capture(editor.container, onMouseSelection, onMouseSelectionEnd);
+        var timerId = setInterval(function() {onSelectionInterval();}, 20);
+
+        return e.preventDefault();
+    }
+}
+
+
+exports.onMouseDown = onMouseDown;
+
+});
+
+define("ace/commands/multi_select_commands",["require","exports","module","ace/keyboard/hash_handler"], function(require, exports, module) {
+exports.defaultCommands = [{
+    name: "addCursorAbove",
+    exec: function(editor) { editor.selectMoreLines(-1); },
+    bindKey: {win: "Ctrl-Alt-Up", mac: "Ctrl-Alt-Up"},
+    scrollIntoView: "cursor",
+    readOnly: true
+}, {
+    name: "addCursorBelow",
+    exec: function(editor) { editor.selectMoreLines(1); },
+    bindKey: {win: "Ctrl-Alt-Down", mac: "Ctrl-Alt-Down"},
+    scrollIntoView: "cursor",
+    readOnly: true
+}, {
+    name: "addCursorAboveSkipCurrent",
+    exec: function(editor) { editor.selectMoreLines(-1, true); },
+    bindKey: {win: "Ctrl-Alt-Shift-Up", mac: "Ctrl-Alt-Shift-Up"},
+    scrollIntoView: "cursor",
+    readOnly: true
+}, {
+    name: "addCursorBelowSkipCurrent",
+    exec: function(editor) { editor.selectMoreLines(1, true); },
+    bindKey: {win: "Ctrl-Alt-Shift-Down", mac: "Ctrl-Alt-Shift-Down"},
+    scrollIntoView: "cursor",
+    readOnly: true
+}, {
+    name: "selectMoreBefore",
+    exec: function(editor) { editor.selectMore(-1); },
+    bindKey: {win: "Ctrl-Alt-Left", mac: "Ctrl-Alt-Left"},
+    scrollIntoView: "cursor",
+    readOnly: true
+}, {
+    name: "selectMoreAfter",
+    exec: function(editor) { editor.selectMore(1); },
+    bindKey: {win: "Ctrl-Alt-Right", mac: "Ctrl-Alt-Right"},
+    scrollIntoView: "cursor",
+    readOnly: true
+}, {
+    name: "selectNextBefore",
+    exec: function(editor) { editor.selectMore(-1, true); },
+    bindKey: {win: "Ctrl-Alt-Shift-Left", mac: "Ctrl-Alt-Shift-Left"},
+    scrollIntoView: "cursor",
+    readOnly: true
+}, {
+    name: "selectNextAfter",
+    exec: function(editor) { editor.selectMore(1, true); },
+    bindKey: {win: "Ctrl-Alt-Shift-Right", mac: "Ctrl-Alt-Shift-Right"},
+    scrollIntoView: "cursor",
+    readOnly: true
+}, {
+    name: "splitIntoLines",
+    exec: function(editor) { editor.multiSelect.splitIntoLines(); },
+    bindKey: {win: "Ctrl-Alt-L", mac: "Ctrl-Alt-L"},
+    readOnly: true
+}, {
+    name: "alignCursors",
+    exec: function(editor) { editor.alignCursors(); },
+    bindKey: {win: "Ctrl-Alt-A", mac: "Ctrl-Alt-A"},
+    scrollIntoView: "cursor"
+}, {
+    name: "findAll",
+    exec: function(editor) { editor.findAll(); },
+    bindKey: {win: "Ctrl-Alt-K", mac: "Ctrl-Alt-G"},
+    scrollIntoView: "cursor",
+    readOnly: true
+}];
+exports.multiSelectCommands = [{
+    name: "singleSelection",
+    bindKey: "esc",
+    exec: function(editor) { editor.exitMultiSelectMode(); },
+    scrollIntoView: "cursor",
+    readOnly: true,
+    isAvailable: function(editor) {return editor && editor.inMultiSelectMode;}
+}];
+
+var HashHandler = require("../keyboard/hash_handler").HashHandler;
+exports.keyboardHandler = new HashHandler(exports.multiSelectCommands);
+
+});
+
+define("ace/multi_select",["require","exports","module","ace/range_list","ace/range","ace/selection","ace/mouse/multi_select_handler","ace/lib/event","ace/lib/lang","ace/commands/multi_select_commands","ace/search","ace/edit_session","ace/editor","ace/config"], function(require, exports, module) {
+
+var RangeList = require("./range_list").RangeList;
+var Range = require("./range").Range;
+var Selection = require("./selection").Selection;
+var onMouseDown = require("./mouse/multi_select_handler").onMouseDown;
+var event = require("./lib/event");
+var lang = require("./lib/lang");
+var commands = require("./commands/multi_select_commands");
+exports.commands = commands.defaultCommands.concat(commands.multiSelectCommands);
+var Search = require("./search").Search;
+var search = new Search();
+
+function find(session, needle, dir) {
+    search.$options.wrap = true;
+    search.$options.needle = needle;
+    search.$options.backwards = dir == -1;
+    return search.find(session);
+}
+var EditSession = require("./edit_session").EditSession;
+(function() {
+    this.getSelectionMarkers = function() {
+        return this.$selectionMarkers;
+    };
+}).call(EditSession.prototype);
+(function() {
+    this.ranges = null;
+    this.rangeList = null;
+    this.addRange = function(range, $blockChangeEvents) {
+        if (!range)
+            return;
+
+        if (!this.inMultiSelectMode && this.rangeCount === 0) {
+            var oldRange = this.toOrientedRange();
+            this.rangeList.add(oldRange);
+            this.rangeList.add(range);
+            if (this.rangeList.ranges.length != 2) {
+                this.rangeList.removeAll();
+                return $blockChangeEvents || this.fromOrientedRange(range);
+            }
+            this.rangeList.removeAll();
+            this.rangeList.add(oldRange);
+            this.$onAddRange(oldRange);
+        }
+
+        if (!range.cursor)
+            range.cursor = range.end;
+
+        var removed = this.rangeList.add(range);
+
+        this.$onAddRange(range);
+
+        if (removed.length)
+            this.$onRemoveRange(removed);
+
+        if (this.rangeCount > 1 && !this.inMultiSelectMode) {
+            this._signal("multiSelect");
+            this.inMultiSelectMode = true;
+            this.session.$undoSelect = false;
+            this.rangeList.attach(this.session);
+        }
+
+        return $blockChangeEvents || this.fromOrientedRange(range);
+    };
+
+    this.toSingleRange = function(range) {
+        range = range || this.ranges[0];
+        var removed = this.rangeList.removeAll();
+        if (removed.length)
+            this.$onRemoveRange(removed);
+
+        range && this.fromOrientedRange(range);
+    };
+    this.substractPoint = function(pos) {
+        var removed = this.rangeList.substractPoint(pos);
+        if (removed) {
+            this.$onRemoveRange(removed);
+            return removed[0];
+        }
+    };
+    this.mergeOverlappingRanges = function() {
+        var removed = this.rangeList.merge();
+        if (removed.length)
+            this.$onRemoveRange(removed);
+    };
+
+    this.$onAddRange = function(range) {
+        this.rangeCount = this.rangeList.ranges.length;
+        this.ranges.unshift(range);
+        this._signal("addRange", {range: range});
+    };
+
+    this.$onRemoveRange = function(removed) {
+        this.rangeCount = this.rangeList.ranges.length;
+        if (this.rangeCount == 1 && this.inMultiSelectMode) {
+            var lastRange = this.rangeList.ranges.pop();
+            removed.push(lastRange);
+            this.rangeCount = 0;
+        }
+
+        for (var i = removed.length; i--; ) {
+            var index = this.ranges.indexOf(removed[i]);
+            this.ranges.splice(index, 1);
+        }
+
+        this._signal("removeRange", {ranges: removed});
+
+        if (this.rangeCount === 0 && this.inMultiSelectMode) {
+            this.inMultiSelectMode = false;
+            this._signal("singleSelect");
+            this.session.$undoSelect = true;
+            this.rangeList.detach(this.session);
+        }
+
+        lastRange = lastRange || this.ranges[0];
+        if (lastRange && !lastRange.isEqual(this.getRange()))
+            this.fromOrientedRange(lastRange);
+    };
+    this.$initRangeList = function() {
+        if (this.rangeList)
+            return;
+
+        this.rangeList = new RangeList();
+        this.ranges = [];
+        this.rangeCount = 0;
+    };
+    this.getAllRanges = function() {
+        return this.rangeCount ? this.rangeList.ranges.concat() : [this.getRange()];
+    };
+
+    this.splitIntoLines = function () {
+        if (this.rangeCount > 1) {
+            var ranges = this.rangeList.ranges;
+            var lastRange = ranges[ranges.length - 1];
+            var range = Range.fromPoints(ranges[0].start, lastRange.end);
+
+            this.toSingleRange();
+            this.setSelectionRange(range, lastRange.cursor == lastRange.start);
+        } else {
+            var range = this.getRange();
+            var isBackwards = this.isBackwards();
+            var startRow = range.start.row;
+            var endRow = range.end.row;
+            if (startRow == endRow) {
+                if (isBackwards)
+                    var start = range.end, end = range.start;
+                else
+                    var start = range.start, end = range.end;
+                
+                this.addRange(Range.fromPoints(end, end));
+                this.addRange(Range.fromPoints(start, start));
+                return;
+            }
+
+            var rectSel = [];
+            var r = this.getLineRange(startRow, true);
+            r.start.column = range.start.column;
+            rectSel.push(r);
+
+            for (var i = startRow + 1; i < endRow; i++)
+                rectSel.push(this.getLineRange(i, true));
+
+            r = this.getLineRange(endRow, true);
+            r.end.column = range.end.column;
+            rectSel.push(r);
+
+            rectSel.forEach(this.addRange, this);
+        }
+    };
+    this.toggleBlockSelection = function () {
+        if (this.rangeCount > 1) {
+            var ranges = this.rangeList.ranges;
+            var lastRange = ranges[ranges.length - 1];
+            var range = Range.fromPoints(ranges[0].start, lastRange.end);
+
+            this.toSingleRange();
+            this.setSelectionRange(range, lastRange.cursor == lastRange.start);
+        } else {
+            var cursor = this.session.documentToScreenPosition(this.cursor);
+            var anchor = this.session.documentToScreenPosition(this.anchor);
+
+            var rectSel = this.rectangularRangeBlock(cursor, anchor);
+            rectSel.forEach(this.addRange, this);
+        }
+    };
+    this.rectangularRangeBlock = function(screenCursor, screenAnchor, includeEmptyLines) {
+        var rectSel = [];
+
+        var xBackwards = screenCursor.column < screenAnchor.column;
+        if (xBackwards) {
+            var startColumn = screenCursor.column;
+            var endColumn = screenAnchor.column;
+            var startOffsetX = screenCursor.offsetX;
+            var endOffsetX = screenAnchor.offsetX;
+        } else {
+            var startColumn = screenAnchor.column;
+            var endColumn = screenCursor.column;
+            var startOffsetX = screenAnchor.offsetX;
+            var endOffsetX = screenCursor.offsetX;
+        }
+
+        var yBackwards = screenCursor.row < screenAnchor.row;
+        if (yBackwards) {
+            var startRow = screenCursor.row;
+            var endRow = screenAnchor.row;
+        } else {
+            var startRow = screenAnchor.row;
+            var endRow = screenCursor.row;
+        }
+
+        if (startColumn < 0)
+            startColumn = 0;
+        if (startRow < 0)
+            startRow = 0;
+
+        if (startRow == endRow)
+            includeEmptyLines = true;
+
+        var docEnd;
+        for (var row = startRow; row <= endRow; row++) {
+            var range = Range.fromPoints(
+                this.session.screenToDocumentPosition(row, startColumn, startOffsetX),
+                this.session.screenToDocumentPosition(row, endColumn, endOffsetX)
+            );
+            if (range.isEmpty()) {
+                if (docEnd && isSamePoint(range.end, docEnd))
+                    break;
+                docEnd = range.end;
+            }
+            range.cursor = xBackwards ? range.start : range.end;
+            rectSel.push(range);
+        }
+
+        if (yBackwards)
+            rectSel.reverse();
+
+        if (!includeEmptyLines) {
+            var end = rectSel.length - 1;
+            while (rectSel[end].isEmpty() && end > 0)
+                end--;
+            if (end > 0) {
+                var start = 0;
+                while (rectSel[start].isEmpty())
+                    start++;
+            }
+            for (var i = end; i >= start; i--) {
+                if (rectSel[i].isEmpty())
+                    rectSel.splice(i, 1);
+            }
+        }
+
+        return rectSel;
+    };
+}).call(Selection.prototype);
+var Editor = require("./editor").Editor;
+(function() {
+    this.updateSelectionMarkers = function() {
+        this.renderer.updateCursor();
+        this.renderer.updateBackMarkers();
+    };
+    this.addSelectionMarker = function(orientedRange) {
+        if (!orientedRange.cursor)
+            orientedRange.cursor = orientedRange.end;
+
+        var style = this.getSelectionStyle();
+        orientedRange.marker = this.session.addMarker(orientedRange, "ace_selection", style);
+
+        this.session.$selectionMarkers.push(orientedRange);
+        this.session.selectionMarkerCount = this.session.$selectionMarkers.length;
+        return orientedRange;
+    };
+    this.removeSelectionMarker = function(range) {
+        if (!range.marker)
+            return;
+        this.session.removeMarker(range.marker);
+        var index = this.session.$selectionMarkers.indexOf(range);
+        if (index != -1)
+            this.session.$selectionMarkers.splice(index, 1);
+        this.session.selectionMarkerCount = this.session.$selectionMarkers.length;
+    };
+
+    this.removeSelectionMarkers = function(ranges) {
+        var markerList = this.session.$selectionMarkers;
+        for (var i = ranges.length; i--; ) {
+            var range = ranges[i];
+            if (!range.marker)
+                continue;
+            this.session.removeMarker(range.marker);
+            var index = markerList.indexOf(range);
+            if (index != -1)
+                markerList.splice(index, 1);
+        }
+        this.session.selectionMarkerCount = markerList.length;
+    };
+
+    this.$onAddRange = function(e) {
+        this.addSelectionMarker(e.range);
+        this.renderer.updateCursor();
+        this.renderer.updateBackMarkers();
+    };
+
+    this.$onRemoveRange = function(e) {
+        this.removeSelectionMarkers(e.ranges);
+        this.renderer.updateCursor();
+        this.renderer.updateBackMarkers();
+    };
+
+    this.$onMultiSelect = function(e) {
+        if (this.inMultiSelectMode)
+            return;
+        this.inMultiSelectMode = true;
+
+        this.setStyle("ace_multiselect");
+        this.keyBinding.addKeyboardHandler(commands.keyboardHandler);
+        this.commands.setDefaultHandler("exec", this.$onMultiSelectExec);
+
+        this.renderer.updateCursor();
+        this.renderer.updateBackMarkers();
+    };
+
+    this.$onSingleSelect = function(e) {
+        if (this.session.multiSelect.inVirtualMode)
+            return;
+        this.inMultiSelectMode = false;
+
+        this.unsetStyle("ace_multiselect");
+        this.keyBinding.removeKeyboardHandler(commands.keyboardHandler);
+
+        this.commands.removeDefaultHandler("exec", this.$onMultiSelectExec);
+        this.renderer.updateCursor();
+        this.renderer.updateBackMarkers();
+        this._emit("changeSelection");
+    };
+
+    this.$onMultiSelectExec = function(e) {
+        var command = e.command;
+        var editor = e.editor;
+        if (!editor.multiSelect)
+            return;
+        if (!command.multiSelectAction) {
+            var result = command.exec(editor, e.args || {});
+            editor.multiSelect.addRange(editor.multiSelect.toOrientedRange());
+            editor.multiSelect.mergeOverlappingRanges();
+        } else if (command.multiSelectAction == "forEach") {
+            result = editor.forEachSelection(command, e.args);
+        } else if (command.multiSelectAction == "forEachLine") {
+            result = editor.forEachSelection(command, e.args, true);
+        } else if (command.multiSelectAction == "single") {
+            editor.exitMultiSelectMode();
+            result = command.exec(editor, e.args || {});
+        } else {
+            result = command.multiSelectAction(editor, e.args || {});
+        }
+        return result;
+    }; 
+    this.forEachSelection = function(cmd, args, options) {
+        if (this.inVirtualSelectionMode)
+            return;
+        var keepOrder = options && options.keepOrder;
+        var $byLines = options == true || options && options.$byLines;
+        var session = this.session;
+        var selection = this.selection;
+        var rangeList = selection.rangeList;
+        var ranges = (keepOrder ? selection : rangeList).ranges;
+        var result;
+        
+        if (!ranges.length)
+            return cmd.exec ? cmd.exec(this, args || {}) : cmd(this, args || {});
+        
+        var reg = selection._eventRegistry;
+        selection._eventRegistry = {};
+
+        var tmpSel = new Selection(session);
+        this.inVirtualSelectionMode = true;
+        for (var i = ranges.length; i--;) {
+            if ($byLines) {
+                while (i > 0 && ranges[i].start.row == ranges[i - 1].end.row)
+                    i--;
+            }
+            tmpSel.fromOrientedRange(ranges[i]);
+            tmpSel.index = i;
+            this.selection = session.selection = tmpSel;
+            var cmdResult = cmd.exec ? cmd.exec(this, args || {}) : cmd(this, args || {});
+            if (!result && cmdResult !== undefined)
+                result = cmdResult;
+            tmpSel.toOrientedRange(ranges[i]);
+        }
+        tmpSel.detach();
+
+        this.selection = session.selection = selection;
+        this.inVirtualSelectionMode = false;
+        selection._eventRegistry = reg;
+        selection.mergeOverlappingRanges();
+        if (selection.ranges[0])
+            selection.fromOrientedRange(selection.ranges[0]);
+        
+        var anim = this.renderer.$scrollAnimation;
+        this.onCursorChange();
+        this.onSelectionChange();
+        if (anim && anim.from == anim.to)
+            this.renderer.animateScrolling(anim.from);
+        
+        return result;
+    };
+    this.exitMultiSelectMode = function() {
+        if (!this.inMultiSelectMode || this.inVirtualSelectionMode)
+            return;
+        this.multiSelect.toSingleRange();
+    };
+
+    this.getSelectedText = function() {
+        var text = "";
+        if (this.inMultiSelectMode && !this.inVirtualSelectionMode) {
+            var ranges = this.multiSelect.rangeList.ranges;
+            var buf = [];
+            for (var i = 0; i < ranges.length; i++) {
+                buf.push(this.session.getTextRange(ranges[i]));
+            }
+            var nl = this.session.getDocument().getNewLineCharacter();
+            text = buf.join(nl);
+            if (text.length == (buf.length - 1) * nl.length)
+                text = "";
+        } else if (!this.selection.isEmpty()) {
+            text = this.session.getTextRange(this.getSelectionRange());
+        }
+        return text;
+    };
+    
+    this.$checkMultiselectChange = function(e, anchor) {
+        if (this.inMultiSelectMode && !this.inVirtualSelectionMode) {
+            var range = this.multiSelect.ranges[0];
+            if (this.multiSelect.isEmpty() && anchor == this.multiSelect.anchor)
+                return;
+            var pos = anchor == this.multiSelect.anchor
+                ? range.cursor == range.start ? range.end : range.start
+                : range.cursor;
+            if (pos.row != anchor.row 
+                || this.session.$clipPositionToDocument(pos.row, pos.column).column != anchor.column)
+                this.multiSelect.toSingleRange(this.multiSelect.toOrientedRange());
+            else
+                this.multiSelect.mergeOverlappingRanges();
+        }
+    };
+    this.findAll = function(needle, options, additive) {
+        options = options || {};
+        options.needle = needle || options.needle;
+        if (options.needle == undefined) {
+            var range = this.selection.isEmpty()
+                ? this.selection.getWordRange()
+                : this.selection.getRange();
+            options.needle = this.session.getTextRange(range);
+        }    
+        this.$search.set(options);
+        
+        var ranges = this.$search.findAll(this.session);
+        if (!ranges.length)
+            return 0;
+
+        var selection = this.multiSelect;
+
+        if (!additive)
+            selection.toSingleRange(ranges[0]);
+
+        for (var i = ranges.length; i--; )
+            selection.addRange(ranges[i], true);
+        if (range && selection.rangeList.rangeAtPoint(range.start))
+            selection.addRange(range, true);
+        
+        return ranges.length;
+    };
+    this.selectMoreLines = function(dir, skip) {
+        var range = this.selection.toOrientedRange();
+        var isBackwards = range.cursor == range.end;
+
+        var screenLead = this.session.documentToScreenPosition(range.cursor);
+        if (this.selection.$desiredColumn)
+            screenLead.column = this.selection.$desiredColumn;
+
+        var lead = this.session.screenToDocumentPosition(screenLead.row + dir, screenLead.column);
+
+        if (!range.isEmpty()) {
+            var screenAnchor = this.session.documentToScreenPosition(isBackwards ? range.end : range.start);
+            var anchor = this.session.screenToDocumentPosition(screenAnchor.row + dir, screenAnchor.column);
+        } else {
+            var anchor = lead;
+        }
+
+        if (isBackwards) {
+            var newRange = Range.fromPoints(lead, anchor);
+            newRange.cursor = newRange.start;
+        } else {
+            var newRange = Range.fromPoints(anchor, lead);
+            newRange.cursor = newRange.end;
+        }
+
+        newRange.desiredColumn = screenLead.column;
+        if (!this.selection.inMultiSelectMode) {
+            this.selection.addRange(range);
+        } else {
+            if (skip)
+                var toRemove = range.cursor;
+        }
+
+        this.selection.addRange(newRange);
+        if (toRemove)
+            this.selection.substractPoint(toRemove);
+    };
+    this.transposeSelections = function(dir) {
+        var session = this.session;
+        var sel = session.multiSelect;
+        var all = sel.ranges;
+
+        for (var i = all.length; i--; ) {
+            var range = all[i];
+            if (range.isEmpty()) {
+                var tmp = session.getWordRange(range.start.row, range.start.column);
+                range.start.row = tmp.start.row;
+                range.start.column = tmp.start.column;
+                range.end.row = tmp.end.row;
+                range.end.column = tmp.end.column;
+            }
+        }
+        sel.mergeOverlappingRanges();
+
+        var words = [];
+        for (var i = all.length; i--; ) {
+            var range = all[i];
+            words.unshift(session.getTextRange(range));
+        }
+
+        if (dir < 0)
+            words.unshift(words.pop());
+        else
+            words.push(words.shift());
+
+        for (var i = all.length; i--; ) {
+            var range = all[i];
+            var tmp = range.clone();
+            session.replace(range, words[i]);
+            range.start.row = tmp.start.row;
+            range.start.column = tmp.start.column;
+        }
+        sel.fromOrientedRange(sel.ranges[0]);
+    };
+    this.selectMore = function(dir, skip, stopAtFirst) {
+        var session = this.session;
+        var sel = session.multiSelect;
+
+        var range = sel.toOrientedRange();
+        if (range.isEmpty()) {
+            range = session.getWordRange(range.start.row, range.start.column);
+            range.cursor = dir == -1 ? range.start : range.end;
+            this.multiSelect.addRange(range);
+            if (stopAtFirst)
+                return;
+        }
+        var needle = session.getTextRange(range);
+
+        var newRange = find(session, needle, dir);
+        if (newRange) {
+            newRange.cursor = dir == -1 ? newRange.start : newRange.end;
+            this.session.unfold(newRange);
+            this.multiSelect.addRange(newRange);
+            this.renderer.scrollCursorIntoView(null, 0.5);
+        }
+        if (skip)
+            this.multiSelect.substractPoint(range.cursor);
+    };
+    this.alignCursors = function() {
+        var session = this.session;
+        var sel = session.multiSelect;
+        var ranges = sel.ranges;
+        var row = -1;
+        var sameRowRanges = ranges.filter(function(r) {
+            if (r.cursor.row == row)
+                return true;
+            row = r.cursor.row;
+        });
+        
+        if (!ranges.length || sameRowRanges.length == ranges.length - 1) {
+            var range = this.selection.getRange();
+            var fr = range.start.row, lr = range.end.row;
+            var guessRange = fr == lr;
+            if (guessRange) {
+                var max = this.session.getLength();
+                var line;
+                do {
+                    line = this.session.getLine(lr);
+                } while (/[=:]/.test(line) && ++lr < max);
+                do {
+                    line = this.session.getLine(fr);
+                } while (/[=:]/.test(line) && --fr > 0);
+                
+                if (fr < 0) fr = 0;
+                if (lr >= max) lr = max - 1;
+            }
+            var lines = this.session.removeFullLines(fr, lr);
+            lines = this.$reAlignText(lines, guessRange);
+            this.session.insert({row: fr, column: 0}, lines.join("\n") + "\n");
+            if (!guessRange) {
+                range.start.column = 0;
+                range.end.column = lines[lines.length - 1].length;
+            }
+            this.selection.setRange(range);
+        } else {
+            sameRowRanges.forEach(function(r) {
+                sel.substractPoint(r.cursor);
+            });
+
+            var maxCol = 0;
+            var minSpace = Infinity;
+            var spaceOffsets = ranges.map(function(r) {
+                var p = r.cursor;
+                var line = session.getLine(p.row);
+                var spaceOffset = line.substr(p.column).search(/\S/g);
+                if (spaceOffset == -1)
+                    spaceOffset = 0;
+
+                if (p.column > maxCol)
+                    maxCol = p.column;
+                if (spaceOffset < minSpace)
+                    minSpace = spaceOffset;
+                return spaceOffset;
+            });
+            ranges.forEach(function(r, i) {
+                var p = r.cursor;
+                var l = maxCol - p.column;
+                var d = spaceOffsets[i] - minSpace;
+                if (l > d)
+                    session.insert(p, lang.stringRepeat(" ", l - d));
+                else
+                    session.remove(new Range(p.row, p.column, p.row, p.column - l + d));
+
+                r.start.column = r.end.column = maxCol;
+                r.start.row = r.end.row = p.row;
+                r.cursor = r.end;
+            });
+            sel.fromOrientedRange(ranges[0]);
+            this.renderer.updateCursor();
+            this.renderer.updateBackMarkers();
+        }
+    };
+
+    this.$reAlignText = function(lines, forceLeft) {
+        var isLeftAligned = true, isRightAligned = true;
+        var startW, textW, endW;
+
+        return lines.map(function(line) {
+            var m = line.match(/(\s*)(.*?)(\s*)([=:].*)/);
+            if (!m)
+                return [line];
+
+            if (startW == null) {
+                startW = m[1].length;
+                textW = m[2].length;
+                endW = m[3].length;
+                return m;
+            }
+
+            if (startW + textW + endW != m[1].length + m[2].length + m[3].length)
+                isRightAligned = false;
+            if (startW != m[1].length)
+                isLeftAligned = false;
+
+            if (startW > m[1].length)
+                startW = m[1].length;
+            if (textW < m[2].length)
+                textW = m[2].length;
+            if (endW > m[3].length)
+                endW = m[3].length;
+
+            return m;
+        }).map(forceLeft ? alignLeft :
+            isLeftAligned ? isRightAligned ? alignRight : alignLeft : unAlign);
+
+        function spaces(n) {
+            return lang.stringRepeat(" ", n);
+        }
+
+        function alignLeft(m) {
+            return !m[2] ? m[0] : spaces(startW) + m[2]
+                + spaces(textW - m[2].length + endW)
+                + m[4].replace(/^([=:])\s+/, "$1 ");
+        }
+        function alignRight(m) {
+            return !m[2] ? m[0] : spaces(startW + textW - m[2].length) + m[2]
+                + spaces(endW)
+                + m[4].replace(/^([=:])\s+/, "$1 ");
+        }
+        function unAlign(m) {
+            return !m[2] ? m[0] : spaces(startW) + m[2]
+                + spaces(endW)
+                + m[4].replace(/^([=:])\s+/, "$1 ");
+        }
+    };
+}).call(Editor.prototype);
+
+
+function isSamePoint(p1, p2) {
+    return p1.row == p2.row && p1.column == p2.column;
+}
+exports.onSessionChange = function(e) {
+    var session = e.session;
+    if (session && !session.multiSelect) {
+        session.$selectionMarkers = [];
+        session.selection.$initRangeList();
+        session.multiSelect = session.selection;
+    }
+    this.multiSelect = session && session.multiSelect;
+
+    var oldSession = e.oldSession;
+    if (oldSession) {
+        oldSession.multiSelect.off("addRange", this.$onAddRange);
+        oldSession.multiSelect.off("removeRange", this.$onRemoveRange);
+        oldSession.multiSelect.off("multiSelect", this.$onMultiSelect);
+        oldSession.multiSelect.off("singleSelect", this.$onSingleSelect);
+        oldSession.multiSelect.lead.off("change", this.$checkMultiselectChange);
+        oldSession.multiSelect.anchor.off("change", this.$checkMultiselectChange);
+    }
+
+    if (session) {
+        session.multiSelect.on("addRange", this.$onAddRange);
+        session.multiSelect.on("removeRange", this.$onRemoveRange);
+        session.multiSelect.on("multiSelect", this.$onMultiSelect);
+        session.multiSelect.on("singleSelect", this.$onSingleSelect);
+        session.multiSelect.lead.on("change", this.$checkMultiselectChange);
+        session.multiSelect.anchor.on("change", this.$checkMultiselectChange);
+    }
+
+    if (session && this.inMultiSelectMode != session.selection.inMultiSelectMode) {
+        if (session.selection.inMultiSelectMode)
+            this.$onMultiSelect();
+        else
+            this.$onSingleSelect();
+    }
+};
+function MultiSelect(editor) {
+    if (editor.$multiselectOnSessionChange)
+        return;
+    editor.$onAddRange = editor.$onAddRange.bind(editor);
+    editor.$onRemoveRange = editor.$onRemoveRange.bind(editor);
+    editor.$onMultiSelect = editor.$onMultiSelect.bind(editor);
+    editor.$onSingleSelect = editor.$onSingleSelect.bind(editor);
+    editor.$multiselectOnSessionChange = exports.onSessionChange.bind(editor);
+    editor.$checkMultiselectChange = editor.$checkMultiselectChange.bind(editor);
+
+    editor.$multiselectOnSessionChange(editor);
+    editor.on("changeSession", editor.$multiselectOnSessionChange);
+
+    editor.on("mousedown", onMouseDown);
+    editor.commands.addCommands(commands.defaultCommands);
+
+    addAltCursorListeners(editor);
+}
+
+function addAltCursorListeners(editor){
+    var el = editor.textInput.getElement();
+    var altCursor = false;
+    event.addListener(el, "keydown", function(e) {
+        var altDown = e.keyCode == 18 && !(e.ctrlKey || e.shiftKey || e.metaKey);
+        if (editor.$blockSelectEnabled && altDown) {
+            if (!altCursor) {
+                editor.renderer.setMouseCursor("crosshair");
+                altCursor = true;
+            }
+        } else if (altCursor) {
+            reset();
+        }
+    });
+
+    event.addListener(el, "keyup", reset);
+    event.addListener(el, "blur", reset);
+    function reset(e) {
+        if (altCursor) {
+            editor.renderer.setMouseCursor("");
+            altCursor = false;
+        }
+    }
+}
+
+exports.MultiSelect = MultiSelect;
+
+
+require("./config").defineOptions(Editor.prototype, "editor", {
+    enableMultiselect: {
+        set: function(val) {
+            MultiSelect(this);
+            if (val) {
+                this.on("changeSession", this.$multiselectOnSessionChange);
+                this.on("mousedown", onMouseDown);
+            } else {
+                this.off("changeSession", this.$multiselectOnSessionChange);
+                this.off("mousedown", onMouseDown);
+            }
+        },
+        value: true
+    },
+    enableBlockSelect: {
+        set: function(val) {
+            this.$blockSelectEnabled = val;
+        },
+        value: true
+    }
+});
+
+
+
+});
+
+define("ace/mode/folding/fold_mode",["require","exports","module","ace/range"], function(require, exports, module) {
+"use strict";
+
+var Range = require("../../range").Range;
+
+var FoldMode = exports.FoldMode = function() {};
+
+(function() {
+
+    this.foldingStartMarker = null;
+    this.foldingStopMarker = null;
+    this.getFoldWidget = function(session, foldStyle, row) {
+        var line = session.getLine(row);
+        if (this.foldingStartMarker.test(line))
+            return "start";
+        if (foldStyle == "markbeginend"
+                && this.foldingStopMarker
+                && this.foldingStopMarker.test(line))
+            return "end";
+        return "";
+    };
+
+    this.getFoldWidgetRange = function(session, foldStyle, row) {
+        return null;
+    };
+
+    this.indentationBlock = function(session, row, column) {
+        var re = /\S/;
+        var line = session.getLine(row);
+        var startLevel = line.search(re);
+        if (startLevel == -1)
+            return;
+
+        var startColumn = column || line.length;
+        var maxRow = session.getLength();
+        var startRow = row;
+        var endRow = row;
+
+        while (++row < maxRow) {
+            var level = session.getLine(row).search(re);
+
+            if (level == -1)
+                continue;
+
+            if (level <= startLevel)
+                break;
+
+            endRow = row;
+        }
+
+        if (endRow > startRow) {
+            var endColumn = session.getLine(endRow).length;
+            return new Range(startRow, startColumn, endRow, endColumn);
+        }
+    };
+
+    this.openingBracketBlock = function(session, bracket, row, column, typeRe) {
+        var start = {row: row, column: column + 1};
+        var end = session.$findClosingBracket(bracket, start, typeRe);
+        if (!end)
+            return;
+
+        var fw = session.foldWidgets[end.row];
+        if (fw == null)
+            fw = session.getFoldWidget(end.row);
+
+        if (fw == "start" && end.row > start.row) {
+            end.row --;
+            end.column = session.getLine(end.row).length;
+        }
+        return Range.fromPoints(start, end);
+    };
+
+    this.closingBracketBlock = function(session, bracket, row, column, typeRe) {
+        var end = {row: row, column: column};
+        var start = session.$findOpeningBracket(bracket, end);
+
+        if (!start)
+            return;
+
+        start.column++;
+        end.column--;
+
+        return  Range.fromPoints(start, end);
+    };
+}).call(FoldMode.prototype);
+
+});
+
+define("ace/theme/textmate",["require","exports","module","ace/lib/dom"], function(require, exports, module) {
+"use strict";
+
+exports.isDark = false;
+exports.cssClass = "ace-tm";
+exports.cssText = ".ace-tm .ace_gutter {\
+background: #f0f0f0;\
+color: #333;\
+}\
+.ace-tm .ace_print-margin {\
+width: 1px;\
+background: #e8e8e8;\
+}\
+.ace-tm .ace_fold {\
+background-color: #6B72E6;\
+}\
+.ace-tm {\
+background-color: #FFFFFF;\
+color: black;\
+}\
+.ace-tm .ace_cursor {\
+color: black;\
+}\
+.ace-tm .ace_invisible {\
+color: rgb(191, 191, 191);\
+}\
+.ace-tm .ace_storage,\
+.ace-tm .ace_keyword {\
+color: blue;\
+}\
+.ace-tm .ace_constant {\
+color: rgb(197, 6, 11);\
+}\
+.ace-tm .ace_constant.ace_buildin {\
+color: rgb(88, 72, 246);\
+}\
+.ace-tm .ace_constant.ace_language {\
+color: rgb(88, 92, 246);\
+}\
+.ace-tm .ace_constant.ace_library {\
+color: rgb(6, 150, 14);\
+}\
+.ace-tm .ace_invalid {\
+background-color: rgba(255, 0, 0, 0.1);\
+color: red;\
+}\
+.ace-tm .ace_support.ace_function {\
+color: rgb(60, 76, 114);\
+}\
+.ace-tm .ace_support.ace_constant {\
+color: rgb(6, 150, 14);\
+}\
+.ace-tm .ace_support.ace_type,\
+.ace-tm .ace_support.ace_class {\
+color: rgb(109, 121, 222);\
+}\
+.ace-tm .ace_keyword.ace_operator {\
+color: rgb(104, 118, 135);\
+}\
+.ace-tm .ace_string {\
+color: rgb(3, 106, 7);\
+}\
+.ace-tm .ace_comment {\
+color: rgb(76, 136, 107);\
+}\
+.ace-tm .ace_comment.ace_doc {\
+color: rgb(0, 102, 255);\
+}\
+.ace-tm .ace_comment.ace_doc.ace_tag {\
+color: rgb(128, 159, 191);\
+}\
+.ace-tm .ace_constant.ace_numeric {\
+color: rgb(0, 0, 205);\
+}\
+.ace-tm .ace_variable {\
+color: rgb(49, 132, 149);\
+}\
+.ace-tm .ace_xml-pe {\
+color: rgb(104, 104, 91);\
+}\
+.ace-tm .ace_entity.ace_name.ace_function {\
+color: #0000A2;\
+}\
+.ace-tm .ace_heading {\
+color: rgb(12, 7, 255);\
+}\
+.ace-tm .ace_list {\
+color:rgb(185, 6, 144);\
+}\
+.ace-tm .ace_meta.ace_tag {\
+color:rgb(0, 22, 142);\
+}\
+.ace-tm .ace_string.ace_regex {\
+color: rgb(255, 0, 0)\
+}\
+.ace-tm .ace_marker-layer .ace_selection {\
+background: rgb(181, 213, 255);\
+}\
+.ace-tm.ace_multiselect .ace_selection.ace_start {\
+box-shadow: 0 0 3px 0px white;\
+}\
+.ace-tm .ace_marker-layer .ace_step {\
+background: rgb(252, 255, 0);\
+}\
+.ace-tm .ace_marker-layer .ace_stack {\
+background: rgb(164, 229, 101);\
+}\
+.ace-tm .ace_marker-layer .ace_bracket {\
+margin: -1px 0 0 -1px;\
+border: 1px solid rgb(192, 192, 192);\
+}\
+.ace-tm .ace_marker-layer .ace_active-line {\
+background: rgba(0, 0, 0, 0.07);\
+}\
+.ace-tm .ace_gutter-active-line {\
+background-color : #dcdcdc;\
+}\
+.ace-tm .ace_marker-layer .ace_selected-word {\
+background: rgb(250, 250, 255);\
+border: 1px solid rgb(200, 200, 250);\
+}\
+.ace-tm .ace_indent-guide {\
+background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAE0lEQVQImWP4////f4bLly//BwAmVgd1/w11/gAAAABJRU5ErkJggg==\") right repeat-y;\
+}\
+";
+exports.$id = "ace/theme/textmate";
+
+var dom = require("../lib/dom");
+dom.importCssString(exports.cssText, exports.cssClass);
+});
+
+define("ace/line_widgets",["require","exports","module","ace/lib/oop","ace/lib/dom","ace/range"], function(require, exports, module) {
+"use strict";
+
+var oop = require("./lib/oop");
+var dom = require("./lib/dom");
+var Range = require("./range").Range;
+
+
+function LineWidgets(session) {
+    this.session = session;
+    this.session.widgetManager = this;
+    this.session.getRowLength = this.getRowLength;
+    this.session.$getWidgetScreenLength = this.$getWidgetScreenLength;
+    this.updateOnChange = this.updateOnChange.bind(this);
+    this.renderWidgets = this.renderWidgets.bind(this);
+    this.measureWidgets = this.measureWidgets.bind(this);
+    this.session._changedWidgets = [];
+    this.$onChangeEditor = this.$onChangeEditor.bind(this);
+    
+    this.session.on("change", this.updateOnChange);
+    this.session.on("changeFold", this.updateOnFold);
+    this.session.on("changeEditor", this.$onChangeEditor);
+}
+
+(function() {
+    this.getRowLength = function(row) {
+        var h;
+        if (this.lineWidgets)
+            h = this.lineWidgets[row] && this.lineWidgets[row].rowCount || 0;
+        else 
+            h = 0;
+        if (!this.$useWrapMode || !this.$wrapData[row]) {
+            return 1 + h;
+        } else {
+            return this.$wrapData[row].length + 1 + h;
+        }
+    };
+
+    this.$getWidgetScreenLength = function() {
+        var screenRows = 0;
+        this.lineWidgets.forEach(function(w){
+            if (w && w.rowCount && !w.hidden)
+                screenRows += w.rowCount;
+        });
+        return screenRows;
+    };    
+    
+    this.$onChangeEditor = function(e) {
+        this.attach(e.editor);
+    };
+    
+    this.attach = function(editor) {
+        if (editor  && editor.widgetManager && editor.widgetManager != this)
+            editor.widgetManager.detach();
+
+        if (this.editor == editor)
+            return;
+
+        this.detach();
+        this.editor = editor;
+        
+        if (editor) {
+            editor.widgetManager = this;
+            editor.renderer.on("beforeRender", this.measureWidgets);
+            editor.renderer.on("afterRender", this.renderWidgets);
+        }
+    };
+    this.detach = function(e) {
+        var editor = this.editor;
+        if (!editor)
+            return;
+        
+        this.editor = null;
+        editor.widgetManager = null;
+        
+        editor.renderer.off("beforeRender", this.measureWidgets);
+        editor.renderer.off("afterRender", this.renderWidgets);
+        var lineWidgets = this.session.lineWidgets;
+        lineWidgets && lineWidgets.forEach(function(w) {
+            if (w && w.el && w.el.parentNode) {
+                w._inDocument = false;
+                w.el.parentNode.removeChild(w.el);
+            }
+        });
+    };
+
+    this.updateOnFold = function(e, session) {
+        var lineWidgets = session.lineWidgets;
+        if (!lineWidgets || !e.action)
+            return;
+        var fold = e.data;
+        var start = fold.start.row;
+        var end = fold.end.row;
+        var hide = e.action == "add";
+        for (var i = start + 1; i < end; i++) {
+            if (lineWidgets[i])
+                lineWidgets[i].hidden = hide;
+        }
+        if (lineWidgets[end]) {
+            if (hide) {
+                if (!lineWidgets[start])
+                    lineWidgets[start] = lineWidgets[end];
+                else
+                    lineWidgets[end].hidden = hide;
+            } else {
+                if (lineWidgets[start] == lineWidgets[end])
+                    lineWidgets[start] = undefined;
+                lineWidgets[end].hidden = hide;
+            }
+        }
+    };
+    
+    this.updateOnChange = function(delta) {
+        var lineWidgets = this.session.lineWidgets;
+        if (!lineWidgets) return;
+        
+        var startRow = delta.start.row;
+        var len = delta.end.row - startRow;
+
+        if (len === 0) {
+        } else if (delta.action == 'remove') {
+            var removed = lineWidgets.splice(startRow + 1, len);
+            removed.forEach(function(w) {
+                w && this.removeLineWidget(w);
+            }, this);
+            this.$updateRows();
+        } else {
+            var args = new Array(len);
+            args.unshift(startRow, 0);
+            lineWidgets.splice.apply(lineWidgets, args);
+            this.$updateRows();
+        }
+    };
+    
+    this.$updateRows = function() {
+        var lineWidgets = this.session.lineWidgets;
+        if (!lineWidgets) return;
+        var noWidgets = true;
+        lineWidgets.forEach(function(w, i) {
+            if (w) {
+                noWidgets = false;
+                w.row = i;
+                while (w.$oldWidget) {
+                    w.$oldWidget.row = i;
+                    w = w.$oldWidget;
+                }
+            }
+        });
+        if (noWidgets)
+            this.session.lineWidgets = null;
+    };
+
+    this.addLineWidget = function(w) {
+        if (!this.session.lineWidgets)
+            this.session.lineWidgets = new Array(this.session.getLength());
+        
+        var old = this.session.lineWidgets[w.row];
+        if (old) {
+            w.$oldWidget = old;
+            if (old.el && old.el.parentNode) {
+                old.el.parentNode.removeChild(old.el);
+                old._inDocument = false;
+            }
+        }
+            
+        this.session.lineWidgets[w.row] = w;
+        
+        w.session = this.session;
+        
+        var renderer = this.editor.renderer;
+        if (w.html && !w.el) {
+            w.el = dom.createElement("div");
+            w.el.innerHTML = w.html;
+        }
+        if (w.el) {
+            dom.addCssClass(w.el, "ace_lineWidgetContainer");
+            w.el.style.position = "absolute";
+            w.el.style.zIndex = 5;
+            renderer.container.appendChild(w.el);
+            w._inDocument = true;
+        }
+        
+        if (!w.coverGutter) {
+            w.el.style.zIndex = 3;
+        }
+        if (w.pixelHeight == null) {
+            w.pixelHeight = w.el.offsetHeight;
+        }
+        if (w.rowCount == null) {
+            w.rowCount = w.pixelHeight / renderer.layerConfig.lineHeight;
+        }
+        
+        var fold = this.session.getFoldAt(w.row, 0);
+        w.$fold = fold;
+        if (fold) {
+            var lineWidgets = this.session.lineWidgets;
+            if (w.row == fold.end.row && !lineWidgets[fold.start.row])
+                lineWidgets[fold.start.row] = w;
+            else
+                w.hidden = true;
+        }
+            
+        this.session._emit("changeFold", {data:{start:{row: w.row}}});
+        
+        this.$updateRows();
+        this.renderWidgets(null, renderer);
+        this.onWidgetChanged(w);
+        return w;
+    };
+    
+    this.removeLineWidget = function(w) {
+        w._inDocument = false;
+        w.session = null;
+        if (w.el && w.el.parentNode)
+            w.el.parentNode.removeChild(w.el);
+        if (w.editor && w.editor.destroy) try {
+            w.editor.destroy();
+        } catch(e){}
+        if (this.session.lineWidgets) {
+            var w1 = this.session.lineWidgets[w.row];
+            if (w1 == w) {
+                this.session.lineWidgets[w.row] = w.$oldWidget;
+                if (w.$oldWidget)
+                    this.onWidgetChanged(w.$oldWidget);
+            } else {
+                while (w1) {
+                    if (w1.$oldWidget == w) {
+                        w1.$oldWidget = w.$oldWidget;
+                        break;
+                    }
+                    w1 = w1.$oldWidget;
+                }
+            }
+        }
+        this.session._emit("changeFold", {data:{start:{row: w.row}}});
+        this.$updateRows();
+    };
+    
+    this.getWidgetsAtRow = function(row) {
+        var lineWidgets = this.session.lineWidgets;
+        var w = lineWidgets && lineWidgets[row];
+        var list = [];
+        while (w) {
+            list.push(w);
+            w = w.$oldWidget;
+        }
+        return list;
+    };
+    
+    this.onWidgetChanged = function(w) {
+        this.session._changedWidgets.push(w);
+        this.editor && this.editor.renderer.updateFull();
+    };
+    
+    this.measureWidgets = function(e, renderer) {
+        var changedWidgets = this.session._changedWidgets;
+        var config = renderer.layerConfig;
+        
+        if (!changedWidgets || !changedWidgets.length) return;
+        var min = Infinity;
+        for (var i = 0; i < changedWidgets.length; i++) {
+            var w = changedWidgets[i];
+            if (!w || !w.el) continue;
+            if (w.session != this.session) continue;
+            if (!w._inDocument) {
+                if (this.session.lineWidgets[w.row] != w)
+                    continue;
+                w._inDocument = true;
+                renderer.container.appendChild(w.el);
+            }
+            
+            w.h = w.el.offsetHeight;
+            
+            if (!w.fixedWidth) {
+                w.w = w.el.offsetWidth;
+                w.screenWidth = Math.ceil(w.w / config.characterWidth);
+            }
+            
+            var rowCount = w.h / config.lineHeight;
+            if (w.coverLine) {
+                rowCount -= this.session.getRowLineCount(w.row);
+                if (rowCount < 0)
+                    rowCount = 0;
+            }
+            if (w.rowCount != rowCount) {
+                w.rowCount = rowCount;
+                if (w.row < min)
+                    min = w.row;
+            }
+        }
+        if (min != Infinity) {
+            this.session._emit("changeFold", {data:{start:{row: min}}});
+            this.session.lineWidgetWidth = null;
+        }
+        this.session._changedWidgets = [];
+    };
+    
+    this.renderWidgets = function(e, renderer) {
+        var config = renderer.layerConfig;
+        var lineWidgets = this.session.lineWidgets;
+        if (!lineWidgets)
+            return;
+        var first = Math.min(this.firstRow, config.firstRow);
+        var last = Math.max(this.lastRow, config.lastRow, lineWidgets.length);
+        
+        while (first > 0 && !lineWidgets[first])
+            first--;
+        
+        this.firstRow = config.firstRow;
+        this.lastRow = config.lastRow;
+
+        renderer.$cursorLayer.config = config;
+        for (var i = first; i <= last; i++) {
+            var w = lineWidgets[i];
+            if (!w || !w.el) continue;
+            if (w.hidden) {
+                w.el.style.top = -100 - (w.pixelHeight || 0) + "px";
+                continue;
+            }
+            if (!w._inDocument) {
+                w._inDocument = true;
+                renderer.container.appendChild(w.el);
+            }
+            var top = renderer.$cursorLayer.getPixelPosition({row: i, column:0}, true).top;
+            if (!w.coverLine)
+                top += config.lineHeight * this.session.getRowLineCount(w.row);
+            w.el.style.top = top - config.offset + "px";
+            
+            var left = w.coverGutter ? 0 : renderer.gutterWidth;
+            if (!w.fixedWidth)
+                left -= renderer.scrollLeft;
+            w.el.style.left = left + "px";
+            
+            if (w.fullWidth && w.screenWidth) {
+                w.el.style.minWidth = config.width + 2 * config.padding + "px";
+            }
+            
+            if (w.fixedWidth) {
+                w.el.style.right = renderer.scrollBar.getWidth() + "px";
+            } else {
+                w.el.style.right = "";
+            }
+        }
+    };
+    
+}).call(LineWidgets.prototype);
+
+
+exports.LineWidgets = LineWidgets;
+
+});
+
+define("ace/ext/error_marker",["require","exports","module","ace/line_widgets","ace/lib/dom","ace/range"], function(require, exports, module) {
+"use strict";
+var LineWidgets = require("../line_widgets").LineWidgets;
+var dom = require("../lib/dom");
+var Range = require("../range").Range;
+
+function binarySearch(array, needle, comparator) {
+    var first = 0;
+    var last = array.length - 1;
+
+    while (first <= last) {
+        var mid = (first + last) >> 1;
+        var c = comparator(needle, array[mid]);
+        if (c > 0)
+            first = mid + 1;
+        else if (c < 0)
+            last = mid - 1;
+        else
+            return mid;
+    }
+    return -(first + 1);
+}
+
+function findAnnotations(session, row, dir) {
+    var annotations = session.getAnnotations().sort(Range.comparePoints);
+    if (!annotations.length)
+        return;
+    
+    var i = binarySearch(annotations, {row: row, column: -1}, Range.comparePoints);
+    if (i < 0)
+        i = -i - 1;
+    
+    if (i >= annotations.length)
+        i = dir > 0 ? 0 : annotations.length - 1;
+    else if (i === 0 && dir < 0)
+        i = annotations.length - 1;
+    
+    var annotation = annotations[i];
+    if (!annotation || !dir)
+        return;
+
+    if (annotation.row === row) {
+        do {
+            annotation = annotations[i += dir];
+        } while (annotation && annotation.row === row);
+        if (!annotation)
+            return annotations.slice();
+    }
+    
+    
+    var matched = [];
+    row = annotation.row;
+    do {
+        matched[dir < 0 ? "unshift" : "push"](annotation);
+        annotation = annotations[i += dir];
+    } while (annotation && annotation.row == row);
+    return matched.length && matched;
+}
+
+exports.showErrorMarker = function(editor, dir) {
+    var session = editor.session;
+    if (!session.widgetManager) {
+        session.widgetManager = new LineWidgets(session);
+        session.widgetManager.attach(editor);
+    }
+    
+    var pos = editor.getCursorPosition();
+    var row = pos.row;
+    var oldWidget = session.widgetManager.getWidgetsAtRow(row).filter(function(w) {
+        return w.type == "errorMarker";
+    })[0];
+    if (oldWidget) {
+        oldWidget.destroy();
+    } else {
+        row -= dir;
+    }
+    var annotations = findAnnotations(session, row, dir);
+    var gutterAnno;
+    if (annotations) {
+        var annotation = annotations[0];
+        pos.column = (annotation.pos && typeof annotation.column != "number"
+            ? annotation.pos.sc
+            : annotation.column) || 0;
+        pos.row = annotation.row;
+        gutterAnno = editor.renderer.$gutterLayer.$annotations[pos.row];
+    } else if (oldWidget) {
+        return;
+    } else {
+        gutterAnno = {
+            text: ["Looks good!"],
+            className: "ace_ok"
+        };
+    }
+    editor.session.unfold(pos.row);
+    editor.selection.moveToPosition(pos);
+    
+    var w = {
+        row: pos.row, 
+        fixedWidth: true,
+        coverGutter: true,
+        el: dom.createElement("div"),
+        type: "errorMarker"
+    };
+    var el = w.el.appendChild(dom.createElement("div"));
+    var arrow = w.el.appendChild(dom.createElement("div"));
+    arrow.className = "error_widget_arrow " + gutterAnno.className;
+    
+    var left = editor.renderer.$cursorLayer
+        .getPixelPosition(pos).left;
+    arrow.style.left = left + editor.renderer.gutterWidth - 5 + "px";
+    
+    w.el.className = "error_widget_wrapper";
+    el.className = "error_widget " + gutterAnno.className;
+    el.innerHTML = gutterAnno.text.join("<br>");
+    
+    el.appendChild(dom.createElement("div"));
+    
+    var kb = function(_, hashId, keyString) {
+        if (hashId === 0 && (keyString === "esc" || keyString === "return")) {
+            w.destroy();
+            return {command: "null"};
+        }
+    };
+    
+    w.destroy = function() {
+        if (editor.$mouseHandler.isMousePressed)
+            return;
+        editor.keyBinding.removeKeyboardHandler(kb);
+        session.widgetManager.removeLineWidget(w);
+        editor.off("changeSelection", w.destroy);
+        editor.off("changeSession", w.destroy);
+        editor.off("mouseup", w.destroy);
+        editor.off("change", w.destroy);
+    };
+    
+    editor.keyBinding.addKeyboardHandler(kb);
+    editor.on("changeSelection", w.destroy);
+    editor.on("changeSession", w.destroy);
+    editor.on("mouseup", w.destroy);
+    editor.on("change", w.destroy);
+    
+    editor.session.widgetManager.addLineWidget(w);
+    
+    w.el.onmousedown = editor.focus.bind(editor);
+    
+    editor.renderer.scrollCursorIntoView(null, 0.5, {bottom: w.el.offsetHeight});
+};
+
+
+dom.importCssString("\
+    .error_widget_wrapper {\
+        background: inherit;\
+        color: inherit;\
+        border:none\
+    }\
+    .error_widget {\
+        border-top: solid 2px;\
+        border-bottom: solid 2px;\
+        margin: 5px 0;\
+        padding: 10px 40px;\
+        white-space: pre-wrap;\
+    }\
+    .error_widget.ace_error, .error_widget_arrow.ace_error{\
+        border-color: #ff5a5a\
+    }\
+    .error_widget.ace_warning, .error_widget_arrow.ace_warning{\
+        border-color: #F1D817\
+    }\
+    .error_widget.ace_info, .error_widget_arrow.ace_info{\
+        border-color: #5a5a5a\
+    }\
+    .error_widget.ace_ok, .error_widget_arrow.ace_ok{\
+        border-color: #5aaa5a\
+    }\
+    .error_widget_arrow {\
+        position: absolute;\
+        border: solid 5px;\
+        border-top-color: transparent!important;\
+        border-right-color: transparent!important;\
+        border-left-color: transparent!important;\
+        top: -5px;\
+    }\
+", "");
+
+});
+
+define("ace/ace",["require","exports","module","ace/lib/fixoldbrowsers","ace/lib/dom","ace/lib/event","ace/range","ace/editor","ace/edit_session","ace/undomanager","ace/virtual_renderer","ace/worker/worker_client","ace/keyboard/hash_handler","ace/placeholder","ace/multi_select","ace/mode/folding/fold_mode","ace/theme/textmate","ace/ext/error_marker","ace/config"], function(require, exports, module) {
+"use strict";
+
+require("./lib/fixoldbrowsers");
+
+var dom = require("./lib/dom");
+var event = require("./lib/event");
+
+var Range = require("./range").Range;
+var Editor = require("./editor").Editor;
+var EditSession = require("./edit_session").EditSession;
+var UndoManager = require("./undomanager").UndoManager;
+var Renderer = require("./virtual_renderer").VirtualRenderer;
+require("./worker/worker_client");
+require("./keyboard/hash_handler");
+require("./placeholder");
+require("./multi_select");
+require("./mode/folding/fold_mode");
+require("./theme/textmate");
+require("./ext/error_marker");
+
+exports.config = require("./config");
+exports.require = require;
+
+if (typeof define === "function")
+    exports.define = define;
+exports.edit = function(el, options) {
+    if (typeof el == "string") {
+        var _id = el;
+        el = document.getElementById(_id);
+        if (!el)
+            throw new Error("ace.edit can't find div #" + _id);
+    }
+
+    if (el && el.env && el.env.editor instanceof Editor)
+        return el.env.editor;
+
+    var value = "";
+    if (el && /input|textarea/i.test(el.tagName)) {
+        var oldNode = el;
+        value = oldNode.value;
+        el = dom.createElement("pre");
+        oldNode.parentNode.replaceChild(el, oldNode);
+    } else if (el) {
+        value = el.textContent;
+        el.innerHTML = "";
+    }
+
+    var doc = exports.createEditSession(value);
+
+    var editor = new Editor(new Renderer(el), doc, options);
+
+    var env = {
+        document: doc,
+        editor: editor,
+        onResize: editor.resize.bind(editor, null)
+    };
+    if (oldNode) env.textarea = oldNode;
+    event.addListener(window, "resize", env.onResize);
+    editor.on("destroy", function() {
+        event.removeListener(window, "resize", env.onResize);
+        env.editor.container.env = null; // prevent memory leak on old ie
+    });
+    editor.container.env = editor.env = env;
+    return editor;
+};
+exports.createEditSession = function(text, mode) {
+    var doc = new EditSession(text, mode);
+    doc.setUndoManager(new UndoManager());
+    return doc;
+};
+exports.Range = Range;
+exports.EditSession = EditSession;
+exports.UndoManager = UndoManager;
+exports.VirtualRenderer = Renderer;
+exports.version = "1.4.1";
+});
+            (function() {
+                window.require(["ace/ace"], function(a) {
+                    if (a) {
+                        a.config.init(true);
+                        a.define = window.define;
+                    }
+                    if (!window.ace)
+                        window.ace = a;
+                    for (var key in a) if (a.hasOwnProperty(key))
+                        window.ace[key] = a[key];
+                    window.ace["default"] = window.ace;
+                    if (typeof module == "object" && typeof exports == "object" && module) {
+                        module.exports = window.ace;
+                    }
+                });
+            })();
+        
