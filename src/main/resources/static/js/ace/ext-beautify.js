@@ -234,4 +234,85 @@ exports.beautify = function(session) {
 
                 if (token.type === "keyword" && value.match(/^(break)$/)) {
                     if(parents[depth-1] && parents[depth-1].match(/^(case|default)$/)) {
-           
+                        depth--;
+                    }
+                }
+                if (token.type === "paren.lparen") {
+                    roundDepth += (value.match(/\(/g) || []).length;
+                    depth += value.length;
+                }
+
+                if (token.type === "keyword" && value.match(/^(if|else|elseif|for|while)$/)) {
+                    indentNextLine = true;
+                    roundDepth = 0;
+                } else if (!roundDepth && value.trim() && token.type !== "comment")
+                    indentNextLine = false;
+
+                if (token.type === "paren.rparen") {
+                    roundDepth -= (value.match(/\)/g) || []).length;
+
+                    for (i = 0; i < value.length; i++) {
+                        depth--;
+                        if(value.substr(i, 1)==='}' && parents[depth]==='case') {
+                            depth--;
+                        }
+                    }
+                }
+                if (spaceBefore && !breakBefore) {
+                    trimLine();
+                    if (code.substr(-1) !== "\n")
+                        code += " ";
+                }
+
+                code += value;
+
+                if (spaceAfter)
+                    code += " ";
+
+                breakBefore = false;
+                spaceBefore = false;
+                spaceAfter = false;
+                if ((is(token, "tag-close") && (inBlock || blockTags.indexOf(tagName) !== -1)) || (is(token, "doctype") && value === ">")) {
+                    if (inBlock && nextToken && nextToken.value === "</")
+                        rowsToAdd = -1;
+                    else
+                        rowsToAdd = 1;
+                }
+                if (is(token, "tag-open") && value === "</") {
+                    depth--;
+                } else if (is(token, "tag-open") && value === "<" && singletonTags.indexOf(nextToken.value) === -1) {
+                    depth++;
+                } else if (is(token, "tag-name")) {
+                    tagName = value;
+                } else if (is(token, "tag-close") && value === "/>" && singletonTags.indexOf(tagName) === -1){
+                    depth--;
+                }
+
+                row = curRow;
+            }
+        }
+
+        token = nextToken;
+    }
+
+    code = code.trim();
+    session.doc.setValue(code);
+};
+
+exports.commands = [{
+    name: "beautify",
+    exec: function(editor) {
+        exports.beautify(editor.session);
+    },
+    bindKey: "Ctrl-Shift-B"
+}];
+
+});
+                (function() {
+                    window.require(["ace/ext/beautify"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
