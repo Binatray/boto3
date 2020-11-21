@@ -1595,4 +1595,400 @@ var Autocomplete = function() {
 
         if (typeof doc == "string")
             doc = {docText: doc};
-        if (!doc || !(doc.docHTML || doc
+        if (!doc || !(doc.docHTML || doc.docText))
+            return this.hideDocTooltip();
+        this.showDocTooltip(doc);
+    };
+
+    this.showDocTooltip = function(item) {
+        if (!this.tooltipNode) {
+            this.tooltipNode = dom.createElement("div");
+            this.tooltipNode.className = "ace_tooltip ace_doc-tooltip";
+            this.tooltipNode.style.margin = 0;
+            this.tooltipNode.style.pointerEvents = "auto";
+            this.tooltipNode.tabIndex = -1;
+            this.tooltipNode.onblur = this.blurListener.bind(this);
+            this.tooltipNode.onclick = this.onTooltipClick.bind(this);
+        }
+
+        var tooltipNode = this.tooltipNode;
+        if (item.docHTML) {
+            tooltipNode.innerHTML = item.docHTML;
+        } else if (item.docText) {
+            tooltipNode.textContent = item.docText;
+        }
+
+        if (!tooltipNode.parentNode)
+            document.body.appendChild(tooltipNode);
+        var popup = this.popup;
+        var rect = popup.container.getBoundingClientRect();
+        tooltipNode.style.top = popup.container.style.top;
+        tooltipNode.style.bottom = popup.container.style.bottom;
+
+        tooltipNode.style.display = "block";
+        if (window.innerWidth - rect.right < 320) {
+            if (rect.left < 320) {
+                if(popup.isTopdown) {
+                    tooltipNode.style.top = rect.bottom + "px";
+                    tooltipNode.style.left = rect.left + "px";
+                    tooltipNode.style.right = "";
+                    tooltipNode.style.bottom = "";
+                } else {
+                    tooltipNode.style.top = popup.container.offsetTop - tooltipNode.offsetHeight + "px";
+                    tooltipNode.style.left = rect.left + "px";
+                    tooltipNode.style.right = "";
+                    tooltipNode.style.bottom = "";
+                }
+            } else {
+                tooltipNode.style.right = window.innerWidth - rect.left + "px";
+                tooltipNode.style.left = "";
+            }
+        } else {
+            tooltipNode.style.left = (rect.right + 1) + "px";
+            tooltipNode.style.right = "";
+        }
+    };
+
+    this.hideDocTooltip = function() {
+        this.tooltipTimer.cancel();
+        if (!this.tooltipNode) return;
+        var el = this.tooltipNode;
+        if (!this.editor.isFocused() && document.activeElement == el)
+            this.editor.focus();
+        this.tooltipNode = null;
+        if (el.parentNode)
+            el.parentNode.removeChild(el);
+    };
+    
+    this.onTooltipClick = function(e) {
+        var a = e.target;
+        while (a && a != this.tooltipNode) {
+            if (a.nodeName == "A" && a.href) {
+                a.rel = "noreferrer";
+                a.target = "_blank";
+                break;
+            }
+            a = a.parentNode;
+        }
+    };
+
+}).call(Autocomplete.prototype);
+
+Autocomplete.startCommand = {
+    name: "startAutocomplete",
+    exec: function(editor) {
+        if (!editor.completer)
+            editor.completer = new Autocomplete();
+        editor.completer.autoInsert = false;
+        editor.completer.autoSelect = true;
+        editor.completer.showPopup(editor);
+        editor.completer.cancelContextMenu();
+    },
+    bindKey: "Ctrl-Space|Ctrl-Shift-Space|Alt-Space"
+};
+
+var FilteredList = function(array, filterText) {
+    this.all = array;
+    this.filtered = array;
+    this.filterText = filterText || "";
+    this.exactMatch = false;
+};
+(function(){
+    this.setFilter = function(str) {
+        if (str.length > this.filterText && str.lastIndexOf(this.filterText, 0) === 0)
+            var matches = this.filtered;
+        else
+            var matches = this.all;
+
+        this.filterText = str;
+        matches = this.filterCompletions(matches, this.filterText);
+        matches = matches.sort(function(a, b) {
+            return b.exactMatch - a.exactMatch || b.$score - a.$score 
+                || (a.caption || a.value) < (b.caption || b.value);
+        });
+        var prev = null;
+        matches = matches.filter(function(item){
+            var caption = item.snippet || item.caption || item.value;
+            if (caption === prev) return false;
+            prev = caption;
+            return true;
+        });
+
+        this.filtered = matches;
+    };
+    this.filterCompletions = function(items, needle) {
+        var results = [];
+        var upper = needle.toUpperCase();
+        var lower = needle.toLowerCase();
+        loop: for (var i = 0, item; item = items[i]; i++) {
+            var caption = item.caption || item.value || item.snippet;
+            if (!caption) continue;
+            var lastIndex = -1;
+            var matchMask = 0;
+            var penalty = 0;
+            var index, distance;
+
+            if (this.exactMatch) {
+                if (needle !== caption.substr(0, needle.length))
+                    continue loop;
+            } else {
+                var fullMatchIndex = caption.toLowerCase().indexOf(lower);
+                if (fullMatchIndex > -1) {
+                    penalty = fullMatchIndex;
+                } else {
+                    for (var j = 0; j < needle.length; j++) {
+                        var i1 = caption.indexOf(lower[j], lastIndex + 1);
+                        var i2 = caption.indexOf(upper[j], lastIndex + 1);
+                        index = (i1 >= 0) ? ((i2 < 0 || i1 < i2) ? i1 : i2) : i2;
+                        if (index < 0)
+                            continue loop;
+                        distance = index - lastIndex - 1;
+                        if (distance > 0) {
+                            if (lastIndex === -1)
+                                penalty += 10;
+                            penalty += distance;
+                            matchMask = matchMask | (1 << j);
+                        }
+                        lastIndex = index;
+                    }
+                }
+            }
+            item.matchMask = matchMask;
+            item.exactMatch = penalty ? 0 : 1;
+            item.$score = (item.score || 0) - penalty;
+            results.push(item);
+        }
+        return results;
+    };
+}).call(FilteredList.prototype);
+
+exports.Autocomplete = Autocomplete;
+exports.FilteredList = FilteredList;
+
+});
+
+define("ace/autocomplete/text_completer",["require","exports","module","ace/range"], function(require, exports, module) {
+    var Range = require("../range").Range;
+    
+    var splitRegex = /[^a-zA-Z_0-9\$\-\u00C0-\u1FFF\u2C00-\uD7FF\w]+/;
+
+    function getWordIndex(doc, pos) {
+        var textBefore = doc.getTextRange(Range.fromPoints({row: 0, column:0}, pos));
+        return textBefore.split(splitRegex).length - 1;
+    }
+    function wordDistance(doc, pos) {
+        var prefixPos = getWordIndex(doc, pos);
+        var words = doc.getValue().split(splitRegex);
+        var wordScores = Object.create(null);
+        
+        var currentWord = words[prefixPos];
+
+        words.forEach(function(word, idx) {
+            if (!word || word === currentWord) return;
+
+            var distance = Math.abs(prefixPos - idx);
+            var score = words.length - distance;
+            if (wordScores[word]) {
+                wordScores[word] = Math.max(score, wordScores[word]);
+            } else {
+                wordScores[word] = score;
+            }
+        });
+        return wordScores;
+    }
+
+    exports.getCompletions = function(editor, session, pos, prefix, callback) {
+        var wordScore = wordDistance(session, pos);
+        var wordList = Object.keys(wordScore);
+        callback(null, wordList.map(function(word) {
+            return {
+                caption: word,
+                value: word,
+                score: wordScore[word],
+                meta: "local"
+            };
+        }));
+    };
+});
+
+define("ace/ext/language_tools",["require","exports","module","ace/snippets","ace/autocomplete","ace/config","ace/lib/lang","ace/autocomplete/util","ace/autocomplete/text_completer","ace/editor","ace/config"], function(require, exports, module) {
+"use strict";
+
+var snippetManager = require("../snippets").snippetManager;
+var Autocomplete = require("../autocomplete").Autocomplete;
+var config = require("../config");
+var lang = require("../lib/lang");
+var util = require("../autocomplete/util");
+
+var textCompleter = require("../autocomplete/text_completer");
+var keyWordCompleter = {
+    getCompletions: function(editor, session, pos, prefix, callback) {
+        if (session.$mode.completer) {
+            return session.$mode.completer.getCompletions(editor, session, pos, prefix, callback);
+        }
+        var state = editor.session.getState(pos.row);
+        var completions = session.$mode.getCompletions(state, session, pos, prefix);
+        callback(null, completions);
+    }
+};
+
+var snippetCompleter = {
+    getCompletions: function(editor, session, pos, prefix, callback) {
+        var scopes = [];
+        var token = session.getTokenAt(pos.row, pos.column);
+        if (token && token.type.match(/(tag-name|tag-open|tag-whitespace|attribute-name|attribute-value)\.xml$/))
+            scopes.push('html-tag');
+        else
+            scopes = snippetManager.getActiveScopes(editor);
+
+        var snippetMap = snippetManager.snippetMap;
+        var completions = [];
+        scopes.forEach(function(scope) {
+            var snippets = snippetMap[scope] || [];
+            for (var i = snippets.length; i--;) {
+                var s = snippets[i];
+                var caption = s.name || s.tabTrigger;
+                if (!caption)
+                    continue;
+                completions.push({
+                    caption: caption,
+                    snippet: s.content,
+                    meta: s.tabTrigger && !s.name ? s.tabTrigger + "\u21E5 " : "snippet",
+                    type: "snippet"
+                });
+            }
+        }, this);
+        callback(null, completions);
+    },
+    getDocTooltip: function(item) {
+        if (item.type == "snippet" && !item.docHTML) {
+            item.docHTML = [
+                "<b>", lang.escapeHTML(item.caption), "</b>", "<hr></hr>",
+                lang.escapeHTML(item.snippet)
+            ].join("");
+        }
+    }
+};
+
+var completers = [snippetCompleter, textCompleter, keyWordCompleter];
+exports.setCompleters = function(val) {
+    completers.length = 0;
+    if (val) completers.push.apply(completers, val);
+};
+exports.addCompleter = function(completer) {
+    completers.push(completer);
+};
+exports.textCompleter = textCompleter;
+exports.keyWordCompleter = keyWordCompleter;
+exports.snippetCompleter = snippetCompleter;
+
+var expandSnippet = {
+    name: "expandSnippet",
+    exec: function(editor) {
+        return snippetManager.expandWithTab(editor);
+    },
+    bindKey: "Tab"
+};
+
+var onChangeMode = function(e, editor) {
+    loadSnippetsForMode(editor.session.$mode);
+};
+
+var loadSnippetsForMode = function(mode) {
+    var id = mode.$id;
+    if (!snippetManager.files)
+        snippetManager.files = {};
+    loadSnippetFile(id);
+    if (mode.modes)
+        mode.modes.forEach(loadSnippetsForMode);
+};
+
+var loadSnippetFile = function(id) {
+    if (!id || snippetManager.files[id])
+        return;
+    var snippetFilePath = id.replace("mode", "snippets");
+    snippetManager.files[id] = {};
+    config.loadModule(snippetFilePath, function(m) {
+        if (m) {
+            snippetManager.files[id] = m;
+            if (!m.snippets && m.snippetText)
+                m.snippets = snippetManager.parseSnippetFile(m.snippetText);
+            snippetManager.register(m.snippets || [], m.scope);
+            if (m.includeScopes) {
+                snippetManager.snippetMap[m.scope].includeScopes = m.includeScopes;
+                m.includeScopes.forEach(function(x) {
+                    loadSnippetFile("ace/mode/" + x);
+                });
+            }
+        }
+    });
+};
+
+var doLiveAutocomplete = function(e) {
+    var editor = e.editor;
+    var hasCompleter = editor.completer && editor.completer.activated;
+    if (e.command.name === "backspace") {
+        if (hasCompleter && !util.getCompletionPrefix(editor))
+            editor.completer.detach();
+    }
+    else if (e.command.name === "insertstring") {
+        var prefix = util.getCompletionPrefix(editor);
+        if (prefix && !hasCompleter) {
+            if (!editor.completer) {
+                editor.completer = new Autocomplete();
+            }
+            editor.completer.autoInsert = false;
+            editor.completer.showPopup(editor);
+        }
+    }
+};
+
+var Editor = require("../editor").Editor;
+require("../config").defineOptions(Editor.prototype, "editor", {
+    enableBasicAutocompletion: {
+        set: function(val) {
+            if (val) {
+                if (!this.completers)
+                    this.completers = Array.isArray(val)? val: completers;
+                this.commands.addCommand(Autocomplete.startCommand);
+            } else {
+                this.commands.removeCommand(Autocomplete.startCommand);
+            }
+        },
+        value: false
+    },
+    enableLiveAutocompletion: {
+        set: function(val) {
+            if (val) {
+                if (!this.completers)
+                    this.completers = Array.isArray(val)? val: completers;
+                this.commands.on('afterExec', doLiveAutocomplete);
+            } else {
+                this.commands.removeListener('afterExec', doLiveAutocomplete);
+            }
+        },
+        value: false
+    },
+    enableSnippets: {
+        set: function(val) {
+            if (val) {
+                this.commands.addCommand(expandSnippet);
+                this.on("changeMode", onChangeMode);
+                onChangeMode(null, this);
+            } else {
+                this.commands.removeCommand(expandSnippet);
+                this.off("changeMode", onChangeMode);
+            }
+        },
+        value: false
+    }
+});
+});
+                (function() {
+                    window.require(["ace/ext/language_tools"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
