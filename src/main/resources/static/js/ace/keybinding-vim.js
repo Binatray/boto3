@@ -1045,4 +1045,520 @@ dom.importCssString(".normal-mode .ace_cursor{\
     }
 
     var modifiers = {'Shift': 'S', 'Ctrl': 'C', 'Alt': 'A', 'Cmd': 'D', 'Mod': 'A'};
-    var specialKeys = {Enter:'CR',Backspace:'BS',Delete:'Del',I
+    var specialKeys = {Enter:'CR',Backspace:'BS',Delete:'Del',Insert:'Ins'};
+    function cmKeyToVimKey(key) {
+      if (key.charAt(0) == '\'') {
+        return key.charAt(1);
+      }
+      var pieces = key.split(/-(?!$)/);
+      var lastPiece = pieces[pieces.length - 1];
+      if (pieces.length == 1 && pieces[0].length == 1) {
+        return false;
+      } else if (pieces.length == 2 && pieces[0] == 'Shift' && lastPiece.length == 1) {
+        return false;
+      }
+      var hasCharacter = false;
+      for (var i = 0; i < pieces.length; i++) {
+        var piece = pieces[i];
+        if (piece in modifiers) { pieces[i] = modifiers[piece]; }
+        else { hasCharacter = true; }
+        if (piece in specialKeys) { pieces[i] = specialKeys[piece]; }
+      }
+      if (!hasCharacter) {
+        return false;
+      }
+      if (isUpperCase(lastPiece)) {
+        pieces[pieces.length - 1] = lastPiece.toLowerCase();
+      }
+      return '<' + pieces.join('-') + '>';
+    }
+
+    function getOnPasteFn(cm) {
+      var vim = cm.state.vim;
+      if (!vim.onPasteFn) {
+        vim.onPasteFn = function() {
+          if (!vim.insertMode) {
+            cm.setCursor(offsetCursor(cm.getCursor(), 0, 1));
+            actions.enterInsertMode(cm, {}, vim);
+          }
+        };
+      }
+      return vim.onPasteFn;
+    }
+
+    var numberRegex = /[\d]/;
+    var wordCharTest = [CodeMirror.isWordChar, function(ch) {
+      return ch && !CodeMirror.isWordChar(ch) && !/\s/.test(ch);
+    }], bigWordCharTest = [function(ch) {
+      return /\S/.test(ch);
+    }];
+    function makeKeyRange(start, size) {
+      var keys = [];
+      for (var i = start; i < start + size; i++) {
+        keys.push(String.fromCharCode(i));
+      }
+      return keys;
+    }
+    var upperCaseAlphabet = makeKeyRange(65, 26);
+    var lowerCaseAlphabet = makeKeyRange(97, 26);
+    var numbers = makeKeyRange(48, 10);
+    var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
+    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"', '.', ':', '/']);
+
+    function isLine(cm, line) {
+      return line >= cm.firstLine() && line <= cm.lastLine();
+    }
+    function isLowerCase(k) {
+      return (/^[a-z]$/).test(k);
+    }
+    function isMatchableSymbol(k) {
+      return '()[]{}'.indexOf(k) != -1;
+    }
+    function isNumber(k) {
+      return numberRegex.test(k);
+    }
+    function isUpperCase(k) {
+      return (/^[A-Z]$/).test(k);
+    }
+    function isWhiteSpaceString(k) {
+      return (/^\s*$/).test(k);
+    }
+    function inArray(val, arr) {
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] == val) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    var options = {};
+    function defineOption(name, defaultValue, type, aliases, callback) {
+      if (defaultValue === undefined && !callback) {
+        throw Error('defaultValue is required unless callback is provided');
+      }
+      if (!type) { type = 'string'; }
+      options[name] = {
+        type: type,
+        defaultValue: defaultValue,
+        callback: callback
+      };
+      if (aliases) {
+        for (var i = 0; i < aliases.length; i++) {
+          options[aliases[i]] = options[name];
+        }
+      }
+      if (defaultValue) {
+        setOption(name, defaultValue);
+      }
+    }
+
+    function setOption(name, value, cm, cfg) {
+      var option = options[name];
+      cfg = cfg || {};
+      var scope = cfg.scope;
+      if (!option) {
+        return new Error('Unknown option: ' + name);
+      }
+      if (option.type == 'boolean') {
+        if (value && value !== true) {
+          return new Error('Invalid argument: ' + name + '=' + value);
+        } else if (value !== false) {
+          value = true;
+        }
+      }
+      if (option.callback) {
+        if (scope !== 'local') {
+          option.callback(value, undefined);
+        }
+        if (scope !== 'global' && cm) {
+          option.callback(value, cm);
+        }
+      } else {
+        if (scope !== 'local') {
+          option.value = option.type == 'boolean' ? !!value : value;
+        }
+        if (scope !== 'global' && cm) {
+          cm.state.vim.options[name] = {value: value};
+        }
+      }
+    }
+
+    function getOption(name, cm, cfg) {
+      var option = options[name];
+      cfg = cfg || {};
+      var scope = cfg.scope;
+      if (!option) {
+        return new Error('Unknown option: ' + name);
+      }
+      if (option.callback) {
+        var local = cm && option.callback(undefined, cm);
+        if (scope !== 'global' && local !== undefined) {
+          return local;
+        }
+        if (scope !== 'local') {
+          return option.callback();
+        }
+        return;
+      } else {
+        var local = (scope !== 'global') && (cm && cm.state.vim.options[name]);
+        return (local || (scope !== 'local') && option || {}).value;
+      }
+    }
+
+    defineOption('filetype', undefined, 'string', ['ft'], function(name, cm) {
+      if (cm === undefined) {
+        return;
+      }
+      if (name === undefined) {
+        var mode = cm.getOption('mode');
+        return mode == 'null' ? '' : mode;
+      } else {
+        var mode = name == '' ? 'null' : name;
+        cm.setOption('mode', mode);
+      }
+    });
+
+    var createCircularJumpList = function() {
+      var size = 100;
+      var pointer = -1;
+      var head = 0;
+      var tail = 0;
+      var buffer = new Array(size);
+      function add(cm, oldCur, newCur) {
+        var current = pointer % size;
+        var curMark = buffer[current];
+        function useNextSlot(cursor) {
+          var next = ++pointer % size;
+          var trashMark = buffer[next];
+          if (trashMark) {
+            trashMark.clear();
+          }
+          buffer[next] = cm.setBookmark(cursor);
+        }
+        if (curMark) {
+          var markPos = curMark.find();
+          if (markPos && !cursorEqual(markPos, oldCur)) {
+            useNextSlot(oldCur);
+          }
+        } else {
+          useNextSlot(oldCur);
+        }
+        useNextSlot(newCur);
+        head = pointer;
+        tail = pointer - size + 1;
+        if (tail < 0) {
+          tail = 0;
+        }
+      }
+      function move(cm, offset) {
+        pointer += offset;
+        if (pointer > head) {
+          pointer = head;
+        } else if (pointer < tail) {
+          pointer = tail;
+        }
+        var mark = buffer[(size + pointer) % size];
+        if (mark && !mark.find()) {
+          var inc = offset > 0 ? 1 : -1;
+          var newCur;
+          var oldCur = cm.getCursor();
+          do {
+            pointer += inc;
+            mark = buffer[(size + pointer) % size];
+            if (mark &&
+                (newCur = mark.find()) &&
+                !cursorEqual(oldCur, newCur)) {
+              break;
+            }
+          } while (pointer < head && pointer > tail);
+        }
+        return mark;
+      }
+      return {
+        cachedCursor: undefined, //used for # and * jumps
+        add: add,
+        move: move
+      };
+    };
+    var createInsertModeChanges = function(c) {
+      if (c) {
+        return {
+          changes: c.changes,
+          expectCursorActivityForChange: c.expectCursorActivityForChange
+        };
+      }
+      return {
+        changes: [],
+        expectCursorActivityForChange: false
+      };
+    };
+
+    function MacroModeState() {
+      this.latestRegister = undefined;
+      this.isPlaying = false;
+      this.isRecording = false;
+      this.replaySearchQueries = [];
+      this.onRecordingDone = undefined;
+      this.lastInsertModeChanges = createInsertModeChanges();
+    }
+    MacroModeState.prototype = {
+      exitMacroRecordMode: function() {
+        var macroModeState = vimGlobalState.macroModeState;
+        if (macroModeState.onRecordingDone) {
+          macroModeState.onRecordingDone(); // close dialog
+        }
+        macroModeState.onRecordingDone = undefined;
+        macroModeState.isRecording = false;
+      },
+      enterMacroRecordMode: function(cm, registerName) {
+        var register =
+            vimGlobalState.registerController.getRegister(registerName);
+        if (register) {
+          register.clear();
+          this.latestRegister = registerName;
+          if (cm.openDialog) {
+            this.onRecordingDone = cm.openDialog(
+                '(recording)['+registerName+']', null, {bottom:true});
+          }
+          this.isRecording = true;
+        }
+      }
+    };
+
+    function maybeInitVimState(cm) {
+      if (!cm.state.vim) {
+        cm.state.vim = {
+          inputState: new InputState(),
+          lastEditInputState: undefined,
+          lastEditActionCommand: undefined,
+          lastHPos: -1,
+          lastHSPos: -1,
+          lastMotion: null,
+          marks: {},
+          fakeCursor: null,
+          insertMode: false,
+          insertModeRepeat: undefined,
+          visualMode: false,
+          visualLine: false,
+          visualBlock: false,
+          lastSelection: null,
+          lastPastedText: null,
+          sel: {},
+          options: {}
+        };
+      }
+      return cm.state.vim;
+    }
+    var vimGlobalState;
+    function resetVimGlobalState() {
+      vimGlobalState = {
+        searchQuery: null,
+        searchIsReversed: false,
+        lastSubstituteReplacePart: undefined,
+        jumpList: createCircularJumpList(),
+        macroModeState: new MacroModeState,
+        lastCharacterSearch: {increment:0, forward:true, selectedCharacter:''},
+        registerController: new RegisterController({}),
+        searchHistoryController: new HistoryController(),
+        exCommandHistoryController : new HistoryController()
+      };
+      for (var optionName in options) {
+        var option = options[optionName];
+        option.value = option.defaultValue;
+      }
+    }
+
+    var lastInsertModeKeyTimer;
+    var vimApi= {
+      buildKeyMap: function() {
+      },
+      getRegisterController: function() {
+        return vimGlobalState.registerController;
+      },
+      resetVimGlobalState_: resetVimGlobalState,
+      getVimGlobalState_: function() {
+        return vimGlobalState;
+      },
+      maybeInitVimState_: maybeInitVimState,
+
+      suppressErrorLogging: false,
+
+      InsertModeKey: InsertModeKey,
+      map: function(lhs, rhs, ctx) {
+        exCommandDispatcher.map(lhs, rhs, ctx);
+      },
+      unmap: function(lhs, ctx) {
+        exCommandDispatcher.unmap(lhs, ctx);
+      },
+      setOption: setOption,
+      getOption: getOption,
+      defineOption: defineOption,
+      defineEx: function(name, prefix, func){
+        if (!prefix) {
+          prefix = name;
+        } else if (name.indexOf(prefix) !== 0) {
+          throw new Error('(Vim.defineEx) "'+prefix+'" is not a prefix of "'+name+'", command not registered');
+        }
+        exCommands[name]=func;
+        exCommandDispatcher.commandMap_[prefix]={name:name, shortName:prefix, type:'api'};
+      },
+      handleKey: function (cm, key, origin) {
+        var command = this.findKey(cm, key, origin);
+        if (typeof command === 'function') {
+          return command();
+        }
+      },
+      findKey: function(cm, key, origin) {
+        var vim = maybeInitVimState(cm);
+        function handleMacroRecording() {
+          var macroModeState = vimGlobalState.macroModeState;
+          if (macroModeState.isRecording) {
+            if (key == 'q') {
+              macroModeState.exitMacroRecordMode();
+              clearInputState(cm);
+              return true;
+            }
+            if (origin != 'mapping') {
+              logKey(macroModeState, key);
+            }
+          }
+        }
+        function handleEsc() {
+          if (key == '<Esc>') {
+            clearInputState(cm);
+            if (vim.visualMode) {
+              exitVisualMode(cm);
+            } else if (vim.insertMode) {
+              exitInsertMode(cm);
+            }
+            return true;
+          }
+        }
+        function doKeyToKey(keys) {
+          var match;
+          while (keys) {
+            match = (/<\w+-.+?>|<\w+>|./).exec(keys);
+            key = match[0];
+            keys = keys.substring(match.index + key.length);
+            CodeMirror.Vim.handleKey(cm, key, 'mapping');
+          }
+        }
+
+        function handleKeyInsertMode() {
+          if (handleEsc()) { return true; }
+          var keys = vim.inputState.keyBuffer = vim.inputState.keyBuffer + key;
+          var keysAreChars = key.length == 1;
+          var match = commandDispatcher.matchCommand(keys, defaultKeymap, vim.inputState, 'insert');
+          while (keys.length > 1 && match.type != 'full') {
+            var keys = vim.inputState.keyBuffer = keys.slice(1);
+            var thisMatch = commandDispatcher.matchCommand(keys, defaultKeymap, vim.inputState, 'insert');
+            if (thisMatch.type != 'none') { match = thisMatch; }
+          }
+          if (match.type == 'none') { clearInputState(cm); return false; }
+          else if (match.type == 'partial') {
+            if (lastInsertModeKeyTimer) { window.clearTimeout(lastInsertModeKeyTimer); }
+            lastInsertModeKeyTimer = window.setTimeout(
+              function() { if (vim.insertMode && vim.inputState.keyBuffer) { clearInputState(cm); } },
+              getOption('insertModeEscKeysTimeout'));
+            return !keysAreChars;
+          }
+
+          if (lastInsertModeKeyTimer) { window.clearTimeout(lastInsertModeKeyTimer); }
+          if (keysAreChars) {
+            var selections = cm.listSelections();
+            for (var i = 0; i < selections.length; i++) {
+              var here = selections[i].head;
+              cm.replaceRange('', offsetCursor(here, 0, -(keys.length - 1)), here, '+input');
+            }
+            vimGlobalState.macroModeState.lastInsertModeChanges.changes.pop();
+          }
+          clearInputState(cm);
+          return match.command;
+        }
+
+        function handleKeyNonInsertMode() {
+          if (handleMacroRecording() || handleEsc()) { return true; }
+
+          var keys = vim.inputState.keyBuffer = vim.inputState.keyBuffer + key;
+          if (/^[1-9]\d*$/.test(keys)) { return true; }
+
+          var keysMatcher = /^(\d*)(.*)$/.exec(keys);
+          if (!keysMatcher) { clearInputState(cm); return false; }
+          var context = vim.visualMode ? 'visual' :
+                                         'normal';
+          var match = commandDispatcher.matchCommand(keysMatcher[2] || keysMatcher[1], defaultKeymap, vim.inputState, context);
+          if (match.type == 'none') { clearInputState(cm); return false; }
+          else if (match.type == 'partial') { return true; }
+
+          vim.inputState.keyBuffer = '';
+          var keysMatcher = /^(\d*)(.*)$/.exec(keys);
+          if (keysMatcher[1] && keysMatcher[1] != '0') {
+            vim.inputState.pushRepeatDigit(keysMatcher[1]);
+          }
+          return match.command;
+        }
+
+        var command;
+        if (vim.insertMode) { command = handleKeyInsertMode(); }
+        else { command = handleKeyNonInsertMode(); }
+        if (command === false) {
+          return undefined;
+        } else if (command === true) {
+          return function() { return true; };
+        } else {
+          return function() {
+            if ((command.operator || command.isEdit) && cm.getOption('readOnly'))
+              return; // ace_patch
+            return cm.operation(function() {
+              cm.curOp.isVimOp = true;
+              try {
+                if (command.type == 'keyToKey') {
+                  doKeyToKey(command.toKeys);
+                } else {
+                  commandDispatcher.processCommand(cm, vim, command);
+                }
+              } catch (e) {
+                cm.state.vim = undefined;
+                maybeInitVimState(cm);
+                if (!CodeMirror.Vim.suppressErrorLogging) {
+                  console['log'](e);
+                }
+                throw e;
+              }
+              return true;
+            });
+          };
+        }
+      },
+      handleEx: function(cm, input) {
+        exCommandDispatcher.processCommand(cm, input);
+      },
+
+      defineMotion: defineMotion,
+      defineAction: defineAction,
+      defineOperator: defineOperator,
+      mapCommand: mapCommand,
+      _mapCommand: _mapCommand,
+
+      defineRegister: defineRegister,
+
+      exitVisualMode: exitVisualMode,
+      exitInsertMode: exitInsertMode
+    };
+    function InputState() {
+      this.prefixRepeat = [];
+      this.motionRepeat = [];
+
+      this.operator = null;
+      this.operatorArgs = null;
+      this.motion = null;
+      this.motionArgs = null;
+      this.keyBuffer = []; // For matching multi-key commands.
+      this.registerName = null; // Defaults to the unnamed register.
+    }
+    InputState.prototype.pushRepeatDigit = function(n) {
+      if (!this.operator) {
+        this.prefixRepeat = this.prefixRepeat.concat(n);
+      } else {
+        this.motionRepeat = thi
