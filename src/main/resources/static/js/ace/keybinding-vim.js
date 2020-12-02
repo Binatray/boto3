@@ -2007,4 +2007,442 @@ dom.importCssString(".normal-mode .ace_cursor{\
         var motion = inputState.motion;
         var motionArgs = inputState.motionArgs || {};
         var operator = inputState.operator;
-        var operatorArgs = inputState.operatorArgs || {}
+        var operatorArgs = inputState.operatorArgs || {};
+        var registerName = inputState.registerName;
+        var sel = vim.sel;
+        var origHead = copyCursor(vim.visualMode ? clipCursorToContent(cm, sel.head): cm.getCursor('head'));
+        var origAnchor = copyCursor(vim.visualMode ? clipCursorToContent(cm, sel.anchor) : cm.getCursor('anchor'));
+        var oldHead = copyCursor(origHead);
+        var oldAnchor = copyCursor(origAnchor);
+        var newHead, newAnchor;
+        var repeat;
+        if (operator) {
+          this.recordLastEdit(vim, inputState);
+        }
+        if (inputState.repeatOverride !== undefined) {
+          repeat = inputState.repeatOverride;
+        } else {
+          repeat = inputState.getRepeat();
+        }
+        if (repeat > 0 && motionArgs.explicitRepeat) {
+          motionArgs.repeatIsExplicit = true;
+        } else if (motionArgs.noRepeat ||
+            (!motionArgs.explicitRepeat && repeat === 0)) {
+          repeat = 1;
+          motionArgs.repeatIsExplicit = false;
+        }
+        if (inputState.selectedCharacter) {
+          motionArgs.selectedCharacter = operatorArgs.selectedCharacter =
+              inputState.selectedCharacter;
+        }
+        motionArgs.repeat = repeat;
+        clearInputState(cm);
+        if (motion) {
+          var motionResult = motions[motion](cm, origHead, motionArgs, vim);
+          vim.lastMotion = motions[motion];
+          if (!motionResult) {
+            return;
+          }
+          if (motionArgs.toJumplist) {
+            if (!operator && cm.ace.curOp != null)
+              cm.ace.curOp.command.scrollIntoView = "center-animate"; // ace_patch
+            var jumpList = vimGlobalState.jumpList;
+            var cachedCursor = jumpList.cachedCursor;
+            if (cachedCursor) {
+              recordJumpPosition(cm, cachedCursor, motionResult);
+              delete jumpList.cachedCursor;
+            } else {
+              recordJumpPosition(cm, origHead, motionResult);
+            }
+          }
+          if (motionResult instanceof Array) {
+            newAnchor = motionResult[0];
+            newHead = motionResult[1];
+          } else {
+            newHead = motionResult;
+          }
+          if (!newHead) {
+            newHead = copyCursor(origHead);
+          }
+          if (vim.visualMode) {
+            if (!(vim.visualBlock && newHead.ch === Infinity)) {
+              newHead = clipCursorToContent(cm, newHead, vim.visualBlock);
+            }
+            if (newAnchor) {
+              newAnchor = clipCursorToContent(cm, newAnchor, true);
+            }
+            newAnchor = newAnchor || oldAnchor;
+            sel.anchor = newAnchor;
+            sel.head = newHead;
+            updateCmSelection(cm);
+            updateMark(cm, vim, '<',
+                cursorIsBefore(newAnchor, newHead) ? newAnchor
+                    : newHead);
+            updateMark(cm, vim, '>',
+                cursorIsBefore(newAnchor, newHead) ? newHead
+                    : newAnchor);
+          } else if (!operator) {
+            newHead = clipCursorToContent(cm, newHead);
+            cm.setCursor(newHead.line, newHead.ch);
+          }
+        }
+        if (operator) {
+          if (operatorArgs.lastSel) {
+            newAnchor = oldAnchor;
+            var lastSel = operatorArgs.lastSel;
+            var lineOffset = Math.abs(lastSel.head.line - lastSel.anchor.line);
+            var chOffset = Math.abs(lastSel.head.ch - lastSel.anchor.ch);
+            if (lastSel.visualLine) {
+              newHead = Pos(oldAnchor.line + lineOffset, oldAnchor.ch);
+            } else if (lastSel.visualBlock) {
+              newHead = Pos(oldAnchor.line + lineOffset, oldAnchor.ch + chOffset);
+            } else if (lastSel.head.line == lastSel.anchor.line) {
+              newHead = Pos(oldAnchor.line, oldAnchor.ch + chOffset);
+            } else {
+              newHead = Pos(oldAnchor.line + lineOffset, oldAnchor.ch);
+            }
+            vim.visualMode = true;
+            vim.visualLine = lastSel.visualLine;
+            vim.visualBlock = lastSel.visualBlock;
+            sel = vim.sel = {
+              anchor: newAnchor,
+              head: newHead
+            };
+            updateCmSelection(cm);
+          } else if (vim.visualMode) {
+            operatorArgs.lastSel = {
+              anchor: copyCursor(sel.anchor),
+              head: copyCursor(sel.head),
+              visualBlock: vim.visualBlock,
+              visualLine: vim.visualLine
+            };
+          }
+          var curStart, curEnd, linewise, mode;
+          var cmSel;
+          if (vim.visualMode) {
+            curStart = cursorMin(sel.head, sel.anchor);
+            curEnd = cursorMax(sel.head, sel.anchor);
+            linewise = vim.visualLine || operatorArgs.linewise;
+            mode = vim.visualBlock ? 'block' :
+                   linewise ? 'line' :
+                   'char';
+            cmSel = makeCmSelection(cm, {
+              anchor: curStart,
+              head: curEnd
+            }, mode);
+            if (linewise) {
+              var ranges = cmSel.ranges;
+              if (mode == 'block') {
+                for (var i = 0; i < ranges.length; i++) {
+                  ranges[i].head.ch = lineLength(cm, ranges[i].head.line);
+                }
+              } else if (mode == 'line') {
+                ranges[0].head = Pos(ranges[0].head.line + 1, 0);
+              }
+            }
+          } else {
+            curStart = copyCursor(newAnchor || oldAnchor);
+            curEnd = copyCursor(newHead || oldHead);
+            if (cursorIsBefore(curEnd, curStart)) {
+              var tmp = curStart;
+              curStart = curEnd;
+              curEnd = tmp;
+            }
+            linewise = motionArgs.linewise || operatorArgs.linewise;
+            if (linewise) {
+              expandSelectionToLine(cm, curStart, curEnd);
+            } else if (motionArgs.forward) {
+              clipToLine(cm, curStart, curEnd);
+            }
+            mode = 'char';
+            var exclusive = !motionArgs.inclusive || linewise;
+            cmSel = makeCmSelection(cm, {
+              anchor: curStart,
+              head: curEnd
+            }, mode, exclusive);
+          }
+          cm.setSelections(cmSel.ranges, cmSel.primary);
+          vim.lastMotion = null;
+          operatorArgs.repeat = repeat; // For indent in visual mode.
+          operatorArgs.registerName = registerName;
+          operatorArgs.linewise = linewise;
+          var operatorMoveTo = operators[operator](
+            cm, operatorArgs, cmSel.ranges, oldAnchor, newHead);
+          if (vim.visualMode) {
+            exitVisualMode(cm, operatorMoveTo != null);
+          }
+          if (operatorMoveTo) {
+            cm.setCursor(operatorMoveTo);
+          }
+        }
+      },
+      recordLastEdit: function(vim, inputState, actionCommand) {
+        var macroModeState = vimGlobalState.macroModeState;
+        if (macroModeState.isPlaying) { return; }
+        vim.lastEditInputState = inputState;
+        vim.lastEditActionCommand = actionCommand;
+        macroModeState.lastInsertModeChanges.changes = [];
+        macroModeState.lastInsertModeChanges.expectCursorActivityForChange = false;
+      }
+    };
+    var motions = {
+      moveToTopLine: function(cm, _head, motionArgs) {
+        var line = getUserVisibleLines(cm).top + motionArgs.repeat -1;
+        return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
+      },
+      moveToMiddleLine: function(cm) {
+        var range = getUserVisibleLines(cm);
+        var line = Math.floor((range.top + range.bottom) * 0.5);
+        return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
+      },
+      moveToBottomLine: function(cm, _head, motionArgs) {
+        var line = getUserVisibleLines(cm).bottom - motionArgs.repeat +1;
+        return Pos(line, findFirstNonWhiteSpaceCharacter(cm.getLine(line)));
+      },
+      expandToLine: function(_cm, head, motionArgs) {
+        var cur = head;
+        return Pos(cur.line + motionArgs.repeat - 1, Infinity);
+      },
+      findNext: function(cm, _head, motionArgs) {
+        var state = getSearchState(cm);
+        var query = state.getQuery();
+        if (!query) {
+          return;
+        }
+        var prev = !motionArgs.forward;
+        prev = (state.isReversed()) ? !prev : prev;
+        highlightSearchMatches(cm, query);
+        return findNext(cm, prev/** prev */, query, motionArgs.repeat);
+      },
+      goToMark: function(cm, _head, motionArgs, vim) {
+        var pos = getMarkPos(cm, vim, motionArgs.selectedCharacter);
+        if (pos) {
+          return motionArgs.linewise ? { line: pos.line, ch: findFirstNonWhiteSpaceCharacter(cm.getLine(pos.line)) } : pos;
+        }
+        return null;
+      },
+      moveToOtherHighlightedEnd: function(cm, _head, motionArgs, vim) {
+        if (vim.visualBlock && motionArgs.sameLine) {
+          var sel = vim.sel;
+          return [
+            clipCursorToContent(cm, Pos(sel.anchor.line, sel.head.ch)),
+            clipCursorToContent(cm, Pos(sel.head.line, sel.anchor.ch))
+          ];
+        } else {
+          return ([vim.sel.head, vim.sel.anchor]);
+        }
+      },
+      jumpToMark: function(cm, head, motionArgs, vim) {
+        var best = head;
+        for (var i = 0; i < motionArgs.repeat; i++) {
+          var cursor = best;
+          for (var key in vim.marks) {
+            if (!isLowerCase(key)) {
+              continue;
+            }
+            var mark = vim.marks[key].find();
+            var isWrongDirection = (motionArgs.forward) ?
+              cursorIsBefore(mark, cursor) : cursorIsBefore(cursor, mark);
+
+            if (isWrongDirection) {
+              continue;
+            }
+            if (motionArgs.linewise && (mark.line == cursor.line)) {
+              continue;
+            }
+
+            var equal = cursorEqual(cursor, best);
+            var between = (motionArgs.forward) ?
+              cursorIsBetween(cursor, mark, best) :
+              cursorIsBetween(best, mark, cursor);
+
+            if (equal || between) {
+              best = mark;
+            }
+          }
+        }
+
+        if (motionArgs.linewise) {
+          best = Pos(best.line, findFirstNonWhiteSpaceCharacter(cm.getLine(best.line)));
+        }
+        return best;
+      },
+      moveByCharacters: function(_cm, head, motionArgs) {
+        var cur = head;
+        var repeat = motionArgs.repeat;
+        var ch = motionArgs.forward ? cur.ch + repeat : cur.ch - repeat;
+        return Pos(cur.line, ch);
+      },
+      moveByLines: function(cm, head, motionArgs, vim) {
+        var cur = head;
+        var endCh = cur.ch;
+        switch (vim.lastMotion) {
+          case this.moveByLines:
+          case this.moveByDisplayLines:
+          case this.moveByScroll:
+          case this.moveToColumn:
+          case this.moveToEol:
+            endCh = vim.lastHPos;
+            break;
+          default:
+            vim.lastHPos = endCh;
+        }
+        var repeat = motionArgs.repeat+(motionArgs.repeatOffset||0);
+        var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
+        var first = cm.firstLine();
+        var last = cm.lastLine();
+        if (line < first && cur.line == first){
+          return this.moveToStartOfLine(cm, head, motionArgs, vim);
+        }else if (line > last && cur.line == last){
+            return this.moveToEol(cm, head, motionArgs, vim);
+        }
+        var fold = cm.ace.session.getFoldLine(line);
+        if (fold) {
+          if (motionArgs.forward) {
+            if (line > fold.start.row)
+              line = fold.end.row + 1;
+          } else {
+            line = fold.start.row;
+          }
+        }
+        if (motionArgs.toFirstChar){
+          endCh=findFirstNonWhiteSpaceCharacter(cm.getLine(line));
+          vim.lastHPos = endCh;
+        }
+        vim.lastHSPos = cm.charCoords(Pos(line, endCh),'div').left;
+        return Pos(line, endCh);
+      },
+      moveByDisplayLines: function(cm, head, motionArgs, vim) {
+        var cur = head;
+        switch (vim.lastMotion) {
+          case this.moveByDisplayLines:
+          case this.moveByScroll:
+          case this.moveByLines:
+          case this.moveToColumn:
+          case this.moveToEol:
+            break;
+          default:
+            vim.lastHSPos = cm.charCoords(cur,'div').left;
+        }
+        var repeat = motionArgs.repeat;
+        var res=cm.findPosV(cur,(motionArgs.forward ? repeat : -repeat),'line',vim.lastHSPos);
+        if (res.hitSide) {
+          if (motionArgs.forward) {
+            var lastCharCoords = cm.charCoords(res, 'div');
+            var goalCoords = { top: lastCharCoords.top + 8, left: vim.lastHSPos };
+            var res = cm.coordsChar(goalCoords, 'div');
+          } else {
+            var resCoords = cm.charCoords(Pos(cm.firstLine(), 0), 'div');
+            resCoords.left = vim.lastHSPos;
+            res = cm.coordsChar(resCoords, 'div');
+          }
+        }
+        vim.lastHPos = res.ch;
+        return res;
+      },
+      moveByPage: function(cm, head, motionArgs) {
+        var curStart = head;
+        var repeat = motionArgs.repeat;
+        return cm.findPosV(curStart, (motionArgs.forward ? repeat : -repeat), 'page');
+      },
+      moveByParagraph: function(cm, head, motionArgs) {
+        var dir = motionArgs.forward ? 1 : -1;
+        return findParagraph(cm, head, motionArgs.repeat, dir);
+      },
+      moveByScroll: function(cm, head, motionArgs, vim) {
+        var scrollbox = cm.getScrollInfo();
+        var curEnd = null;
+        var repeat = motionArgs.repeat;
+        if (!repeat) {
+          repeat = scrollbox.clientHeight / (2 * cm.defaultTextHeight());
+        }
+        var orig = cm.charCoords(head, 'local');
+        motionArgs.repeat = repeat;
+        var curEnd = motions.moveByDisplayLines(cm, head, motionArgs, vim);
+        if (!curEnd) {
+          return null;
+        }
+        var dest = cm.charCoords(curEnd, 'local');
+        cm.scrollTo(null, scrollbox.top + dest.top - orig.top);
+        return curEnd;
+      },
+      moveByWords: function(cm, head, motionArgs) {
+        return moveToWord(cm, head, motionArgs.repeat, !!motionArgs.forward,
+            !!motionArgs.wordEnd, !!motionArgs.bigWord);
+      },
+      moveTillCharacter: function(cm, _head, motionArgs) {
+        var repeat = motionArgs.repeat;
+        var curEnd = moveToCharacter(cm, repeat, motionArgs.forward,
+            motionArgs.selectedCharacter);
+        var increment = motionArgs.forward ? -1 : 1;
+        recordLastCharacterSearch(increment, motionArgs);
+        if (!curEnd) return null;
+        curEnd.ch += increment;
+        return curEnd;
+      },
+      moveToCharacter: function(cm, head, motionArgs) {
+        var repeat = motionArgs.repeat;
+        recordLastCharacterSearch(0, motionArgs);
+        return moveToCharacter(cm, repeat, motionArgs.forward,
+            motionArgs.selectedCharacter) || head;
+      },
+      moveToSymbol: function(cm, head, motionArgs) {
+        var repeat = motionArgs.repeat;
+        return findSymbol(cm, repeat, motionArgs.forward,
+            motionArgs.selectedCharacter) || head;
+      },
+      moveToColumn: function(cm, head, motionArgs, vim) {
+        var repeat = motionArgs.repeat;
+        vim.lastHPos = repeat - 1;
+        vim.lastHSPos = cm.charCoords(head,'div').left;
+        return moveToColumn(cm, repeat);
+      },
+      moveToEol: function(cm, head, motionArgs, vim) {
+        var cur = head;
+        vim.lastHPos = Infinity;
+        var retval= Pos(cur.line + motionArgs.repeat - 1, Infinity);
+        var end=cm.clipPos(retval);
+        end.ch--;
+        vim.lastHSPos = cm.charCoords(end,'div').left;
+        return retval;
+      },
+      moveToFirstNonWhiteSpaceCharacter: function(cm, head) {
+        var cursor = head;
+        return Pos(cursor.line,
+                   findFirstNonWhiteSpaceCharacter(cm.getLine(cursor.line)));
+      },
+      moveToMatchedSymbol: function(cm, head) {
+        var cursor = head;
+        var line = cursor.line;
+        var ch = cursor.ch;
+        var lineText = cm.getLine(line);
+        var symbol;
+        do {
+          symbol = lineText.charAt(ch++);
+          if (symbol && isMatchableSymbol(symbol)) {
+            var style = cm.getTokenTypeAt(Pos(line, ch));
+            if (style !== "string" && style !== "comment") {
+              break;
+            }
+          }
+        } while (symbol);
+        if (symbol) {
+          var matched = cm.findMatchingBracket(Pos(line, ch));
+          return matched.to;
+        } else {
+          return cursor;
+        }
+      },
+      moveToStartOfLine: function(_cm, head) {
+        return Pos(head.line, 0);
+      },
+      moveToLineOrEdgeOfDocument: function(cm, _head, motionArgs) {
+        var lineNum = motionArgs.forward ? cm.lastLine() : cm.firstLine();
+        if (motionArgs.repeatIsExplicit) {
+          lineNum = motionArgs.repeat - cm.getOption('firstLineNumber');
+        }
+        return Pos(lineNum,
+                   findFirstNonWhiteSpaceCharacter(cm.getLine(lineNum)));
+      },
+      textObjectManipulation: function(cm, head, motionArgs, vim) {
+        var mirroredPairs = 
