@@ -1561,4 +1561,450 @@ dom.importCssString(".normal-mode .ace_cursor{\
       if (!this.operator) {
         this.prefixRepeat = this.prefixRepeat.concat(n);
       } else {
-        this.motionRepeat = thi
+        this.motionRepeat = this.motionRepeat.concat(n);
+      }
+    };
+    InputState.prototype.getRepeat = function() {
+      var repeat = 0;
+      if (this.prefixRepeat.length > 0 || this.motionRepeat.length > 0) {
+        repeat = 1;
+        if (this.prefixRepeat.length > 0) {
+          repeat *= parseInt(this.prefixRepeat.join(''), 10);
+        }
+        if (this.motionRepeat.length > 0) {
+          repeat *= parseInt(this.motionRepeat.join(''), 10);
+        }
+      }
+      return repeat;
+    };
+
+    function clearInputState(cm, reason) {
+      cm.state.vim.inputState = new InputState();
+      CodeMirror.signal(cm, 'vim-command-done', reason);
+    }
+    function Register(text, linewise, blockwise) {
+      this.clear();
+      this.keyBuffer = [text || ''];
+      this.insertModeChanges = [];
+      this.searchQueries = [];
+      this.linewise = !!linewise;
+      this.blockwise = !!blockwise;
+    }
+    Register.prototype = {
+      setText: function(text, linewise, blockwise) {
+        this.keyBuffer = [text || ''];
+        this.linewise = !!linewise;
+        this.blockwise = !!blockwise;
+      },
+      pushText: function(text, linewise) {
+        if (linewise) {
+          if (!this.linewise) {
+            this.keyBuffer.push('\n');
+          }
+          this.linewise = true;
+        }
+        this.keyBuffer.push(text);
+      },
+      pushInsertModeChanges: function(changes) {
+        this.insertModeChanges.push(createInsertModeChanges(changes));
+      },
+      pushSearchQuery: function(query) {
+        this.searchQueries.push(query);
+      },
+      clear: function() {
+        this.keyBuffer = [];
+        this.insertModeChanges = [];
+        this.searchQueries = [];
+        this.linewise = false;
+      },
+      toString: function() {
+        return this.keyBuffer.join('');
+      }
+    };
+    function defineRegister(name, register) {
+      var registers = vimGlobalState.registerController.registers;
+      if (!name || name.length != 1) {
+        throw Error('Register name must be 1 character');
+      }
+      registers[name] = register;
+      validRegisters.push(name);
+    }
+    function RegisterController(registers) {
+      this.registers = registers;
+      this.unnamedRegister = registers['"'] = new Register();
+      registers['.'] = new Register();
+      registers[':'] = new Register();
+      registers['/'] = new Register();
+    }
+    RegisterController.prototype = {
+      pushText: function(registerName, operator, text, linewise, blockwise) {
+        if (linewise && text.charAt(text.length - 1) !== '\n'){
+          text += '\n';
+        }
+        var register = this.isValidRegister(registerName) ?
+            this.getRegister(registerName) : null;
+        if (!register) {
+          switch (operator) {
+            case 'yank':
+              this.registers['0'] = new Register(text, linewise, blockwise);
+              break;
+            case 'delete':
+            case 'change':
+              if (text.indexOf('\n') == -1) {
+                this.registers['-'] = new Register(text, linewise);
+              } else {
+                this.shiftNumericRegisters_();
+                this.registers['1'] = new Register(text, linewise);
+              }
+              break;
+          }
+          this.unnamedRegister.setText(text, linewise, blockwise);
+          return;
+        }
+        var append = isUpperCase(registerName);
+        if (append) {
+          register.pushText(text, linewise);
+        } else {
+          register.setText(text, linewise, blockwise);
+        }
+        this.unnamedRegister.setText(register.toString(), linewise);
+      },
+      getRegister: function(name) {
+        if (!this.isValidRegister(name)) {
+          return this.unnamedRegister;
+        }
+        name = name.toLowerCase();
+        if (!this.registers[name]) {
+          this.registers[name] = new Register();
+        }
+        return this.registers[name];
+      },
+      isValidRegister: function(name) {
+        return name && inArray(name, validRegisters);
+      },
+      shiftNumericRegisters_: function() {
+        for (var i = 9; i >= 2; i--) {
+          this.registers[i] = this.getRegister('' + (i - 1));
+        }
+      }
+    };
+    function HistoryController() {
+        this.historyBuffer = [];
+        this.iterator = 0;
+        this.initialPrefix = null;
+    }
+    HistoryController.prototype = {
+      nextMatch: function (input, up) {
+        var historyBuffer = this.historyBuffer;
+        var dir = up ? -1 : 1;
+        if (this.initialPrefix === null) this.initialPrefix = input;
+        for (var i = this.iterator + dir; up ? i >= 0 : i < historyBuffer.length; i+= dir) {
+          var element = historyBuffer[i];
+          for (var j = 0; j <= element.length; j++) {
+            if (this.initialPrefix == element.substring(0, j)) {
+              this.iterator = i;
+              return element;
+            }
+          }
+        }
+        if (i >= historyBuffer.length) {
+          this.iterator = historyBuffer.length;
+          return this.initialPrefix;
+        }
+        if (i < 0 ) return input;
+      },
+      pushInput: function(input) {
+        var index = this.historyBuffer.indexOf(input);
+        if (index > -1) this.historyBuffer.splice(index, 1);
+        if (input.length) this.historyBuffer.push(input);
+      },
+      reset: function() {
+        this.initialPrefix = null;
+        this.iterator = this.historyBuffer.length;
+      }
+    };
+    var commandDispatcher = {
+      matchCommand: function(keys, keyMap, inputState, context) {
+        var matches = commandMatches(keys, keyMap, context, inputState);
+        if (!matches.full && !matches.partial) {
+          return {type: 'none'};
+        } else if (!matches.full && matches.partial) {
+          return {type: 'partial'};
+        }
+
+        var bestMatch;
+        for (var i = 0; i < matches.full.length; i++) {
+          var match = matches.full[i];
+          if (!bestMatch) {
+            bestMatch = match;
+          }
+        }
+        if (bestMatch.keys.slice(-11) == '<character>') {
+          var character = lastChar(keys);
+          if (/<C-.>/.test(character)) return {type: 'none'};
+          inputState.selectedCharacter = character;
+        }
+        return {type: 'full', command: bestMatch};
+      },
+      processCommand: function(cm, vim, command) {
+        vim.inputState.repeatOverride = command.repeatOverride;
+        switch (command.type) {
+          case 'motion':
+            this.processMotion(cm, vim, command);
+            break;
+          case 'operator':
+            this.processOperator(cm, vim, command);
+            break;
+          case 'operatorMotion':
+            this.processOperatorMotion(cm, vim, command);
+            break;
+          case 'action':
+            this.processAction(cm, vim, command);
+            break;
+          case 'search':
+            this.processSearch(cm, vim, command);
+            break;
+          case 'ex':
+          case 'keyToEx':
+            this.processEx(cm, vim, command);
+            break;
+          default:
+            break;
+        }
+      },
+      processMotion: function(cm, vim, command) {
+        vim.inputState.motion = command.motion;
+        vim.inputState.motionArgs = copyArgs(command.motionArgs);
+        this.evalInput(cm, vim);
+      },
+      processOperator: function(cm, vim, command) {
+        var inputState = vim.inputState;
+        if (inputState.operator) {
+          if (inputState.operator == command.operator) {
+            inputState.motion = 'expandToLine';
+            inputState.motionArgs = { linewise: true };
+            this.evalInput(cm, vim);
+            return;
+          } else {
+            clearInputState(cm);
+          }
+        }
+        inputState.operator = command.operator;
+        inputState.operatorArgs = copyArgs(command.operatorArgs);
+        if (vim.visualMode) {
+          this.evalInput(cm, vim);
+        }
+      },
+      processOperatorMotion: function(cm, vim, command) {
+        var visualMode = vim.visualMode;
+        var operatorMotionArgs = copyArgs(command.operatorMotionArgs);
+        if (operatorMotionArgs) {
+          if (visualMode && operatorMotionArgs.visualLine) {
+            vim.visualLine = true;
+          }
+        }
+        this.processOperator(cm, vim, command);
+        if (!visualMode) {
+          this.processMotion(cm, vim, command);
+        }
+      },
+      processAction: function(cm, vim, command) {
+        var inputState = vim.inputState;
+        var repeat = inputState.getRepeat();
+        var repeatIsExplicit = !!repeat;
+        var actionArgs = copyArgs(command.actionArgs) || {};
+        if (inputState.selectedCharacter) {
+          actionArgs.selectedCharacter = inputState.selectedCharacter;
+        }
+        if (command.operator) {
+          this.processOperator(cm, vim, command);
+        }
+        if (command.motion) {
+          this.processMotion(cm, vim, command);
+        }
+        if (command.motion || command.operator) {
+          this.evalInput(cm, vim);
+        }
+        actionArgs.repeat = repeat || 1;
+        actionArgs.repeatIsExplicit = repeatIsExplicit;
+        actionArgs.registerName = inputState.registerName;
+        clearInputState(cm);
+        vim.lastMotion = null;
+        if (command.isEdit) {
+          this.recordLastEdit(vim, inputState, command);
+        }
+        actions[command.action](cm, actionArgs, vim);
+      },
+      processSearch: function(cm, vim, command) {
+        if (!cm.getSearchCursor) {
+          return;
+        }
+        var forward = command.searchArgs.forward;
+        var wholeWordOnly = command.searchArgs.wholeWordOnly;
+        getSearchState(cm).setReversed(!forward);
+        var promptPrefix = (forward) ? '/' : '?';
+        var originalQuery = getSearchState(cm).getQuery();
+        var originalScrollPos = cm.getScrollInfo();
+        function handleQuery(query, ignoreCase, smartCase) {
+          vimGlobalState.searchHistoryController.pushInput(query);
+          vimGlobalState.searchHistoryController.reset();
+          try {
+            updateSearchQuery(cm, query, ignoreCase, smartCase);
+          } catch (e) {
+            showConfirm(cm, 'Invalid regex: ' + query);
+            clearInputState(cm);
+            return;
+          }
+          commandDispatcher.processMotion(cm, vim, {
+            type: 'motion',
+            motion: 'findNext',
+            motionArgs: { forward: true, toJumplist: command.searchArgs.toJumplist }
+          });
+        }
+        function onPromptClose(query) {
+          cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
+          handleQuery(query, true /** ignoreCase */, true /** smartCase */);
+          var macroModeState = vimGlobalState.macroModeState;
+          if (macroModeState.isRecording) {
+            logSearchQuery(macroModeState, query);
+          }
+        }
+        function onPromptKeyUp(e, query, close) {
+          var keyName = CodeMirror.keyName(e), up, offset;
+          if (keyName == 'Up' || keyName == 'Down') {
+            up = keyName == 'Up' ? true : false;
+            offset = e.target ? e.target.selectionEnd : 0;
+            query = vimGlobalState.searchHistoryController.nextMatch(query, up) || '';
+            close(query);
+            if (offset && e.target) e.target.selectionEnd = e.target.selectionStart = Math.min(offset, e.target.value.length);
+          } else {
+            if ( keyName != 'Left' && keyName != 'Right' && keyName != 'Ctrl' && keyName != 'Alt' && keyName != 'Shift')
+              vimGlobalState.searchHistoryController.reset();
+          }
+          var parsedQuery;
+          try {
+            parsedQuery = updateSearchQuery(cm, query,
+                true /** ignoreCase */, true /** smartCase */);
+          } catch (e) {
+          }
+          if (parsedQuery) {
+            cm.scrollIntoView(findNext(cm, !forward, parsedQuery), 30);
+          } else {
+            clearSearchHighlight(cm);
+            cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
+          }
+        }
+        function onPromptKeyDown(e, query, close) {
+          var keyName = CodeMirror.keyName(e);
+          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[' ||
+              (keyName == 'Backspace' && query == '')) {
+            vimGlobalState.searchHistoryController.pushInput(query);
+            vimGlobalState.searchHistoryController.reset();
+            updateSearchQuery(cm, originalQuery);
+            clearSearchHighlight(cm);
+            cm.scrollTo(originalScrollPos.left, originalScrollPos.top);
+            CodeMirror.e_stop(e);
+            clearInputState(cm);
+            close();
+            cm.focus();
+          } else if (keyName == 'Up' || keyName == 'Down') {
+            CodeMirror.e_stop(e);
+          } else if (keyName == 'Ctrl-U') {
+            CodeMirror.e_stop(e);
+            close('');
+          }
+        }
+        switch (command.searchArgs.querySrc) {
+          case 'prompt':
+            var macroModeState = vimGlobalState.macroModeState;
+            if (macroModeState.isPlaying) {
+              var query = macroModeState.replaySearchQueries.shift();
+              handleQuery(query, true /** ignoreCase */, false /** smartCase */);
+            } else {
+              showPrompt(cm, {
+                  onClose: onPromptClose,
+                  prefix: promptPrefix,
+                  desc: searchPromptDesc,
+                  onKeyUp: onPromptKeyUp,
+                  onKeyDown: onPromptKeyDown
+              });
+            }
+            break;
+          case 'wordUnderCursor':
+            var word = expandWordUnderCursor(cm, false /** inclusive */,
+                true /** forward */, false /** bigWord */,
+                true /** noSymbol */);
+            var isKeyword = true;
+            if (!word) {
+              word = expandWordUnderCursor(cm, false /** inclusive */,
+                  true /** forward */, false /** bigWord */,
+                  false /** noSymbol */);
+              isKeyword = false;
+            }
+            if (!word) {
+              return;
+            }
+            var query = cm.getLine(word.start.line).substring(word.start.ch,
+                word.end.ch);
+            if (isKeyword && wholeWordOnly) {
+                query = '\\b' + query + '\\b';
+            } else {
+              query = escapeRegex(query);
+            }
+            vimGlobalState.jumpList.cachedCursor = cm.getCursor();
+            cm.setCursor(word.start);
+
+            handleQuery(query, true /** ignoreCase */, false /** smartCase */);
+            break;
+        }
+      },
+      processEx: function(cm, vim, command) {
+        function onPromptClose(input) {
+          vimGlobalState.exCommandHistoryController.pushInput(input);
+          vimGlobalState.exCommandHistoryController.reset();
+          exCommandDispatcher.processCommand(cm, input);
+        }
+        function onPromptKeyDown(e, input, close) {
+          var keyName = CodeMirror.keyName(e), up, offset;
+          if (keyName == 'Esc' || keyName == 'Ctrl-C' || keyName == 'Ctrl-[' ||
+              (keyName == 'Backspace' && input == '')) {
+            vimGlobalState.exCommandHistoryController.pushInput(input);
+            vimGlobalState.exCommandHistoryController.reset();
+            CodeMirror.e_stop(e);
+            clearInputState(cm);
+            close();
+            cm.focus();
+          }
+          if (keyName == 'Up' || keyName == 'Down') {
+            CodeMirror.e_stop(e);
+            up = keyName == 'Up' ? true : false;
+            offset = e.target ? e.target.selectionEnd : 0;
+            input = vimGlobalState.exCommandHistoryController.nextMatch(input, up) || '';
+            close(input);
+            if (offset && e.target) e.target.selectionEnd = e.target.selectionStart = Math.min(offset, e.target.value.length);
+          } else if (keyName == 'Ctrl-U') {
+            CodeMirror.e_stop(e);
+            close('');
+          } else {
+            if ( keyName != 'Left' && keyName != 'Right' && keyName != 'Ctrl' && keyName != 'Alt' && keyName != 'Shift')
+              vimGlobalState.exCommandHistoryController.reset();
+          }
+        }
+        if (command.type == 'keyToEx') {
+          exCommandDispatcher.processCommand(cm, command.exArgs.input);
+        } else {
+          if (vim.visualMode) {
+            showPrompt(cm, { onClose: onPromptClose, prefix: ':', value: '\'<,\'>',
+                onKeyDown: onPromptKeyDown, selectValueOnOpen: false});
+          } else {
+            showPrompt(cm, { onClose: onPromptClose, prefix: ':',
+                onKeyDown: onPromptKeyDown});
+          }
+        }
+      },
+      evalInput: function(cm, vim) {
+        var inputState = vim.inputState;
+        var motion = inputState.motion;
+        var motionArgs = inputState.motionArgs || {};
+        var operator = inputState.operator;
+        var operatorArgs = inputState.operatorArgs || {}
