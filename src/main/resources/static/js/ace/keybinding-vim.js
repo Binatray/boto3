@@ -3313,4 +3313,493 @@ dom.importCssString(".normal-mode .ace_cursor{\
       var wasClipped = cursorEqual(ranges[primIndex].head, ranges[primIndex].anchor);
       var max = ranges.length - 1;
       var index = max - primIndex > primIndex ? max : 0;
-   
+      var base = ranges[index].anchor;
+
+      var firstLine = Math.min(base.line, head.line);
+      var lastLine = Math.max(base.line, head.line);
+      var baseCh = base.ch, headCh = head.ch;
+
+      var dir = ranges[index].head.ch - baseCh;
+      var newDir = headCh - baseCh;
+      if (dir > 0 && newDir <= 0) {
+        baseCh++;
+        if (!isClipped) { headCh--; }
+      } else if (dir < 0 && newDir >= 0) {
+        baseCh--;
+        if (!wasClipped) { headCh++; }
+      } else if (dir < 0 && newDir == -1) {
+        baseCh--;
+        headCh++;
+      }
+      for (var line = firstLine; line <= lastLine; line++) {
+        var range = {anchor: new Pos(line, baseCh), head: new Pos(line, headCh)};
+        selections.push(range);
+      }
+      cm.setSelections(selections);
+      selectionEnd.ch = headCh;
+      base.ch = baseCh;
+      return base;
+    }
+    function selectForInsert(cm, head, height) {
+      var sel = [];
+      for (var i = 0; i < height; i++) {
+        var lineHead = offsetCursor(head, i, 0);
+        sel.push({anchor: lineHead, head: lineHead});
+      }
+      cm.setSelections(sel, 0);
+    }
+    function getIndex(ranges, cursor, end) {
+      for (var i = 0; i < ranges.length; i++) {
+        var atAnchor = end != 'head' && cursorEqual(ranges[i].anchor, cursor);
+        var atHead = end != 'anchor' && cursorEqual(ranges[i].head, cursor);
+        if (atAnchor || atHead) {
+          return i;
+        }
+      }
+      return -1;
+    }
+    function getSelectedAreaRange(cm, vim) {
+      var lastSelection = vim.lastSelection;
+      var getCurrentSelectedAreaRange = function() {
+        var selections = cm.listSelections();
+        var start =  selections[0];
+        var end = selections[selections.length-1];
+        var selectionStart = cursorIsBefore(start.anchor, start.head) ? start.anchor : start.head;
+        var selectionEnd = cursorIsBefore(end.anchor, end.head) ? end.head : end.anchor;
+        return [selectionStart, selectionEnd];
+      };
+      var getLastSelectedAreaRange = function() {
+        var selectionStart = cm.getCursor();
+        var selectionEnd = cm.getCursor();
+        var block = lastSelection.visualBlock;
+        if (block) {
+          var width = block.width;
+          var height = block.height;
+          selectionEnd = Pos(selectionStart.line + height, selectionStart.ch + width);
+          var selections = [];
+          for (var i = selectionStart.line; i < selectionEnd.line; i++) {
+            var anchor = Pos(i, selectionStart.ch);
+            var head = Pos(i, selectionEnd.ch);
+            var range = {anchor: anchor, head: head};
+            selections.push(range);
+          }
+          cm.setSelections(selections);
+        } else {
+          var start = lastSelection.anchorMark.find();
+          var end = lastSelection.headMark.find();
+          var line = end.line - start.line;
+          var ch = end.ch - start.ch;
+          selectionEnd = {line: selectionEnd.line + line, ch: line ? selectionEnd.ch : ch + selectionEnd.ch};
+          if (lastSelection.visualLine) {
+            selectionStart = Pos(selectionStart.line, 0);
+            selectionEnd = Pos(selectionEnd.line, lineLength(cm, selectionEnd.line));
+          }
+          cm.setSelection(selectionStart, selectionEnd);
+        }
+        return [selectionStart, selectionEnd];
+      };
+      if (!vim.visualMode) {
+        return getLastSelectedAreaRange();
+      } else {
+        return getCurrentSelectedAreaRange();
+      }
+    }
+    function updateLastSelection(cm, vim) {
+      var anchor = vim.sel.anchor;
+      var head = vim.sel.head;
+      if (vim.lastPastedText) {
+        head = cm.posFromIndex(cm.indexFromPos(anchor) + vim.lastPastedText.length);
+        vim.lastPastedText = null;
+      }
+      vim.lastSelection = {'anchorMark': cm.setBookmark(anchor),
+                           'headMark': cm.setBookmark(head),
+                           'anchor': copyCursor(anchor),
+                           'head': copyCursor(head),
+                           'visualMode': vim.visualMode,
+                           'visualLine': vim.visualLine,
+                           'visualBlock': vim.visualBlock};
+    }
+    function expandSelection(cm, start, end) {
+      var sel = cm.state.vim.sel;
+      var head = sel.head;
+      var anchor = sel.anchor;
+      var tmp;
+      if (cursorIsBefore(end, start)) {
+        tmp = end;
+        end = start;
+        start = tmp;
+      }
+      if (cursorIsBefore(head, anchor)) {
+        head = cursorMin(start, head);
+        anchor = cursorMax(anchor, end);
+      } else {
+        anchor = cursorMin(start, anchor);
+        head = cursorMax(head, end);
+        head = offsetCursor(head, 0, -1);
+        if (head.ch == -1 && head.line != cm.firstLine()) {
+          head = Pos(head.line - 1, lineLength(cm, head.line - 1));
+        }
+      }
+      return [anchor, head];
+    }
+    function updateCmSelection(cm, sel, mode) {
+      var vim = cm.state.vim;
+      sel = sel || vim.sel;
+      var mode = mode ||
+        vim.visualLine ? 'line' : vim.visualBlock ? 'block' : 'char';
+      var cmSel = makeCmSelection(cm, sel, mode);
+      cm.setSelections(cmSel.ranges, cmSel.primary);
+      updateFakeCursor(cm);
+    }
+    function makeCmSelection(cm, sel, mode, exclusive) {
+      var head = copyCursor(sel.head);
+      var anchor = copyCursor(sel.anchor);
+      if (mode == 'char') {
+        var headOffset = !exclusive && !cursorIsBefore(sel.head, sel.anchor) ? 1 : 0;
+        var anchorOffset = cursorIsBefore(sel.head, sel.anchor) ? 1 : 0;
+        head = offsetCursor(sel.head, 0, headOffset);
+        anchor = offsetCursor(sel.anchor, 0, anchorOffset);
+        return {
+          ranges: [{anchor: anchor, head: head}],
+          primary: 0
+        };
+      } else if (mode == 'line') {
+        if (!cursorIsBefore(sel.head, sel.anchor)) {
+          anchor.ch = 0;
+
+          var lastLine = cm.lastLine();
+          if (head.line > lastLine) {
+            head.line = lastLine;
+          }
+          head.ch = lineLength(cm, head.line);
+        } else {
+          head.ch = 0;
+          anchor.ch = lineLength(cm, anchor.line);
+        }
+        return {
+          ranges: [{anchor: anchor, head: head}],
+          primary: 0
+        };
+      } else if (mode == 'block') {
+        var top = Math.min(anchor.line, head.line),
+            left = Math.min(anchor.ch, head.ch),
+            bottom = Math.max(anchor.line, head.line),
+            right = Math.max(anchor.ch, head.ch) + 1;
+        var height = bottom - top + 1;
+        var primary = head.line == top ? 0 : height - 1;
+        var ranges = [];
+        for (var i = 0; i < height; i++) {
+          ranges.push({
+            anchor: Pos(top + i, left),
+            head: Pos(top + i, right)
+          });
+        }
+        return {
+          ranges: ranges,
+          primary: primary
+        };
+      }
+    }
+    function getHead(cm) {
+      var cur = cm.getCursor('head');
+      if (cm.getSelection().length == 1) {
+        cur = cursorMin(cur, cm.getCursor('anchor'));
+      }
+      return cur;
+    }
+    function exitVisualMode(cm, moveHead) {
+      var vim = cm.state.vim;
+      if (moveHead !== false) {
+        cm.setCursor(clipCursorToContent(cm, vim.sel.head));
+      }
+      updateLastSelection(cm, vim);
+      vim.visualMode = false;
+      vim.visualLine = false;
+      vim.visualBlock = false;
+      CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
+      if (vim.fakeCursor) {
+        vim.fakeCursor.clear();
+      }
+    }
+    function clipToLine(cm, curStart, curEnd) {
+      var selection = cm.getRange(curStart, curEnd);
+      if (/\n\s*$/.test(selection)) {
+        var lines = selection.split('\n');
+        lines.pop();
+        var line;
+        for (var line = lines.pop(); lines.length > 0 && line && isWhiteSpaceString(line); line = lines.pop()) {
+          curEnd.line--;
+          curEnd.ch = 0;
+        }
+        if (line) {
+          curEnd.line--;
+          curEnd.ch = lineLength(cm, curEnd.line);
+        } else {
+          curEnd.ch = 0;
+        }
+      }
+    }
+    function expandSelectionToLine(_cm, curStart, curEnd) {
+      curStart.ch = 0;
+      curEnd.ch = 0;
+      curEnd.line++;
+    }
+
+    function findFirstNonWhiteSpaceCharacter(text) {
+      if (!text) {
+        return 0;
+      }
+      var firstNonWS = text.search(/\S/);
+      return firstNonWS == -1 ? text.length : firstNonWS;
+    }
+
+    function expandWordUnderCursor(cm, inclusive, _forward, bigWord, noSymbol) {
+      var cur = getHead(cm);
+      var line = cm.getLine(cur.line);
+      var idx = cur.ch;
+      var test = noSymbol ? wordCharTest[0] : bigWordCharTest [0];
+      while (!test(line.charAt(idx))) {
+        idx++;
+        if (idx >= line.length) { return null; }
+      }
+
+      if (bigWord) {
+        test = bigWordCharTest[0];
+      } else {
+        test = wordCharTest[0];
+        if (!test(line.charAt(idx))) {
+          test = wordCharTest[1];
+        }
+      }
+
+      var end = idx, start = idx;
+      while (test(line.charAt(end)) && end < line.length) { end++; }
+      while (test(line.charAt(start)) && start >= 0) { start--; }
+      start++;
+
+      if (inclusive) {
+        var wordEnd = end;
+        while (/\s/.test(line.charAt(end)) && end < line.length) { end++; }
+        if (wordEnd == end) {
+          var wordStart = start;
+          while (/\s/.test(line.charAt(start - 1)) && start > 0) { start--; }
+          if (!start) { start = wordStart; }
+        }
+      }
+      return { start: Pos(cur.line, start), end: Pos(cur.line, end) };
+    }
+
+    function recordJumpPosition(cm, oldCur, newCur) {
+      if (!cursorEqual(oldCur, newCur)) {
+        vimGlobalState.jumpList.add(cm, oldCur, newCur);
+      }
+    }
+
+    function recordLastCharacterSearch(increment, args) {
+        vimGlobalState.lastCharacterSearch.increment = increment;
+        vimGlobalState.lastCharacterSearch.forward = args.forward;
+        vimGlobalState.lastCharacterSearch.selectedCharacter = args.selectedCharacter;
+    }
+
+    var symbolToMode = {
+        '(': 'bracket', ')': 'bracket', '{': 'bracket', '}': 'bracket',
+        '[': 'section', ']': 'section',
+        '*': 'comment', '/': 'comment',
+        'm': 'method', 'M': 'method',
+        '#': 'preprocess'
+    };
+    var findSymbolModes = {
+      bracket: {
+        isComplete: function(state) {
+          if (state.nextCh === state.symb) {
+            state.depth++;
+            if (state.depth >= 1)return true;
+          } else if (state.nextCh === state.reverseSymb) {
+            state.depth--;
+          }
+          return false;
+        }
+      },
+      section: {
+        init: function(state) {
+          state.curMoveThrough = true;
+          state.symb = (state.forward ? ']' : '[') === state.symb ? '{' : '}';
+        },
+        isComplete: function(state) {
+          return state.index === 0 && state.nextCh === state.symb;
+        }
+      },
+      comment: {
+        isComplete: function(state) {
+          var found = state.lastCh === '*' && state.nextCh === '/';
+          state.lastCh = state.nextCh;
+          return found;
+        }
+      },
+      method: {
+        init: function(state) {
+          state.symb = (state.symb === 'm' ? '{' : '}');
+          state.reverseSymb = state.symb === '{' ? '}' : '{';
+        },
+        isComplete: function(state) {
+          if (state.nextCh === state.symb)return true;
+          return false;
+        }
+      },
+      preprocess: {
+        init: function(state) {
+          state.index = 0;
+        },
+        isComplete: function(state) {
+          if (state.nextCh === '#') {
+            var token = state.lineText.match(/#(\w+)/)[1];
+            if (token === 'endif') {
+              if (state.forward && state.depth === 0) {
+                return true;
+              }
+              state.depth++;
+            } else if (token === 'if') {
+              if (!state.forward && state.depth === 0) {
+                return true;
+              }
+              state.depth--;
+            }
+            if (token === 'else' && state.depth === 0)return true;
+          }
+          return false;
+        }
+      }
+    };
+    function findSymbol(cm, repeat, forward, symb) {
+      var cur = copyCursor(cm.getCursor());
+      var increment = forward ? 1 : -1;
+      var endLine = forward ? cm.lineCount() : -1;
+      var curCh = cur.ch;
+      var line = cur.line;
+      var lineText = cm.getLine(line);
+      var state = {
+        lineText: lineText,
+        nextCh: lineText.charAt(curCh),
+        lastCh: null,
+        index: curCh,
+        symb: symb,
+        reverseSymb: (forward ?  { ')': '(', '}': '{' } : { '(': ')', '{': '}' })[symb],
+        forward: forward,
+        depth: 0,
+        curMoveThrough: false
+      };
+      var mode = symbolToMode[symb];
+      if (!mode)return cur;
+      var init = findSymbolModes[mode].init;
+      var isComplete = findSymbolModes[mode].isComplete;
+      if (init) { init(state); }
+      while (line !== endLine && repeat) {
+        state.index += increment;
+        state.nextCh = state.lineText.charAt(state.index);
+        if (!state.nextCh) {
+          line += increment;
+          state.lineText = cm.getLine(line) || '';
+          if (increment > 0) {
+            state.index = 0;
+          } else {
+            var lineLen = state.lineText.length;
+            state.index = (lineLen > 0) ? (lineLen-1) : 0;
+          }
+          state.nextCh = state.lineText.charAt(state.index);
+        }
+        if (isComplete(state)) {
+          cur.line = line;
+          cur.ch = state.index;
+          repeat--;
+        }
+      }
+      if (state.nextCh || state.curMoveThrough) {
+        return Pos(line, state.index);
+      }
+      return cur;
+    }
+    function findWord(cm, cur, forward, bigWord, emptyLineIsWord) {
+      var lineNum = cur.line;
+      var pos = cur.ch;
+      var line = cm.getLine(lineNum);
+      var dir = forward ? 1 : -1;
+      var charTests = bigWord ? bigWordCharTest: wordCharTest;
+
+      if (emptyLineIsWord && line == '') {
+        lineNum += dir;
+        line = cm.getLine(lineNum);
+        if (!isLine(cm, lineNum)) {
+          return null;
+        }
+        pos = (forward) ? 0 : line.length;
+      }
+
+      while (true) {
+        if (emptyLineIsWord && line == '') {
+          return { from: 0, to: 0, line: lineNum };
+        }
+        var stop = (dir > 0) ? line.length : -1;
+        var wordStart = stop, wordEnd = stop;
+        while (pos != stop) {
+          var foundWord = false;
+          for (var i = 0; i < charTests.length && !foundWord; ++i) {
+            if (charTests[i](line.charAt(pos))) {
+              wordStart = pos;
+              while (pos != stop && charTests[i](line.charAt(pos))) {
+                pos += dir;
+              }
+              wordEnd = pos;
+              foundWord = wordStart != wordEnd;
+              if (wordStart == cur.ch && lineNum == cur.line &&
+                  wordEnd == wordStart + dir) {
+                continue;
+              } else {
+                return {
+                  from: Math.min(wordStart, wordEnd + 1),
+                  to: Math.max(wordStart, wordEnd),
+                  line: lineNum };
+              }
+            }
+          }
+          if (!foundWord) {
+            pos += dir;
+          }
+        }
+        lineNum += dir;
+        if (!isLine(cm, lineNum)) {
+          return null;
+        }
+        line = cm.getLine(lineNum);
+        pos = (dir > 0) ? 0 : line.length;
+      }
+    }
+    function moveToWord(cm, cur, repeat, forward, wordEnd, bigWord) {
+      var curStart = copyCursor(cur);
+      var words = [];
+      if (forward && !wordEnd || !forward && wordEnd) {
+        repeat++;
+      }
+      var emptyLineIsWord = !(forward && wordEnd);
+      for (var i = 0; i < repeat; i++) {
+        var word = findWord(cm, cur, forward, bigWord, emptyLineIsWord);
+        if (!word) {
+          var eodCh = lineLength(cm, cm.lastLine());
+          words.push(forward
+              ? {line: cm.lastLine(), from: eodCh, to: eodCh}
+              : {line: 0, from: 0, to: 0});
+          break;
+        }
+        words.push(word);
+        cur = Pos(word.line, forward ? (word.to - 1) : word.from);
+      }
+      var shortCircuit = words.length != repeat;
+      var firstWord = words[0];
+      var lastWord = words.pop();
+      if (forward && !wordEnd) {
+        if (!shortCircuit && (firstWord.from != curStart.ch || firstWord.line != curStart.line)) {
+          lastWord = words.pop();
+        }
+        return Pos(lastWord.line, lastWord.from);
+      } else if (forward && wordEnd) {
+        return Pos(lastWord.line, lastWord.to - 1);
+      } else if (!forward && wordEnd) {
