@@ -4810,4 +4810,479 @@ dom.importCssString(".normal-mode .ace_cursor{\
         var nextCommand = function() {
           if (index < matchedLines.length) {
             var command = matchedLines[index] + cmd;
-            exCommandDi
+            exCommandDispatcher.processCommand(cm, command, {
+              callback: nextCommand
+            });
+          }
+          index++;
+        };
+        nextCommand();
+      },
+      substitute: function(cm, params) {
+        if (!cm.getSearchCursor) {
+          throw new Error('Search feature not available. Requires searchcursor.js or ' +
+              'any other getSearchCursor implementation.');
+        }
+        var argString = params.argString;
+        var tokens = argString ? splitBySeparator(argString, argString[0]) : [];
+        var regexPart, replacePart = '', trailing, flagsPart, count;
+        var confirm = false; // Whether to confirm each replace.
+        var global = false; // True to replace all instances on a line, false to replace only 1.
+        if (tokens.length) {
+          regexPart = tokens[0];
+          replacePart = tokens[1];
+          if (regexPart && regexPart[regexPart.length - 1] === '$') {
+            regexPart = regexPart.slice(0, regexPart.length - 1) + '\\n';
+            replacePart = replacePart ? replacePart + '\n' : '\n';
+          }
+          if (replacePart !== undefined) {
+            if (getOption('pcre')) {
+              replacePart = unescapeRegexReplace(replacePart);
+            } else {
+              replacePart = translateRegexReplace(replacePart);
+            }
+            vimGlobalState.lastSubstituteReplacePart = replacePart;
+          }
+          trailing = tokens[2] ? tokens[2].split(' ') : [];
+        } else {
+          if (argString && argString.length) {
+            showConfirm(cm, 'Substitutions should be of the form ' +
+                ':s/pattern/replace/');
+            return;
+          }
+        }
+        if (trailing) {
+          flagsPart = trailing[0];
+          count = parseInt(trailing[1]);
+          if (flagsPart) {
+            if (flagsPart.indexOf('c') != -1) {
+              confirm = true;
+              flagsPart.replace('c', '');
+            }
+            if (flagsPart.indexOf('g') != -1) {
+              global = true;
+              flagsPart.replace('g', '');
+            }
+            regexPart = regexPart.replace(/\//g, "\\/") + '/' + flagsPart;
+          }
+        }
+        if (regexPart) {
+          try {
+            updateSearchQuery(cm, regexPart, true /** ignoreCase */,
+              true /** smartCase */);
+          } catch (e) {
+            showConfirm(cm, 'Invalid regex: ' + regexPart);
+            return;
+          }
+        }
+        replacePart = replacePart || vimGlobalState.lastSubstituteReplacePart;
+        if (replacePart === undefined) {
+          showConfirm(cm, 'No previous substitute regular expression');
+          return;
+        }
+        var state = getSearchState(cm);
+        var query = state.getQuery();
+        var lineStart = (params.line !== undefined) ? params.line : cm.getCursor().line;
+        var lineEnd = params.lineEnd || lineStart;
+        if (lineStart == cm.firstLine() && lineEnd == cm.lastLine()) {
+          lineEnd = Infinity;
+        }
+        if (count) {
+          lineStart = lineEnd;
+          lineEnd = lineStart + count - 1;
+        }
+        var startPos = clipCursorToContent(cm, Pos(lineStart, 0));
+        var cursor = cm.getSearchCursor(query, startPos);
+        doReplace(cm, confirm, global, lineStart, lineEnd, cursor, query, replacePart, params.callback);
+      },
+      redo: CodeMirror.commands.redo,
+      undo: CodeMirror.commands.undo,
+      write: function(cm) {
+        if (CodeMirror.commands.save) {
+          CodeMirror.commands.save(cm);
+        } else if (cm.save) {
+          cm.save();
+        }
+      },
+      nohlsearch: function(cm) {
+        clearSearchHighlight(cm);
+      },
+      yank: function (cm) {
+        var cur = copyCursor(cm.getCursor());
+        var line = cur.line;
+        var lineText = cm.getLine(line);
+        vimGlobalState.registerController.pushText(
+          '0', 'yank', lineText, true, true);
+      },
+      delmarks: function(cm, params) {
+        if (!params.argString || !trim(params.argString)) {
+          showConfirm(cm, 'Argument required');
+          return;
+        }
+
+        var state = cm.state.vim;
+        var stream = new CodeMirror.StringStream(trim(params.argString));
+        while (!stream.eol()) {
+          stream.eatSpace();
+          var count = stream.pos;
+
+          if (!stream.match(/[a-zA-Z]/, false)) {
+            showConfirm(cm, 'Invalid argument: ' + params.argString.substring(count));
+            return;
+          }
+
+          var sym = stream.next();
+          if (stream.match('-', true)) {
+            if (!stream.match(/[a-zA-Z]/, false)) {
+              showConfirm(cm, 'Invalid argument: ' + params.argString.substring(count));
+              return;
+            }
+
+            var startMark = sym;
+            var finishMark = stream.next();
+            if (isLowerCase(startMark) && isLowerCase(finishMark) ||
+                isUpperCase(startMark) && isUpperCase(finishMark)) {
+              var start = startMark.charCodeAt(0);
+              var finish = finishMark.charCodeAt(0);
+              if (start >= finish) {
+                showConfirm(cm, 'Invalid argument: ' + params.argString.substring(count));
+                return;
+              }
+              for (var j = 0; j <= finish - start; j++) {
+                var mark = String.fromCharCode(start + j);
+                delete state.marks[mark];
+              }
+            } else {
+              showConfirm(cm, 'Invalid argument: ' + startMark + '-');
+              return;
+            }
+          } else {
+            delete state.marks[sym];
+          }
+        }
+      }
+    };
+
+    var exCommandDispatcher = new ExCommandDispatcher();
+    function doReplace(cm, confirm, global, lineStart, lineEnd, searchCursor, query,
+        replaceWith, callback) {
+      cm.state.vim.exMode = true;
+      var done = false;
+      var lastPos = searchCursor.from();
+      function replaceAll() {
+        cm.operation(function() {
+          while (!done) {
+            replace();
+            next();
+          }
+          stop();
+        });
+      }
+      function replace() {
+        var text = cm.getRange(searchCursor.from(), searchCursor.to());
+        var newText = text.replace(query, replaceWith);
+        searchCursor.replace(newText);
+      }
+      function next() {
+        while(searchCursor.findNext() &&
+              isInRange(searchCursor.from(), lineStart, lineEnd)) {
+          if (!global && lastPos && searchCursor.from().line == lastPos.line) {
+            continue;
+          }
+          cm.scrollIntoView(searchCursor.from(), 30);
+          cm.setSelection(searchCursor.from(), searchCursor.to());
+          lastPos = searchCursor.from();
+          done = false;
+          return;
+        }
+        done = true;
+      }
+      function stop(close) {
+        if (close) { close(); }
+        cm.focus();
+        if (lastPos) {
+          cm.setCursor(lastPos);
+          var vim = cm.state.vim;
+          vim.exMode = false;
+          vim.lastHPos = vim.lastHSPos = lastPos.ch;
+        }
+        if (callback) { callback(); }
+      }
+      function onPromptKeyDown(e, _value, close) {
+        CodeMirror.e_stop(e);
+        var keyName = CodeMirror.keyName(e);
+        switch (keyName) {
+          case 'Y':
+            replace(); next(); break;
+          case 'N':
+            next(); break;
+          case 'A':
+            var savedCallback = callback;
+            callback = undefined;
+            cm.operation(replaceAll);
+            callback = savedCallback;
+            break;
+          case 'L':
+            replace();
+          case 'Q':
+          case 'Esc':
+          case 'Ctrl-C':
+          case 'Ctrl-[':
+            stop(close);
+            break;
+        }
+        if (done) { stop(close); }
+        return true;
+      }
+      next();
+      if (done) {
+        showConfirm(cm, 'No matches for ' + query.source);
+        return;
+      }
+      if (!confirm) {
+        replaceAll();
+        if (callback) { callback(); }
+        return;
+      }
+      showPrompt(cm, {
+        prefix: 'replace with <strong>' + replaceWith + '</strong> (y/n/a/q/l)',
+        onKeyDown: onPromptKeyDown
+      });
+    }
+
+    CodeMirror.keyMap.vim = {
+      attach: attachVimMap,
+      detach: detachVimMap,
+      call: cmKey
+    };
+
+    function exitInsertMode(cm) {
+      var vim = cm.state.vim;
+      var macroModeState = vimGlobalState.macroModeState;
+      var insertModeChangeRegister = vimGlobalState.registerController.getRegister('.');
+      var isPlaying = macroModeState.isPlaying;
+      var lastChange = macroModeState.lastInsertModeChanges;
+      var text = [];
+      if (!isPlaying) {
+        var selLength = lastChange.inVisualBlock && vim.lastSelection ?
+            vim.lastSelection.visualBlock.height : 1;
+        var changes = lastChange.changes;
+        var text = [];
+        var i = 0;
+        while (i < changes.length) {
+          text.push(changes[i]);
+          if (changes[i] instanceof InsertModeKey) {
+             i++;
+          } else {
+             i+= selLength;
+          }
+        }
+        lastChange.changes = text;
+        cm.off('change', onChange);
+        CodeMirror.off(cm.getInputField(), 'keydown', onKeyEventTargetKeyDown);
+      }
+      if (!isPlaying && vim.insertModeRepeat > 1) {
+        repeatLastEdit(cm, vim, vim.insertModeRepeat - 1,
+            true /** repeatForInsert */);
+        vim.lastEditInputState.repeatOverride = vim.insertModeRepeat;
+      }
+      delete vim.insertModeRepeat;
+      vim.insertMode = false;
+      cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1);
+      cm.setOption('keyMap', 'vim');
+      cm.setOption('disableInput', true);
+      cm.toggleOverwrite(false); // exit replace mode if we were in it.
+      insertModeChangeRegister.setText(lastChange.changes.join(''));
+      CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
+      if (macroModeState.isRecording) {
+        logInsertModeChange(macroModeState);
+      }
+    }
+
+    function _mapCommand(command) {
+      defaultKeymap.unshift(command);
+    }
+
+    function mapCommand(keys, type, name, args, extra) {
+      var command = {keys: keys, type: type};
+      command[type] = name;
+      command[type + "Args"] = args;
+      for (var key in extra)
+        command[key] = extra[key];
+      _mapCommand(command);
+    }
+    defineOption('insertModeEscKeysTimeout', 200, 'number');
+
+    CodeMirror.keyMap['vim-insert'] = {
+      'Ctrl-N': 'autocomplete',
+      'Ctrl-P': 'autocomplete',
+      'Enter': function(cm) {
+        var fn = CodeMirror.commands.newlineAndIndentContinueComment ||
+            CodeMirror.commands.newlineAndIndent;
+        fn(cm);
+      },
+      fallthrough: ['default'],
+      attach: attachVimMap,
+      detach: detachVimMap,
+      call: cmKey
+    };
+
+    CodeMirror.keyMap['vim-replace'] = {
+      'Backspace': 'goCharLeft',
+      fallthrough: ['vim-insert'],
+      attach: attachVimMap,
+      detach: detachVimMap,
+      call: cmKey
+    };
+
+    function executeMacroRegister(cm, vim, macroModeState, registerName) {
+      var register = vimGlobalState.registerController.getRegister(registerName);
+      if (registerName == ':') {
+        if (register.keyBuffer[0]) {
+          exCommandDispatcher.processCommand(cm, register.keyBuffer[0]);
+        }
+        macroModeState.isPlaying = false;
+        return;
+      }
+      var keyBuffer = register.keyBuffer;
+      var imc = 0;
+      macroModeState.isPlaying = true;
+      macroModeState.replaySearchQueries = register.searchQueries.slice(0);
+      for (var i = 0; i < keyBuffer.length; i++) {
+        var text = keyBuffer[i];
+        var match, key;
+        while (text) {
+          match = (/<\w+-.+?>|<\w+>|./).exec(text);
+          key = match[0];
+          text = text.substring(match.index + key.length);
+          CodeMirror.Vim.handleKey(cm, key, 'macro');
+          if (vim.insertMode) {
+            var changes = register.insertModeChanges[imc++].changes;
+            vimGlobalState.macroModeState.lastInsertModeChanges.changes =
+                changes;
+            repeatInsertModeChanges(cm, changes, 1);
+            exitInsertMode(cm);
+          }
+        }
+      }
+      macroModeState.isPlaying = false;
+    }
+
+    function logKey(macroModeState, key) {
+      if (macroModeState.isPlaying) { return; }
+      var registerName = macroModeState.latestRegister;
+      var register = vimGlobalState.registerController.getRegister(registerName);
+      if (register) {
+        register.pushText(key);
+      }
+    }
+
+    function logInsertModeChange(macroModeState) {
+      if (macroModeState.isPlaying) { return; }
+      var registerName = macroModeState.latestRegister;
+      var register = vimGlobalState.registerController.getRegister(registerName);
+      if (register && register.pushInsertModeChanges) {
+        register.pushInsertModeChanges(macroModeState.lastInsertModeChanges);
+      }
+    }
+
+    function logSearchQuery(macroModeState, query) {
+      if (macroModeState.isPlaying) { return; }
+      var registerName = macroModeState.latestRegister;
+      var register = vimGlobalState.registerController.getRegister(registerName);
+      if (register && register.pushSearchQuery) {
+        register.pushSearchQuery(query);
+      }
+    }
+    function onChange(cm, changeObj) {
+      var macroModeState = vimGlobalState.macroModeState;
+      var lastChange = macroModeState.lastInsertModeChanges;
+      if (!macroModeState.isPlaying) {
+        while(changeObj) {
+          lastChange.expectCursorActivityForChange = true;
+          if (changeObj.origin == '+input' || changeObj.origin == 'paste'
+              || changeObj.origin === undefined /* only in testing */) {
+            var text = changeObj.text.join('\n');
+            if (lastChange.maybeReset) {
+              lastChange.changes = [];
+              lastChange.maybeReset = false;
+            }
+            if (cm.state.overwrite && !/\n/.test(text)) {
+                lastChange.changes.push([text]);
+            } else {
+                lastChange.changes.push(text);
+            }
+          }
+          changeObj = changeObj.next;
+        }
+      }
+    }
+    function onCursorActivity(cm) {
+      var vim = cm.state.vim;
+      if (vim.insertMode) {
+        var macroModeState = vimGlobalState.macroModeState;
+        if (macroModeState.isPlaying) { return; }
+        var lastChange = macroModeState.lastInsertModeChanges;
+        if (lastChange.expectCursorActivityForChange) {
+          lastChange.expectCursorActivityForChange = false;
+        } else {
+          lastChange.maybeReset = true;
+        }
+      } else if (!cm.curOp.isVimOp) {
+        handleExternalSelection(cm, vim);
+      }
+      if (vim.visualMode) {
+        updateFakeCursor(cm);
+      }
+    }
+    function updateFakeCursor(cm) {
+      var vim = cm.state.vim;
+      var from = clipCursorToContent(cm, copyCursor(vim.sel.head));
+      var to = offsetCursor(from, 0, 1);
+      if (vim.fakeCursor) {
+        vim.fakeCursor.clear();
+      }
+      vim.fakeCursor = cm.markText(from, to, {className: 'cm-animate-fat-cursor'});
+    }
+    function handleExternalSelection(cm, vim) {
+      var anchor = cm.getCursor('anchor');
+      var head = cm.getCursor('head');
+      if (vim.visualMode && !cm.somethingSelected()) {
+        exitVisualMode(cm, false);
+      } else if (!vim.visualMode && !vim.insertMode && cm.somethingSelected()) {
+        vim.visualMode = true;
+        vim.visualLine = false;
+        CodeMirror.signal(cm, "vim-mode-change", {mode: "visual"});
+      }
+      if (vim.visualMode) {
+        var headOffset = !cursorIsBefore(head, anchor) ? -1 : 0;
+        var anchorOffset = cursorIsBefore(head, anchor) ? -1 : 0;
+        head = offsetCursor(head, 0, headOffset);
+        anchor = offsetCursor(anchor, 0, anchorOffset);
+        vim.sel = {
+          anchor: anchor,
+          head: head
+        };
+        updateMark(cm, vim, '<', cursorMin(head, anchor));
+        updateMark(cm, vim, '>', cursorMax(head, anchor));
+      } else if (!vim.insertMode) {
+        vim.lastHPos = cm.getCursor().ch;
+      }
+    }
+    function InsertModeKey(keyName) {
+      this.keyName = keyName;
+    }
+    function onKeyEventTargetKeyDown(e) {
+      var macroModeState = vimGlobalState.macroModeState;
+      var lastChange = macroModeState.lastInsertModeChanges;
+      var keyName = CodeMirror.keyName(e);
+      if (!keyName) { return; }
+      function onKeyFound() {
+        if (lastChange.maybeReset) {
+          lastChange.changes = [];
+          lastChange.maybeReset = false;
+        }
+        lastChange.changes.push(new InsertModeKey(keyName));
+        return true;
+      }
+      if (keyName.ind
