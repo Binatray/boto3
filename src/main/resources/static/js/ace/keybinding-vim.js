@@ -3803,3 +3803,559 @@ dom.importCssString(".normal-mode .ace_cursor{\
       } else if (forward && wordEnd) {
         return Pos(lastWord.line, lastWord.to - 1);
       } else if (!forward && wordEnd) {
+        if (!shortCircuit && (firstWord.to != curStart.ch || firstWord.line != curStart.line)) {
+          lastWord = words.pop();
+        }
+        return Pos(lastWord.line, lastWord.to);
+      } else {
+        return Pos(lastWord.line, lastWord.from);
+      }
+    }
+
+    function moveToCharacter(cm, repeat, forward, character) {
+      var cur = cm.getCursor();
+      var start = cur.ch;
+      var idx;
+      for (var i = 0; i < repeat; i ++) {
+        var line = cm.getLine(cur.line);
+        idx = charIdxInLine(start, line, character, forward, true);
+        if (idx == -1) {
+          return null;
+        }
+        start = idx;
+      }
+      return Pos(cm.getCursor().line, idx);
+    }
+
+    function moveToColumn(cm, repeat) {
+      var line = cm.getCursor().line;
+      return clipCursorToContent(cm, Pos(line, repeat - 1));
+    }
+
+    function updateMark(cm, vim, markName, pos) {
+      if (!inArray(markName, validMarks)) {
+        return;
+      }
+      if (vim.marks[markName]) {
+        vim.marks[markName].clear();
+      }
+      vim.marks[markName] = cm.setBookmark(pos);
+    }
+
+    function charIdxInLine(start, line, character, forward, includeChar) {
+      var idx;
+      if (forward) {
+        idx = line.indexOf(character, start + 1);
+        if (idx != -1 && !includeChar) {
+          idx -= 1;
+        }
+      } else {
+        idx = line.lastIndexOf(character, start - 1);
+        if (idx != -1 && !includeChar) {
+          idx += 1;
+        }
+      }
+      return idx;
+    }
+
+    function findParagraph(cm, head, repeat, dir, inclusive) {
+      var line = head.line;
+      var min = cm.firstLine();
+      var max = cm.lastLine();
+      var start, end, i = line;
+      function isEmpty(i) { return !/\S/.test(cm.getLine(i)); } // ace_patch
+      function isBoundary(i, dir, any) {
+        if (any) { return isEmpty(i) != isEmpty(i + dir); }
+        return !isEmpty(i) && isEmpty(i + dir);
+      }
+      function skipFold(i) {
+          dir = dir > 0 ? 1 : -1;
+          var foldLine = cm.ace.session.getFoldLine(i);
+          if (foldLine) {
+              if (i + dir > foldLine.start.row && i + dir < foldLine.end.row)
+                  dir = (dir > 0 ? foldLine.end.row : foldLine.start.row) - i;
+          }
+      }
+      if (dir) {
+        while (min <= i && i <= max && repeat > 0) {
+          skipFold(i);
+          if (isBoundary(i, dir)) { repeat--; }
+          i += dir;
+        }
+        return new Pos(i, 0);
+      }
+
+      var vim = cm.state.vim;
+      if (vim.visualLine && isBoundary(line, 1, true)) {
+        var anchor = vim.sel.anchor;
+        if (isBoundary(anchor.line, -1, true)) {
+          if (!inclusive || anchor.line != line) {
+            line += 1;
+          }
+        }
+      }
+      var startState = isEmpty(line);
+      for (i = line; i <= max && repeat; i++) {
+        if (isBoundary(i, 1, true)) {
+          if (!inclusive || isEmpty(i) != startState) {
+            repeat--;
+          }
+        }
+      }
+      end = new Pos(i, 0);
+      if (i > max && !startState) { startState = true; }
+      else { inclusive = false; }
+      for (i = line; i > min; i--) {
+        if (!inclusive || isEmpty(i) == startState || i == line) {
+          if (isBoundary(i, -1, true)) { break; }
+        }
+      }
+      start = new Pos(i, 0);
+      return { start: start, end: end };
+    }
+    function selectCompanionObject(cm, head, symb, inclusive) {
+      var cur = head, start, end;
+
+      var bracketRegexp = ({
+        '(': /[()]/, ')': /[()]/,
+        '[': /[[\]]/, ']': /[[\]]/,
+        '{': /[{}]/, '}': /[{}]/})[symb];
+      var openSym = ({
+        '(': '(', ')': '(',
+        '[': '[', ']': '[',
+        '{': '{', '}': '{'})[symb];
+      var curChar = cm.getLine(cur.line).charAt(cur.ch);
+      var offset = curChar === openSym ? 1 : 0;
+
+      start = cm.scanForBracket(Pos(cur.line, cur.ch + offset), -1, null, {'bracketRegex': bracketRegexp});
+      end = cm.scanForBracket(Pos(cur.line, cur.ch + offset), 1, null, {'bracketRegex': bracketRegexp});
+
+      if (!start || !end) {
+        return { start: cur, end: cur };
+      }
+
+      start = start.pos;
+      end = end.pos;
+
+      if ((start.line == end.line && start.ch > end.ch)
+          || (start.line > end.line)) {
+        var tmp = start;
+        start = end;
+        end = tmp;
+      }
+
+      if (inclusive) {
+        end.ch += 1;
+      } else {
+        start.ch += 1;
+      }
+
+      return { start: start, end: end };
+    }
+    function findBeginningAndEnd(cm, head, symb, inclusive) {
+      var cur = copyCursor(head);
+      var line = cm.getLine(cur.line);
+      var chars = line.split('');
+      var start, end, i, len;
+      var firstIndex = chars.indexOf(symb);
+      if (cur.ch < firstIndex) {
+        cur.ch = firstIndex;
+      }
+      else if (firstIndex < cur.ch && chars[cur.ch] == symb) {
+        end = cur.ch; // assign end to the current cursor
+        --cur.ch; // make sure to look backwards
+      }
+      if (chars[cur.ch] == symb && !end) {
+        start = cur.ch + 1; // assign start to ahead of the cursor
+      } else {
+        for (i = cur.ch; i > -1 && !start; i--) {
+          if (chars[i] == symb) {
+            start = i + 1;
+          }
+        }
+      }
+      if (start && !end) {
+        for (i = start, len = chars.length; i < len && !end; i++) {
+          if (chars[i] == symb) {
+            end = i;
+          }
+        }
+      }
+      if (!start || !end) {
+        return { start: cur, end: cur };
+      }
+      if (inclusive) {
+        --start; ++end;
+      }
+
+      return {
+        start: Pos(cur.line, start),
+        end: Pos(cur.line, end)
+      };
+    }
+    defineOption('pcre', true, 'boolean');
+    function SearchState() {}
+    SearchState.prototype = {
+      getQuery: function() {
+        return vimGlobalState.query;
+      },
+      setQuery: function(query) {
+        vimGlobalState.query = query;
+      },
+      getOverlay: function() {
+        return this.searchOverlay;
+      },
+      setOverlay: function(overlay) {
+        this.searchOverlay = overlay;
+      },
+      isReversed: function() {
+        return vimGlobalState.isReversed;
+      },
+      setReversed: function(reversed) {
+        vimGlobalState.isReversed = reversed;
+      },
+      getScrollbarAnnotate: function() {
+        return this.annotate;
+      },
+      setScrollbarAnnotate: function(annotate) {
+        this.annotate = annotate;
+      }
+    };
+    function getSearchState(cm) {
+      var vim = cm.state.vim;
+      return vim.searchState_ || (vim.searchState_ = new SearchState());
+    }
+    function dialog(cm, template, shortText, onClose, options) {
+      if (cm.openDialog) {
+        cm.openDialog(template, onClose, { bottom: true, value: options.value,
+            onKeyDown: options.onKeyDown, onKeyUp: options.onKeyUp,
+            selectValueOnOpen: false, onClose: function() {
+              if (cm.state.vim) {
+                cm.state.vim.status = "";
+                cm.ace.renderer.$loop.schedule(cm.ace.renderer.CHANGE_CURSOR);
+              }
+            }});
+      }
+      else {
+        onClose(prompt(shortText, ''));
+      }
+    }
+    
+    function splitBySlash(argString) {
+      return splitBySeparator(argString, '/');
+    }
+  
+    function findUnescapedSlashes(argString) {
+      return findUnescapedSeparators(argString, '/');
+    }
+
+    function splitBySeparator(argString, separator) {
+      var slashes = findUnescapedSeparators(argString, separator) || [];
+      if (!slashes.length) return [];
+      var tokens = [];
+      if (slashes[0] !== 0) return;
+      for (var i = 0; i < slashes.length; i++) {
+        if (typeof slashes[i] == 'number')
+          tokens.push(argString.substring(slashes[i] + 1, slashes[i+1]));
+      }
+      return tokens;
+    }
+
+    function findUnescapedSeparators(str, separator) {
+      if (!separator)
+        separator = '/';
+
+      var escapeNextChar = false;
+      var slashes = [];
+      for (var i = 0; i < str.length; i++) {
+        var c = str.charAt(i);
+        if (!escapeNextChar && c == separator) {
+          slashes.push(i);
+        }
+        escapeNextChar = !escapeNextChar && (c == '\\');
+      }
+      return slashes;
+    }
+    function translateRegex(str) {
+      var specials = '|(){';
+      var unescape = '}';
+      var escapeNextChar = false;
+      var out = [];
+      for (var i = -1; i < str.length; i++) {
+        var c = str.charAt(i) || '';
+        var n = str.charAt(i+1) || '';
+        var specialComesNext = (n && specials.indexOf(n) != -1);
+        if (escapeNextChar) {
+          if (c !== '\\' || !specialComesNext) {
+            out.push(c);
+          }
+          escapeNextChar = false;
+        } else {
+          if (c === '\\') {
+            escapeNextChar = true;
+            if (n && unescape.indexOf(n) != -1) {
+              specialComesNext = true;
+            }
+            if (!specialComesNext || n === '\\') {
+              out.push(c);
+            }
+          } else {
+            out.push(c);
+            if (specialComesNext && n !== '\\') {
+              out.push('\\');
+            }
+          }
+        }
+      }
+      return out.join('');
+    }
+    var charUnescapes = {'\\n': '\n', '\\r': '\r', '\\t': '\t'};
+    function translateRegexReplace(str) {
+      var escapeNextChar = false;
+      var out = [];
+      for (var i = -1; i < str.length; i++) {
+        var c = str.charAt(i) || '';
+        var n = str.charAt(i+1) || '';
+        if (charUnescapes[c + n]) {
+          out.push(charUnescapes[c+n]);
+          i++;
+        } else if (escapeNextChar) {
+          out.push(c);
+          escapeNextChar = false;
+        } else {
+          if (c === '\\') {
+            escapeNextChar = true;
+            if ((isNumber(n) || n === '$')) {
+              out.push('$');
+            } else if (n !== '/' && n !== '\\') {
+              out.push('\\');
+            }
+          } else {
+            if (c === '$') {
+              out.push('$');
+            }
+            out.push(c);
+            if (n === '/') {
+              out.push('\\');
+            }
+          }
+        }
+      }
+      return out.join('');
+    }
+    var unescapes = {'\\/': '/', '\\\\': '\\', '\\n': '\n', '\\r': '\r', '\\t': '\t'};
+    function unescapeRegexReplace(str) {
+      var stream = new CodeMirror.StringStream(str);
+      var output = [];
+      while (!stream.eol()) {
+        while (stream.peek() && stream.peek() != '\\') {
+          output.push(stream.next());
+        }
+        var matched = false;
+        for (var matcher in unescapes) {
+          if (stream.match(matcher, true)) {
+            matched = true;
+            output.push(unescapes[matcher]);
+            break;
+          }
+        }
+        if (!matched) {
+          output.push(stream.next());
+        }
+      }
+      return output.join('');
+    }
+    function parseQuery(query, ignoreCase, smartCase) {
+      var lastSearchRegister = vimGlobalState.registerController.getRegister('/');
+      lastSearchRegister.setText(query);
+      if (query instanceof RegExp) { return query; }
+      var slashes = findUnescapedSlashes(query);
+      var regexPart;
+      var forceIgnoreCase;
+      if (!slashes.length) {
+        regexPart = query;
+      } else {
+        regexPart = query.substring(0, slashes[0]);
+        var flagsPart = query.substring(slashes[0]);
+        forceIgnoreCase = (flagsPart.indexOf('i') != -1);
+      }
+      if (!regexPart) {
+        return null;
+      }
+      if (!getOption('pcre')) {
+        regexPart = translateRegex(regexPart);
+      }
+      if (smartCase) {
+        ignoreCase = (/^[^A-Z]*$/).test(regexPart);
+      }
+      var regexp = new RegExp(regexPart,
+          (ignoreCase || forceIgnoreCase) ? 'i' : undefined);
+      return regexp;
+    }
+    function showConfirm(cm, text) {
+      if (cm.openNotification) {
+        cm.openNotification('<span style="color: red">' + text + '</span>',
+                            {bottom: true, duration: 5000});
+      } else {
+        alert(text);
+      }
+    }
+    function makePrompt(prefix, desc) {
+      var raw = '<span style="font-family: monospace; white-space: pre">' +
+          (prefix || "") + '<input type="text"></span>';
+      if (desc)
+        raw += ' <span style="color: #888">' + desc + '</span>';
+      return raw;
+    }
+    var searchPromptDesc = '(Javascript regexp)';
+    function showPrompt(cm, options) {
+      var shortText = (options.prefix || '') + ' ' + (options.desc || '');
+      var prompt = makePrompt(options.prefix, options.desc);
+      dialog(cm, prompt, shortText, options.onClose, options);
+    }
+    function regexEqual(r1, r2) {
+      if (r1 instanceof RegExp && r2 instanceof RegExp) {
+          var props = ['global', 'multiline', 'ignoreCase', 'source'];
+          for (var i = 0; i < props.length; i++) {
+              var prop = props[i];
+              if (r1[prop] !== r2[prop]) {
+                  return false;
+              }
+          }
+          return true;
+      }
+      return false;
+    }
+    function updateSearchQuery(cm, rawQuery, ignoreCase, smartCase) {
+      if (!rawQuery) {
+        return;
+      }
+      var state = getSearchState(cm);
+      var query = parseQuery(rawQuery, !!ignoreCase, !!smartCase);
+      if (!query) {
+        return;
+      }
+      highlightSearchMatches(cm, query);
+      if (regexEqual(query, state.getQuery())) {
+        return query;
+      }
+      state.setQuery(query);
+      return query;
+    }
+    function searchOverlay(query) {
+      if (query.source.charAt(0) == '^') {
+        var matchSol = true;
+      }
+      return {
+        token: function(stream) {
+          if (matchSol && !stream.sol()) {
+            stream.skipToEnd();
+            return;
+          }
+          var match = stream.match(query, false);
+          if (match) {
+            if (match[0].length == 0) {
+              stream.next();
+              return 'searching';
+            }
+            if (!stream.sol()) {
+              stream.backUp(1);
+              if (!query.exec(stream.next() + match[0])) {
+                stream.next();
+                return null;
+              }
+            }
+            stream.match(query);
+            return 'searching';
+          }
+          while (!stream.eol()) {
+            stream.next();
+            if (stream.match(query, false)) break;
+          }
+        },
+        query: query
+      };
+    }
+    function highlightSearchMatches(cm, query) {
+      var searchState = getSearchState(cm);
+      var overlay = searchState.getOverlay();
+      if (!overlay || query != overlay.query) {
+        if (overlay) {
+          cm.removeOverlay(overlay);
+        }
+        overlay = searchOverlay(query);
+        cm.addOverlay(overlay);
+        if (cm.showMatchesOnScrollbar) {
+          if (searchState.getScrollbarAnnotate()) {
+            searchState.getScrollbarAnnotate().clear();
+          }
+          searchState.setScrollbarAnnotate(cm.showMatchesOnScrollbar(query));
+        }
+        searchState.setOverlay(overlay);
+      }
+    }
+    function findNext(cm, prev, query, repeat) {
+      if (repeat === undefined) { repeat = 1; }
+      return cm.operation(function() {
+        var pos = cm.getCursor();
+        var cursor = cm.getSearchCursor(query, pos);
+        for (var i = 0; i < repeat; i++) {
+          var found = cursor.find(prev);
+          if (i == 0 && found && cursorEqual(cursor.from(), pos)) { found = cursor.find(prev); }
+          if (!found) {
+            cursor = cm.getSearchCursor(query,
+                (prev) ? Pos(cm.lastLine()) : Pos(cm.firstLine(), 0) );
+            if (!cursor.find(prev)) {
+              return;
+            }
+          }
+        }
+        return cursor.from();
+      });
+    }
+    function clearSearchHighlight(cm) {
+      var state = getSearchState(cm);
+      cm.removeOverlay(getSearchState(cm).getOverlay());
+      state.setOverlay(null);
+      if (state.getScrollbarAnnotate()) {
+        state.getScrollbarAnnotate().clear();
+        state.setScrollbarAnnotate(null);
+      }
+    }
+    function isInRange(pos, start, end) {
+      if (typeof pos != 'number') {
+        pos = pos.line;
+      }
+      if (start instanceof Array) {
+        return inArray(pos, start);
+      } else {
+        if (end) {
+          return (pos >= start && pos <= end);
+        } else {
+          return pos == start;
+        }
+      }
+    }
+    function getUserVisibleLines(cm) {
+      var renderer = cm.ace.renderer;
+      return {
+        top: renderer.getFirstFullyVisibleRow(),
+        bottom: renderer.getLastFullyVisibleRow()
+      }
+    }
+
+    function getMarkPos(cm, vim, markName) {
+
+      var mark = vim.marks[markName];
+      return mark && mark.find();
+    }
+
+    var ExCommandDispatcher = function() {
+      this.buildCommandMap_();
+    };
+    ExCommandDispatcher.prototype = {
+      processCommand: function(cm, input, opt_params) {
+        var that = this;
+        cm.operation(function () {
+          cm.curOp.isVimOp = true;
+          that.
