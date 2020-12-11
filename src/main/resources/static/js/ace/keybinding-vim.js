@@ -4358,4 +4358,456 @@ dom.importCssString(".normal-mode .ace_cursor{\
         var that = this;
         cm.operation(function () {
           cm.curOp.isVimOp = true;
-          that.
+          that._processCommand(cm, input, opt_params);
+        });
+      },
+      _processCommand: function(cm, input, opt_params) {
+        var vim = cm.state.vim;
+        var commandHistoryRegister = vimGlobalState.registerController.getRegister(':');
+        var previousCommand = commandHistoryRegister.toString();
+        if (vim.visualMode) {
+          exitVisualMode(cm);
+        }
+        var inputStream = new CodeMirror.StringStream(input);
+        commandHistoryRegister.setText(input);
+        var params = opt_params || {};
+        params.input = input;
+        try {
+          this.parseInput_(cm, inputStream, params);
+        } catch(e) {
+          showConfirm(cm, e);
+          throw e;
+        }
+        var command;
+        var commandName;
+        if (!params.commandName) {
+          if (params.line !== undefined) {
+            commandName = 'move';
+          }
+        } else {
+          command = this.matchCommand_(params.commandName);
+          if (command) {
+            commandName = command.name;
+            if (command.excludeFromCommandHistory) {
+              commandHistoryRegister.setText(previousCommand);
+            }
+            this.parseCommandArgs_(inputStream, params, command);
+            if (command.type == 'exToKey') {
+              for (var i = 0; i < command.toKeys.length; i++) {
+                CodeMirror.Vim.handleKey(cm, command.toKeys[i], 'mapping');
+              }
+              return;
+            } else if (command.type == 'exToEx') {
+              this.processCommand(cm, command.toInput);
+              return;
+            }
+          }
+        }
+        if (!commandName) {
+          showConfirm(cm, 'Not an editor command ":' + input + '"');
+          return;
+        }
+        try {
+          exCommands[commandName](cm, params);
+          if ((!command || !command.possiblyAsync) && params.callback) {
+            params.callback();
+          }
+        } catch(e) {
+          showConfirm(cm, e);
+          throw e;
+        }
+      },
+      parseInput_: function(cm, inputStream, result) {
+        inputStream.eatWhile(':');
+        if (inputStream.eat('%')) {
+          result.line = cm.firstLine();
+          result.lineEnd = cm.lastLine();
+        } else {
+          result.line = this.parseLineSpec_(cm, inputStream);
+          if (result.line !== undefined && inputStream.eat(',')) {
+            result.lineEnd = this.parseLineSpec_(cm, inputStream);
+          }
+        }
+        var commandMatch = inputStream.match(/^(\w+)/);
+        if (commandMatch) {
+          result.commandName = commandMatch[1];
+        } else {
+          result.commandName = inputStream.match(/.*/)[0];
+        }
+
+        return result;
+      },
+      parseLineSpec_: function(cm, inputStream) {
+        var numberMatch = inputStream.match(/^(\d+)/);
+        if (numberMatch) {
+          return parseInt(numberMatch[1], 10) - 1;
+        }
+        switch (inputStream.next()) {
+          case '.':
+            return this.parseLineSpecOffset_(inputStream, cm.getCursor().line);
+          case '$':
+            return this.parseLineSpecOffset_(inputStream, cm.lastLine());
+          case '\'':
+            var markName = inputStream.next();
+            var markPos = getMarkPos(cm, cm.state.vim, markName);
+            if (!markPos) throw new Error('Mark not set');
+            return this.parseLineSpecOffset_(inputStream, markPos.line);
+          case '-':
+          case '+':
+            inputStream.backUp(1);
+            return this.parseLineSpecOffset_(inputStream, cm.getCursor().line);
+          default:
+            inputStream.backUp(1);
+            return undefined;
+        }
+      },
+      parseLineSpecOffset_: function(inputStream, line) {
+        var offsetMatch = inputStream.match(/^([+-])?(\d+)/);
+        if (offsetMatch) {
+          var offset = parseInt(offsetMatch[2], 10);
+          if (offsetMatch[1] == "-") {
+            line -= offset;
+          } else {
+            line += offset;
+          }
+        }
+        return line;
+      },
+      parseCommandArgs_: function(inputStream, params, command) {
+        if (inputStream.eol()) {
+          return;
+        }
+        params.argString = inputStream.match(/.*/)[0];
+        var delim = command.argDelimiter || /\s+/;
+        var args = trim(params.argString).split(delim);
+        if (args.length && args[0]) {
+          params.args = args;
+        }
+      },
+      matchCommand_: function(commandName) {
+        for (var i = commandName.length; i > 0; i--) {
+          var prefix = commandName.substring(0, i);
+          if (this.commandMap_[prefix]) {
+            var command = this.commandMap_[prefix];
+            if (command.name.indexOf(commandName) === 0) {
+              return command;
+            }
+          }
+        }
+        return null;
+      },
+      buildCommandMap_: function() {
+        this.commandMap_ = {};
+        for (var i = 0; i < defaultExCommandMap.length; i++) {
+          var command = defaultExCommandMap[i];
+          var key = command.shortName || command.name;
+          this.commandMap_[key] = command;
+        }
+      },
+      map: function(lhs, rhs, ctx) {
+        if (lhs != ':' && lhs.charAt(0) == ':') {
+          if (ctx) { throw Error('Mode not supported for ex mappings'); }
+          var commandName = lhs.substring(1);
+          if (rhs != ':' && rhs.charAt(0) == ':') {
+            this.commandMap_[commandName] = {
+              name: commandName,
+              type: 'exToEx',
+              toInput: rhs.substring(1),
+              user: true
+            };
+          } else {
+            this.commandMap_[commandName] = {
+              name: commandName,
+              type: 'exToKey',
+              toKeys: rhs,
+              user: true
+            };
+          }
+        } else {
+          if (rhs != ':' && rhs.charAt(0) == ':') {
+            var mapping = {
+              keys: lhs,
+              type: 'keyToEx',
+              exArgs: { input: rhs.substring(1) }
+            };
+            if (ctx) { mapping.context = ctx; }
+            defaultKeymap.unshift(mapping);
+          } else {
+            var mapping = {
+              keys: lhs,
+              type: 'keyToKey',
+              toKeys: rhs
+            };
+            if (ctx) { mapping.context = ctx; }
+            defaultKeymap.unshift(mapping);
+          }
+        }
+      },
+      unmap: function(lhs, ctx) {
+        if (lhs != ':' && lhs.charAt(0) == ':') {
+          if (ctx) { throw Error('Mode not supported for ex mappings'); }
+          var commandName = lhs.substring(1);
+          if (this.commandMap_[commandName] && this.commandMap_[commandName].user) {
+            delete this.commandMap_[commandName];
+            return;
+          }
+        } else {
+          var keys = lhs;
+          for (var i = 0; i < defaultKeymap.length; i++) {
+            if (keys == defaultKeymap[i].keys
+                && defaultKeymap[i].context === ctx) {
+              defaultKeymap.splice(i, 1);
+              return;
+            }
+          }
+        }
+      }
+    };
+
+    var exCommands = {
+      colorscheme: function(cm, params) {
+        if (!params.args || params.args.length < 1) {
+          showConfirm(cm, cm.getOption('theme'));
+          return;
+        }
+        cm.setOption('theme', params.args[0]);
+      },
+      map: function(cm, params, ctx) {
+        var mapArgs = params.args;
+        if (!mapArgs || mapArgs.length < 2) {
+          if (cm) {
+            showConfirm(cm, 'Invalid mapping: ' + params.input);
+          }
+          return;
+        }
+        exCommandDispatcher.map(mapArgs[0], mapArgs[1], ctx);
+      },
+      imap: function(cm, params) { this.map(cm, params, 'insert'); },
+      nmap: function(cm, params) { this.map(cm, params, 'normal'); },
+      vmap: function(cm, params) { this.map(cm, params, 'visual'); },
+      unmap: function(cm, params, ctx) {
+        var mapArgs = params.args;
+        if (!mapArgs || mapArgs.length < 1) {
+          if (cm) {
+            showConfirm(cm, 'No such mapping: ' + params.input);
+          }
+          return;
+        }
+        exCommandDispatcher.unmap(mapArgs[0], ctx);
+      },
+      move: function(cm, params) {
+        commandDispatcher.processCommand(cm, cm.state.vim, {
+            type: 'motion',
+            motion: 'moveToLineOrEdgeOfDocument',
+            motionArgs: { forward: false, explicitRepeat: true,
+              linewise: true },
+            repeatOverride: params.line+1});
+      },
+      set: function(cm, params) {
+        var setArgs = params.args;
+        var setCfg = params.setCfg || {};
+        if (!setArgs || setArgs.length < 1) {
+          if (cm) {
+            showConfirm(cm, 'Invalid mapping: ' + params.input);
+          }
+          return;
+        }
+        var expr = setArgs[0].split('=');
+        var optionName = expr[0];
+        var value = expr[1];
+        var forceGet = false;
+
+        if (optionName.charAt(optionName.length - 1) == '?') {
+          if (value) { throw Error('Trailing characters: ' + params.argString); }
+          optionName = optionName.substring(0, optionName.length - 1);
+          forceGet = true;
+        }
+        if (value === undefined && optionName.substring(0, 2) == 'no') {
+          optionName = optionName.substring(2);
+          value = false;
+        }
+
+        var optionIsBoolean = options[optionName] && options[optionName].type == 'boolean';
+        if (optionIsBoolean && value == undefined) {
+          value = true;
+        }
+        if (!optionIsBoolean && value === undefined || forceGet) {
+          var oldValue = getOption(optionName, cm, setCfg);
+          if (oldValue instanceof Error) {
+            showConfirm(cm, oldValue.message);
+          } else if (oldValue === true || oldValue === false) {
+            showConfirm(cm, ' ' + (oldValue ? '' : 'no') + optionName);
+          } else {
+            showConfirm(cm, '  ' + optionName + '=' + oldValue);
+          }
+        } else {
+          var setOptionReturn = setOption(optionName, value, cm, setCfg);
+          if (setOptionReturn instanceof Error) {
+            showConfirm(cm, setOptionReturn.message);
+          }
+        }
+      },
+      setlocal: function (cm, params) {
+        params.setCfg = {scope: 'local'};
+        this.set(cm, params);
+      },
+      setglobal: function (cm, params) {
+        params.setCfg = {scope: 'global'};
+        this.set(cm, params);
+      },
+      registers: function(cm, params) {
+        var regArgs = params.args;
+        var registers = vimGlobalState.registerController.registers;
+        var regInfo = '----------Registers----------<br><br>';
+        if (!regArgs) {
+          for (var registerName in registers) {
+            var text = registers[registerName].toString();
+            if (text.length) {
+              regInfo += '"' + registerName + '    ' + text + '<br>';
+            }
+          }
+        } else {
+          var registerName;
+          regArgs = regArgs.join('');
+          for (var i = 0; i < regArgs.length; i++) {
+            registerName = regArgs.charAt(i);
+            if (!vimGlobalState.registerController.isValidRegister(registerName)) {
+              continue;
+            }
+            var register = registers[registerName] || new Register();
+            regInfo += '"' + registerName + '    ' + register.toString() + '<br>';
+          }
+        }
+        showConfirm(cm, regInfo);
+      },
+      sort: function(cm, params) {
+        var reverse, ignoreCase, unique, number, pattern;
+        function parseArgs() {
+          if (params.argString) {
+            var args = new CodeMirror.StringStream(params.argString);
+            if (args.eat('!')) { reverse = true; }
+            if (args.eol()) { return; }
+            if (!args.eatSpace()) { return 'Invalid arguments'; }
+            var opts = args.match(/([dinuox]+)?\s*(\/.+\/)?\s*/);
+            if (!opts && !args.eol()) { return 'Invalid arguments'; }
+            if (opts[1]) {
+              ignoreCase = opts[1].indexOf('i') != -1;
+              unique = opts[1].indexOf('u') != -1;
+              var decimal = opts[1].indexOf('d') != -1 || opts[1].indexOf('n') != -1 && 1;
+              var hex = opts[1].indexOf('x') != -1 && 1;
+              var octal = opts[1].indexOf('o') != -1 && 1;
+              if (decimal + hex + octal > 1) { return 'Invalid arguments'; }
+              number = decimal && 'decimal' || hex && 'hex' || octal && 'octal';
+            }
+            if (opts[2]) {
+              pattern = new RegExp(opts[2].substr(1, opts[2].length - 2), ignoreCase ? 'i' : '');
+            }
+          }
+        }
+        var err = parseArgs();
+        if (err) {
+          showConfirm(cm, err + ': ' + params.argString);
+          return;
+        }
+        var lineStart = params.line || cm.firstLine();
+        var lineEnd = params.lineEnd || params.line || cm.lastLine();
+        if (lineStart == lineEnd) { return; }
+        var curStart = Pos(lineStart, 0);
+        var curEnd = Pos(lineEnd, lineLength(cm, lineEnd));
+        var text = cm.getRange(curStart, curEnd).split('\n');
+        var numberRegex = pattern ? pattern :
+           (number == 'decimal') ? /(-?)([\d]+)/ :
+           (number == 'hex') ? /(-?)(?:0x)?([0-9a-f]+)/i :
+           (number == 'octal') ? /([0-7]+)/ : null;
+        var radix = (number == 'decimal') ? 10 : (number == 'hex') ? 16 : (number == 'octal') ? 8 : null;
+        var numPart = [], textPart = [];
+        if (number || pattern) {
+          for (var i = 0; i < text.length; i++) {
+            var matchPart = pattern ? text[i].match(pattern) : null;
+            if (matchPart && matchPart[0] != '') {
+              numPart.push(matchPart);
+            } else if (!pattern && numberRegex.exec(text[i])) {
+              numPart.push(text[i]);
+            } else {
+              textPart.push(text[i]);
+            }
+          }
+        } else {
+          textPart = text;
+        }
+        function compareFn(a, b) {
+          if (reverse) { var tmp; tmp = a; a = b; b = tmp; }
+          if (ignoreCase) { a = a.toLowerCase(); b = b.toLowerCase(); }
+          var anum = number && numberRegex.exec(a);
+          var bnum = number && numberRegex.exec(b);
+          if (!anum) { return a < b ? -1 : 1; }
+          anum = parseInt((anum[1] + anum[2]).toLowerCase(), radix);
+          bnum = parseInt((bnum[1] + bnum[2]).toLowerCase(), radix);
+          return anum - bnum;
+        }
+        function comparePatternFn(a, b) {
+          if (reverse) { var tmp; tmp = a; a = b; b = tmp; }
+          if (ignoreCase) { a[0] = a[0].toLowerCase(); b[0] = b[0].toLowerCase(); }
+          return (a[0] < b[0]) ? -1 : 1;
+        }
+        numPart.sort(pattern ? comparePatternFn : compareFn);
+        if (pattern) {
+          for (var i = 0; i < numPart.length; i++) {
+            numPart[i] = numPart[i].input;
+          }
+        } else if (!number) { textPart.sort(compareFn); }
+        text = (!reverse) ? textPart.concat(numPart) : numPart.concat(textPart);
+        if (unique) { // Remove duplicate lines
+          var textOld = text;
+          var lastLine;
+          text = [];
+          for (var i = 0; i < textOld.length; i++) {
+            if (textOld[i] != lastLine) {
+              text.push(textOld[i]);
+            }
+            lastLine = textOld[i];
+          }
+        }
+        cm.replaceRange(text.join('\n'), curStart, curEnd);
+      },
+      global: function(cm, params) {
+        var argString = params.argString;
+        if (!argString) {
+          showConfirm(cm, 'Regular Expression missing from global');
+          return;
+        }
+        var lineStart = (params.line !== undefined) ? params.line : cm.firstLine();
+        var lineEnd = params.lineEnd || params.line || cm.lastLine();
+        var tokens = splitBySlash(argString);
+        var regexPart = argString, cmd;
+        if (tokens.length) {
+          regexPart = tokens[0];
+          cmd = tokens.slice(1, tokens.length).join('/');
+        }
+        if (regexPart) {
+          try {
+           updateSearchQuery(cm, regexPart, true /** ignoreCase */,
+             true /** smartCase */);
+          } catch (e) {
+           showConfirm(cm, 'Invalid regex: ' + regexPart);
+           return;
+          }
+        }
+        var query = getSearchState(cm).getQuery();
+        var matchedLines = [], content = '';
+        for (var i = lineStart; i <= lineEnd; i++) {
+          var matched = query.test(cm.getLine(i));
+          if (matched) {
+            matchedLines.push(i+1);
+            content+= cm.getLine(i) + '<br>';
+          }
+        }
+        if (!cmd) {
+          showConfirm(cm, content);
+          return;
+        }
+        var index = 0;
+        var nextCommand = function() {
+          if (index < matchedLines.length) {
+            var command = matchedLines[index] + cmd;
+            exCommandDi
