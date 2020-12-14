@@ -5285,4 +5285,389 @@ dom.importCssString(".normal-mode .ace_cursor{\
         lastChange.changes.push(new InsertModeKey(keyName));
         return true;
       }
-      if (keyName.ind
+      if (keyName.indexOf('Delete') != -1 || keyName.indexOf('Backspace') != -1) {
+        CodeMirror.lookupKey(keyName, 'vim-insert', onKeyFound);
+      }
+    }
+    function repeatLastEdit(cm, vim, repeat, repeatForInsert) {
+      var macroModeState = vimGlobalState.macroModeState;
+      macroModeState.isPlaying = true;
+      var isAction = !!vim.lastEditActionCommand;
+      var cachedInputState = vim.inputState;
+      function repeatCommand() {
+        if (isAction) {
+          commandDispatcher.processAction(cm, vim, vim.lastEditActionCommand);
+        } else {
+          commandDispatcher.evalInput(cm, vim);
+        }
+      }
+      function repeatInsert(repeat) {
+        if (macroModeState.lastInsertModeChanges.changes.length > 0) {
+          repeat = !vim.lastEditActionCommand ? 1 : repeat;
+          var changeObject = macroModeState.lastInsertModeChanges;
+          repeatInsertModeChanges(cm, changeObject.changes, repeat);
+        }
+      }
+      vim.inputState = vim.lastEditInputState;
+      if (isAction && vim.lastEditActionCommand.interlaceInsertRepeat) {
+        for (var i = 0; i < repeat; i++) {
+          repeatCommand();
+          repeatInsert(1);
+        }
+      } else {
+        if (!repeatForInsert) {
+          repeatCommand();
+        }
+        repeatInsert(repeat);
+      }
+      vim.inputState = cachedInputState;
+      if (vim.insertMode && !repeatForInsert) {
+        exitInsertMode(cm);
+      }
+      macroModeState.isPlaying = false;
+    }
+
+    function repeatInsertModeChanges(cm, changes, repeat) {
+      function keyHandler(binding) {
+        if (typeof binding == 'string') {
+          CodeMirror.commands[binding](cm);
+        } else {
+          binding(cm);
+        }
+        return true;
+      }
+      var head = cm.getCursor('head');
+      var inVisualBlock = vimGlobalState.macroModeState.lastInsertModeChanges.inVisualBlock;
+      if (inVisualBlock) {
+        var vim = cm.state.vim;
+        var lastSel = vim.lastSelection;
+        var offset = getOffset(lastSel.anchor, lastSel.head);
+        selectForInsert(cm, head, offset.line + 1);
+        repeat = cm.listSelections().length;
+        cm.setCursor(head);
+      }
+      for (var i = 0; i < repeat; i++) {
+        if (inVisualBlock) {
+          cm.setCursor(offsetCursor(head, i, 0));
+        }
+        for (var j = 0; j < changes.length; j++) {
+          var change = changes[j];
+          if (change instanceof InsertModeKey) {
+            CodeMirror.lookupKey(change.keyName, 'vim-insert', keyHandler);
+          } else if (typeof change == "string") {
+            var cur = cm.getCursor();
+            cm.replaceRange(change, cur, cur);
+          } else {
+            var start = cm.getCursor();
+            var end = offsetCursor(start, 0, change[0].length);
+            cm.replaceRange(change[0], start, end);
+          }
+        }
+      }
+      if (inVisualBlock) {
+        cm.setCursor(offsetCursor(head, 0, 1));
+      }
+    }
+
+    resetVimGlobalState();
+  CodeMirror.Vim = Vim();
+
+  Vim = CodeMirror.Vim;
+
+  var specialKey = {'return':'CR',backspace:'BS','delete':'Del',esc:'Esc',
+    left:'Left',right:'Right',up:'Up',down:'Down',space: 'Space',
+    home:'Home',end:'End',pageup:'PageUp',pagedown:'PageDown', enter: 'CR'
+  };
+  function lookupKey(hashId, key, e) {
+    if (key.length > 1 && key[0] == "n") {
+      key = key.replace("numpad", "");
+    }
+    key = specialKey[key] || key;
+    var name = '';
+    if (e.ctrlKey) { name += 'C-'; }
+    if (e.altKey) { name += 'A-'; }
+    if ((name || key.length > 1) && e.shiftKey) { name += 'S-'; }
+
+    name += key;
+    if (name.length > 1) { name = '<' + name + '>'; }
+    return name;
+  }
+  var handleKey = Vim.handleKey.bind(Vim);
+  Vim.handleKey = function(cm, key, origin) {
+    return cm.operation(function() {
+      return handleKey(cm, key, origin);
+    }, true);
+  }
+  function cloneVimState(state) {
+    var n = new state.constructor();
+    Object.keys(state).forEach(function(key) {
+      var o = state[key];
+      if (Array.isArray(o))
+        o = o.slice();
+      else if (o && typeof o == "object" && o.constructor != Object)
+        o = cloneVimState(o);
+      n[key] = o;
+    });
+    if (state.sel) {
+      n.sel = {
+        head: state.sel.head && copyCursor(state.sel.head),
+        anchor: state.sel.anchor && copyCursor(state.sel.anchor)
+      };
+    }
+    return n;
+  }
+  function multiSelectHandleKey(cm, key, origin) {
+    var isHandled = false;
+    var vim = Vim.maybeInitVimState_(cm);
+    var visualBlock = vim.visualBlock || vim.wasInVisualBlock;
+    if (vim.wasInVisualBlock && !cm.ace.inMultiSelectMode) {
+      vim.wasInVisualBlock = false;
+    } else if (cm.ace.inMultiSelectMode && vim.visualBlock) {
+       vim.wasInVisualBlock = true;
+    }
+    
+    if (key == '<Esc>' && !vim.insertMode && !vim.visualMode && cm.ace.inMultiSelectMode) {
+      cm.ace.exitMultiSelectMode();
+    } else if (visualBlock || !cm.ace.inMultiSelectMode || cm.ace.inVirtualSelectionMode) {
+      isHandled = Vim.handleKey(cm, key, origin);
+    } else {
+      var old = cloneVimState(vim);
+      cm.operation(function() {
+        cm.ace.forEachSelection(function() {
+          var sel = cm.ace.selection;
+          cm.state.vim.lastHPos = sel.$desiredColumn == null ? sel.lead.column : sel.$desiredColumn;
+          var head = cm.getCursor("head");
+          var anchor = cm.getCursor("anchor");
+          var headOffset = !cursorIsBefore(head, anchor) ? -1 : 0;
+          var anchorOffset = cursorIsBefore(head, anchor) ? -1 : 0;
+          head = offsetCursor(head, 0, headOffset);
+          anchor = offsetCursor(anchor, 0, anchorOffset);
+          cm.state.vim.sel.head = head;
+          cm.state.vim.sel.anchor = anchor;
+          
+          isHandled = handleKey(cm, key, origin);
+          sel.$desiredColumn = cm.state.vim.lastHPos == -1 ? null : cm.state.vim.lastHPos;
+          if (cm.virtualSelectionMode()) {
+            cm.state.vim = cloneVimState(old);
+          }
+        });
+        if (cm.curOp.cursorActivity && !isHandled)
+          cm.curOp.cursorActivity = false;
+      }, true);
+    }
+    if (isHandled)
+      handleExternalSelection(cm, vim);
+    return isHandled;
+  }
+  exports.CodeMirror = CodeMirror;
+  var getVim = Vim.maybeInitVimState_;
+  exports.handler = {
+    $id: "ace/keyboard/vim",
+    drawCursor: function(element, pixelPos, config, sel, session) {
+      var vim = this.state.vim || {};
+      var w = config.characterWidth;
+      var h = config.lineHeight;
+      var top = pixelPos.top;
+      var left = pixelPos.left;
+      if (!vim.insertMode) {
+        var isbackwards = !sel.cursor 
+            ? session.selection.isBackwards() || session.selection.isEmpty()
+            : Range.comparePoints(sel.cursor, sel.start) <= 0;
+        if (!isbackwards && left > w)
+          left -= w;
+      }     
+      if (!vim.insertMode && vim.status) {
+        h = h / 2;
+        top += h;
+      }
+      dom.translate(element, left, top);
+      dom.setStyle(element.style, "width", w + "px");
+      dom.setStyle(element.style, "height", h + "px");
+    },
+    handleKeyboard: function(data, hashId, key, keyCode, e) {
+      var editor = data.editor;
+      var cm = editor.state.cm;
+      var vim = getVim(cm);
+      if (keyCode == -1) return;
+      if (!vim.insertMode) {
+        if (hashId == -1) {
+          if (key.charCodeAt(0) > 0xFF) {
+            if (data.inputKey) {
+              key = data.inputKey;
+              if (key && data.inputHash == 4)
+                key = key.toUpperCase();
+            }
+          }
+          data.inputChar = key;
+        }
+        else if (hashId == 4 || hashId == 0) {
+          if (data.inputKey == key && data.inputHash == hashId && data.inputChar) {
+            key = data.inputChar;
+            hashId = -1
+          }
+          else {
+            data.inputChar = null;
+            data.inputKey = key;
+            data.inputHash = hashId;
+          }
+        }
+        else {
+          data.inputChar = data.inputKey = null;
+        }
+      }
+      if (key == "c" && hashId == 1) { // key == "ctrl-c"
+        if (!useragent.isMac && editor.getCopyText()) {
+          editor.once("copy", function() {
+            editor.selection.clearSelection();
+          });
+          return {command: "null", passEvent: true};
+        }
+      }
+      
+      if (key == "esc" && !vim.insertMode && !vim.visualMode && !cm.ace.inMultiSelectMode) {
+        var searchState = getSearchState(cm);
+        var overlay = searchState.getOverlay();
+        if (overlay) cm.removeOverlay(overlay);
+      }
+      
+      if (hashId == -1 || hashId & 1 || hashId === 0 && key.length > 1) {
+        var insertMode = vim.insertMode;
+        var name = lookupKey(hashId, key, e || {});
+        if (vim.status == null)
+          vim.status = "";
+        var isHandled = multiSelectHandleKey(cm, name, 'user');
+        vim = getVim(cm); // may be changed by multiSelectHandleKey
+        if (isHandled && vim.status != null)
+          vim.status += name;
+        else if (vim.status == null)
+          vim.status = "";
+        cm._signal("changeStatus");
+        if (!isHandled && (hashId != -1 || insertMode))
+          return;
+        return {command: "null", passEvent: !isHandled};
+      }
+    },
+    attach: function(editor) {
+      if (!editor.state) editor.state = {};
+      var cm = new CodeMirror(editor);
+      editor.state.cm = cm;
+      editor.$vimModeHandler = this;
+      CodeMirror.keyMap.vim.attach(cm);
+      getVim(cm).status = null;
+      cm.on('vim-command-done', function() {
+        if (cm.virtualSelectionMode()) return;
+        getVim(cm).status = null;
+        cm.ace._signal("changeStatus");
+        cm.ace.session.markUndoGroup();
+      });
+      cm.on("changeStatus", function() {
+        cm.ace.renderer.updateCursor();
+        cm.ace._signal("changeStatus");
+      });
+      cm.on("vim-mode-change", function() {
+        if (cm.virtualSelectionMode()) return;
+        updateInputMode();
+        cm._signal("changeStatus");
+      });
+      function updateInputMode() {
+        var isIntsert = getVim(cm).insertMode;
+        cm.ace.renderer.setStyle("normal-mode", !isIntsert);
+        editor.textInput.setCommandMode(!isIntsert);
+        editor.renderer.$keepTextAreaAtCursor = isIntsert;
+        editor.renderer.$blockCursor = !isIntsert;
+      }
+      updateInputMode();
+      editor.renderer.$cursorLayer.drawCursor = this.drawCursor.bind(cm);
+    },
+    detach: function(editor) {
+      var cm = editor.state.cm;
+      CodeMirror.keyMap.vim.detach(cm);
+      cm.destroy();
+      editor.state.cm = null;
+      editor.$vimModeHandler = null;
+      editor.renderer.$cursorLayer.drawCursor = null;
+      editor.renderer.setStyle("normal-mode", false);
+      editor.textInput.setCommandMode(false);
+      editor.renderer.$keepTextAreaAtCursor = true;
+    },
+    getStatusText: function(editor) {
+      var cm = editor.state.cm;
+      var vim = getVim(cm);
+      if (vim.insertMode)
+        return "INSERT";
+      var status = "";
+      if (vim.visualMode) {
+        status += "VISUAL";
+        if (vim.visualLine)
+          status += " LINE";
+        if (vim.visualBlock)
+          status += " BLOCK";
+      }
+      if (vim.status)
+        status += (status ? " " : "") + vim.status;
+      return status;
+    }
+  };
+  Vim.defineOption({
+    name: "wrap",
+    set: function(value, cm) {
+      if (cm) {cm.ace.setOption("wrap", value)}
+    },
+    type: "boolean"
+  }, false);
+  Vim.defineEx('write', 'w', function() {
+    console.log(':write is not implemented')
+  });
+  defaultKeymap.push(
+    { keys: 'zc', type: 'action', action: 'fold', actionArgs: { open: false } },
+    { keys: 'zC', type: 'action', action: 'fold', actionArgs: { open: false, all: true } },
+    { keys: 'zo', type: 'action', action: 'fold', actionArgs: { open: true } },
+    { keys: 'zO', type: 'action', action: 'fold', actionArgs: { open: true, all: true } },
+    { keys: 'za', type: 'action', action: 'fold', actionArgs: { toggle: true } },
+    { keys: 'zA', type: 'action', action: 'fold', actionArgs: { toggle: true, all: true } },
+    { keys: 'zf', type: 'action', action: 'fold', actionArgs: { open: true, all: true } },
+    { keys: 'zd', type: 'action', action: 'fold', actionArgs: { open: true, all: true } },
+    
+    { keys: '<C-A-k>', type: 'action', action: 'aceCommand', actionArgs: { name: "addCursorAbove" } },
+    { keys: '<C-A-j>', type: 'action', action: 'aceCommand', actionArgs: { name: "addCursorBelow" } },
+    { keys: '<C-A-S-k>', type: 'action', action: 'aceCommand', actionArgs: { name: "addCursorAboveSkipCurrent" } },
+    { keys: '<C-A-S-j>', type: 'action', action: 'aceCommand', actionArgs: { name: "addCursorBelowSkipCurrent" } },
+    { keys: '<C-A-h>', type: 'action', action: 'aceCommand', actionArgs: { name: "selectMoreBefore" } },
+    { keys: '<C-A-l>', type: 'action', action: 'aceCommand', actionArgs: { name: "selectMoreAfter" } },
+    { keys: '<C-A-S-h>', type: 'action', action: 'aceCommand', actionArgs: { name: "selectNextBefore" } },
+    { keys: '<C-A-S-l>', type: 'action', action: 'aceCommand', actionArgs: { name: "selectNextAfter" } }
+  );
+  actions.aceCommand = function(cm, actionArgs, vim) {
+    cm.vimCmd = actionArgs;
+    if (cm.ace.inVirtualSelectionMode)
+      cm.ace.on("beforeEndOperation", delayedExecAceCommand);
+    else
+      delayedExecAceCommand(null, cm.ace);
+  };
+  function delayedExecAceCommand(op, ace) {
+    ace.off("beforeEndOperation", delayedExecAceCommand);
+    var cmd = ace.state.cm.vimCmd;
+    if (cmd) {
+      ace.execCommand(cmd.exec ? cmd : cmd.name, cmd.args);
+    }
+    ace.curOp = ace.prevOp;
+  }
+  actions.fold = function(cm, actionArgs, vim) {
+    cm.ace.execCommand(['toggleFoldWidget', 'toggleFoldWidget', 'foldOther', 'unfoldall'
+      ][(actionArgs.all ? 2 : 0) + (actionArgs.open ? 1 : 0)]);
+  };
+
+  exports.handler.defaultKeymap = defaultKeymap;
+  exports.handler.actions = actions;
+  exports.Vim = Vim;
+  
+  Vim.map("Y", "yy", "normal");
+});
+                (function() {
+                    window.require(["ace/keyboard/vim"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
