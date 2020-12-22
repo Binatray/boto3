@@ -2200,4 +2200,469 @@ var CsoundOrchestraHighlightRules = function() {
         "vlimit",
         "vlinseg",
         "vlowres",
-        "vmap
+        "vmap",
+        "vmirror",
+        "vmult",
+        "vmult_i",
+        "vmultv",
+        "vmultv_i",
+        "voice",
+        "vosim",
+        "vphaseseg",
+        "vport",
+        "vpow",
+        "vpow_i",
+        "vpowv",
+        "vpowv_i",
+        "vpvoc",
+        "vrandh",
+        "vrandi",
+        "vsubv",
+        "vsubv_i",
+        "vtaba",
+        "vtabi",
+        "vtabk",
+        "vtable1k",
+        "vtablea",
+        "vtablei",
+        "vtablek",
+        "vtablewa",
+        "vtablewi",
+        "vtablewk",
+        "vtabwa",
+        "vtabwi",
+        "vtabwk",
+        "vwrap",
+        "waveset",
+        "websocket",
+        "weibull",
+        "wgbow",
+        "wgbowedbar",
+        "wgbrass",
+        "wgclar",
+        "wgflute",
+        "wgpluck",
+        "wgpluck2",
+        "wguide1",
+        "wguide2",
+        "wiiconnect",
+        "wiidata",
+        "wiirange",
+        "wiisend",
+        "window",
+        "wrap",
+        "writescratch",
+        "wterrain",
+        "xadsr",
+        "xin",
+        "xout",
+        "xscanmap",
+        "xscans",
+        "xscansmap",
+        "xscanu",
+        "xtratim",
+        "xyscale",
+        "zacl",
+        "zakinit",
+        "zamod",
+        "zar",
+        "zarg",
+        "zaw",
+        "zawm",
+        "zdf_1pole",
+        "zdf_1pole_mode",
+        "zdf_2pole",
+        "zdf_2pole_mode",
+        "zdf_ladder",
+        "zfilter2",
+        "zir",
+        "ziw",
+        "ziwm",
+        "zkcl",
+        "zkmod",
+        "zkr",
+        "zkw",
+        "zkwm"
+    ];
+    var deprecatedOpcodes = [
+        "array",
+        "bformdec",
+        "bformenc",
+        "copy2ftab",
+        "copy2ttab",
+        "hrtfer",
+        "ktableseg",
+        "lentab",
+        "maxtab",
+        "mintab",
+        "pop",
+        "pop_f",
+        "push",
+        "push_f",
+        "scalet",
+        "sndload",
+        "soundout",
+        "soundouts",
+        "specaddm",
+        "specdiff",
+        "specdisp",
+        "specfilt",
+        "spechist",
+        "specptrk",
+        "specscal",
+        "specsum",
+        "spectrum",
+        "stack",
+        "sumtab",
+        "tabgen",
+        "tabmap",
+        "tabmap_i",
+        "tabslice",
+        "tb0",
+        "tb0_init",
+        "tb1",
+        "tb10",
+        "tb10_init",
+        "tb11",
+        "tb11_init",
+        "tb12",
+        "tb12_init",
+        "tb13",
+        "tb13_init",
+        "tb14",
+        "tb14_init",
+        "tb15",
+        "tb15_init",
+        "tb1_init",
+        "tb2",
+        "tb2_init",
+        "tb3",
+        "tb3_init",
+        "tb4",
+        "tb4_init",
+        "tb5",
+        "tb5_init",
+        "tb6",
+        "tb6_init",
+        "tb7",
+        "tb7_init",
+        "tb8",
+        "tb8_init",
+        "tb9",
+        "tb9_init",
+        "vbap16",
+        "vbap4",
+        "vbap4move",
+        "vbap8",
+        "vbap8move",
+        "xyin"
+    ];
+
+    opcodes = lang.arrayToMap(opcodes);
+    deprecatedOpcodes = lang.arrayToMap(deprecatedOpcodes);
+
+    this.lineContinuations = [
+        {
+            token : "constant.character.escape.line-continuation.csound",
+            regex : /\\$/
+        }, this.pushRule({
+            token : "constant.character.escape.line-continuation.csound",
+            regex : /\\/,
+            next  : "line continuation"
+        })
+    ];
+
+    this.comments.push(this.lineContinuations);
+
+    this.quotedStringContents.push(
+        this.lineContinuations,
+        {
+            token : "invalid.illegal",
+            regex : /[^"\\]*$/
+        }
+    );
+
+    var start = this.$rules.start;
+    start.splice(1, 0, {
+        token : ["text.csound", "entity.name.label.csound", "entity.punctuation.label.csound", "text.csound"],
+        regex : /^([ \t]*)(\w+)(:)([ \t]+|$)/
+    });
+    start.push(
+        this.pushRule({
+            token : "keyword.function.csound",
+            regex : /\binstr\b/,
+            next  : "instrument numbers and identifiers"
+        }), this.pushRule({
+            token : "keyword.function.csound",
+            regex : /\bopcode\b/,
+            next  : "after opcode keyword"
+        }), {
+            token : "keyword.other.csound",
+            regex : /\bend(?:in|op)\b/
+        },
+
+        {
+            token : "variable.language.csound",
+            regex : /\b(?:0dbfs|A4|k(?:r|smps)|nchnls(?:_i)?|sr)\b/
+        },
+
+        this.numbers,
+
+        {
+            token : "keyword.operator.csound",
+            regex : "\\+=|-=|\\*=|/=|<<|>>|<=|>=|==|!=|&&|\\|\\||[~¬]|[=!+\\-*/^%&|<>#?:]"
+        },
+
+        this.pushRule({
+            token : "punctuation.definition.string.begin.csound",
+            regex : /"/,
+            next  : "quoted string"
+        }), this.pushRule({
+            token : "punctuation.definition.string.begin.csound",
+            regex : /{{/,
+            next  : "braced string"
+        }),
+
+        {
+            token : "keyword.control.csound",
+            regex : /\b(?:do|else(?:if)?|end(?:if|until)|fi|i(?:f|then)|kthen|od|r(?:ir)?eturn|then|until|while)\b/
+        },
+
+        this.pushRule({
+            token : "keyword.control.csound",
+            regex : /\b[ik]?goto\b/,
+            next  : "goto before label"
+        }), this.pushRule({
+            token : "keyword.control.csound",
+            regex : /\b(?:r(?:einit|igoto)|tigoto)\b/,
+            next  : "goto before label"
+        }), this.pushRule({
+            token : "keyword.control.csound",
+            regex : /\bc(?:g|in?|k|nk?)goto\b/,
+            next  : ["goto before label", "goto before argument"]
+        }), this.pushRule({
+            token : "keyword.control.csound",
+            regex : /\btimout\b/,
+            next  : ["goto before label", "goto before argument", "goto before argument"]
+        }), this.pushRule({
+            token : "keyword.control.csound",
+            regex : /\bloop_[gl][et]\b/,
+            next  : ["goto before label", "goto before argument", "goto before argument", "goto before argument"]
+        }),
+
+        this.pushRule({
+            token : "support.function.csound",
+            regex : /\b(?:readscore|scoreline(?:_i)?)\b/,
+            next  : "Csound score opcode"
+        }), this.pushRule({
+            token : "support.function.csound",
+            regex : /\bpyl?run[it]?\b(?!$)/,
+            next  : "Python opcode"
+        }), this.pushRule({
+            token : "support.function.csound",
+            regex : /\blua_(?:exec|opdef)\b(?!$)/,
+            next  : "Lua opcode"
+        }),
+
+        {
+            token : "support.variable.csound",
+            regex : /\bp\d+\b/
+        }, {
+            regex : /\b([A-Z_a-z]\w*)(?:(:)([A-Za-z]))?\b/, onMatch: function(value, currentState, stack, line) {
+                var tokens = value.split(this.splitRegex);
+                var name = tokens[1];
+                var type;
+                if (opcodes.hasOwnProperty(name))
+                    type = "support.function.csound";
+                else if (deprecatedOpcodes.hasOwnProperty(name))
+                    type = "invalid.deprecated.csound";
+                if (type) {
+                    if (tokens[2]) {
+                        return [
+                            {type: type, value: name},
+                            {type: "punctuation.type-annotation.csound", value: tokens[2]},
+                            {type: "type-annotation.storage.type.csound", value: tokens[3]}
+                        ];
+                    }
+                    return type;
+                }
+                return "text.csound";
+            }
+        }
+    );
+
+    this.$rules["macro parameter value list"].splice(2, 0, {
+        token : "punctuation.definition.string.begin.csound",
+        regex : /{{/,
+        next  : "macro parameter value braced string"
+    });
+
+    this.addRules({
+        "macro parameter value braced string": [
+            {
+                token : "constant.character.escape.csound",
+                regex : /\\[#'()]/
+            }, {
+                token : "invalid.illegal.csound.csound",
+                regex : /[#'()]/
+            }, {
+                token : "punctuation.definition.string.end.csound",
+                regex : /}}/,
+                next  : "macro parameter value list"
+            }, {
+                defaultToken: "string.braced.csound"
+            }
+        ],
+
+        "instrument numbers and identifiers": [
+            this.comments,
+            {
+                token : "entity.name.function.csound",
+                regex : /\d+|[A-Z_a-z]\w*/
+            }, this.popRule({
+                token : "empty",
+                regex : /$/
+            })
+        ],
+
+        "after opcode keyword": [
+            this.comments,
+            this.popRule({
+                token : "empty",
+                regex : /$/
+            }), this.popRule({
+                token : "entity.name.function.opcode.csound",
+                regex : /[A-Z_a-z]\w*/,
+                next  : "opcode type signatures"
+            })
+        ],
+        "opcode type signatures": [
+            this.comments,
+            this.popRule({
+                token : "empty",
+                regex : /$/
+            }), {
+                token : "storage.type.csound",
+                regex : /\b(?:0|[afijkKoOpPStV\[\]]+)/
+            }
+        ],
+
+        "quoted string": [
+            this.popRule({
+                token : "punctuation.definition.string.end.csound",
+                regex : /"/
+            }),
+            this.quotedStringContents,
+            {
+                defaultToken: "string.quoted.csound"
+            }
+        ],
+        "braced string": [
+            this.popRule({
+                token : "punctuation.definition.string.end.csound",
+                regex : /}}/
+            }),
+            this.bracedStringContents,
+            {
+                defaultToken: "string.braced.csound"
+            }
+        ],
+
+        "goto before argument": [
+            this.popRule({
+                token : "text.csound",
+                regex : /,/
+            }),
+            start
+        ],
+        "goto before label": [
+            {
+                token : "text.csound",
+                regex : /\s+/
+            },
+            this.comments,
+            this.popRule({
+                token : "entity.name.label.csound",
+                regex : /\w+/
+            }), this.popRule({
+                token : "empty",
+                regex : /(?!\w)/
+            })
+        ],
+
+        "Csound score opcode": [
+            this.comments,
+            {
+                token : "punctuation.definition.string.begin.csound",
+                regex : /{{/,
+                next  : "csound-score-start"
+            }, this.popRule({
+                token : "empty",
+                regex : /$/
+            })
+        ],
+
+        "Python opcode": [
+            this.comments,
+            {
+                token : "punctuation.definition.string.begin.csound",
+                regex : /{{/,
+                next  : "python-start"
+            }, this.popRule({
+                token : "empty",
+                regex : /$/
+            })
+        ],
+
+        "Lua opcode": [
+            this.comments,
+            {
+                token : "punctuation.definition.string.begin.csound",
+                regex : /{{/,
+                next  : "lua-start"
+            }, this.popRule({
+                token : "empty",
+                regex : /$/
+            })
+        ],
+
+        "line continuation": [
+            this.popRule({
+                token : "empty",
+                regex : /$/
+            }),
+            this.semicolonComments,
+            {
+                token : "invalid.illegal.csound",
+                regex : /\S.*/
+            }
+        ]
+    });
+
+    var rules = [
+        this.popRule({
+            token : "punctuation.definition.string.end.csound",
+            regex : /}}/
+        })
+    ];
+    this.embedRules(CsoundScoreHighlightRules, "csound-score-", rules);
+    this.embedRules(PythonHighlightRules, "python-", rules);
+    this.embedRules(LuaHighlightRules, "lua-", rules);
+
+    this.normalizeRules();
+};
+
+oop.inherits(CsoundOrchestraHighlightRules, CsoundPreprocessorHighlightRules);
+
+exports.CsoundOrchestraHighlightRules = CsoundOrchestraHighlightRules;
+});
+
+define("ace/mode/css_highlight_rules",["require","exports","module","ace/lib/oop","ace/lib/lang","ace/mode/text_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var lang = require("../lib/lang");
+var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var supportType = exports.supportType = "align-content|align-items|align-self|all|animation|animation-delay|animation-direction|animation-duration|animation-fill-mode|animation-iteration-count|animation-name|animation-play-state|animation-timing-function|backface-visibility|background|background-attachment|background-blend-mode|background-clip|background-color|background-image|background-origin|background-position|background-repeat|background-size|border|border-bottom|border-bottom-color|border-bottom-left-radius|border-bottom-right-radius|border-bottom-style|border-bottom-width|border-collapse|border-color|border-image|border-image-outset|border-image-repeat|border-image-slice|border-image-source|border-image-width|border-left|border-left-color|border-left-style|border-left-width|border-radius|border-right|border-right-color|border-right-style|border-right-width|border-spacing|border-style|border-top|border-top-color|border-top-left-radius|border-top-right-radius|border-top-style|border-top-width|border-width|bottom|box-shadow|box-sizing|caption-side|clear|clip|color|column-count|column-fill|column-gap|column-rule|column-rule-color|column-rule-style|column-rule-width|column-span|column-width|columns|content|counter-increment|counter-reset|cursor|direction|display|empty-cells|filter|flex|flex-basis|flex-direction|flex-flow|flex-grow|flex-shrink|flex-wrap|float|font|font-family|font-size|font-size-adjust|font-stretch|font-style|font-variant|font-weight|hanging-punctuation|height|justify-content|left|letter-spacing|line-height|list-style|list-style-image|list-style-position|list-style-type|margin|margin-bottom|margin-left|margin-right|margin-top|max-height|max-width|max-zoom|min-height|min-width|min-zoom|nav-down|nav-index|nav-left|nav-right|nav-up|opacity|order|outline|outline-color|outline-offset|outline-style|outline-width|overflow|overflow-x|overflow-y|padding|padding-bottom|padding-left|padding-right|padding-top|page-break-after|page-break-before|page-break-inside|perspective|perspective-origin|position|quotes|resize|right|tab-size|table-layout|text-align|text-align-last|text-decoration|text-decoration-color|text-decoration-line|text-decoration-style|text-indent|text-justify|text-overflow|text-shadow|text-transform|top|transform|transform-origin|transform-style|transition|transition-delay|transition-duration|transition-property|transition-timing-function|unicode-bidi|user-select|user-zoom|vertical-align|visibility|white-space|width|word-break|word-spacing|word-wrap|z-index";
+var supportFunction = exports.supportFunction = "rgb|rgba|url|attr|counter|counters";
+var supportConstant = exports.supportConstant = "absolute|after-edge|after|all-scroll|all|alphabetic|always|antialiased|armenian|auto|avoid-column|avoid-page|avoid|balance|baseline|before-edge|before|below|bidi-override|block-line-height|block|bold|bolder|border-box|both|bottom|box|break-all|break-word|capitalize|caps-height|caption|center|central|char|circle|cjk-ideographic|clone|close-quote|col-resize|collapse|column|consider-shifts|contain|content-box|cover|crosshair|cubic-bezier|dashed|decimal-leading-zero|decimal|default|disabled|disc|disregard-shifts|distribute-all-lines|distribute-letter|distribute-space|distribute|dotted|double|e-resize|ease-in|ease-in-out|ease-out|ease|ellipsis|end|exclude-ruby|fill|fixed|georgian|glyphs|grid-height|groove|hand|hanging|hebrew|help|hidden|hiragana-iroha|hiragana|horizontal|icon|ideograph-alpha|ideograph-numeric|ideograph-parenthesis|ideograph-space|ideographic|inactive|include-ruby|inherit|initial|inline-block|inline-box|inline-line-height|inline-table|inline|inset|inside|inter-ideograph|inter-word|invert|italic|justify|katakana-iroha|katakana|keep-all|last|left|lighter|line-edge|line-through|line|linear|list-item|local|loose|lower-alpha|lower-greek|lower-latin|lower-roman|lowercase|lr-tb|ltr|mathematical|max-height|max-size|medium|menu|message-box|middle|move|n-resize|ne-resize|newspaper|no-change|no-close-quote|no-drop|no-open-quote|no-repeat|none|normal|not-allowed|nowrap|nw-resize|oblique|open-quote|outset|outside|overli
