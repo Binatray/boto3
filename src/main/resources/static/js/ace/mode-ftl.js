@@ -717,4 +717,478 @@ function comments(next) {
 exports.JavaScriptHighlightRules = JavaScriptHighlightRules;
 });
 
-define("ace/mode/xml_highlight_rules",["require","exports","module
+define("ace/mode/xml_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+
+var XmlHighlightRules = function(normalize) {
+    var tagRegex = "[_:a-zA-Z\xc0-\uffff][-_:.a-zA-Z0-9\xc0-\uffff]*";
+
+    this.$rules = {
+        start : [
+            {token : "string.cdata.xml", regex : "<\\!\\[CDATA\\[", next : "cdata"},
+            {
+                token : ["punctuation.instruction.xml", "keyword.instruction.xml"],
+                regex : "(<\\?)(" + tagRegex + ")", next : "processing_instruction"
+            },
+            {token : "comment.start.xml", regex : "<\\!--", next : "comment"},
+            {
+                token : ["xml-pe.doctype.xml", "xml-pe.doctype.xml"],
+                regex : "(<\\!)(DOCTYPE)(?=[\\s])", next : "doctype", caseInsensitive: true
+            },
+            {include : "tag"},
+            {token : "text.end-tag-open.xml", regex: "</"},
+            {token : "text.tag-open.xml", regex: "<"},
+            {include : "reference"},
+            {defaultToken : "text.xml"}
+        ],
+
+        processing_instruction : [{
+            token : "entity.other.attribute-name.decl-attribute-name.xml",
+            regex : tagRegex
+        }, {
+            token : "keyword.operator.decl-attribute-equals.xml",
+            regex : "="
+        }, {
+            include: "whitespace"
+        }, {
+            include: "string"
+        }, {
+            token : "punctuation.xml-decl.xml",
+            regex : "\\?>",
+            next : "start"
+        }],
+
+        doctype : [
+            {include : "whitespace"},
+            {include : "string"},
+            {token : "xml-pe.doctype.xml", regex : ">", next : "start"},
+            {token : "xml-pe.xml", regex : "[-_a-zA-Z0-9:]+"},
+            {token : "punctuation.int-subset", regex : "\\[", push : "int_subset"}
+        ],
+
+        int_subset : [{
+            token : "text.xml",
+            regex : "\\s+"
+        }, {
+            token: "punctuation.int-subset.xml",
+            regex: "]",
+            next: "pop"
+        }, {
+            token : ["punctuation.markup-decl.xml", "keyword.markup-decl.xml"],
+            regex : "(<\\!)(" + tagRegex + ")",
+            push : [{
+                token : "text",
+                regex : "\\s+"
+            },
+            {
+                token : "punctuation.markup-decl.xml",
+                regex : ">",
+                next : "pop"
+            },
+            {include : "string"}]
+        }],
+
+        cdata : [
+            {token : "string.cdata.xml", regex : "\\]\\]>", next : "start"},
+            {token : "text.xml", regex : "\\s+"},
+            {token : "text.xml", regex : "(?:[^\\]]|\\](?!\\]>))+"}
+        ],
+
+        comment : [
+            {token : "comment.end.xml", regex : "-->", next : "start"},
+            {defaultToken : "comment.xml"}
+        ],
+
+        reference : [{
+            token : "constant.language.escape.reference.xml",
+            regex : "(?:&#[0-9]+;)|(?:&#x[0-9a-fA-F]+;)|(?:&[a-zA-Z0-9_:\\.-]+;)"
+        }],
+
+        attr_reference : [{
+            token : "constant.language.escape.reference.attribute-value.xml",
+            regex : "(?:&#[0-9]+;)|(?:&#x[0-9a-fA-F]+;)|(?:&[a-zA-Z0-9_:\\.-]+;)"
+        }],
+
+        tag : [{
+            token : ["meta.tag.punctuation.tag-open.xml", "meta.tag.punctuation.end-tag-open.xml", "meta.tag.tag-name.xml"],
+            regex : "(?:(<)|(</))((?:" + tagRegex + ":)?" + tagRegex + ")",
+            next: [
+                {include : "attributes"},
+                {token : "meta.tag.punctuation.tag-close.xml", regex : "/?>", next : "start"}
+            ]
+        }],
+
+        tag_whitespace : [
+            {token : "text.tag-whitespace.xml", regex : "\\s+"}
+        ],
+        whitespace : [
+            {token : "text.whitespace.xml", regex : "\\s+"}
+        ],
+        string: [{
+            token : "string.xml",
+            regex : "'",
+            push : [
+                {token : "string.xml", regex: "'", next: "pop"},
+                {defaultToken : "string.xml"}
+            ]
+        }, {
+            token : "string.xml",
+            regex : '"',
+            push : [
+                {token : "string.xml", regex: '"', next: "pop"},
+                {defaultToken : "string.xml"}
+            ]
+        }],
+
+        attributes: [{
+            token : "entity.other.attribute-name.xml",
+            regex : tagRegex
+        }, {
+            token : "keyword.operator.attribute-equals.xml",
+            regex : "="
+        }, {
+            include: "tag_whitespace"
+        }, {
+            include: "attribute_value"
+        }],
+
+        attribute_value: [{
+            token : "string.attribute-value.xml",
+            regex : "'",
+            push : [
+                {token : "string.attribute-value.xml", regex: "'", next: "pop"},
+                {include : "attr_reference"},
+                {defaultToken : "string.attribute-value.xml"}
+            ]
+        }, {
+            token : "string.attribute-value.xml",
+            regex : '"',
+            push : [
+                {token : "string.attribute-value.xml", regex: '"', next: "pop"},
+                {include : "attr_reference"},
+                {defaultToken : "string.attribute-value.xml"}
+            ]
+        }]
+    };
+
+    if (this.constructor === XmlHighlightRules)
+        this.normalizeRules();
+};
+
+
+(function() {
+
+    this.embedTagRules = function(HighlightRules, prefix, tag){
+        this.$rules.tag.unshift({
+            token : ["meta.tag.punctuation.tag-open.xml", "meta.tag." + tag + ".tag-name.xml"],
+            regex : "(<)(" + tag + "(?=\\s|>|$))",
+            next: [
+                {include : "attributes"},
+                {token : "meta.tag.punctuation.tag-close.xml", regex : "/?>", next : prefix + "start"}
+            ]
+        });
+
+        this.$rules[tag + "-end"] = [
+            {include : "attributes"},
+            {token : "meta.tag.punctuation.tag-close.xml", regex : "/?>",  next: "start",
+                onMatch : function(value, currentState, stack) {
+                    stack.splice(0);
+                    return this.token;
+            }}
+        ];
+
+        this.embedRules(HighlightRules, prefix, [{
+            token: ["meta.tag.punctuation.end-tag-open.xml", "meta.tag." + tag + ".tag-name.xml"],
+            regex : "(</)(" + tag + "(?=\\s|>|$))",
+            next: tag + "-end"
+        }, {
+            token: "string.cdata.xml",
+            regex : "<\\!\\[CDATA\\["
+        }, {
+            token: "string.cdata.xml",
+            regex : "\\]\\]>"
+        }]);
+    };
+
+}).call(TextHighlightRules.prototype);
+
+oop.inherits(XmlHighlightRules, TextHighlightRules);
+
+exports.XmlHighlightRules = XmlHighlightRules;
+});
+
+define("ace/mode/html_highlight_rules",["require","exports","module","ace/lib/oop","ace/lib/lang","ace/mode/css_highlight_rules","ace/mode/javascript_highlight_rules","ace/mode/xml_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var lang = require("../lib/lang");
+var CssHighlightRules = require("./css_highlight_rules").CssHighlightRules;
+var JavaScriptHighlightRules = require("./javascript_highlight_rules").JavaScriptHighlightRules;
+var XmlHighlightRules = require("./xml_highlight_rules").XmlHighlightRules;
+
+var tagMap = lang.createMap({
+    a           : 'anchor',
+    button 	    : 'form',
+    form        : 'form',
+    img         : 'image',
+    input       : 'form',
+    label       : 'form',
+    option      : 'form',
+    script      : 'script',
+    select      : 'form',
+    textarea    : 'form',
+    style       : 'style',
+    table       : 'table',
+    tbody       : 'table',
+    td          : 'table',
+    tfoot       : 'table',
+    th          : 'table',
+    tr          : 'table'
+});
+
+var HtmlHighlightRules = function() {
+    XmlHighlightRules.call(this);
+
+    this.addRules({
+        attributes: [{
+            include : "tag_whitespace"
+        }, {
+            token : "entity.other.attribute-name.xml",
+            regex : "[-_a-zA-Z0-9:.]+"
+        }, {
+            token : "keyword.operator.attribute-equals.xml",
+            regex : "=",
+            push : [{
+                include: "tag_whitespace"
+            }, {
+                token : "string.unquoted.attribute-value.html",
+                regex : "[^<>='\"`\\s]+",
+                next : "pop"
+            }, {
+                token : "empty",
+                regex : "",
+                next : "pop"
+            }]
+        }, {
+            include : "attribute_value"
+        }],
+        tag: [{
+            token : function(start, tag) {
+                var group = tagMap[tag];
+                return ["meta.tag.punctuation." + (start == "<" ? "" : "end-") + "tag-open.xml",
+                    "meta.tag" + (group ? "." + group : "") + ".tag-name.xml"];
+            },
+            regex : "(</?)([-_a-zA-Z0-9:.]+)",
+            next: "tag_stuff"
+        }],
+        tag_stuff: [
+            {include : "attributes"},
+            {token : "meta.tag.punctuation.tag-close.xml", regex : "/?>", next : "start"}
+        ]
+    });
+
+    this.embedTagRules(CssHighlightRules, "css-", "style");
+    this.embedTagRules(new JavaScriptHighlightRules({jsx: false}).getRules(), "js-", "script");
+
+    if (this.constructor === HtmlHighlightRules)
+        this.normalizeRules();
+};
+
+oop.inherits(HtmlHighlightRules, XmlHighlightRules);
+
+exports.HtmlHighlightRules = HtmlHighlightRules;
+});
+
+define("ace/mode/ftl_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/html_highlight_rules","ace/mode/text_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+
+var FtlLangHighlightRules = function () {
+
+    var stringBuiltIns = "\\?|substring|cap_first|uncap_first|capitalize|chop_linebreak|date|time|datetime|"
+        + "ends_with|html|groups|index_of|j_string|js_string|json_string|last_index_of|length|lower_case|"
+        + "left_pad|right_pad|contains|matches|number|replace|rtf|url|split|starts_with|string|trim|"
+        + "upper_case|word_list|xhtml|xml";
+    var numberBuiltIns = "c|round|floor|ceiling";
+    var dateBuiltIns = "iso_[a-z_]+";
+    var seqBuiltIns = "first|last|seq_contains|seq_index_of|seq_last_index_of|reverse|size|sort|sort_by|chunk";
+    var hashBuiltIns = "keys|values";
+    var xmlBuiltIns = "children|parent|root|ancestors|node_name|node_type|node_namespace";
+    var expertBuiltIns = "byte|double|float|int|long|short|number_to_date|number_to_time|number_to_datetime|"
+        + "eval|has_content|interpret|is_[a-z_]+|namespacenew";
+    var allBuiltIns = stringBuiltIns + numberBuiltIns + dateBuiltIns + seqBuiltIns + hashBuiltIns
+        + xmlBuiltIns + expertBuiltIns;
+
+    var deprecatedBuiltIns = "default|exists|if_exists|web_safe";
+
+    var variables = "data_model|error|globals|lang|locale|locals|main|namespace|node|current_node|"
+        + "now|output_encoding|template_name|url_escaping_charset|vars|version";
+
+    var operators = "gt|gte|lt|lte|as|in|using";
+
+    var reserved = "true|false";
+
+    var attributes = "encoding|parse|locale|number_format|date_format|time_format|datetime_format|time_zone|"
+        + "url_escaping_charset|classic_compatible|strip_whitespace|strip_text|strict_syntax|ns_prefixes|"
+        + "attributes";
+
+    this.$rules = {
+        "start" : [{
+            token : "constant.character.entity",
+            regex : /&[^;]+;/
+        }, {
+            token : "support.function",
+            regex : "\\?("+allBuiltIns+")"
+        },  {
+            token : "support.function.deprecated",
+            regex : "\\?("+deprecatedBuiltIns+")"
+        }, {
+            token : "language.variable",
+            regex : "\\.(?:"+variables+")"
+        }, {
+            token : "constant.language",
+            regex : "\\b("+reserved+")\\b"
+        }, {
+            token : "keyword.operator",
+            regex : "\\b(?:"+operators+")\\b"
+        }, {
+            token : "entity.other.attribute-name",
+            regex : attributes
+        }, {
+            token : "string", //
+            regex : /['"]/,
+            next : "qstring"
+        }, {
+            token : function(value) {
+                if (value.match("^[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?$")) {
+                    return "constant.numeric";
+                } else {
+                    return "variable";
+                }
+            },
+            regex : /[\w.+\-]+/
+        }, {
+            token : "keyword.operator",
+            regex : "!|\\.|\\$|%|&|\\*|\\-\\-|\\-|\\+\\+|\\+|~|===|==|=|!=|!==|<=|>=|<<=|>>=|>>>=|<>|<|>|&&|\\|\\||\\?\\:|\\*=|%=|\\+=|\\-=|&=|\\^="
+        }, {
+            token : "paren.lparen",
+            regex : "[[({]"
+        }, {
+            token : "paren.rparen",
+            regex : "[\\])}]"
+        }, {
+            token : "text",
+            regex : "\\s+"
+        }],
+
+        "qstring" : [{
+            token : "constant.character.escape",
+            regex : '\\\\[nrtvef\\\\"$]'
+        }, {
+            token : "string",
+            regex : /['"]/,
+            next : "start"
+        }, {
+            defaultToken : "string"
+        }]
+    };
+};
+
+oop.inherits(FtlLangHighlightRules, TextHighlightRules);
+
+var FtlHighlightRules = function() {
+    HtmlHighlightRules.call(this);
+
+    var directives = "assign|attempt|break|case|compress|default|elseif|else|escape|fallback|function|flush|"
+        + "ftl|global|if|import|include|list|local|lt|macro|nested|noescape|noparse|nt|recover|recurse|return|rt|"
+        + "setting|stop|switch|t|visit";
+
+    var startRules = [
+        {
+            token : "comment",
+            regex : "<#--",
+            next : "ftl-dcomment"
+        }, {
+            token : "string.interpolated",
+            regex : "\\${",
+            push  : "ftl-start"
+        }, {
+            token : "keyword.function",
+            regex :  "</?#("+directives+")",
+            push : "ftl-start"
+        }, {
+            token : "keyword.other",
+            regex : "</?@[a-zA-Z\\.]+",
+            push : "ftl-start"
+        }
+    ];
+
+    var endRules = [
+        {
+           token : "keyword",
+            regex : "/?>",
+            next  : "pop"
+        }, {
+            token : "string.interpolated",
+            regex : "}",
+            next  : "pop"
+        }
+    ];
+
+    for (var key in this.$rules)
+        this.$rules[key].unshift.apply(this.$rules[key], startRules);
+
+    this.embedRules(FtlLangHighlightRules, "ftl-", endRules, ["start"]);
+
+    this.addRules({
+        "ftl-dcomment" : [{
+            token : "comment",
+            regex : "-->",
+            next : "pop"
+        }, {
+            defaultToken : "comment"
+        }]
+    });
+
+    this.normalizeRules();
+};
+
+oop.inherits(FtlHighlightRules, HtmlHighlightRules);
+
+exports.FtlHighlightRules = FtlHighlightRules;
+});
+
+define("ace/mode/ftl",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/ftl_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var TextMode = require("./text").Mode;
+var FtlHighlightRules = require("./ftl_highlight_rules").FtlHighlightRules;
+
+var Mode = function() {
+    this.HighlightRules = FtlHighlightRules;
+    this.$behaviour = this.$defaultBehaviour;
+};
+oop.inherits(Mode, TextMode);
+
+(function() {
+
+    this.$id = "ace/mode/ftl";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+                (function() {
+                    window.require(["ace/mode/ftl"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
