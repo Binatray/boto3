@@ -1124,4 +1124,436 @@ var RubyHighlightRules = function() {
                     }
                     if (val == "}" && stack.length) {
                         stack.shift();
-   
+                        this.next = stack.shift();
+                        if (this.next.indexOf("string") != -1)
+                            return "paren.end";
+                    }
+                    return val == "{" ? "paren.lparen" : "paren.rparen";
+                },
+                nextState: "start"
+            }, {
+                token : "string.start",
+                regex : /"/,
+                push  : [{
+                    token : "constant.language.escape",
+                    regex : /\\(?:[nsrtvfbae'"\\]|c.|C-.|M-.(?:\\C-.)?|[0-7]{3}|x[\da-fA-F]{2}|u[\da-fA-F]{4})/
+                }, {
+                    token : "paren.start",
+                    regex : /#{/,
+                    push  : "start"
+                }, {
+                    token : "string.end",
+                    regex : /"/,
+                    next  : "pop"
+                }, {
+                    defaultToken: "string"
+                }]
+            }, {
+                token : "string.start",
+                regex : /`/,
+                push  : [{
+                    token : "constant.language.escape",
+                    regex : /\\(?:[nsrtvfbae'"\\]|c.|C-.|M-.(?:\\C-.)?|[0-7]{3}|x[\da-fA-F]{2}|u[\da-fA-F]{4})/
+                }, {
+                    token : "paren.start",
+                    regex : /#{/,
+                    push  : "start"
+                }, {
+                    token : "string.end",
+                    regex : /`/,
+                    next  : "pop"
+                }, {
+                    defaultToken: "string"
+                }]
+            }, {
+                token : "string.start",
+                regex : /'/,
+                push  : [{
+                    token : "constant.language.escape",
+                    regex : /\\['\\]/
+                },  {
+                    token : "string.end",
+                    regex : /'/,
+                    next  : "pop"
+                }, {
+                    defaultToken: "string"
+                }]
+            }],
+
+            {
+                token : "text", // namespaces aren't symbols
+                regex : "::"
+            }, {
+                token : "variable.instance", // instance variable
+                regex : "@{1,2}[a-zA-Z_\\d]+"
+            }, {
+                token : "support.class", // class name
+                regex : "[A-Z][a-zA-Z_\\d]+"
+            },
+
+            constantOtherSymbol,
+            constantNumericHex,
+            constantNumericFloat,
+
+            {
+                token : "constant.language.boolean",
+                regex : "(?:true|false)\\b"
+            }, {
+                token : keywordMapper,
+                regex : "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"
+            }, {
+                token : "punctuation.separator.key-value",
+                regex : "=>"
+            }, {
+                stateName: "heredoc",
+                onMatch : function(value, currentState, stack) {
+                    var next = value[2] == '-' ? "indentedHeredoc" : "heredoc";
+                    var tokens = value.split(this.splitRegex);
+                    stack.push(next, tokens[3]);
+                    return [
+                        {type:"constant", value: tokens[1]},
+                        {type:"string", value: tokens[2]},
+                        {type:"support.class", value: tokens[3]},
+                        {type:"string", value: tokens[4]}
+                    ];
+                },
+                regex : "(<<-?)(['\"`]?)([\\w]+)(['\"`]?)",
+                rules: {
+                    heredoc: [{
+                        onMatch:  function(value, currentState, stack) {
+                            if (value === stack[1]) {
+                                stack.shift();
+                                stack.shift();
+                                this.next = stack[0] || "start";
+                                return "support.class";
+                            }
+                            this.next = "";
+                            return "string";
+                        },
+                        regex: ".*$",
+                        next: "start"
+                    }],
+                    indentedHeredoc: [{
+                        token: "string",
+                        regex: "^ +"
+                    }, {
+                        onMatch:  function(value, currentState, stack) {
+                            if (value === stack[1]) {
+                                stack.shift();
+                                stack.shift();
+                                this.next = stack[0] || "start";
+                                return "support.class";
+                            }
+                            this.next = "";
+                            return "string";
+                        },
+                        regex: ".*$",
+                        next: "start"
+                    }]
+                }
+            }, {
+                regex : "$",
+                token : "empty",
+                next : function(currentState, stack) {
+                    if (stack[0] === "heredoc" || stack[0] === "indentedHeredoc")
+                        return stack[0];
+                    return currentState;
+                }
+            }, {
+               token : "string.character",
+               regex : "\\B\\?."
+            }, {
+                token : "keyword.operator",
+                regex : "!|\\$|%|&|\\*|\\-\\-|\\-|\\+\\+|\\+|~|===|==|=|!=|!==|<=|>=|<<=|>>=|>>>=|<>|<|>|!|&&|\\|\\||\\?\\:|\\*=|%=|\\+=|\\-=|&=|\\^=|\\b(?:in|instanceof|new|delete|typeof|void)"
+            }, {
+                token : "paren.lparen",
+                regex : "[[({]"
+            }, {
+                token : "paren.rparen",
+                regex : "[\\])}]"
+            }, {
+                token : "text",
+                regex : "\\s+"
+            }
+        ],
+        "comment" : [
+            {
+                token : "comment", // closing comment
+                regex : "^=end(?:$|\\s.*$)",
+                next : "start"
+            }, {
+                token : "comment", // comment spanning whole line
+                regex : ".+"
+            }
+        ]
+    };
+
+    this.normalizeRules();
+};
+
+oop.inherits(RubyHighlightRules, TextHighlightRules);
+
+exports.RubyHighlightRules = RubyHighlightRules;
+});
+
+define("ace/mode/haml_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/html_highlight_rules","ace/mode/ruby_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var RubyExports = require("./ruby_highlight_rules");
+var RubyHighlightRules = RubyExports.RubyHighlightRules;
+
+var HamlHighlightRules = function() {
+    HtmlHighlightRules.call(this);
+
+    this.$rules = {
+        "start": [
+            {
+                token: "comment.block", // multiline HTML comment
+                regex: /^\/$/,
+                next: "comment"
+            },
+            {
+                token: "comment.block", // multiline HAML comment
+                regex: /^\-#$/,
+                next: "comment"
+            },
+            {
+                token: "comment.line", // HTML comment
+                regex: /\/\s*.*/
+            },
+            {
+                token: "comment.line", // HAML comment
+                regex: /-#\s*.*/
+            },
+            {
+                token: "keyword.other.doctype",
+                regex: "^!!!\\s*(?:[a-zA-Z0-9-_]+)?"
+            },
+            RubyExports.qString,
+            RubyExports.qqString,
+            RubyExports.tString,
+            {
+                token: "meta.tag.haml",
+                regex: /(%[\w:\-]+)/
+            },
+            {
+                token: "keyword.attribute-name.class.haml",
+                regex: /\.[\w-]+/
+            },
+            {
+                token: "keyword.attribute-name.id.haml",
+                regex: /#[\w-]+/,
+                next: "element_class"
+            },
+            RubyExports.constantNumericHex,
+            RubyExports.constantNumericFloat,
+            RubyExports.constantOtherSymbol,
+            {
+                token: "text",
+                regex: /=|-|~/,
+                next: "embedded_ruby"
+            }
+        ],
+        "element_class": [
+            {
+                token: "keyword.attribute-name.class.haml",
+                regex: /\.[\w-]+/
+            },
+            {
+                token: "punctuation.section",
+                regex: /\{/,
+                next: "element_attributes"
+            },
+            RubyExports.constantOtherSymbol,
+            {
+                token: "empty",
+                regex: "$|(?!\\.|#|\\{|\\[|=|-|~|\\/])",
+                next: "start"
+            }
+        ],
+        "element_attributes": [
+            RubyExports.constantOtherSymbol,
+            RubyExports.qString,
+            RubyExports.qqString,
+            RubyExports.tString,
+            RubyExports.constantNumericHex,
+            RubyExports.constantNumericFloat,
+            {
+                token: "punctuation.section",
+                regex: /$|\}/,
+                next: "start"
+            }
+        ],
+        "embedded_ruby": [
+            RubyExports.constantNumericHex,
+            RubyExports.constantNumericFloat,
+            RubyExports.instanceVariable,
+            RubyExports.qString,
+            RubyExports.qqString,
+            RubyExports.tString,
+            {
+                token : "support.class", // class name
+                regex : "[A-Z][a-zA-Z_\\d]+"
+            },
+            {
+                token : new RubyHighlightRules().getKeywords(),
+                regex : "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"
+            },
+            {
+                token : ["keyword", "text", "text"],
+                regex : "(?:do|\\{)(?: \\|[^|]+\\|)?$",
+                next  : "start"
+            },
+            {
+                token : ["text"],
+                regex : "^$",
+                next  : "start"
+            },
+            {
+                token : ["text"],
+                regex : "^(?!.*\\|\\s*$)",
+                next  : "start"
+            }
+        ],
+        "comment": [
+            {
+                token: "comment.block",
+                regex: /^$/,
+                next: "start"
+            },
+            {
+                token: "comment.block", // comment spanning the whole line
+                regex: /\s+.*/
+            }
+        ]
+
+    };
+
+    this.normalizeRules();
+};
+
+oop.inherits(HamlHighlightRules, HtmlHighlightRules);
+
+exports.HamlHighlightRules = HamlHighlightRules;
+});
+
+define("ace/mode/folding/coffee",["require","exports","module","ace/lib/oop","ace/mode/folding/fold_mode","ace/range"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../../lib/oop");
+var BaseFoldMode = require("./fold_mode").FoldMode;
+var Range = require("../../range").Range;
+
+var FoldMode = exports.FoldMode = function() {};
+oop.inherits(FoldMode, BaseFoldMode);
+
+(function() {
+
+    this.getFoldWidgetRange = function(session, foldStyle, row) {
+        var range = this.indentationBlock(session, row);
+        if (range)
+            return range;
+
+        var re = /\S/;
+        var line = session.getLine(row);
+        var startLevel = line.search(re);
+        if (startLevel == -1 || line[startLevel] != "#")
+            return;
+
+        var startColumn = line.length;
+        var maxRow = session.getLength();
+        var startRow = row;
+        var endRow = row;
+
+        while (++row < maxRow) {
+            line = session.getLine(row);
+            var level = line.search(re);
+
+            if (level == -1)
+                continue;
+
+            if (line[level] != "#")
+                break;
+
+            endRow = row;
+        }
+
+        if (endRow > startRow) {
+            var endColumn = session.getLine(endRow).length;
+            return new Range(startRow, startColumn, endRow, endColumn);
+        }
+    };
+    this.getFoldWidget = function(session, foldStyle, row) {
+        var line = session.getLine(row);
+        var indent = line.search(/\S/);
+        var next = session.getLine(row + 1);
+        var prev = session.getLine(row - 1);
+        var prevIndent = prev.search(/\S/);
+        var nextIndent = next.search(/\S/);
+
+        if (indent == -1) {
+            session.foldWidgets[row - 1] = prevIndent!= -1 && prevIndent < nextIndent ? "start" : "";
+            return "";
+        }
+        if (prevIndent == -1) {
+            if (indent == nextIndent && line[indent] == "#" && next[indent] == "#") {
+                session.foldWidgets[row - 1] = "";
+                session.foldWidgets[row + 1] = "";
+                return "start";
+            }
+        } else if (prevIndent == indent && line[indent] == "#" && prev[indent] == "#") {
+            if (session.getLine(row - 2).search(/\S/) == -1) {
+                session.foldWidgets[row - 1] = "start";
+                session.foldWidgets[row + 1] = "";
+                return "";
+            }
+        }
+
+        if (prevIndent!= -1 && prevIndent < indent)
+            session.foldWidgets[row - 1] = "start";
+        else
+            session.foldWidgets[row - 1] = "";
+
+        if (indent < nextIndent)
+            return "start";
+        else
+            return "";
+    };
+
+}).call(FoldMode.prototype);
+
+});
+
+define("ace/mode/haml",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/haml_highlight_rules","ace/mode/folding/coffee"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var TextMode = require("./text").Mode;
+var HamlHighlightRules = require("./haml_highlight_rules").HamlHighlightRules;
+var FoldMode = require("./folding/coffee").FoldMode;
+
+var Mode = function() {
+    this.HighlightRules = HamlHighlightRules;
+    this.foldingRules = new FoldMode();
+    this.$behaviour = this.$defaultBehaviour;
+};
+oop.inherits(Mode, TextMode);
+
+(function() {
+    this.lineCommentStart = "//";
+    
+    this.$id = "ace/mode/haml";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+                (function() {
+                    window.require(["ace/mode/haml"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
