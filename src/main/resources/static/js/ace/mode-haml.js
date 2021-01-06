@@ -685,4 +685,443 @@ function JSX() {
             {defaultToken : "string.attribute-value.xml"}
         ]
     },
-  
+    jsxTag
+    ];
+    this.$rules.reference = [{
+        token : "constant.language.escape.reference.xml",
+        regex : "(?:&#[0-9]+;)|(?:&#x[0-9a-fA-F]+;)|(?:&[a-zA-Z0-9_:\\.-]+;)"
+    }];
+}
+
+function comments(next) {
+    return [
+        {
+            token : "comment", // multi line comment
+            regex : /\/\*/,
+            next: [
+                DocCommentHighlightRules.getTagRule(),
+                {token : "comment", regex : "\\*\\/", next : next || "pop"},
+                {defaultToken : "comment", caseInsensitive: true}
+            ]
+        }, {
+            token : "comment",
+            regex : "\\/\\/",
+            next: [
+                DocCommentHighlightRules.getTagRule(),
+                {token : "comment", regex : "$|^", next : next || "pop"},
+                {defaultToken : "comment", caseInsensitive: true}
+            ]
+        }
+    ];
+}
+exports.JavaScriptHighlightRules = JavaScriptHighlightRules;
+});
+
+define("ace/mode/xml_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+
+var XmlHighlightRules = function(normalize) {
+    var tagRegex = "[_:a-zA-Z\xc0-\uffff][-_:.a-zA-Z0-9\xc0-\uffff]*";
+
+    this.$rules = {
+        start : [
+            {token : "string.cdata.xml", regex : "<\\!\\[CDATA\\[", next : "cdata"},
+            {
+                token : ["punctuation.instruction.xml", "keyword.instruction.xml"],
+                regex : "(<\\?)(" + tagRegex + ")", next : "processing_instruction"
+            },
+            {token : "comment.start.xml", regex : "<\\!--", next : "comment"},
+            {
+                token : ["xml-pe.doctype.xml", "xml-pe.doctype.xml"],
+                regex : "(<\\!)(DOCTYPE)(?=[\\s])", next : "doctype", caseInsensitive: true
+            },
+            {include : "tag"},
+            {token : "text.end-tag-open.xml", regex: "</"},
+            {token : "text.tag-open.xml", regex: "<"},
+            {include : "reference"},
+            {defaultToken : "text.xml"}
+        ],
+
+        processing_instruction : [{
+            token : "entity.other.attribute-name.decl-attribute-name.xml",
+            regex : tagRegex
+        }, {
+            token : "keyword.operator.decl-attribute-equals.xml",
+            regex : "="
+        }, {
+            include: "whitespace"
+        }, {
+            include: "string"
+        }, {
+            token : "punctuation.xml-decl.xml",
+            regex : "\\?>",
+            next : "start"
+        }],
+
+        doctype : [
+            {include : "whitespace"},
+            {include : "string"},
+            {token : "xml-pe.doctype.xml", regex : ">", next : "start"},
+            {token : "xml-pe.xml", regex : "[-_a-zA-Z0-9:]+"},
+            {token : "punctuation.int-subset", regex : "\\[", push : "int_subset"}
+        ],
+
+        int_subset : [{
+            token : "text.xml",
+            regex : "\\s+"
+        }, {
+            token: "punctuation.int-subset.xml",
+            regex: "]",
+            next: "pop"
+        }, {
+            token : ["punctuation.markup-decl.xml", "keyword.markup-decl.xml"],
+            regex : "(<\\!)(" + tagRegex + ")",
+            push : [{
+                token : "text",
+                regex : "\\s+"
+            },
+            {
+                token : "punctuation.markup-decl.xml",
+                regex : ">",
+                next : "pop"
+            },
+            {include : "string"}]
+        }],
+
+        cdata : [
+            {token : "string.cdata.xml", regex : "\\]\\]>", next : "start"},
+            {token : "text.xml", regex : "\\s+"},
+            {token : "text.xml", regex : "(?:[^\\]]|\\](?!\\]>))+"}
+        ],
+
+        comment : [
+            {token : "comment.end.xml", regex : "-->", next : "start"},
+            {defaultToken : "comment.xml"}
+        ],
+
+        reference : [{
+            token : "constant.language.escape.reference.xml",
+            regex : "(?:&#[0-9]+;)|(?:&#x[0-9a-fA-F]+;)|(?:&[a-zA-Z0-9_:\\.-]+;)"
+        }],
+
+        attr_reference : [{
+            token : "constant.language.escape.reference.attribute-value.xml",
+            regex : "(?:&#[0-9]+;)|(?:&#x[0-9a-fA-F]+;)|(?:&[a-zA-Z0-9_:\\.-]+;)"
+        }],
+
+        tag : [{
+            token : ["meta.tag.punctuation.tag-open.xml", "meta.tag.punctuation.end-tag-open.xml", "meta.tag.tag-name.xml"],
+            regex : "(?:(<)|(</))((?:" + tagRegex + ":)?" + tagRegex + ")",
+            next: [
+                {include : "attributes"},
+                {token : "meta.tag.punctuation.tag-close.xml", regex : "/?>", next : "start"}
+            ]
+        }],
+
+        tag_whitespace : [
+            {token : "text.tag-whitespace.xml", regex : "\\s+"}
+        ],
+        whitespace : [
+            {token : "text.whitespace.xml", regex : "\\s+"}
+        ],
+        string: [{
+            token : "string.xml",
+            regex : "'",
+            push : [
+                {token : "string.xml", regex: "'", next: "pop"},
+                {defaultToken : "string.xml"}
+            ]
+        }, {
+            token : "string.xml",
+            regex : '"',
+            push : [
+                {token : "string.xml", regex: '"', next: "pop"},
+                {defaultToken : "string.xml"}
+            ]
+        }],
+
+        attributes: [{
+            token : "entity.other.attribute-name.xml",
+            regex : tagRegex
+        }, {
+            token : "keyword.operator.attribute-equals.xml",
+            regex : "="
+        }, {
+            include: "tag_whitespace"
+        }, {
+            include: "attribute_value"
+        }],
+
+        attribute_value: [{
+            token : "string.attribute-value.xml",
+            regex : "'",
+            push : [
+                {token : "string.attribute-value.xml", regex: "'", next: "pop"},
+                {include : "attr_reference"},
+                {defaultToken : "string.attribute-value.xml"}
+            ]
+        }, {
+            token : "string.attribute-value.xml",
+            regex : '"',
+            push : [
+                {token : "string.attribute-value.xml", regex: '"', next: "pop"},
+                {include : "attr_reference"},
+                {defaultToken : "string.attribute-value.xml"}
+            ]
+        }]
+    };
+
+    if (this.constructor === XmlHighlightRules)
+        this.normalizeRules();
+};
+
+
+(function() {
+
+    this.embedTagRules = function(HighlightRules, prefix, tag){
+        this.$rules.tag.unshift({
+            token : ["meta.tag.punctuation.tag-open.xml", "meta.tag." + tag + ".tag-name.xml"],
+            regex : "(<)(" + tag + "(?=\\s|>|$))",
+            next: [
+                {include : "attributes"},
+                {token : "meta.tag.punctuation.tag-close.xml", regex : "/?>", next : prefix + "start"}
+            ]
+        });
+
+        this.$rules[tag + "-end"] = [
+            {include : "attributes"},
+            {token : "meta.tag.punctuation.tag-close.xml", regex : "/?>",  next: "start",
+                onMatch : function(value, currentState, stack) {
+                    stack.splice(0);
+                    return this.token;
+            }}
+        ];
+
+        this.embedRules(HighlightRules, prefix, [{
+            token: ["meta.tag.punctuation.end-tag-open.xml", "meta.tag." + tag + ".tag-name.xml"],
+            regex : "(</)(" + tag + "(?=\\s|>|$))",
+            next: tag + "-end"
+        }, {
+            token: "string.cdata.xml",
+            regex : "<\\!\\[CDATA\\["
+        }, {
+            token: "string.cdata.xml",
+            regex : "\\]\\]>"
+        }]);
+    };
+
+}).call(TextHighlightRules.prototype);
+
+oop.inherits(XmlHighlightRules, TextHighlightRules);
+
+exports.XmlHighlightRules = XmlHighlightRules;
+});
+
+define("ace/mode/html_highlight_rules",["require","exports","module","ace/lib/oop","ace/lib/lang","ace/mode/css_highlight_rules","ace/mode/javascript_highlight_rules","ace/mode/xml_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var lang = require("../lib/lang");
+var CssHighlightRules = require("./css_highlight_rules").CssHighlightRules;
+var JavaScriptHighlightRules = require("./javascript_highlight_rules").JavaScriptHighlightRules;
+var XmlHighlightRules = require("./xml_highlight_rules").XmlHighlightRules;
+
+var tagMap = lang.createMap({
+    a           : 'anchor',
+    button 	    : 'form',
+    form        : 'form',
+    img         : 'image',
+    input       : 'form',
+    label       : 'form',
+    option      : 'form',
+    script      : 'script',
+    select      : 'form',
+    textarea    : 'form',
+    style       : 'style',
+    table       : 'table',
+    tbody       : 'table',
+    td          : 'table',
+    tfoot       : 'table',
+    th          : 'table',
+    tr          : 'table'
+});
+
+var HtmlHighlightRules = function() {
+    XmlHighlightRules.call(this);
+
+    this.addRules({
+        attributes: [{
+            include : "tag_whitespace"
+        }, {
+            token : "entity.other.attribute-name.xml",
+            regex : "[-_a-zA-Z0-9:.]+"
+        }, {
+            token : "keyword.operator.attribute-equals.xml",
+            regex : "=",
+            push : [{
+                include: "tag_whitespace"
+            }, {
+                token : "string.unquoted.attribute-value.html",
+                regex : "[^<>='\"`\\s]+",
+                next : "pop"
+            }, {
+                token : "empty",
+                regex : "",
+                next : "pop"
+            }]
+        }, {
+            include : "attribute_value"
+        }],
+        tag: [{
+            token : function(start, tag) {
+                var group = tagMap[tag];
+                return ["meta.tag.punctuation." + (start == "<" ? "" : "end-") + "tag-open.xml",
+                    "meta.tag" + (group ? "." + group : "") + ".tag-name.xml"];
+            },
+            regex : "(</?)([-_a-zA-Z0-9:.]+)",
+            next: "tag_stuff"
+        }],
+        tag_stuff: [
+            {include : "attributes"},
+            {token : "meta.tag.punctuation.tag-close.xml", regex : "/?>", next : "start"}
+        ]
+    });
+
+    this.embedTagRules(CssHighlightRules, "css-", "style");
+    this.embedTagRules(new JavaScriptHighlightRules({jsx: false}).getRules(), "js-", "script");
+
+    if (this.constructor === HtmlHighlightRules)
+        this.normalizeRules();
+};
+
+oop.inherits(HtmlHighlightRules, XmlHighlightRules);
+
+exports.HtmlHighlightRules = HtmlHighlightRules;
+});
+
+define("ace/mode/ruby_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var constantOtherSymbol = exports.constantOtherSymbol = {
+    token : "constant.other.symbol.ruby", // symbol
+    regex : "[:](?:[A-Za-z_]|[@$](?=[a-zA-Z0-9_]))[a-zA-Z0-9_]*[!=?]?"
+};
+
+var qString = exports.qString = {
+    token : "string", // single line
+    regex : "['](?:(?:\\\\.)|(?:[^'\\\\]))*?[']"
+};
+
+var qqString = exports.qqString = {
+    token : "string", // single line
+    regex : '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]'
+};
+
+var tString = exports.tString = {
+    token : "string", // backtick string
+    regex : "[`](?:(?:\\\\.)|(?:[^'\\\\]))*?[`]"
+};
+
+var constantNumericHex = exports.constantNumericHex = {
+    token : "constant.numeric", // hex
+    regex : "0[xX][0-9a-fA-F](?:[0-9a-fA-F]|_(?=[0-9a-fA-F]))*\\b"
+};
+
+var constantNumericFloat = exports.constantNumericFloat = {
+    token : "constant.numeric", // float
+    regex : "[+-]?\\d(?:\\d|_(?=\\d))*(?:(?:\\.\\d(?:\\d|_(?=\\d))*)?(?:[eE][+-]?\\d+)?)?\\b"
+};
+
+var instanceVariable = exports.instanceVariable = {
+    token : "variable.instance", // instance variable
+    regex : "@{1,2}[a-zA-Z_\\d]+"
+};
+
+var RubyHighlightRules = function() {
+
+    var builtinFunctions = (
+        "abort|Array|assert|assert_equal|assert_not_equal|assert_same|assert_not_same|" +
+        "assert_nil|assert_not_nil|assert_match|assert_no_match|assert_in_delta|assert_throws|" +
+        "assert_raise|assert_nothing_raised|assert_instance_of|assert_kind_of|assert_respond_to|" +
+        "assert_operator|assert_send|assert_difference|assert_no_difference|assert_recognizes|" +
+        "assert_generates|assert_response|assert_redirected_to|assert_template|assert_select|" +
+        "assert_select_email|assert_select_rjs|assert_select_encoded|css_select|at_exit|" +
+        "attr|attr_writer|attr_reader|attr_accessor|attr_accessible|autoload|binding|block_given?|callcc|" +
+        "caller|catch|chomp|chomp!|chop|chop!|defined?|delete_via_redirect|eval|exec|exit|" +
+        "exit!|fail|Float|flunk|follow_redirect!|fork|form_for|form_tag|format|gets|global_variables|gsub|" +
+        "gsub!|get_via_redirect|host!|https?|https!|include|Integer|lambda|link_to|" +
+        "link_to_unless_current|link_to_function|link_to_remote|load|local_variables|loop|open|open_session|" +
+        "p|print|printf|proc|putc|puts|post_via_redirect|put_via_redirect|raise|rand|" +
+        "raw|readline|readlines|redirect?|request_via_redirect|require|scan|select|" +
+        "set_trace_func|sleep|split|sprintf|srand|String|stylesheet_link_tag|syscall|system|sub|sub!|test|" +
+        "throw|trace_var|trap|untrace_var|atan2|cos|exp|frexp|ldexp|log|log10|sin|sqrt|tan|" +
+        "render|javascript_include_tag|csrf_meta_tag|label_tag|text_field_tag|submit_tag|check_box_tag|" +
+        "content_tag|radio_button_tag|text_area_tag|password_field_tag|hidden_field_tag|" +
+        "fields_for|select_tag|options_for_select|options_from_collection_for_select|collection_select|" +
+        "time_zone_select|select_date|select_time|select_datetime|date_select|time_select|datetime_select|" +
+        "select_year|select_month|select_day|select_hour|select_minute|select_second|file_field_tag|" +
+        "file_field|respond_to|skip_before_filter|around_filter|after_filter|verify|" +
+        "protect_from_forgery|rescue_from|helper_method|redirect_to|before_filter|" +
+        "send_data|send_file|validates_presence_of|validates_uniqueness_of|validates_length_of|" +
+        "validates_format_of|validates_acceptance_of|validates_associated|validates_exclusion_of|" +
+        "validates_inclusion_of|validates_numericality_of|validates_with|validates_each|" +
+        "authenticate_or_request_with_http_basic|authenticate_or_request_with_http_digest|" +
+        "filter_parameter_logging|match|get|post|resources|redirect|scope|assert_routing|" +
+        "translate|localize|extract_locale_from_tld|caches_page|expire_page|caches_action|expire_action|" +
+        "cache|expire_fragment|expire_cache_for|observe|cache_sweeper|" +
+        "has_many|has_one|belongs_to|has_and_belongs_to_many"
+    );
+
+    var keywords = (
+        "alias|and|BEGIN|begin|break|case|class|def|defined|do|else|elsif|END|end|ensure|" +
+        "__FILE__|finally|for|gem|if|in|__LINE__|module|next|not|or|private|protected|public|" +
+        "redo|rescue|retry|return|super|then|undef|unless|until|when|while|yield"
+    );
+
+    var buildinConstants = (
+        "true|TRUE|false|FALSE|nil|NIL|ARGF|ARGV|DATA|ENV|RUBY_PLATFORM|RUBY_RELEASE_DATE|" +
+        "RUBY_VERSION|STDERR|STDIN|STDOUT|TOPLEVEL_BINDING"
+    );
+
+    var builtinVariables = (
+        "$DEBUG|$defout|$FILENAME|$LOAD_PATH|$SAFE|$stdin|$stdout|$stderr|$VERBOSE|" +
+        "$!|root_url|flash|session|cookies|params|request|response|logger|self"
+    );
+
+    var keywordMapper = this.$keywords = this.createKeywordMapper({
+        "keyword": keywords,
+        "constant.language": buildinConstants,
+        "variable.language": builtinVariables,
+        "support.function": builtinFunctions,
+        "invalid.deprecated": "debugger" // TODO is this a remnant from js mode?
+    }, "identifier");
+
+    this.$rules = {
+        "start" : [
+            {
+                token : "comment",
+                regex : "#.*$"
+            }, {
+                token : "comment", // multi line comment
+                regex : "^=begin(?:$|\\s.*$)",
+                next : "comment"
+            }, {
+                token : "string.regexp",
+                regex : "[/](?:(?:\\[(?:\\\\]|[^\\]])+\\])|(?:\\\\/|[^\\]/]))*[/]\\w*\\s*(?=[).,;]|$)"
+            },
+
+            [{
+                regex: "[{}]", onMatch: function(val, state, stack) {
+                    this.next = val == "{" ? this.nextState : "";
+                    if (val == "{" && stack.length) {
+                        stack.unshift("start", state);
+                        return "paren.lparen";
+                    }
+                    if (val == "}" && stack.length) {
+                        stack.shift();
+   
