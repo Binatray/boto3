@@ -2383,3 +2383,243 @@ var HtmlCompletions = function() {
         return attributes.map(function(attribute){
             return {
                 caption: attribute,
+                snippet: attribute + '="$0"',
+                meta: "attribute",
+                score: 1000000
+            };
+        });
+    };
+
+    this.getAttributeValueCompletions = function(state, session, pos, prefix) {
+        var tagName = findTagName(session, pos);
+        var attributeName = findAttributeName(session, pos);
+        
+        if (!tagName)
+            return [];
+        var values = [];
+        if (tagName in attributeMap && attributeName in attributeMap[tagName] && typeof attributeMap[tagName][attributeName] === "object") {
+            values = Object.keys(attributeMap[tagName][attributeName]);
+        }
+        return values.map(function(value){
+            return {
+                caption: value,
+                snippet: value,
+                meta: "attribute value",
+                score: 1000000
+            };
+        });
+    };
+
+    this.getHTMLEntityCompletions = function(state, session, pos, prefix) {
+        var values = ['Aacute;', 'aacute;', 'Acirc;', 'acirc;', 'acute;', 'AElig;', 'aelig;', 'Agrave;', 'agrave;', 'alefsym;', 'Alpha;', 'alpha;', 'amp;', 'and;', 'ang;', 'Aring;', 'aring;', 'asymp;', 'Atilde;', 'atilde;', 'Auml;', 'auml;', 'bdquo;', 'Beta;', 'beta;', 'brvbar;', 'bull;', 'cap;', 'Ccedil;', 'ccedil;', 'cedil;', 'cent;', 'Chi;', 'chi;', 'circ;', 'clubs;', 'cong;', 'copy;', 'crarr;', 'cup;', 'curren;', 'Dagger;', 'dagger;', 'dArr;', 'darr;', 'deg;', 'Delta;', 'delta;', 'diams;', 'divide;', 'Eacute;', 'eacute;', 'Ecirc;', 'ecirc;', 'Egrave;', 'egrave;', 'empty;', 'emsp;', 'ensp;', 'Epsilon;', 'epsilon;', 'equiv;', 'Eta;', 'eta;', 'ETH;', 'eth;', 'Euml;', 'euml;', 'euro;', 'exist;', 'fnof;', 'forall;', 'frac12;', 'frac14;', 'frac34;', 'frasl;', 'Gamma;', 'gamma;', 'ge;', 'gt;', 'hArr;', 'harr;', 'hearts;', 'hellip;', 'Iacute;', 'iacute;', 'Icirc;', 'icirc;', 'iexcl;', 'Igrave;', 'igrave;', 'image;', 'infin;', 'int;', 'Iota;', 'iota;', 'iquest;', 'isin;', 'Iuml;', 'iuml;', 'Kappa;', 'kappa;', 'Lambda;', 'lambda;', 'lang;', 'laquo;', 'lArr;', 'larr;', 'lceil;', 'ldquo;', 'le;', 'lfloor;', 'lowast;', 'loz;', 'lrm;', 'lsaquo;', 'lsquo;', 'lt;', 'macr;', 'mdash;', 'micro;', 'middot;', 'minus;', 'Mu;', 'mu;', 'nabla;', 'nbsp;', 'ndash;', 'ne;', 'ni;', 'not;', 'notin;', 'nsub;', 'Ntilde;', 'ntilde;', 'Nu;', 'nu;', 'Oacute;', 'oacute;', 'Ocirc;', 'ocirc;', 'OElig;', 'oelig;', 'Ograve;', 'ograve;', 'oline;', 'Omega;', 'omega;', 'Omicron;', 'omicron;', 'oplus;', 'or;', 'ordf;', 'ordm;', 'Oslash;', 'oslash;', 'Otilde;', 'otilde;', 'otimes;', 'Ouml;', 'ouml;', 'para;', 'part;', 'permil;', 'perp;', 'Phi;', 'phi;', 'Pi;', 'pi;', 'piv;', 'plusmn;', 'pound;', 'Prime;', 'prime;', 'prod;', 'prop;', 'Psi;', 'psi;', 'quot;', 'radic;', 'rang;', 'raquo;', 'rArr;', 'rarr;', 'rceil;', 'rdquo;', 'real;', 'reg;', 'rfloor;', 'Rho;', 'rho;', 'rlm;', 'rsaquo;', 'rsquo;', 'sbquo;', 'Scaron;', 'scaron;', 'sdot;', 'sect;', 'shy;', 'Sigma;', 'sigma;', 'sigmaf;', 'sim;', 'spades;', 'sub;', 'sube;', 'sum;', 'sup;', 'sup1;', 'sup2;', 'sup3;', 'supe;', 'szlig;', 'Tau;', 'tau;', 'there4;', 'Theta;', 'theta;', 'thetasym;', 'thinsp;', 'THORN;', 'thorn;', 'tilde;', 'times;', 'trade;', 'Uacute;', 'uacute;', 'uArr;', 'uarr;', 'Ucirc;', 'ucirc;', 'Ugrave;', 'ugrave;', 'uml;', 'upsih;', 'Upsilon;', 'upsilon;', 'Uuml;', 'uuml;', 'weierp;', 'Xi;', 'xi;', 'Yacute;', 'yacute;', 'yen;', 'Yuml;', 'yuml;', 'Zeta;', 'zeta;', 'zwj;', 'zwnj;'];
+
+        return values.map(function(value){
+            return {
+                caption: value,
+                snippet: value,
+                meta: "html entity",
+                score: 1000000
+            };
+        });
+    };
+
+}).call(HtmlCompletions.prototype);
+
+exports.HtmlCompletions = HtmlCompletions;
+});
+
+define("ace/mode/html",["require","exports","module","ace/lib/oop","ace/lib/lang","ace/mode/text","ace/mode/javascript","ace/mode/css","ace/mode/html_highlight_rules","ace/mode/behaviour/xml","ace/mode/folding/html","ace/mode/html_completions","ace/worker/worker_client"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var lang = require("../lib/lang");
+var TextMode = require("./text").Mode;
+var JavaScriptMode = require("./javascript").Mode;
+var CssMode = require("./css").Mode;
+var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var XmlBehaviour = require("./behaviour/xml").XmlBehaviour;
+var HtmlFoldMode = require("./folding/html").FoldMode;
+var HtmlCompletions = require("./html_completions").HtmlCompletions;
+var WorkerClient = require("../worker/worker_client").WorkerClient;
+var voidElements = ["area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "meta", "menuitem", "param", "source", "track", "wbr"];
+var optionalEndTags = ["li", "dt", "dd", "p", "rt", "rp", "optgroup", "option", "colgroup", "td", "th"];
+
+var Mode = function(options) {
+    this.fragmentContext = options && options.fragmentContext;
+    this.HighlightRules = HtmlHighlightRules;
+    this.$behaviour = new XmlBehaviour();
+    this.$completer = new HtmlCompletions();
+    
+    this.createModeDelegates({
+        "js-": JavaScriptMode,
+        "css-": CssMode
+    });
+    
+    this.foldingRules = new HtmlFoldMode(this.voidElements, lang.arrayToMap(optionalEndTags));
+};
+oop.inherits(Mode, TextMode);
+
+(function() {
+
+    this.blockComment = {start: "<!--", end: "-->"};
+
+    this.voidElements = lang.arrayToMap(voidElements);
+
+    this.getNextLineIndent = function(state, line, tab) {
+        return this.$getIndent(line);
+    };
+
+    this.checkOutdent = function(state, line, input) {
+        return false;
+    };
+
+    this.getCompletions = function(state, session, pos, prefix) {
+        return this.$completer.getCompletions(state, session, pos, prefix);
+    };
+
+    this.createWorker = function(session) {
+        if (this.constructor != Mode)
+            return;
+        var worker = new WorkerClient(["ace"], "ace/mode/html_worker", "Worker");
+        worker.attachToDocument(session.getDocument());
+
+        if (this.fragmentContext)
+            worker.call("setOptions", [{context: this.fragmentContext}]);
+
+        worker.on("error", function(e) {
+            session.setAnnotations(e.data);
+        });
+
+        worker.on("terminate", function() {
+            session.clearAnnotations();
+        });
+
+        return worker;
+    };
+
+    this.$id = "ace/mode/html";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+
+define("ace/mode/handlebars_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/html_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+
+function pop2(currentState, stack) {
+    stack.splice(0, 3);
+    return stack.shift() || "start";
+}
+var HandlebarsHighlightRules = function() {
+    HtmlHighlightRules.call(this);
+    var hbs = {
+        regex : "(?={{)",
+        push : "handlebars"
+    };
+    for (var key in this.$rules) {
+        this.$rules[key].unshift(hbs);
+    }
+    this.$rules.handlebars = [{
+        token : "comment.start",
+        regex : "{{!--",
+        push : [{
+            token : "comment.end",
+            regex : "--}}",
+            next : pop2
+        }, {
+            defaultToken : "comment"
+        }]
+    }, {
+        token : "comment.start",
+        regex : "{{!",
+        push : [{
+            token : "comment.end",
+            regex : "}}",
+            next : pop2
+        }, {
+            defaultToken : "comment"
+        }]
+    }, {
+        token : "support.function", // unescaped variable
+        regex : "{{{",
+        push : [{
+            token : "support.function",
+            regex : "}}}",
+            next : pop2
+        }, {
+            token : "variable.parameter",
+            regex : "[a-zA-Z_$][a-zA-Z0-9_$]*"
+        }]
+    }, {
+        token : "storage.type.start", // begin section
+        regex : "{{[#\\^/&]?",
+        push : [{
+            token : "storage.type.end",
+            regex : "}}",
+            next : pop2
+        }, {
+            token : "variable.parameter",
+            regex : "[a-zA-Z_$][a-zA-Z0-9_$]*"
+        }]
+    }];
+
+    this.normalizeRules();
+};
+
+oop.inherits(HandlebarsHighlightRules, HtmlHighlightRules);
+
+exports.HandlebarsHighlightRules = HandlebarsHighlightRules;
+});
+
+define("ace/mode/behaviour/html",["require","exports","module","ace/lib/oop","ace/mode/behaviour/xml"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../../lib/oop");
+var XmlBehaviour = require("../behaviour/xml").XmlBehaviour;
+
+var HtmlBehaviour = function () {
+
+    XmlBehaviour.call(this);
+
+};
+
+oop.inherits(HtmlBehaviour, XmlBehaviour);
+
+exports.HtmlBehaviour = HtmlBehaviour;
+});
+
+define("ace/mode/handlebars",["require","exports","module","ace/lib/oop","ace/mode/html","ace/mode/handlebars_highlight_rules","ace/mode/behaviour/html","ace/mode/folding/html"], function(require, exports, module) {
+  "use strict";
+
+var oop = require("../lib/oop");
+var HtmlMode = require("./html").Mode;
+var HandlebarsHighlightRules = require("./handlebars_highlight_rules").HandlebarsHighlightRules;
+var HtmlBehaviour = require("./behaviour/html").HtmlBehaviour;
+var HtmlFoldMode = require("./folding/html").FoldMode;
+
+var Mode = function() {
+    HtmlMode.call(this);
+    this.HighlightRules = HandlebarsHighlightRules;
+    this.$behaviour = new HtmlBehaviour();
+};
+
+oop.inherits(Mode, HtmlMode);
+
+(function() {
+    this.blockComment = {start: "{{!--", end: "--}}"};
+    this.$id = "ace/mode/handlebars";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+                (function() {
+                    window.require(["ace/mode/handlebars"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
