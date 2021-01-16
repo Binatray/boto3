@@ -347,4 +347,34 @@ oop.inherits(FoldMode, BaseFoldMode);
 
 });
 
-define("
+define("ace/mode/haskell",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/haskell_highlight_rules","ace/mode/folding/cstyle"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var TextMode = require("./text").Mode;
+var HaskellHighlightRules = require("./haskell_highlight_rules").HaskellHighlightRules;
+var FoldMode = require("./folding/cstyle").FoldMode;
+
+var Mode = function() {
+    this.HighlightRules = HaskellHighlightRules;
+    this.foldingRules = new FoldMode();
+    this.$behaviour = this.$defaultBehaviour;
+};
+oop.inherits(Mode, TextMode);
+
+(function() {
+    this.lineCommentStart = "--";
+    this.blockComment = null;
+    this.$id = "ace/mode/haskell";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+                (function() {
+                    window.require(["ace/mode/haskell"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
