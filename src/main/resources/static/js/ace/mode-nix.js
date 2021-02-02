@@ -436,4 +436,212 @@ var CStyleFoldMode = require("./folding/cstyle").FoldMode;
 var Mode = function() {
     this.HighlightRules = c_cppHighlightRules;
 
-    this.$outdent = new MatchingBraceOut
+    this.$outdent = new MatchingBraceOutdent();
+    this.$behaviour = new CstyleBehaviour();
+
+    this.foldingRules = new CStyleFoldMode();
+};
+oop.inherits(Mode, TextMode);
+
+(function() {
+
+    this.lineCommentStart = "//";
+    this.blockComment = {start: "/*", end: "*/"};
+
+    this.getNextLineIndent = function(state, line, tab) {
+        var indent = this.$getIndent(line);
+
+        var tokenizedLine = this.getTokenizer().getLineTokens(line, state);
+        var tokens = tokenizedLine.tokens;
+        var endState = tokenizedLine.state;
+
+        if (tokens.length && tokens[tokens.length-1].type == "comment") {
+            return indent;
+        }
+
+        if (state == "start") {
+            var match = line.match(/^.*[\{\(\[]\s*$/);
+            if (match) {
+                indent += tab;
+            }
+        } else if (state == "doc-start") {
+            if (endState == "start") {
+                return "";
+            }
+            var match = line.match(/^\s*(\/?)\*/);
+            if (match) {
+                if (match[1]) {
+                    indent += " ";
+                }
+                indent += "* ";
+            }
+        }
+
+        return indent;
+    };
+
+    this.checkOutdent = function(state, line, input) {
+        return this.$outdent.checkOutdent(line, input);
+    };
+
+    this.autoOutdent = function(state, doc, row) {
+        this.$outdent.autoOutdent(doc, row);
+    };
+
+    this.$id = "ace/mode/c_cpp";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+
+define("ace/mode/nix_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+    "use strict";
+
+    var oop = require("../lib/oop");
+    var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+
+    var NixHighlightRules = function() {
+
+        var constantLanguage = "true|false";
+        var keywordControl = "with|import|if|else|then|inherit";
+        var keywordDeclaration = "let|in|rec";
+
+        var keywordMapper = this.createKeywordMapper({
+            "constant.language.nix": constantLanguage,
+            "keyword.control.nix": keywordControl,
+            "keyword.declaration.nix": keywordDeclaration
+        }, "identifier");
+
+        this.$rules = {
+            "start": [{
+                    token: "comment",
+                    regex: /#.*$/
+                }, {
+                    token: "comment",
+                    regex: /\/\*/,
+                    next: "comment"
+                }, {
+                    token: "constant",
+                    regex: "<[^>]+>"
+                }, {
+                    regex: "(==|!=|<=?|>=?)",
+                    token: ["keyword.operator.comparison.nix"]
+                }, {
+                    regex: "((?:[+*/%-]|\\~)=)",
+                    token: ["keyword.operator.assignment.arithmetic.nix"]
+                }, {
+                    regex: "=",
+                    token: "keyword.operator.assignment.nix"
+                }, {
+                    token: "string",
+                    regex: "''",
+                    next: "qqdoc"
+                }, {
+                    token: "string",
+                    regex: "'",
+                    next: "qstring"
+                }, {
+                    token: "string",
+                    regex: '"',
+                    push: "qqstring"
+                }, {
+                    token: "constant.numeric", // hex
+                    regex: "0[xX][0-9a-fA-F]+\\b"
+                }, {
+                    token: "constant.numeric", // float
+                    regex: "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"
+                }, {
+                    token: keywordMapper,
+                    regex: "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"
+                }, {
+                    regex: "}",
+                    token: function(val, start, stack) {
+                        return stack[1] && stack[1].charAt(0) == "q" ? "constant.language.escape" : "text";
+                    },
+                    next: "pop"
+                }],
+            "comment": [{
+                token: "comment", // closing comment
+                regex: "\\*\\/",
+                next: "start"
+            }, {
+                defaultToken: "comment"
+            }],
+            "qqdoc": [
+                {
+                    token: "constant.language.escape",
+                    regex: /\$\{/,
+                    push: "start"
+                }, {
+                    token: "string",
+                    regex: "''",
+                    next: "pop"
+                }, {
+                    defaultToken: "string"
+                }],
+            "qqstring": [
+                {
+                    token: "constant.language.escape",
+                    regex: /\$\{/,
+                    push: "start"
+                }, {
+                    token: "string",
+                    regex: '"',
+                    next: "pop"
+                }, {
+                    defaultToken: "string"
+                }],
+            "qstring": [
+                {
+                    token: "constant.language.escape",
+                    regex: /\$\{/,
+                    push: "start"
+                }, {
+                    token: "string",
+                    regex: "'",
+                    next: "pop"
+                }, {
+                    defaultToken: "string"
+                }]
+        };
+
+        this.normalizeRules();
+    };
+
+    oop.inherits(NixHighlightRules, TextHighlightRules);
+
+    exports.NixHighlightRules = NixHighlightRules;
+});
+
+define("ace/mode/nix",["require","exports","module","ace/lib/oop","ace/mode/c_cpp","ace/mode/nix_highlight_rules","ace/mode/folding/cstyle"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var CMode = require("./c_cpp").Mode;
+var NixHighlightRules = require("./nix_highlight_rules").NixHighlightRules;
+var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+
+var Mode = function() {
+    CMode.call(this);
+    this.HighlightRules = NixHighlightRules;
+    this.foldingRules = new CStyleFoldMode();
+    this.$behaviour = this.$defaultBehaviour;
+};
+oop.inherits(Mode, CMode);
+
+(function() { 
+    this.lineCommentStart = "#";
+    this.blockComment = {start: "/*", end: "*/"};
+    this.$id = "ace/mode/nix";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+                (function() {
+                    window.require(["ace/mode/nix"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
