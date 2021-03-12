@@ -1903,4 +1903,400 @@ sql_regcase'.split('|')
                 regex : "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"
             }, {
                 token : "constant.language", // constants
-                rege
+                regex : "\\b(?:DEFAULT_INCLUDE_PATH|E_(?:ALL|CO(?:MPILE_(?:ERROR|WARNING)|RE_(?:ERROR|WARNING))|" +
+                        "ERROR|NOTICE|PARSE|STRICT|USER_(?:ERROR|NOTICE|WARNING)|WARNING)|P(?:EAR_(?:EXTENSION_DIR|INSTALL_DIR)|" +
+                        "HP_(?:BINDIR|CONFIG_FILE_(?:PATH|SCAN_DIR)|DATADIR|E(?:OL|XTENSION_DIR)|INT_(?:MAX|SIZE)|" +
+                        "L(?:IBDIR|OCALSTATEDIR)|O(?:S|UTPUT_HANDLER_(?:CONT|END|START))|PREFIX|S(?:API|HLIB_SUFFIX|YSCONFDIR)|" +
+                        "VERSION))|__COMPILER_HALT_OFFSET__)\\b"
+            }, {
+                token : ["keyword", "text", "support.class"],
+                regex : "\\b(new)(\\s+)(\\w+)"
+            }, {
+                token : ["support.class", "keyword.operator"],
+                regex : "\\b(\\w+)(::)"
+            }, {
+                token : "constant.language", // constants
+                regex : "\\b(?:A(?:B(?:DAY_(?:1|2|3|4|5|6|7)|MON_(?:1(?:0|1|2|)|2|3|4|5|6|7|8|9))|LT_DIGITS|M_STR|" +
+                        "SSERT_(?:ACTIVE|BAIL|CALLBACK|QUIET_EVAL|WARNING))|C(?:ASE_(?:LOWER|UPPER)|HAR_MAX|" +
+                        "O(?:DESET|NNECTION_(?:ABORTED|NORMAL|TIMEOUT)|UNT_(?:NORMAL|RECURSIVE))|" +
+                        "R(?:EDITS_(?:ALL|DOCS|FULLPAGE|G(?:ENERAL|ROUP)|MODULES|QA|SAPI)|NCYSTR|" +
+                        "YPT_(?:BLOWFISH|EXT_DES|MD5|S(?:ALT_LENGTH|TD_DES)))|URRENCY_SYMBOL)|D(?:AY_(?:1|2|3|4|5|6|7)|" +
+                        "ECIMAL_POINT|IRECTORY_SEPARATOR|_(?:FMT|T_FMT))|E(?:NT_(?:COMPAT|NOQUOTES|QUOTES)|RA(?:_(?:D_(?:FMT|T_FMT)|" +
+                        "T_FMT|YEAR)|)|XTR_(?:IF_EXISTS|OVERWRITE|PREFIX_(?:ALL|I(?:F_EXISTS|NVALID)|SAME)|SKIP))|FRAC_DIGITS|GROUPING|" +
+                        "HTML_(?:ENTITIES|SPECIALCHARS)|IN(?:FO_(?:ALL|C(?:ONFIGURATION|REDITS)|ENVIRONMENT|GENERAL|LICENSE|MODULES|VARIABLES)|" +
+                        "I_(?:ALL|PERDIR|SYSTEM|USER)|T_(?:CURR_SYMBOL|FRAC_DIGITS))|L(?:C_(?:ALL|C(?:OLLATE|TYPE)|M(?:ESSAGES|ONETARY)|NUMERIC|TIME)|" +
+                        "O(?:CK_(?:EX|NB|SH|UN)|G_(?:A(?:LERT|UTH(?:PRIV|))|C(?:ONS|R(?:IT|ON))|D(?:AEMON|EBUG)|E(?:MERG|RR)|INFO|KERN|" +
+                        "L(?:OCAL(?:0|1|2|3|4|5|6|7)|PR)|MAIL|N(?:DELAY|EWS|O(?:TICE|WAIT))|ODELAY|P(?:ERROR|ID)|SYSLOG|U(?:SER|UCP)|WARNING)))|" +
+                        "M(?:ON_(?:1(?:0|1|2|)|2|3|4|5|6|7|8|9|DECIMAL_POINT|GROUPING|THOUSANDS_SEP)|_(?:1_PI|2_(?:PI|SQRTPI)|E|L(?:N(?:10|2)|" +
+                        "OG(?:10E|2E))|PI(?:_(?:2|4)|)|SQRT(?:1_2|2)))|N(?:EGATIVE_SIGN|O(?:EXPR|STR)|_(?:CS_PRECEDES|S(?:EP_BY_SPACE|IGN_POSN)))|" +
+                        "P(?:ATH(?:INFO_(?:BASENAME|DIRNAME|EXTENSION)|_SEPARATOR)|M_STR|OSITIVE_SIGN|_(?:CS_PRECEDES|S(?:EP_BY_SPACE|IGN_POSN)))|" +
+                        "RADIXCHAR|S(?:EEK_(?:CUR|END|SET)|ORT_(?:ASC|DESC|NUMERIC|REGULAR|STRING)|TR_PAD_(?:BOTH|LEFT|RIGHT))|" +
+                        "T(?:HOUS(?:ANDS_SEP|EP)|_FMT(?:_AMPM|))|YES(?:EXPR|STR)|STD(?:IN|OUT|ERR))\\b"
+            }, {
+                token : function(value) {
+                    if (keywords.hasOwnProperty(value))
+                        return "keyword";
+                    else if (builtinConstants.hasOwnProperty(value))
+                        return "constant.language";
+                    else if (builtinVariables.hasOwnProperty(value))
+                        return "variable.language";
+                    else if (futureReserved.hasOwnProperty(value))
+                        return "invalid.illegal";
+                    else if (builtinFunctions.hasOwnProperty(value))
+                        return "support.function";
+                    else if (value == "debugger")
+                        return "invalid.deprecated";
+                    else
+                        if(value.match(/^(\$[a-zA-Z_\x7f-\uffff][a-zA-Z0-9_\x7f-\uffff]*|self|parent)$/))
+                            return "variable";
+                        return "identifier";
+                },
+                regex : /[a-zA-Z_$\x7f-\uffff][a-zA-Z0-9_\x7f-\uffff]*/
+            }, {
+                onMatch : function(value, currentSate, state) {
+                    value = value.substr(3);
+                    if (value[0] == "'" || value[0] == '"')
+                        value = value.slice(1, -1);
+                    state.unshift(this.next, value);
+                    return "markup.list";
+                },
+                regex : /<<<(?:\w+|'\w+'|"\w+")$/,
+                next: "heredoc"
+            }, {
+                token : "keyword.operator",
+                regex : "::|!|\\$|%|&|\\*|\\-\\-|\\-|\\+\\+|\\+|~|===|==|!=|!==|<=|>=|=>|<<=|>>=|>>>=|<>|<|>|\\.=|=|!|&&|\\|\\||\\?\\:|\\*=|/=|%=|\\+=|\\-=|&=|\\^=|\\b(?:in|instanceof|new|delete|typeof|void)"
+            }, {
+                token : "punctuation.operator",
+                regex : /[,;]/
+            }, {
+                token : "paren.lparen",
+                regex : "[[({]"
+            }, {
+                token : "paren.rparen",
+                regex : "[\\])}]"
+            }, {
+                token : "text",
+                regex : "\\s+"
+            }
+        ],
+        "heredoc" : [
+            {
+                onMatch : function(value, currentSate, stack) {
+                    if (stack[1] != value)
+                        return "string";
+                    stack.shift();
+                    stack.shift();
+                    return "markup.list";
+                },
+                regex : "^\\w+(?=;?$)",
+                next: "start"
+            }, {
+                token: "string",
+                regex : ".*"
+            }
+        ],
+        "comment" : [
+            {
+                token : "comment",
+                regex : "\\*\\/",
+                next : "start"
+            }, {
+                defaultToken : "comment"
+            }
+        ],
+        "qqstring" : [
+            {
+                token : "constant.language.escape",
+                regex : '\\\\(?:[nrtvef\\\\"$]|[0-7]{1,3}|x[0-9A-Fa-f]{1,2})'
+            }, {
+                token : "variable",
+                regex : /\$[\w]+(?:\[[\w\]+]|[=\-]>\w+)?/
+            }, {
+                token : "variable",
+                regex : /\$\{[^"\}]+\}?/           // this is wrong but ok for now
+            },
+            {token : "string", regex : '"', next : "start"},
+            {defaultToken : "string"}
+        ],
+        "qstring" : [
+            {token : "constant.language.escape", regex : /\\['\\]/},
+            {token : "string", regex : "'", next : "start"},
+            {defaultToken : "string"}
+        ]
+    };
+
+    this.embedRules(DocCommentHighlightRules, "doc-",
+        [ DocCommentHighlightRules.getEndRule("start") ]);
+};
+
+oop.inherits(PhpLangHighlightRules, TextHighlightRules);
+
+
+var PhpHighlightRules = function() {
+    HtmlHighlightRules.call(this);
+
+    var startRules = [
+        {
+            token : "support.php_tag", // php open tag
+            regex : "<\\?(?:php|=)?",
+            push  : "php-start"
+        }
+    ];
+
+    var endRules = [
+        {
+            token : "support.php_tag", // php close tag
+            regex : "\\?>",
+            next  : "pop"
+        }
+    ];
+
+    for (var key in this.$rules)
+        this.$rules[key].unshift.apply(this.$rules[key], startRules);
+
+    this.embedRules(PhpLangHighlightRules, "php-", endRules, ["start"]);
+
+    this.normalizeRules();
+};
+
+oop.inherits(PhpHighlightRules, HtmlHighlightRules);
+
+exports.PhpHighlightRules = PhpHighlightRules;
+exports.PhpLangHighlightRules = PhpLangHighlightRules;
+});
+
+define("ace/mode/matching_brace_outdent",["require","exports","module","ace/range"], function(require, exports, module) {
+"use strict";
+
+var Range = require("../range").Range;
+
+var MatchingBraceOutdent = function() {};
+
+(function() {
+
+    this.checkOutdent = function(line, input) {
+        if (! /^\s+$/.test(line))
+            return false;
+
+        return /^\s*\}/.test(input);
+    };
+
+    this.autoOutdent = function(doc, row) {
+        var line = doc.getLine(row);
+        var match = line.match(/^(\s*\})/);
+
+        if (!match) return 0;
+
+        var column = match[1].length;
+        var openBracePos = doc.findMatchingBracket({row: row, column: column});
+
+        if (!openBracePos || openBracePos.row == row) return 0;
+
+        var indent = this.$getIndent(doc.getLine(openBracePos.row));
+        doc.replace(new Range(row, 0, row, column-1), indent);
+    };
+
+    this.$getIndent = function(line) {
+        return line.match(/^\s*/)[0];
+    };
+
+}).call(MatchingBraceOutdent.prototype);
+
+exports.MatchingBraceOutdent = MatchingBraceOutdent;
+});
+
+define("ace/mode/php_completions",["require","exports","module"], function(require, exports, module) {
+"use strict";
+
+var functionMap = {
+    "abs": [
+        "int abs(int number)",
+        "Return the absolute value of the number"
+    ],
+    "acos": [
+        "float acos(float number)",
+        "Return the arc cosine of the number in radians"
+    ],
+    "acosh": [
+        "float acosh(float number)",
+        "Returns the inverse hyperbolic cosine of the number, i.e. the value whose hyperbolic cosine is number"
+    ],
+    "addGlob": [
+        "bool addGlob(string pattern[,int flags [, array options]])",
+        "Add files matching the glob pattern. See php's glob for the pattern syntax."
+    ],
+    "addPattern": [
+        "bool addPattern(string pattern[, string path [, array options]])",
+        "Add files matching the pcre pattern. See php's pcre for the pattern syntax."
+    ],
+    "addcslashes": [
+        "string addcslashes(string str, string charlist)",
+        "Escapes all chars mentioned in charlist with backslash. It creates octal representations if asked to backslash characters with 8th bit set or with ASCII<32 (except '\\n', '\\r', '\\t' etc...)"
+    ],
+    "addslashes": [
+        "string addslashes(string str)",
+        "Escapes single quote, double quotes and backslash characters in a string with backslashes"
+    ],
+    "apache_child_terminate": [
+        "bool apache_child_terminate(void)",
+        "Terminate apache process after this request"
+    ],
+    "apache_get_modules": [
+        "array apache_get_modules(void)",
+        "Get a list of loaded Apache modules"
+    ],
+    "apache_get_version": [
+        "string apache_get_version(void)",
+        "Fetch Apache version"
+    ],
+    "apache_getenv": [
+        "bool apache_getenv(string variable [, bool walk_to_top])",
+        "Get an Apache subprocess_env variable"
+    ],
+    "apache_lookup_uri": [
+        "object apache_lookup_uri(string URI)",
+        "Perform a partial request of the given URI to obtain information about it"
+    ],
+    "apache_note": [
+        "string apache_note(string note_name [, string note_value])",
+        "Get and set Apache request notes"
+    ],
+    "apache_request_auth_name": [
+        "string apache_request_auth_name()",
+        ""
+    ],
+    "apache_request_auth_type": [
+        "string apache_request_auth_type()",
+        ""
+    ],
+    "apache_request_discard_request_body": [
+        "long apache_request_discard_request_body()",
+        ""
+    ],
+    "apache_request_err_headers_out": [
+        "array apache_request_err_headers_out([{string name|array list} [, string value [, bool replace = false]]])",
+        "* fetch all headers that go out in case of an error or a subrequest"
+    ],
+    "apache_request_headers": [
+        "array apache_request_headers(void)",
+        "Fetch all HTTP request headers"
+    ],
+    "apache_request_headers_in": [
+        "array apache_request_headers_in()",
+        "* fetch all incoming request headers"
+    ],
+    "apache_request_headers_out": [
+        "array apache_request_headers_out([{string name|array list} [, string value [, bool replace = false]]])",
+        "* fetch all outgoing request headers"
+    ],
+    "apache_request_is_initial_req": [
+        "bool apache_request_is_initial_req()",
+        ""
+    ],
+    "apache_request_log_error": [
+        "boolean apache_request_log_error(string message, [long facility])",
+        ""
+    ],
+    "apache_request_meets_conditions": [
+        "long apache_request_meets_conditions()",
+        ""
+    ],
+    "apache_request_remote_host": [
+        "int apache_request_remote_host([int type])",
+        ""
+    ],
+    "apache_request_run": [
+        "long apache_request_run()",
+        "This is a wrapper for ap_sub_run_req and ap_destory_sub_req.  It takes      sub_request, runs it, destroys it, and returns it's status."
+    ],
+    "apache_request_satisfies": [
+        "long apache_request_satisfies()",
+        ""
+    ],
+    "apache_request_server_port": [
+        "int apache_request_server_port()",
+        ""
+    ],
+    "apache_request_set_etag": [
+        "void apache_request_set_etag()",
+        ""
+    ],
+    "apache_request_set_last_modified": [
+        "void apache_request_set_last_modified()",
+        ""
+    ],
+    "apache_request_some_auth_required": [
+        "bool apache_request_some_auth_required()",
+        ""
+    ],
+    "apache_request_sub_req_lookup_file": [
+        "object apache_request_sub_req_lookup_file(string file)",
+        "Returns sub-request for the specified file.  You would     need to run it yourself with run()."
+    ],
+    "apache_request_sub_req_lookup_uri": [
+        "object apache_request_sub_req_lookup_uri(string uri)",
+        "Returns sub-request for the specified uri.  You would     need to run it yourself with run()"
+    ],
+    "apache_request_sub_req_method_uri": [
+        "object apache_request_sub_req_method_uri(string method, string uri)",
+        "Returns sub-request for the specified file.  You would     need to run it yourself with run()."
+    ],
+    "apache_request_update_mtime": [
+        "long apache_request_update_mtime([int dependency_mtime])",
+        ""
+    ],
+    "apache_reset_timeout": [
+        "bool apache_reset_timeout(void)",
+        "Reset the Apache write timer"
+    ],
+    "apache_response_headers": [
+        "array apache_response_headers(void)",
+        "Fetch all HTTP response headers"
+    ],
+    "apache_setenv": [
+        "bool apache_setenv(string variable, string value [, bool walk_to_top])",
+        "Set an Apache subprocess_env variable"
+    ],
+    "array_change_key_case": [
+        "array array_change_key_case(array input [, int case=CASE_LOWER])",
+        "Retuns an array with all string keys lowercased [or uppercased]"
+    ],
+    "array_chunk": [
+        "array array_chunk(array input, int size [, bool preserve_keys])",
+        "Split array into chunks"
+    ],
+    "array_combine": [
+        "array array_combine(array keys, array values)",
+        "Creates an array by using the elements of the first parameter as keys and the elements of the second as the corresponding values"
+    ],
+    "array_count_values": [
+        "array array_count_values(array input)",
+        "Return the value as key and the frequency of that value in input as value"
+    ],
+    "array_diff": [
+        "array array_diff(array arr1, array arr2 [, array ...])",
+        "Returns the entries of arr1 that have values which are not present in any of the others arguments."
+    ],
+    "array_diff_assoc": [
+        "array array_diff_assoc(array arr1, array arr2 [, array ...])",
+        "Returns the entries of arr1 that have values which are not present in any of the others arguments but do additional checks whether the keys are equal"
+    ],
+    "array_diff_key": [
+        "array array_diff_key(array arr1, array arr2 [, array ...])",
+        "Returns the entries of arr1 that have keys which are not present in any of the others arguments. This function is like array_diff() but works on the keys instead of the values. The associativity is preserved."
+    ],
+    "array_diff_uassoc": [
+        "array array_diff_uassoc(array arr1, array arr2 [, array ...], callback data_comp_func)",
+        "Returns the entries of arr1 that have values which are not present in any of the others arguments but do additional checks whether the keys are equal. Elements are compared by user supplied function."
+    ],
+    "array_diff_ukey": [
+        "array array_diff_ukey(array arr1, array arr2 [, array ...], callback key_comp_func)",
+        "Returns the entries of arr1 that have keys which are not present in any of the others arguments. User supplied function is used for comparing the keys. This function is like array_udiff() but works on the keys instead of the values. The associativity is preserved."
+    ],
+    "array_fill": [
+        "array array_fill(int start_key, int num, mixed val)",
+        "Create an array containing num elements starting with index start_key each initialized to val"
+    ],
+    "array_fill_keys": [
+        "array array_fill_keys(array keys, mixed val)",
+        "Create an array using the elements of the first parameter as 
