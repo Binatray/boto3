@@ -2299,4 +2299,408 @@ var functionMap = {
     ],
     "array_fill_keys": [
         "array array_fill_keys(array keys, mixed val)",
-        "Create an array using the elements of the first parameter as 
+        "Create an array using the elements of the first parameter as keys each initialized to val"
+    ],
+    "array_filter": [
+        "array array_filter(array input [, mixed callback])",
+        "Filters elements from the array via the callback."
+    ],
+    "array_flip": [
+        "array array_flip(array input)",
+        "Return array with key <-> value flipped"
+    ],
+    "array_intersect": [
+        "array array_intersect(array arr1, array arr2 [, array ...])",
+        "Returns the entries of arr1 that have values which are present in all the other arguments"
+    ],
+    "array_intersect_assoc": [
+        "array array_intersect_assoc(array arr1, array arr2 [, array ...])",
+        "Returns the entries of arr1 that have values which are present in all the other arguments. Keys are used to do more restrictive check"
+    ],
+    "array_intersect_key": [
+        "array array_intersect_key(array arr1, array arr2 [, array ...])",
+        "Returns the entries of arr1 that have keys which are present in all the other arguments. Kind of equivalent to array_diff(array_keys($arr1), array_keys($arr2)[,array_keys(...)]). Equivalent of array_intersect_assoc() but does not do compare of the data."
+    ],
+    "array_intersect_uassoc": [
+        "array array_intersect_uassoc(array arr1, array arr2 [, array ...], callback key_compare_func)",
+        "Returns the entries of arr1 that have values which are present in all the other arguments. Keys are used to do more restrictive check and they are compared by using an user-supplied callback."
+    ],
+    "array_intersect_ukey": [
+        "array array_intersect_ukey(array arr1, array arr2 [, array ...], callback key_compare_func)",
+        "Returns the entries of arr1 that have keys which are present in all the other arguments. Kind of equivalent to array_diff(array_keys($arr1), array_keys($arr2)[,array_keys(...)]). The comparison of the keys is performed by a user supplied function. Equivalent of array_intersect_uassoc() but does not do compare of the data."
+    ],
+    "array_key_exists": [
+        "bool array_key_exists(mixed key, array search)",
+        "Checks if the given key or index exists in the array"
+    ],
+    "array_keys": [
+        "array array_keys(array input [, mixed search_value[, bool strict]])",
+        "Return just the keys from the input array, optionally only for the specified search_value"
+    ],
+    "array_map": [
+        "array array_map(mixed callback, array input1 [, array input2 ,...])",
+        "Applies the callback to the elements in given arrays."
+    ],
+    "array_merge": [
+        "array array_merge(array arr1, array arr2 [, array ...])",
+        "Merges elements from passed arrays into one array"
+    ],
+    "array_merge_recursive": [
+        "array array_merge_recursive(array arr1, array arr2 [, array ...])",
+        "Recursively merges elements from passed arrays into one array"
+    ],
+    "array_multisort": [
+        "bool array_multisort(array ar1 [, SORT_ASC|SORT_DESC [, SORT_REGULAR|SORT_NUMERIC|SORT_STRING]] [, array ar2 [, SORT_ASC|SORT_DESC [, SORT_REGULAR|SORT_NUMERIC|SORT_STRING]], ...])",
+        "Sort multiple arrays at once similar to how ORDER BY clause works in SQL"
+    ],
+    "array_pad": [
+        "array array_pad(array input, int pad_size, mixed pad_value)",
+        "Returns a copy of input array padded with pad_value to size pad_size"
+    ],
+    "array_pop": [
+        "mixed array_pop(array stack)",
+        "Pops an element off the end of the array"
+    ],
+    "array_product": [
+        "mixed array_product(array input)",
+        "Returns the product of the array entries"
+    ],
+    "array_push": [
+        "int array_push(array stack, mixed var [, mixed ...])",
+        "Pushes elements onto the end of the array"
+    ],
+    "array_rand": [
+        "mixed array_rand(array input [, int num_req])",
+        "Return key/keys for random entry/entries in the array"
+    ],
+    "array_reduce": [
+        "mixed array_reduce(array input, mixed callback [, mixed initial])",
+        "Iteratively reduce the array to a single value via the callback."
+    ],
+    "array_replace": [
+        "array array_replace(array arr1, array arr2 [, array ...])",
+        "Replaces elements from passed arrays into one array"
+    ],
+    "array_replace_recursive": [
+        "array array_replace_recursive(array arr1, array arr2 [, array ...])",
+        "Recursively replaces elements from passed arrays into one array"
+    ],
+    "array_reverse": [
+        "array array_reverse(array input [, bool preserve keys])",
+        "Return input as a new array with the order of the entries reversed"
+    ],
+    "array_search": [
+        "mixed array_search(mixed needle, array haystack [, bool strict])",
+        "Searches the array for a given value and returns the corresponding key if successful"
+    ],
+    "array_shift": [
+        "mixed array_shift(array stack)",
+        "Pops an element off the beginning of the array"
+    ],
+    "array_slice": [
+        "array array_slice(array input, int offset [, int length [, bool preserve_keys]])",
+        "Returns elements specified by offset and length"
+    ],
+    "array_splice": [
+        "array array_splice(array input, int offset [, int length [, array replacement]])",
+        "Removes the elements designated by offset and length and replace them with supplied array"
+    ],
+    "array_sum": [
+        "mixed array_sum(array input)",
+        "Returns the sum of the array entries"
+    ],
+    "array_udiff": [
+        "array array_udiff(array arr1, array arr2 [, array ...], callback data_comp_func)",
+        "Returns the entries of arr1 that have values which are not present in any of the others arguments. Elements are compared by user supplied function."
+    ],
+    "array_udiff_assoc": [
+        "array array_udiff_assoc(array arr1, array arr2 [, array ...], callback key_comp_func)",
+        "Returns the entries of arr1 that have values which are not present in any of the others arguments but do additional checks whether the keys are equal. Keys are compared by user supplied function."
+    ],
+    "array_udiff_uassoc": [
+        "array array_udiff_uassoc(array arr1, array arr2 [, array ...], callback data_comp_func, callback key_comp_func)",
+        "Returns the entries of arr1 that have values which are not present in any of the others arguments but do additional checks whether the keys are equal. Keys and elements are compared by user supplied functions."
+    ],
+    "array_uintersect": [
+        "array array_uintersect(array arr1, array arr2 [, array ...], callback data_compare_func)",
+        "Returns the entries of arr1 that have values which are present in all the other arguments. Data is compared by using an user-supplied callback."
+    ],
+    "array_uintersect_assoc": [
+        "array array_uintersect_assoc(array arr1, array arr2 [, array ...], callback data_compare_func)",
+        "Returns the entries of arr1 that have values which are present in all the other arguments. Keys are used to do more restrictive check. Data is compared by using an user-supplied callback."
+    ],
+    "array_uintersect_uassoc": [
+        "array array_uintersect_uassoc(array arr1, array arr2 [, array ...], callback data_compare_func, callback key_compare_func)",
+        "Returns the entries of arr1 that have values which are present in all the other arguments. Keys are used to do more restrictive check. Both data and keys are compared by using user-supplied callbacks."
+    ],
+    "array_unique": [
+        "array array_unique(array input [, int sort_flags])",
+        "Removes duplicate values from array"
+    ],
+    "array_unshift": [
+        "int array_unshift(array stack, mixed var [, mixed ...])",
+        "Pushes elements onto the beginning of the array"
+    ],
+    "array_values": [
+        "array array_values(array input)",
+        "Return just the values from the input array"
+    ],
+    "array_walk": [
+        "bool array_walk(array input, string funcname [, mixed userdata])",
+        "Apply a user function to every member of an array"
+    ],
+    "array_walk_recursive": [
+        "bool array_walk_recursive(array input, string funcname [, mixed userdata])",
+        "Apply a user function recursively to every member of an array"
+    ],
+    "arsort": [
+        "bool arsort(array &array_arg [, int sort_flags])",
+        "Sort an array in reverse order and maintain index association"
+    ],
+    "asin": [
+        "float asin(float number)",
+        "Returns the arc sine of the number in radians"
+    ],
+    "asinh": [
+        "float asinh(float number)",
+        "Returns the inverse hyperbolic sine of the number, i.e. the value whose hyperbolic sine is number"
+    ],
+    "asort": [
+        "bool asort(array &array_arg [, int sort_flags])",
+        "Sort an array and maintain index association"
+    ],
+    "assert": [
+        "int assert(string|bool assertion)",
+        "Checks if assertion is false"
+    ],
+    "assert_options": [
+        "mixed assert_options(int what [, mixed value])",
+        "Set/get the various assert flags"
+    ],
+    "atan": [
+        "float atan(float number)",
+        "Returns the arc tangent of the number in radians"
+    ],
+    "atan2": [
+        "float atan2(float y, float x)",
+        "Returns the arc tangent of y/x, with the resulting quadrant determined by the signs of y and x"
+    ],
+    "atanh": [
+        "float atanh(float number)",
+        "Returns the inverse hyperbolic tangent of the number, i.e. the value whose hyperbolic tangent is number"
+    ],
+    "attachIterator": [
+        "void attachIterator(Iterator iterator[, mixed info])",
+        "Attach a new iterator"
+    ],
+    "base64_decode": [
+        "string base64_decode(string str[, bool strict])",
+        "Decodes string using MIME base64 algorithm"
+    ],
+    "base64_encode": [
+        "string base64_encode(string str)",
+        "Encodes string using MIME base64 algorithm"
+    ],
+    "base_convert": [
+        "string base_convert(string number, int frombase, int tobase)",
+        "Converts a number in a string from any base <= 36 to any base <= 36"
+    ],
+    "basename": [
+        "string basename(string path [, string suffix])",
+        "Returns the filename component of the path"
+    ],
+    "bcadd": [
+        "string bcadd(string left_operand, string right_operand [, int scale])",
+        "Returns the sum of two arbitrary precision numbers"
+    ],
+    "bccomp": [
+        "int bccomp(string left_operand, string right_operand [, int scale])",
+        "Compares two arbitrary precision numbers"
+    ],
+    "bcdiv": [
+        "string bcdiv(string left_operand, string right_operand [, int scale])",
+        "Returns the quotient of two arbitrary precision numbers (division)"
+    ],
+    "bcmod": [
+        "string bcmod(string left_operand, string right_operand)",
+        "Returns the modulus of the two arbitrary precision operands"
+    ],
+    "bcmul": [
+        "string bcmul(string left_operand, string right_operand [, int scale])",
+        "Returns the multiplication of two arbitrary precision numbers"
+    ],
+    "bcpow": [
+        "string bcpow(string x, string y [, int scale])",
+        "Returns the value of an arbitrary precision number raised to the power of another"
+    ],
+    "bcpowmod": [
+        "string bcpowmod(string x, string y, string mod [, int scale])",
+        "Returns the value of an arbitrary precision number raised to the power of another reduced by a modulous"
+    ],
+    "bcscale": [
+        "bool bcscale(int scale)",
+        "Sets default scale parameter for all bc math functions"
+    ],
+    "bcsqrt": [
+        "string bcsqrt(string operand [, int scale])",
+        "Returns the square root of an arbitray precision number"
+    ],
+    "bcsub": [
+        "string bcsub(string left_operand, string right_operand [, int scale])",
+        "Returns the difference between two arbitrary precision numbers"
+    ],
+    "bin2hex": [
+        "string bin2hex(string data)",
+        "Converts the binary representation of data to hex"
+    ],
+    "bind_textdomain_codeset": [
+        "string bind_textdomain_codeset (string domain, string codeset)",
+        "Specify the character encoding in which the messages from the DOMAIN message catalog will be returned."
+    ],
+    "bindec": [
+        "int bindec(string binary_number)",
+        "Returns the decimal equivalent of the binary number"
+    ],
+    "bindtextdomain": [
+        "string bindtextdomain(string domain_name, string dir)",
+        "Bind to the text domain domain_name, looking for translations in dir. Returns the current domain"
+    ],
+    "birdstep_autocommit": [
+        "bool birdstep_autocommit(int index)",
+        ""
+    ],
+    "birdstep_close": [
+        "bool birdstep_close(int id)",
+        ""
+    ],
+    "birdstep_commit": [
+        "bool birdstep_commit(int index)",
+        ""
+    ],
+    "birdstep_connect": [
+        "int birdstep_connect(string server, string user, string pass)",
+        ""
+    ],
+    "birdstep_exec": [
+        "int birdstep_exec(int index, string exec_str)",
+        ""
+    ],
+    "birdstep_fetch": [
+        "bool birdstep_fetch(int index)",
+        ""
+    ],
+    "birdstep_fieldname": [
+        "string birdstep_fieldname(int index, int col)",
+        ""
+    ],
+    "birdstep_fieldnum": [
+        "int birdstep_fieldnum(int index)",
+        ""
+    ],
+    "birdstep_freeresult": [
+        "bool birdstep_freeresult(int index)",
+        ""
+    ],
+    "birdstep_off_autocommit": [
+        "bool birdstep_off_autocommit(int index)",
+        ""
+    ],
+    "birdstep_result": [
+        "mixed birdstep_result(int index, mixed col)",
+        ""
+    ],
+    "birdstep_rollback": [
+        "bool birdstep_rollback(int index)",
+        ""
+    ],
+    "bzcompress": [
+        "string bzcompress(string source [, int blocksize100k [, int workfactor]])",
+        "Compresses a string into BZip2 encoded data"
+    ],
+    "bzdecompress": [
+        "string bzdecompress(string source [, int small])",
+        "Decompresses BZip2 compressed data"
+    ],
+    "bzerrno": [
+        "int bzerrno(resource bz)",
+        "Returns the error number"
+    ],
+    "bzerror": [
+        "array bzerror(resource bz)",
+        "Returns the error number and error string in an associative array"
+    ],
+    "bzerrstr": [
+        "string bzerrstr(resource bz)",
+        "Returns the error string"
+    ],
+    "bzopen": [
+        "resource bzopen(string|int file|fp, string mode)",
+        "Opens a new BZip2 stream"
+    ],
+    "bzread": [
+        "string bzread(resource bz[, int length])",
+        "Reads up to length bytes from a BZip2 stream, or 1024 bytes if length is not specified"
+    ],
+    "cal_days_in_month": [
+        "int cal_days_in_month(int calendar, int month, int year)",
+        "Returns the number of days in a month for a given year and calendar"
+    ],
+    "cal_from_jd": [
+        "array cal_from_jd(int jd, int calendar)",
+        "Converts from Julian Day Count to a supported calendar and return extended information"
+    ],
+    "cal_info": [
+        "array cal_info([int calendar])",
+        "Returns information about a particular calendar"
+    ],
+    "cal_to_jd": [
+        "int cal_to_jd(int calendar, int month, int day, int year)",
+        "Converts from a supported calendar to Julian Day Count"
+    ],
+    "call_user_func": [
+        "mixed call_user_func(mixed function_name [, mixed parmeter] [, mixed ...])",
+        "Call a user function which is the first parameter"
+    ],
+    "call_user_func_array": [
+        "mixed call_user_func_array(string function_name, array parameters)",
+        "Call a user function which is the first parameter with the arguments contained in array"
+    ],
+    "call_user_method": [
+        "mixed call_user_method(string method_name, mixed object [, mixed parameter] [, mixed ...])",
+        "Call a user method on a specific object or class"
+    ],
+    "call_user_method_array": [
+        "mixed call_user_method_array(string method_name, mixed object, array params)",
+        "Call a user method on a specific object or class using a parameter array"
+    ],
+    "ceil": [
+        "float ceil(float number)",
+        "Returns the next highest integer value of the number"
+    ],
+    "chdir": [
+        "bool chdir(string directory)",
+        "Change the current directory"
+    ],
+    "checkdate": [
+        "bool checkdate(int month, int day, int year)",
+        "Returns true(1) if it is a valid date in gregorian calendar"
+    ],
+    "chgrp": [
+        "bool chgrp(string filename, mixed group)",
+        "Change file group"
+    ],
+    "chmod": [
+        "bool chmod(string filename, int mode)",
+        "Change file mode"
+    ],
+    "chown": [
+        "bool chown (string filename, mixed user)",
+        "Change file owner"
+    ],
+    "chr": [
+        "string chr(int ascii)",
+        "Converts ASCII code to a character"
+    ],
+    "chroot": [
+        "bool chroot(string directory)",
+        "Change root direc
