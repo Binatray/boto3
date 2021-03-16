@@ -2703,4 +2703,460 @@ var functionMap = {
     ],
     "chroot": [
         "bool chroot(string directory)",
-        "Change root direc
+        "Change root directory"
+    ],
+    "chunk_split": [
+        "string chunk_split(string str [, int chunklen [, string ending]])",
+        "Returns split line"
+    ],
+    "class_alias": [
+        "bool class_alias(string user_class_name , string alias_name [, bool autoload])",
+        "Creates an alias for user defined class"
+    ],
+    "class_exists": [
+        "bool class_exists(string classname [, bool autoload])",
+        "Checks if the class exists"
+    ],
+    "class_implements": [
+        "array class_implements(mixed what [, bool autoload ])",
+        "Return all classes and interfaces implemented by SPL"
+    ],
+    "class_parents": [
+        "array class_parents(object instance [, boolean autoload = true])",
+        "Return an array containing the names of all parent classes"
+    ],
+    "clearstatcache": [
+        "void clearstatcache([bool clear_realpath_cache[, string filename]])",
+        "Clear file stat cache"
+    ],
+    "closedir": [
+        "void closedir([resource dir_handle])",
+        "Close directory connection identified by the dir_handle"
+    ],
+    "closelog": [
+        "bool closelog(void)",
+        "Close connection to system logger"
+    ],
+    "collator_asort": [
+        "bool collator_asort( Collator $coll, array(string) $arr )",
+        "* Sort array using specified collator, maintaining index association."
+    ],
+    "collator_compare": [
+        "int collator_compare( Collator $coll, string $str1, string $str2 )",
+        "* Compare two strings."
+    ],
+    "collator_create": [
+        "Collator collator_create( string $locale )",
+        "* Create collator."
+    ],
+    "collator_get_attribute": [
+        "int collator_get_attribute( Collator $coll, int $attr )",
+        "* Get collation attribute value."
+    ],
+    "collator_get_error_code": [
+        "int collator_get_error_code( Collator $coll )",
+        "* Get collator's last error code."
+    ],
+    "collator_get_error_message": [
+        "string collator_get_error_message( Collator $coll )",
+        "* Get text description for collator's last error code."
+    ],
+    "collator_get_locale": [
+        "string collator_get_locale( Collator $coll, int $type )",
+        "* Gets the locale name of the collator."
+    ],
+    "collator_get_sort_key": [
+        "bool collator_get_sort_key( Collator $coll, string $str )",
+        "* Get a sort key for a string from a Collator. }}}"
+    ],
+    "collator_get_strength": [
+        "int collator_get_strength(Collator coll)",
+        "* Returns the current collation strength."
+    ],
+    "collator_set_attribute": [
+        "bool collator_set_attribute( Collator $coll, int $attr, int $val )",
+        "* Set collation attribute."
+    ],
+    "collator_set_strength": [
+        "bool collator_set_strength(Collator coll, int strength)",
+        "* Set the collation strength."
+    ],
+    "collator_sort": [
+        "bool collator_sort(  Collator $coll, array(string) $arr [, int $sort_flags] )",
+        "* Sort array using specified collator."
+    ],
+    "collator_sort_with_sort_keys": [
+        "bool collator_sort_with_sort_keys( Collator $coll, array(string) $arr )",
+        "* Equivalent to standard PHP sort using Collator.  * Uses ICU ucol_getSortKey for performance."
+    ],
+    "com_create_guid": [
+        "string com_create_guid()",
+        "Generate a globally unique identifier (GUID)"
+    ],
+    "com_event_sink": [
+        "bool com_event_sink(object comobject, object sinkobject [, mixed sinkinterface])",
+        "Connect events from a COM object to a PHP object"
+    ],
+    "com_get_active_object": [
+        "object com_get_active_object(string progid [, int code_page ])",
+        "Returns a handle to an already running instance of a COM object"
+    ],
+    "com_load_typelib": [
+        "bool com_load_typelib(string typelib_name [, int case_insensitive])",
+        "Loads a Typelibrary and registers its constants"
+    ],
+    "com_message_pump": [
+        "bool com_message_pump([int timeoutms])",
+        "Process COM messages, sleeping for up to timeoutms milliseconds"
+    ],
+    "com_print_typeinfo": [
+        "bool com_print_typeinfo(object comobject | string typelib, string dispinterface, bool wantsink)",
+        "Print out a PHP class definition for a dispatchable interface"
+    ],
+    "compact": [
+        "array compact(mixed var_names [, mixed ...])",
+        "Creates a hash containing variables and their values"
+    ],
+    "compose_locale": [
+        "static string compose_locale($array)",
+        "* Creates a locale by combining the parts of locale-ID passed  * }}}"
+    ],
+    "confirm_extname_compiled": [
+        "string confirm_extname_compiled(string arg)",
+        "Return a string to confirm that the module is compiled in"
+    ],
+    "connection_aborted": [
+        "int connection_aborted(void)",
+        "Returns true if client disconnected"
+    ],
+    "connection_status": [
+        "int connection_status(void)",
+        "Returns the connection status bitfield"
+    ],
+    "constant": [
+        "mixed constant(string const_name)",
+        "Given the name of a constant this function will return the constant's associated value"
+    ],
+    "convert_cyr_string": [
+        "string convert_cyr_string(string str, string from, string to)",
+        "Convert from one Cyrillic character set to another"
+    ],
+    "convert_uudecode": [
+        "string convert_uudecode(string data)",
+        "decode a uuencoded string"
+    ],
+    "convert_uuencode": [
+        "string convert_uuencode(string data)",
+        "uuencode a string"
+    ],
+    "copy": [
+        "bool copy(string source_file, string destination_file [, resource context])",
+        "Copy a file"
+    ],
+    "cos": [
+        "float cos(float number)",
+        "Returns the cosine of the number in radians"
+    ],
+    "cosh": [
+        "float cosh(float number)",
+        "Returns the hyperbolic cosine of the number, defined as (exp(number) + exp(-number))/2"
+    ],
+    "count": [
+        "int count(mixed var [, int mode])",
+        "Count the number of elements in a variable (usually an array)"
+    ],
+    "count_chars": [
+        "mixed count_chars(string input [, int mode])",
+        "Returns info about what characters are used in input"
+    ],
+    "crc32": [
+        "string crc32(string str)",
+        "Calculate the crc32 polynomial of a string"
+    ],
+    "create_function": [
+        "string create_function(string args, string code)",
+        "Creates an anonymous function, and returns its name (funny, eh?)"
+    ],
+    "crypt": [
+        "string crypt(string str [, string salt])",
+        "Hash a string"
+    ],
+    "ctype_alnum": [
+        "bool ctype_alnum(mixed c)",
+        "Checks for alphanumeric character(s)"
+    ],
+    "ctype_alpha": [
+        "bool ctype_alpha(mixed c)",
+        "Checks for alphabetic character(s)"
+    ],
+    "ctype_cntrl": [
+        "bool ctype_cntrl(mixed c)",
+        "Checks for control character(s)"
+    ],
+    "ctype_digit": [
+        "bool ctype_digit(mixed c)",
+        "Checks for numeric character(s)"
+    ],
+    "ctype_graph": [
+        "bool ctype_graph(mixed c)",
+        "Checks for any printable character(s) except space"
+    ],
+    "ctype_lower": [
+        "bool ctype_lower(mixed c)",
+        "Checks for lowercase character(s)"
+    ],
+    "ctype_print": [
+        "bool ctype_print(mixed c)",
+        "Checks for printable character(s)"
+    ],
+    "ctype_punct": [
+        "bool ctype_punct(mixed c)",
+        "Checks for any printable character which is not whitespace or an alphanumeric character"
+    ],
+    "ctype_space": [
+        "bool ctype_space(mixed c)",
+        "Checks for whitespace character(s)"
+    ],
+    "ctype_upper": [
+        "bool ctype_upper(mixed c)",
+        "Checks for uppercase character(s)"
+    ],
+    "ctype_xdigit": [
+        "bool ctype_xdigit(mixed c)",
+        "Checks for character(s) representing a hexadecimal digit"
+    ],
+    "curl_close": [
+        "void curl_close(resource ch)",
+        "Close a cURL session"
+    ],
+    "curl_copy_handle": [
+        "resource curl_copy_handle(resource ch)",
+        "Copy a cURL handle along with all of it's preferences"
+    ],
+    "curl_errno": [
+        "int curl_errno(resource ch)",
+        "Return an integer containing the last error number"
+    ],
+    "curl_error": [
+        "string curl_error(resource ch)",
+        "Return a string contain the last error for the current session"
+    ],
+    "curl_exec": [
+        "bool curl_exec(resource ch)",
+        "Perform a cURL session"
+    ],
+    "curl_getinfo": [
+        "mixed curl_getinfo(resource ch [, int option])",
+        "Get information regarding a specific transfer"
+    ],
+    "curl_init": [
+        "resource curl_init([string url])",
+        "Initialize a cURL session"
+    ],
+    "curl_multi_add_handle": [
+        "int curl_multi_add_handle(resource mh, resource ch)",
+        "Add a normal cURL handle to a cURL multi handle"
+    ],
+    "curl_multi_close": [
+        "void curl_multi_close(resource mh)",
+        "Close a set of cURL handles"
+    ],
+    "curl_multi_exec": [
+        "int curl_multi_exec(resource mh, int &still_running)",
+        "Run the sub-connections of the current cURL handle"
+    ],
+    "curl_multi_getcontent": [
+        "string curl_multi_getcontent(resource ch)",
+        "Return the content of a cURL handle if CURLOPT_RETURNTRANSFER is set"
+    ],
+    "curl_multi_info_read": [
+        "array curl_multi_info_read(resource mh [, long msgs_in_queue])",
+        "Get information about the current transfers"
+    ],
+    "curl_multi_init": [
+        "resource curl_multi_init(void)",
+        "Returns a new cURL multi handle"
+    ],
+    "curl_multi_remove_handle": [
+        "int curl_multi_remove_handle(resource mh, resource ch)",
+        "Remove a multi handle from a set of cURL handles"
+    ],
+    "curl_multi_select": [
+        "int curl_multi_select(resource mh[, double timeout])",
+        "Get all the sockets associated with the cURL extension, which can then be \"selected\""
+    ],
+    "curl_setopt": [
+        "bool curl_setopt(resource ch, int option, mixed value)",
+        "Set an option for a cURL transfer"
+    ],
+    "curl_setopt_array": [
+        "bool curl_setopt_array(resource ch, array options)",
+        "Set an array of option for a cURL transfer"
+    ],
+    "curl_version": [
+        "array curl_version([int version])",
+        "Return cURL version information."
+    ],
+    "current": [
+        "mixed current(array array_arg)",
+        "Return the element currently pointed to by the internal array pointer"
+    ],
+    "date": [
+        "string date(string format [, long timestamp])",
+        "Format a local date/time"
+    ],
+    "date_add": [
+        "DateTime date_add(DateTime object, DateInterval interval)",
+        "Adds an interval to the current date in object."
+    ],
+    "date_create": [
+        "DateTime date_create([string time[, DateTimeZone object]])",
+        "Returns new DateTime object"
+    ],
+    "date_create_from_format": [
+        "DateTime date_create_from_format(string format, string time[, DateTimeZone object])",
+        "Returns new DateTime object formatted according to the specified format"
+    ],
+    "date_date_set": [
+        "DateTime date_date_set(DateTime object, long year, long month, long day)",
+        "Sets the date."
+    ],
+    "date_default_timezone_get": [
+        "string date_default_timezone_get()",
+        "Gets the default timezone used by all date/time functions in a script"
+    ],
+    "date_default_timezone_set": [
+        "bool date_default_timezone_set(string timezone_identifier)",
+        "Sets the default timezone used by all date/time functions in a script"
+    ],
+    "date_diff": [
+        "DateInterval date_diff(DateTime object [, bool absolute])",
+        "Returns the difference between two DateTime objects."
+    ],
+    "date_format": [
+        "string date_format(DateTime object, string format)",
+        "Returns date formatted according to given format"
+    ],
+    "date_get_last_errors": [
+        "array date_get_last_errors()",
+        "Returns the warnings and errors found while parsing a date/time string."
+    ],
+    "date_interval_create_from_date_string": [
+        "DateInterval date_interval_create_from_date_string(string time)",
+        "Uses the normal date parsers and sets up a DateInterval from the relative parts of the parsed string"
+    ],
+    "date_interval_format": [
+        "string date_interval_format(DateInterval object, string format)",
+        "Formats the interval."
+    ],
+    "date_isodate_set": [
+        "DateTime date_isodate_set(DateTime object, long year, long week[, long day])",
+        "Sets the ISO date."
+    ],
+    "date_modify": [
+        "DateTime date_modify(DateTime object, string modify)",
+        "Alters the timestamp."
+    ],
+    "date_offset_get": [
+        "long date_offset_get(DateTime object)",
+        "Returns the DST offset."
+    ],
+    "date_parse": [
+        "array date_parse(string date)",
+        "Returns associative array with detailed info about given date"
+    ],
+    "date_parse_from_format": [
+        "array date_parse_from_format(string format, string date)",
+        "Returns associative array with detailed info about given date"
+    ],
+    "date_sub": [
+        "DateTime date_sub(DateTime object, DateInterval interval)",
+        "Subtracts an interval to the current date in object."
+    ],
+    "date_sun_info": [
+        "array date_sun_info(long time, float latitude, float longitude)",
+        "Returns an array with information about sun set/rise and twilight begin/end"
+    ],
+    "date_sunrise": [
+        "mixed date_sunrise(mixed time [, int format [, float latitude [, float longitude [, float zenith [, float gmt_offset]]]]])",
+        "Returns time of sunrise for a given day and location"
+    ],
+    "date_sunset": [
+        "mixed date_sunset(mixed time [, int format [, float latitude [, float longitude [, float zenith [, float gmt_offset]]]]])",
+        "Returns time of sunset for a given day and location"
+    ],
+    "date_time_set": [
+        "DateTime date_time_set(DateTime object, long hour, long minute[, long second])",
+        "Sets the time."
+    ],
+    "date_timestamp_get": [
+        "long date_timestamp_get(DateTime object)",
+        "Gets the Unix timestamp."
+    ],
+    "date_timestamp_set": [
+        "DateTime date_timestamp_set(DateTime object, long unixTimestamp)",
+        "Sets the date and time based on an Unix timestamp."
+    ],
+    "date_timezone_get": [
+        "DateTimeZone date_timezone_get(DateTime object)",
+        "Return new DateTimeZone object relative to give DateTime"
+    ],
+    "date_timezone_set": [
+        "DateTime date_timezone_set(DateTime object, DateTimeZone object)",
+        "Sets the timezone for the DateTime object."
+    ],
+    "datefmt_create": [
+        "IntlDateFormatter datefmt_create(string $locale, long date_type, long time_type[, string $timezone_str, long $calendar, string $pattern] )",
+        "* Create formatter."
+    ],
+    "datefmt_format": [
+        "string datefmt_format( [mixed]int $args or array $args )",
+        "* Format the time value as a string. }}}"
+    ],
+    "datefmt_get_calendar": [
+        "string datefmt_get_calendar( IntlDateFormatter $mf )",
+        "* Get formatter calendar."
+    ],
+    "datefmt_get_datetype": [
+        "string datefmt_get_datetype( IntlDateFormatter $mf )",
+        "* Get formatter datetype."
+    ],
+    "datefmt_get_error_code": [
+        "int datefmt_get_error_code( IntlDateFormatter $nf )",
+        "* Get formatter's last error code."
+    ],
+    "datefmt_get_error_message": [
+        "string datefmt_get_error_message( IntlDateFormatter $coll )",
+        "* Get text description for formatter's last error code."
+    ],
+    "datefmt_get_locale": [
+        "string datefmt_get_locale(IntlDateFormatter $mf)",
+        "* Get formatter locale."
+    ],
+    "datefmt_get_pattern": [
+        "string datefmt_get_pattern( IntlDateFormatter $mf )",
+        "* Get formatter pattern."
+    ],
+    "datefmt_get_timetype": [
+        "string datefmt_get_timetype( IntlDateFormatter $mf )",
+        "* Get formatter timetype."
+    ],
+    "datefmt_get_timezone_id": [
+        "string datefmt_get_timezone_id( IntlDateFormatter $mf )",
+        "* Get formatter timezone_id."
+    ],
+    "datefmt_isLenient": [
+        "string datefmt_isLenient(IntlDateFormatter $mf)",
+        "* Get formatter locale."
+    ],
+    "datefmt_localtime": [
+        "integer datefmt_localtime( IntlDateFormatter $fmt, string $text_to_parse[, int $parse_pos ])",
+        "* Parse the string $value to a localtime array  }}}"
+    ],
+    "datefmt_parse": [
+        "integer datefmt_parse( IntlDateFormatter $fmt, string $text_to_parse [, int $parse_pos] )",
+        "* Parse the string $value starting at parse_pos to a Unix timestamp -int }}}"
+    ],
+    "datefmt_setLenient": [
+        "string datefmt_setLenient(IntlDateFormatter $mf)",
+        "* Set form
