@@ -3471,4 +3471,316 @@ var functionMap = {
         "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#Node3-getUserData Since: DOM Level 3"
     ],
     "dom_node_has_attributes": [
-     
+        "boolean dom_node_has_attributes();",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-NodeHasAttrs Since: DOM Level 2"
+    ],
+    "dom_node_has_child_nodes": [
+        "boolean dom_node_has_child_nodes();",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-810594187 Since:"
+    ],
+    "dom_node_insert_before": [
+        "domnode dom_node_insert_before(DomNode newChild, DomNode refChild);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-952280727 Since:"
+    ],
+    "dom_node_is_default_namespace": [
+        "boolean dom_node_is_default_namespace(string namespaceURI);",
+        "URL: http://www.w3.org/TR/DOM-Level-3-Core/core.html#Node3-isDefaultNamespace Since: DOM Level 3"
+    ],
+    "dom_node_is_equal_node": [
+        "boolean dom_node_is_equal_node(DomNode arg);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#Node3-isEqualNode Since: DOM Level 3"
+    ],
+    "dom_node_is_same_node": [
+        "boolean dom_node_is_same_node(DomNode other);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#Node3-isSameNode Since: DOM Level 3"
+    ],
+    "dom_node_is_supported": [
+        "boolean dom_node_is_supported(string feature, string version);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-Level-2-Core-Node-supports Since: DOM Level 2"
+    ],
+    "dom_node_lookup_namespace_uri": [
+        "string dom_node_lookup_namespace_uri(string prefix);",
+        "URL: http://www.w3.org/TR/DOM-Level-3-Core/core.html#Node3-lookupNamespaceURI Since: DOM Level 3"
+    ],
+    "dom_node_lookup_prefix": [
+        "string dom_node_lookup_prefix(string namespaceURI);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#Node3-lookupNamespacePrefix Since: DOM Level 3"
+    ],
+    "dom_node_normalize": [
+        "void dom_node_normalize();",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-normalize Since:"
+    ],
+    "dom_node_remove_child": [
+        "DomNode dom_node_remove_child(DomNode oldChild);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-1734834066 Since:"
+    ],
+    "dom_node_replace_child": [
+        "DomNode dom_node_replace_child(DomNode newChild, DomNode oldChild);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-785887307 Since:"
+    ],
+    "dom_node_set_user_data": [
+        "mixed dom_node_set_user_data(string key, mixed data, userdatahandler handler);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#Node3-setUserData Since: DOM Level 3"
+    ],
+    "dom_nodelist_item": [
+        "DOMNode dom_nodelist_item(int index);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#ID-844377136 Since:"
+    ],
+    "dom_string_extend_find_offset16": [
+        "int dom_string_extend_find_offset16(int offset32);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#i18n-methods-StringExtend-findOffset16 Since:"
+    ],
+    "dom_string_extend_find_offset32": [
+        "int dom_string_extend_find_offset32(int offset16);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#i18n-methods-StringExtend-findOffset32 Since:"
+    ],
+    "dom_text_is_whitespace_in_element_content": [
+        "boolean dom_text_is_whitespace_in_element_content();",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-Text3-isWhitespaceInElementContent Since: DOM Level 3"
+    ],
+    "dom_text_replace_whole_text": [
+        "DOMText dom_text_replace_whole_text(string content);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-Text3-replaceWholeText Since: DOM Level 3"
+    ],
+    "dom_text_split_text": [
+        "DOMText dom_text_split_text(int offset);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-38853C1D Since:"
+    ],
+    "dom_userdatahandler_handle": [
+        "dom_void dom_userdatahandler_handle(short operation, string key, domobject data, node src, node dst);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#ID-handleUserDataEvent Since:"
+    ],
+    "dom_xpath_evaluate": [
+        "mixed dom_xpath_evaluate(string expr [,DOMNode context]); */",
+        "PHP_FUNCTION(dom_xpath_evaluate) {  php_xpath_eval(INTERNAL_FUNCTION_PARAM_PASSTHRU, PHP_DOM_XPATH_EVALUATE); } /* }}} end dom_xpath_evaluate"
+    ],
+    "dom_xpath_query": [
+        "DOMNodeList dom_xpath_query(string expr [,DOMNode context]); */",
+        "PHP_FUNCTION(dom_xpath_query) {  php_xpath_eval(INTERNAL_FUNCTION_PARAM_PASSTHRU, PHP_DOM_XPATH_QUERY); } /* }}} end dom_xpath_query"
+    ],
+    "dom_xpath_register_ns": [
+        "boolean dom_xpath_register_ns(string prefix, string uri); */",
+        "PHP_FUNCTION(dom_xpath_register_ns) {  zval *id;  xmlXPathContextPtr ctxp;  int prefix_len, ns_uri_len;  dom_xpath_object *intern;  unsigned char *prefix, *ns_uri;   if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), \"Oss\", &id, dom_xpath_class_entry, &prefix, &prefix_len, &ns_uri, &ns_uri_len) == FAILURE) {   return;  }   intern = (dom_xpath_object *)zend_object_store_get_object(id TSRMLS_CC);   ctxp = (xmlXPathContextPtr) intern->ptr;  if (ctxp == NULL) {   php_error_docref(NULL TSRMLS_CC, E_WARNING, \"Invalid XPath Context\");   RETURN_FALSE;  }   if (xmlXPathRegisterNs(ctxp, prefix, ns_uri) != 0) {   RETURN_FALSE  }  RETURN_TRUE; } /* }}}"
+    ],
+    "dom_xpath_register_php_functions": [
+        "void dom_xpath_register_php_functions() */",
+        "PHP_FUNCTION(dom_xpath_register_php_functions) {  zval *id;  dom_xpath_object *intern;  zval *array_value, **entry, *new_string;  int  name_len = 0;  char *name;   DOM_GET_THIS(id);    if (zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS() TSRMLS_CC, \"a\",  &array_value) == SUCCESS) {   intern = (dom_xpath_object *)zend_object_store_get_object(id TSRMLS_CC);   zend_hash_internal_pointer_reset(Z_ARRVAL_P(array_value));    while (zend_hash_get_current_data(Z_ARRVAL_P(array_value), (void **)&entry) == SUCCESS) {    SEPARATE_ZVAL(entry);    convert_to_string_ex(entry);     MAKE_STD_ZVAL(new_string);    ZVAL_LONG(new_string,1);       zend_hash_update(intern->registered_phpfunctions, Z_STRVAL_PP(entry), Z_STRLEN_PP(entry) + 1, &new_string, sizeof(zval*), NULL);    zend_hash_move_forward(Z_ARRVAL_P(array_value));   }   intern->registerPhpFunctions = 2;   RETURN_TRUE;   } else if (zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS() TSRMLS_CC, \"s\",  &name, &name_len) == SUCCESS) {   intern = (dom_xpath_object *)zend_object_store_get_object(id TSRMLS_CC);      MAKE_STD_ZVAL(new_string);   ZVAL_LONG(new_string,1);   zend_hash_update(intern->registered_phpfunctions, name, name_len + 1, &new_string, sizeof(zval*), NULL);   intern->registerPhpFunctions = 2;     } else {   intern = (dom_xpath_object *)zend_object_store_get_object(id TSRMLS_CC);   intern->registerPhpFunctions = 1;  }   } /* }}} end dom_xpath_register_php_functions"
+    ],
+    "each": [
+        "array each(array arr)",
+        "Return the currently pointed key..value pair in the passed array, and advance the pointer to the next element"
+    ],
+    "easter_date": [
+        "int easter_date([int year])",
+        "Return the timestamp of midnight on Easter of a given year (defaults to current year)"
+    ],
+    "easter_days": [
+        "int easter_days([int year, [int method]])",
+        "Return the number of days after March 21 that Easter falls on for a given year (defaults to current year)"
+    ],
+    "echo": [
+        "void echo(string arg1 [, string ...])",
+        "Output one or more strings"
+    ],
+    "empty": [
+        "bool empty( mixed var )",
+        "Determine whether a variable is empty"
+    ],
+    "enchant_broker_describe": [
+        "array enchant_broker_describe(resource broker)",
+        "Enumerates the Enchant providers and tells you some rudimentary information about them. The same info is provided through phpinfo()"
+    ],
+    "enchant_broker_dict_exists": [
+        "bool enchant_broker_dict_exists(resource broker, string tag)",
+        "Whether a dictionary exists or not. Using non-empty tag"
+    ],
+    "enchant_broker_free": [
+        "boolean enchant_broker_free(resource broker)",
+        "Destroys the broker object and its dictionnaries"
+    ],
+    "enchant_broker_free_dict": [
+        "resource enchant_broker_free_dict(resource dict)",
+        "Free the dictionary resource"
+    ],
+    "enchant_broker_get_dict_path": [
+        "string enchant_broker_get_dict_path(resource broker, int dict_type)",
+        "Get the directory path for a given backend, works with ispell and myspell"
+    ],
+    "enchant_broker_get_error": [
+        "string enchant_broker_get_error(resource broker)",
+        "Returns the last error of the broker"
+    ],
+    "enchant_broker_init": [
+        "resource enchant_broker_init()",
+        "create a new broker object capable of requesting"
+    ],
+    "enchant_broker_list_dicts": [
+        "string enchant_broker_list_dicts(resource broker)",
+        "Lists the dictionaries available for the given broker"
+    ],
+    "enchant_broker_request_dict": [
+        "resource enchant_broker_request_dict(resource broker, string tag)",
+        "create a new dictionary using tag, the non-empty language tag you wish to request  a dictionary for (\"en_US\", \"de_DE\", ...)"
+    ],
+    "enchant_broker_request_pwl_dict": [
+        "resource enchant_broker_request_pwl_dict(resource broker, string filename)",
+        "creates a dictionary using a PWL file. A PWL file is personal word file one word per line. It must exist before the call."
+    ],
+    "enchant_broker_set_dict_path": [
+        "bool enchant_broker_set_dict_path(resource broker, int dict_type, string value)",
+        "Set the directory path for a given backend, works with ispell and myspell"
+    ],
+    "enchant_broker_set_ordering": [
+        "bool enchant_broker_set_ordering(resource broker, string tag, string ordering)",
+        "Declares a preference of dictionaries to use for the language  described/referred to by 'tag'. The ordering is a comma delimited  list of provider names. As a special exception, the \"*\" tag can  be used as a language tag to declare a default ordering for any  language that does not explictly declare an ordering."
+    ],
+    "enchant_dict_add_to_personal": [
+        "void enchant_dict_add_to_personal(resource dict, string word)",
+        "add 'word' to personal word list"
+    ],
+    "enchant_dict_add_to_session": [
+        "void enchant_dict_add_to_session(resource dict, string word)",
+        "add 'word' to this spell-checking session"
+    ],
+    "enchant_dict_check": [
+        "bool enchant_dict_check(resource dict, string word)",
+        "If the word is correctly spelled return true, otherwise return false"
+    ],
+    "enchant_dict_describe": [
+        "array enchant_dict_describe(resource dict)",
+        "Describes an individual dictionary 'dict'"
+    ],
+    "enchant_dict_get_error": [
+        "string enchant_dict_get_error(resource dict)",
+        "Returns the last error of the current spelling-session"
+    ],
+    "enchant_dict_is_in_session": [
+        "bool enchant_dict_is_in_session(resource dict, string word)",
+        "whether or not 'word' exists in this spelling-session"
+    ],
+    "enchant_dict_quick_check": [
+        "bool enchant_dict_quick_check(resource dict, string word [, array &suggestions])",
+        "If the word is correctly spelled return true, otherwise return false, if suggestions variable     is provided, fill it with spelling alternatives."
+    ],
+    "enchant_dict_store_replacement": [
+        "void enchant_dict_store_replacement(resource dict, string mis, string cor)",
+        "add a correction for 'mis' using 'cor'.  Notes that you replaced @mis with @cor, so it's possibly more likely  that future occurrences of @mis will be replaced with @cor. So it might  bump @cor up in the suggestion list."
+    ],
+    "enchant_dict_suggest": [
+        "array enchant_dict_suggest(resource dict, string word)",
+        "Will return a list of values if any of those pre-conditions are not met."
+    ],
+    "end": [
+        "mixed end(array array_arg)",
+        "Advances array argument's internal pointer to the last element and return it"
+    ],
+    "ereg": [
+        "int ereg(string pattern, string string [, array registers])",
+        "Regular expression match"
+    ],
+    "ereg_replace": [
+        "string ereg_replace(string pattern, string replacement, string string)",
+        "Replace regular expression"
+    ],
+    "eregi": [
+        "int eregi(string pattern, string string [, array registers])",
+        "Case-insensitive regular expression match"
+    ],
+    "eregi_replace": [
+        "string eregi_replace(string pattern, string replacement, string string)",
+        "Case insensitive replace regular expression"
+    ],
+    "error_get_last": [
+        "array error_get_last()",
+        "Get the last occurred error as associative array. Returns NULL if there hasn't been an error yet."
+    ],
+    "error_log": [
+        "bool error_log(string message [, int message_type [, string destination [, string extra_headers]]])",
+        "Send an error message somewhere"
+    ],
+    "error_reporting": [
+        "int error_reporting([int new_error_level])",
+        "Return the current error_reporting level, and if an argument was passed - change to the new level"
+    ],
+    "escapeshellarg": [
+        "string escapeshellarg(string arg)",
+        "Quote and escape an argument for use in a shell command"
+    ],
+    "escapeshellcmd": [
+        "string escapeshellcmd(string command)",
+        "Escape shell metacharacters"
+    ],
+    "exec": [
+        "string exec(string command [, array &output [, int &return_value]])",
+        "Execute an external program"
+    ],
+    "exif_imagetype": [
+        "int exif_imagetype(string imagefile)",
+        "Get the type of an image"
+    ],
+    "exif_read_data": [
+        "array exif_read_data(string filename [, sections_needed [, sub_arrays[, read_thumbnail]]])",
+        "Reads header data from the JPEG/TIFF image filename and optionally reads the internal thumbnails"
+    ],
+    "exif_tagname": [
+        "string exif_tagname(index)",
+        "Get headername for index or false if not defined"
+    ],
+    "exif_thumbnail": [
+        "string exif_thumbnail(string filename [, &width, &height [, &imagetype]])",
+        "Reads the embedded thumbnail"
+    ],
+    "exit": [
+        "void exit([mixed status])",
+        "Output a message and terminate the current script"
+    ],
+    "exp": [
+        "float exp(float number)",
+        "Returns e raised to the power of the number"
+    ],
+    "explode": [
+        "array explode(string separator, string str [, int limit])",
+        "Splits a string on string separator and return array of components. If limit is positive only limit number of components is returned. If limit is negative all components except the last abs(limit) are returned."
+    ],
+    "expm1": [
+        "float expm1(float number)",
+        "Returns exp(number) - 1, computed in a way that accurate even when the value of number is close to zero"
+    ],
+    "extension_loaded": [
+        "bool extension_loaded(string extension_name)",
+        "Returns true if the named extension is loaded"
+    ],
+    "extract": [
+        "int extract(array var_array [, int extract_type [, string prefix]])",
+        "Imports variables into symbol table from an array"
+    ],
+    "ezmlm_hash": [
+        "int ezmlm_hash(string addr)",
+        "Calculate EZMLM list hash value."
+    ],
+    "fclose": [
+        "bool fclose(resource fp)",
+        "Close an open file pointer"
+    ],
+    "feof": [
+        "bool feof(resource fp)",
+        "Test for end-of-file on a file pointer"
+    ],
+    "fflush": [
+        "bool fflush(resource fp)",
+        "Flushes output"
+    ],
+    "fgetc": [
+        "string fgetc(resource fp)",
+        "Get a character from file pointer"
+    ],
+    "fgetcsv": [
+        "array fgetcsv(resource fp [,int length [, string delimiter [, string enclosure [, string escape]]]])",
+        "Get line from file pointer and parse for CSV fields"
+    ],
+    "fgets": [
+        "string fgets(resource fp[, int length])",
+        "Get a line from file pointer"
+    ],
+    "fgetss": [
+  
