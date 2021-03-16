@@ -3159,4 +3159,316 @@ var functionMap = {
     ],
     "datefmt_setLenient": [
         "string datefmt_setLenient(IntlDateFormatter $mf)",
-        "* Set form
+        "* Set formatter lenient."
+    ],
+    "datefmt_set_calendar": [
+        "bool datefmt_set_calendar( IntlDateFormatter $mf, int $calendar )",
+        "* Set formatter calendar."
+    ],
+    "datefmt_set_pattern": [
+        "bool datefmt_set_pattern( IntlDateFormatter $mf, string $pattern )",
+        "* Set formatter pattern."
+    ],
+    "datefmt_set_timezone_id": [
+        "boolean datefmt_set_timezone_id( IntlDateFormatter $mf,$timezone_id)",
+        "* Set formatter timezone_id."
+    ],
+    "dba_close": [
+        "void dba_close(resource handle)",
+        "Closes database"
+    ],
+    "dba_delete": [
+        "bool dba_delete(string key, resource handle)",
+        "Deletes the entry associated with key    If inifile: remove all other key lines"
+    ],
+    "dba_exists": [
+        "bool dba_exists(string key, resource handle)",
+        "Checks, if the specified key exists"
+    ],
+    "dba_fetch": [
+        "string dba_fetch(string key, [int skip ,] resource handle)",
+        "Fetches the data associated with key"
+    ],
+    "dba_firstkey": [
+        "string dba_firstkey(resource handle)",
+        "Resets the internal key pointer and returns the first key"
+    ],
+    "dba_handlers": [
+        "array dba_handlers([bool full_info])",
+        "List configured database handlers"
+    ],
+    "dba_insert": [
+        "bool dba_insert(string key, string value, resource handle)",
+        "If not inifile: Insert value as key, return false, if key exists already     If inifile: Add vakue as key (next instance of key)"
+    ],
+    "dba_key_split": [
+        "array|false dba_key_split(string key)",
+        "Splits an inifile key into an array of the form array(0=>group,1=>value_name) but returns false if input is false or null"
+    ],
+    "dba_list": [
+        "array dba_list()",
+        "List opened databases"
+    ],
+    "dba_nextkey": [
+        "string dba_nextkey(resource handle)",
+        "Returns the next key"
+    ],
+    "dba_open": [
+        "resource dba_open(string path, string mode [, string handlername, string ...])",
+        "Opens path using the specified handler in mode"
+    ],
+    "dba_optimize": [
+        "bool dba_optimize(resource handle)",
+        "Optimizes (e.g. clean up, vacuum) database"
+    ],
+    "dba_popen": [
+        "resource dba_popen(string path, string mode [, string handlername, string ...])",
+        "Opens path using the specified handler in mode persistently"
+    ],
+    "dba_replace": [
+        "bool dba_replace(string key, string value, resource handle)",
+        "Inserts value as key, replaces key, if key exists already    If inifile: remove all other key lines"
+    ],
+    "dba_sync": [
+        "bool dba_sync(resource handle)",
+        "Synchronizes database"
+    ],
+    "dcgettext": [
+        "string dcgettext(string domain_name, string msgid, long category)",
+        "Return the translation of msgid for domain_name and category, or msgid unaltered if a translation does not exist"
+    ],
+    "dcngettext": [
+        "string dcngettext (string domain, string msgid1, string msgid2, int n, int category)",
+        "Plural version of dcgettext()"
+    ],
+    "debug_backtrace": [
+        "array debug_backtrace([bool provide_object])",
+        "Return backtrace as array"
+    ],
+    "debug_print_backtrace": [
+        "void debug_print_backtrace(void) */",
+        "ZEND_FUNCTION(debug_print_backtrace) {  zend_execute_data *ptr, *skip;  int lineno;  char *function_name;  char *filename;  char *class_name = NULL;  char *call_type;  char *include_filename = NULL;  zval *arg_array = NULL;  int indent = 0;   if (zend_parse_parameters_none() == FAILURE) {   return;  }   ptr = EG(current_execute_data);",
+        "PHP_FUNCTION(dom_document_relaxNG_validate_file) {  _dom_document_relaxNG_validate(INTERNAL_FUNCTION_PARAM_PASSTHRU, DOM_LOAD_FILE); } /* }}} end dom_document_relaxNG_validate_file"
+    ],
+    "dom_document_relaxNG_validate_xml": [
+        "boolean dom_document_relaxNG_validate_xml(string source); */",
+        "PHP_FUNCTION(dom_document_relaxNG_validate_xml) {  _dom_document_relaxNG_validate(INTERNAL_FUNCTION_PARAM_PASSTHRU, DOM_LOAD_STRING); } /* }}} end dom_document_relaxNG_validate_xml"
+    ],
+    "dom_document_rename_node": [
+        "DOMNode dom_document_rename_node(node n, string namespaceURI, string qualifiedName);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-Document3-renameNode Since: DOM Level 3"
+    ],
+    "dom_document_save": [
+        "int dom_document_save(string file);",
+        "Convenience method to save to file"
+    ],
+    "dom_document_save_html": [
+        "string dom_document_save_html();",
+        "Convenience method to output as html"
+    ],
+    "dom_document_save_html_file": [
+        "int dom_document_save_html_file(string file);",
+        "Convenience method to save to file as html"
+    ],
+    "dom_document_savexml": [
+        "string dom_document_savexml([node n]);",
+        "URL: http://www.w3.org/TR/DOM-Level-3-LS/load-save.html#LS-DocumentLS-saveXML Since: DOM Level 3"
+    ],
+    "dom_document_schema_validate": [
+        "boolean dom_document_schema_validate(string source); */",
+        "PHP_FUNCTION(dom_document_schema_validate_xml) {  _dom_document_schema_validate(INTERNAL_FUNCTION_PARAM_PASSTHRU, DOM_LOAD_STRING); } /* }}} end dom_document_schema_validate"
+    ],
+    "dom_document_schema_validate_file": [
+        "boolean dom_document_schema_validate_file(string filename); */",
+        "PHP_FUNCTION(dom_document_schema_validate_file) {  _dom_document_schema_validate(INTERNAL_FUNCTION_PARAM_PASSTHRU, DOM_LOAD_FILE); } /* }}} end dom_document_schema_validate_file"
+    ],
+    "dom_document_validate": [
+        "boolean dom_document_validate();",
+        "Since: DOM extended"
+    ],
+    "dom_document_xinclude": [
+        "int dom_document_xinclude([int options])",
+        "Substitutues xincludes in a DomDocument"
+    ],
+    "dom_domconfiguration_can_set_parameter": [
+        "boolean dom_domconfiguration_can_set_parameter(string name, domuserdata value);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#DOMConfiguration-canSetParameter Since:"
+    ],
+    "dom_domconfiguration_get_parameter": [
+        "domdomuserdata dom_domconfiguration_get_parameter(string name);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#DOMConfiguration-getParameter Since:"
+    ],
+    "dom_domconfiguration_set_parameter": [
+        "dom_void dom_domconfiguration_set_parameter(string name, domuserdata value);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#DOMConfiguration-property Since:"
+    ],
+    "dom_domerrorhandler_handle_error": [
+        "dom_boolean dom_domerrorhandler_handle_error(domerror error);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#ID-ERRORS-DOMErrorHandler-handleError Since:"
+    ],
+    "dom_domimplementation_create_document": [
+        "DOMDocument dom_domimplementation_create_document(string namespaceURI, string qualifiedName, DOMDocumentType doctype);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#Level-2-Core-DOM-createDocument Since: DOM Level 2"
+    ],
+    "dom_domimplementation_create_document_type": [
+        "DOMDocumentType dom_domimplementation_create_document_type(string qualifiedName, string publicId, string systemId);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#Level-2-Core-DOM-createDocType Since: DOM Level 2"
+    ],
+    "dom_domimplementation_get_feature": [
+        "DOMNode dom_domimplementation_get_feature(string feature, string version);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#DOMImplementation3-getFeature Since: DOM Level 3"
+    ],
+    "dom_domimplementation_has_feature": [
+        "boolean dom_domimplementation_has_feature(string feature, string version);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#ID-5CED94D7 Since:"
+    ],
+    "dom_domimplementationlist_item": [
+        "domdomimplementation dom_domimplementationlist_item(int index);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#DOMImplementationList-item Since:"
+    ],
+    "dom_domimplementationsource_get_domimplementation": [
+        "domdomimplementation dom_domimplementationsource_get_domimplementation(string features);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#ID-getDOMImpl Since:"
+    ],
+    "dom_domimplementationsource_get_domimplementations": [
+        "domimplementationlist dom_domimplementationsource_get_domimplementations(string features);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#ID-getDOMImpls Since:"
+    ],
+    "dom_domstringlist_item": [
+        "domstring dom_domstringlist_item(int index);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#DOMStringList-item Since:"
+    ],
+    "dom_element_get_attribute": [
+        "string dom_element_get_attribute(string name);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-666EE0F9 Since:"
+    ],
+    "dom_element_get_attribute_node": [
+        "DOMAttr dom_element_get_attribute_node(string name);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-217A91B8 Since:"
+    ],
+    "dom_element_get_attribute_node_ns": [
+        "DOMAttr dom_element_get_attribute_node_ns(string namespaceURI, string localName);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-ElGetAtNodeNS Since: DOM Level 2"
+    ],
+    "dom_element_get_attribute_ns": [
+        "string dom_element_get_attribute_ns(string namespaceURI, string localName);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-ElGetAttrNS Since: DOM Level 2"
+    ],
+    "dom_element_get_elements_by_tag_name": [
+        "DOMNodeList dom_element_get_elements_by_tag_name(string name);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-1938918D Since:"
+    ],
+    "dom_element_get_elements_by_tag_name_ns": [
+        "DOMNodeList dom_element_get_elements_by_tag_name_ns(string namespaceURI, string localName);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-A6C90942 Since: DOM Level 2"
+    ],
+    "dom_element_has_attribute": [
+        "boolean dom_element_has_attribute(string name);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-ElHasAttr Since: DOM Level 2"
+    ],
+    "dom_element_has_attribute_ns": [
+        "boolean dom_element_has_attribute_ns(string namespaceURI, string localName);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-ElHasAttrNS Since: DOM Level 2"
+    ],
+    "dom_element_remove_attribute": [
+        "void dom_element_remove_attribute(string name);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-6D6AC0F9 Since:"
+    ],
+    "dom_element_remove_attribute_node": [
+        "DOMAttr dom_element_remove_attribute_node(DOMAttr oldAttr);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-D589198 Since:"
+    ],
+    "dom_element_remove_attribute_ns": [
+        "void dom_element_remove_attribute_ns(string namespaceURI, string localName);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-ElRemAtNS Since: DOM Level 2"
+    ],
+    "dom_element_set_attribute": [
+        "void dom_element_set_attribute(string name, string value);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-F68F082 Since:"
+    ],
+    "dom_element_set_attribute_node": [
+        "DOMAttr dom_element_set_attribute_node(DOMAttr newAttr);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-887236154 Since:"
+    ],
+    "dom_element_set_attribute_node_ns": [
+        "DOMAttr dom_element_set_attribute_node_ns(DOMAttr newAttr);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-ElSetAtNodeNS Since: DOM Level 2"
+    ],
+    "dom_element_set_attribute_ns": [
+        "void dom_element_set_attribute_ns(string namespaceURI, string qualifiedName, string value);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-ElSetAttrNS Since: DOM Level 2"
+    ],
+    "dom_element_set_id_attribute": [
+        "void dom_element_set_id_attribute(string name, boolean isId);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-ElSetIdAttr Since: DOM Level 3"
+    ],
+    "dom_element_set_id_attribute_node": [
+        "void dom_element_set_id_attribute_node(attr idAttr, boolean isId);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-ElSetIdAttrNode Since: DOM Level 3"
+    ],
+    "dom_element_set_id_attribute_ns": [
+        "void dom_element_set_id_attribute_ns(string namespaceURI, string localName, boolean isId);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-ElSetIdAttrNS Since: DOM Level 3"
+    ],
+    "dom_import_simplexml": [
+        "somNode dom_import_simplexml(sxeobject node)",
+        "Get a simplexml_element object from dom to allow for processing"
+    ],
+    "dom_namednodemap_get_named_item": [
+        "DOMNode dom_namednodemap_get_named_item(string name);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-1074577549 Since:"
+    ],
+    "dom_namednodemap_get_named_item_ns": [
+        "DOMNode dom_namednodemap_get_named_item_ns(string namespaceURI, string localName);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-getNamedItemNS Since: DOM Level 2"
+    ],
+    "dom_namednodemap_item": [
+        "DOMNode dom_namednodemap_item(int index);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-349467F9 Since:"
+    ],
+    "dom_namednodemap_remove_named_item": [
+        "DOMNode dom_namednodemap_remove_named_item(string name);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-D58B193 Since:"
+    ],
+    "dom_namednodemap_remove_named_item_ns": [
+        "DOMNode dom_namednodemap_remove_named_item_ns(string namespaceURI, string localName);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-removeNamedItemNS Since: DOM Level 2"
+    ],
+    "dom_namednodemap_set_named_item": [
+        "DOMNode dom_namednodemap_set_named_item(DOMNode arg);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-1025163788 Since:"
+    ],
+    "dom_namednodemap_set_named_item_ns": [
+        "DOMNode dom_namednodemap_set_named_item_ns(DOMNode arg);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-setNamedItemNS Since: DOM Level 2"
+    ],
+    "dom_namelist_get_name": [
+        "string dom_namelist_get_name(int index);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#NameList-getName Since:"
+    ],
+    "dom_namelist_get_namespace_uri": [
+        "string dom_namelist_get_namespace_uri(int index);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#NameList-getNamespaceURI Since:"
+    ],
+    "dom_node_append_child": [
+        "DomNode dom_node_append_child(DomNode newChild);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-184E7107 Since:"
+    ],
+    "dom_node_clone_node": [
+        "DomNode dom_node_clone_node(boolean deep);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#core-ID-3A0ED0A4 Since:"
+    ],
+    "dom_node_compare_document_position": [
+        "short dom_node_compare_document_position(DomNode other);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#Node3-compareDocumentPosition Since: DOM Level 3"
+    ],
+    "dom_node_get_feature": [
+        "DomNode dom_node_get_feature(string feature, string version);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#Node3-getFeature Since: DOM Level 3"
+    ],
+    "dom_node_get_user_data": [
+        "mixed dom_node_get_user_data(string key);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#Node3-getUserData Since: DOM Level 3"
+    ],
+    "dom_node_has_attributes": [
+     
