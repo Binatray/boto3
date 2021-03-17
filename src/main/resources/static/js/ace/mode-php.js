@@ -4238,4 +4238,495 @@ var functionMap = {
     ],
     "get_object_vars": [
         "array get_object_vars(object obj)",
-        "Returns an array 
+        "Returns an array of object properties"
+    ],
+    "get_parent_class": [
+        "string get_parent_class([mixed object])",
+        "Retrieves the parent class name for object or class or current scope."
+    ],
+    "get_resource_type": [
+        "string get_resource_type(resource res)",
+        "Get the resource type name for a given resource"
+    ],
+    "getallheaders": [
+        "array getallheaders(void)",
+        ""
+    ],
+    "getcwd": [
+        "mixed getcwd(void)",
+        "Gets the current directory"
+    ],
+    "getdate": [
+        "array getdate([int timestamp])",
+        "Get date/time information"
+    ],
+    "getenv": [
+        "string getenv(string varname)",
+        "Get the value of an environment variable"
+    ],
+    "gethostbyaddr": [
+        "string gethostbyaddr(string ip_address)",
+        "Get the Internet host name corresponding to a given IP address"
+    ],
+    "gethostbyname": [
+        "string gethostbyname(string hostname)",
+        "Get the IP address corresponding to a given Internet host name"
+    ],
+    "gethostbynamel": [
+        "array gethostbynamel(string hostname)",
+        "Return a list of IP addresses that a given hostname resolves to."
+    ],
+    "gethostname": [
+        "string gethostname()",
+        "Get the host name of the current machine"
+    ],
+    "getimagesize": [
+        "array getimagesize(string imagefile [, array info])",
+        "Get the size of an image as 4-element array"
+    ],
+    "getlastmod": [
+        "int getlastmod(void)",
+        "Get time of last page modification"
+    ],
+    "getmygid": [
+        "int getmygid(void)",
+        "Get PHP script owner's GID"
+    ],
+    "getmyinode": [
+        "int getmyinode(void)",
+        "Get the inode of the current script being parsed"
+    ],
+    "getmypid": [
+        "int getmypid(void)",
+        "Get current process ID"
+    ],
+    "getmyuid": [
+        "int getmyuid(void)",
+        "Get PHP script owner's UID"
+    ],
+    "getopt": [
+        "array getopt(string options [, array longopts])",
+        "Get options from the command line argument list"
+    ],
+    "getprotobyname": [
+        "int getprotobyname(string name)",
+        "Returns protocol number associated with name as per /etc/protocols"
+    ],
+    "getprotobynumber": [
+        "string getprotobynumber(int proto)",
+        "Returns protocol name associated with protocol number proto"
+    ],
+    "getrandmax": [
+        "int getrandmax(void)",
+        "Returns the maximum value a random number can have"
+    ],
+    "getrusage": [
+        "array getrusage([int who])",
+        "Returns an array of usage statistics"
+    ],
+    "getservbyname": [
+        "int getservbyname(string service, string protocol)",
+        "Returns port associated with service. Protocol must be \"tcp\" or \"udp\""
+    ],
+    "getservbyport": [
+        "string getservbyport(int port, string protocol)",
+        "Returns service name associated with port. Protocol must be \"tcp\" or \"udp\""
+    ],
+    "gettext": [
+        "string gettext(string msgid)",
+        "Return the translation of msgid for the current domain, or msgid unaltered if a translation does not exist"
+    ],
+    "gettimeofday": [
+        "array gettimeofday([bool get_as_float])",
+        "Returns the current time as array"
+    ],
+    "gettype": [
+        "string gettype(mixed var)",
+        "Returns the type of the variable"
+    ],
+    "glob": [
+        "array glob(string pattern [, int flags])",
+        "Find pathnames matching a pattern"
+    ],
+    "gmdate": [
+        "string gmdate(string format [, long timestamp])",
+        "Format a GMT date/time"
+    ],
+    "gmmktime": [
+        "int gmmktime([int hour [, int min [, int sec [, int mon [, int day [, int year]]]]]])",
+        "Get UNIX timestamp for a GMT date"
+    ],
+    "gmp_abs": [
+        "resource gmp_abs(resource a)",
+        "Calculates absolute value"
+    ],
+    "gmp_add": [
+        "resource gmp_add(resource a, resource b)",
+        "Add a and b"
+    ],
+    "gmp_and": [
+        "resource gmp_and(resource a, resource b)",
+        "Calculates logical AND of a and b"
+    ],
+    "gmp_clrbit": [
+        "void gmp_clrbit(resource &a, int index)",
+        "Clears bit in a"
+    ],
+    "gmp_cmp": [
+        "int gmp_cmp(resource a, resource b)",
+        "Compares two numbers"
+    ],
+    "gmp_com": [
+        "resource gmp_com(resource a)",
+        "Calculates one's complement of a"
+    ],
+    "gmp_div_q": [
+        "resource gmp_div_q(resource a, resource b [, int round])",
+        "Divide a by b, returns quotient only"
+    ],
+    "gmp_div_qr": [
+        "array gmp_div_qr(resource a, resource b [, int round])",
+        "Divide a by b, returns quotient and reminder"
+    ],
+    "gmp_div_r": [
+        "resource gmp_div_r(resource a, resource b [, int round])",
+        "Divide a by b, returns reminder only"
+    ],
+    "gmp_divexact": [
+        "resource gmp_divexact(resource a, resource b)",
+        "Divide a by b using exact division algorithm"
+    ],
+    "gmp_fact": [
+        "resource gmp_fact(int a)",
+        "Calculates factorial function"
+    ],
+    "gmp_gcd": [
+        "resource gmp_gcd(resource a, resource b)",
+        "Computes greatest common denominator (gcd) of a and b"
+    ],
+    "gmp_gcdext": [
+        "array gmp_gcdext(resource a, resource b)",
+        "Computes G, S, and T, such that AS + BT = G = `gcd' (A, B)"
+    ],
+    "gmp_hamdist": [
+        "int gmp_hamdist(resource a, resource b)",
+        "Calculates hamming distance between a and b"
+    ],
+    "gmp_init": [
+        "resource gmp_init(mixed number [, int base])",
+        "Initializes GMP number"
+    ],
+    "gmp_intval": [
+        "int gmp_intval(resource gmpnumber)",
+        "Gets signed long value of GMP number"
+    ],
+    "gmp_invert": [
+        "resource gmp_invert(resource a, resource b)",
+        "Computes the inverse of a modulo b"
+    ],
+    "gmp_jacobi": [
+        "int gmp_jacobi(resource a, resource b)",
+        "Computes Jacobi symbol"
+    ],
+    "gmp_legendre": [
+        "int gmp_legendre(resource a, resource b)",
+        "Computes Legendre symbol"
+    ],
+    "gmp_mod": [
+        "resource gmp_mod(resource a, resource b)",
+        "Computes a modulo b"
+    ],
+    "gmp_mul": [
+        "resource gmp_mul(resource a, resource b)",
+        "Multiply a and b"
+    ],
+    "gmp_neg": [
+        "resource gmp_neg(resource a)",
+        "Negates a number"
+    ],
+    "gmp_nextprime": [
+        "resource gmp_nextprime(resource a)",
+        "Finds next prime of a"
+    ],
+    "gmp_or": [
+        "resource gmp_or(resource a, resource b)",
+        "Calculates logical OR of a and b"
+    ],
+    "gmp_perfect_square": [
+        "bool gmp_perfect_square(resource a)",
+        "Checks if a is an exact square"
+    ],
+    "gmp_popcount": [
+        "int gmp_popcount(resource a)",
+        "Calculates the population count of a"
+    ],
+    "gmp_pow": [
+        "resource gmp_pow(resource base, int exp)",
+        "Raise base to power exp"
+    ],
+    "gmp_powm": [
+        "resource gmp_powm(resource base, resource exp, resource mod)",
+        "Raise base to power exp and take result modulo mod"
+    ],
+    "gmp_prob_prime": [
+        "int gmp_prob_prime(resource a[, int reps])",
+        "Checks if a is \"probably prime\""
+    ],
+    "gmp_random": [
+        "resource gmp_random([int limiter])",
+        "Gets random number"
+    ],
+    "gmp_scan0": [
+        "int gmp_scan0(resource a, int start)",
+        "Finds first zero bit"
+    ],
+    "gmp_scan1": [
+        "int gmp_scan1(resource a, int start)",
+        "Finds first non-zero bit"
+    ],
+    "gmp_setbit": [
+        "void gmp_setbit(resource &a, int index[, bool set_clear])",
+        "Sets or clear bit in a"
+    ],
+    "gmp_sign": [
+        "int gmp_sign(resource a)",
+        "Gets the sign of the number"
+    ],
+    "gmp_sqrt": [
+        "resource gmp_sqrt(resource a)",
+        "Takes integer part of square root of a"
+    ],
+    "gmp_sqrtrem": [
+        "array gmp_sqrtrem(resource a)",
+        "Square root with remainder"
+    ],
+    "gmp_strval": [
+        "string gmp_strval(resource gmpnumber [, int base])",
+        "Gets string representation of GMP number"
+    ],
+    "gmp_sub": [
+        "resource gmp_sub(resource a, resource b)",
+        "Subtract b from a"
+    ],
+    "gmp_testbit": [
+        "bool gmp_testbit(resource a, int index)",
+        "Tests if bit is set in a"
+    ],
+    "gmp_xor": [
+        "resource gmp_xor(resource a, resource b)",
+        "Calculates logical exclusive OR of a and b"
+    ],
+    "gmstrftime": [
+        "string gmstrftime(string format [, int timestamp])",
+        "Format a GMT/UCT time/date according to locale settings"
+    ],
+    "grapheme_extract": [
+        "string grapheme_extract(string str, int size[, int extract_type[, int start[, int next]]])",
+        "Function to extract a sequence of default grapheme clusters"
+    ],
+    "grapheme_stripos": [
+        "int grapheme_stripos(string haystack, string needle [, int offset ])",
+        "Find position of first occurrence of a string within another, ignoring case differences"
+    ],
+    "grapheme_stristr": [
+        "string grapheme_stristr(string haystack, string needle[, bool part])",
+        "Finds first occurrence of a string within another"
+    ],
+    "grapheme_strlen": [
+        "int grapheme_strlen(string str)",
+        "Get number of graphemes in a string"
+    ],
+    "grapheme_strpos": [
+        "int grapheme_strpos(string haystack, string needle [, int offset ])",
+        "Find position of first occurrence of a string within another"
+    ],
+    "grapheme_strripos": [
+        "int grapheme_strripos(string haystack, string needle [, int offset])",
+        "Find position of last occurrence of a string within another, ignoring case"
+    ],
+    "grapheme_strrpos": [
+        "int grapheme_strrpos(string haystack, string needle [, int offset])",
+        "Find position of last occurrence of a string within another"
+    ],
+    "grapheme_strstr": [
+        "string grapheme_strstr(string haystack, string needle[, bool part])",
+        "Finds first occurrence of a string within another"
+    ],
+    "grapheme_substr": [
+        "string grapheme_substr(string str, int start [, int length])",
+        "Returns part of a string"
+    ],
+    "gregoriantojd": [
+        "int gregoriantojd(int month, int day, int year)",
+        "Converts a gregorian calendar date to julian day count"
+    ],
+    "gzcompress": [
+        "string gzcompress(string data [, int level])",
+        "Gzip-compress a string"
+    ],
+    "gzdeflate": [
+        "string gzdeflate(string data [, int level])",
+        "Gzip-compress a string"
+    ],
+    "gzencode": [
+        "string gzencode(string data [, int level [, int encoding_mode]])",
+        "GZ encode a string"
+    ],
+    "gzfile": [
+        "array gzfile(string filename [, int use_include_path])",
+        "Read und uncompress entire .gz-file into an array"
+    ],
+    "gzinflate": [
+        "string gzinflate(string data [, int length])",
+        "Unzip a gzip-compressed string"
+    ],
+    "gzopen": [
+        "resource gzopen(string filename, string mode [, int use_include_path])",
+        "Open a .gz-file and return a .gz-file pointer"
+    ],
+    "gzuncompress": [
+        "string gzuncompress(string data [, int length])",
+        "Unzip a gzip-compressed string"
+    ],
+    "hash": [
+        "string hash(string algo, string data[, bool raw_output = false])",
+        "Generate a hash of a given input string Returns lowercase hexits by default"
+    ],
+    "hash_algos": [
+        "array hash_algos(void)",
+        "Return a list of registered hashing algorithms"
+    ],
+    "hash_copy": [
+        "resource hash_copy(resource context)",
+        "Copy hash resource"
+    ],
+    "hash_file": [
+        "string hash_file(string algo, string filename[, bool raw_output = false])",
+        "Generate a hash of a given file Returns lowercase hexits by default"
+    ],
+    "hash_final": [
+        "string hash_final(resource context[, bool raw_output=false])",
+        "Output resulting digest"
+    ],
+    "hash_hmac": [
+        "string hash_hmac(string algo, string data, string key[, bool raw_output = false])",
+        "Generate a hash of a given input string with a key using HMAC Returns lowercase hexits by default"
+    ],
+    "hash_hmac_file": [
+        "string hash_hmac_file(string algo, string filename, string key[, bool raw_output = false])",
+        "Generate a hash of a given file with a key using HMAC Returns lowercase hexits by default"
+    ],
+    "hash_init": [
+        "resource hash_init(string algo[, int options, string key])",
+        "Initialize a hashing context"
+    ],
+    "hash_update": [
+        "bool hash_update(resource context, string data)",
+        "Pump data into the hashing algorithm"
+    ],
+    "hash_update_file": [
+        "bool hash_update_file(resource context, string filename[, resource context])",
+        "Pump data into the hashing algorithm from a file"
+    ],
+    "hash_update_stream": [
+        "int hash_update_stream(resource context, resource handle[, integer length])",
+        "Pump data into the hashing algorithm from an open stream"
+    ],
+    "header": [
+        "void header(string header [, bool replace, [int http_response_code]])",
+        "Sends a raw HTTP header"
+    ],
+    "header_remove": [
+        "void header_remove([string name])",
+        "Removes an HTTP header previously set using header()"
+    ],
+    "headers_list": [
+        "array headers_list(void)",
+        "Return list of headers to be sent / already sent"
+    ],
+    "headers_sent": [
+        "bool headers_sent([string &$file [, int &$line]])",
+        "Returns true if headers have already been sent, false otherwise"
+    ],
+    "hebrev": [
+        "string hebrev(string str [, int max_chars_per_line])",
+        "Converts logical Hebrew text to visual text"
+    ],
+    "hebrevc": [
+        "string hebrevc(string str [, int max_chars_per_line])",
+        "Converts logical Hebrew text to visual text with newline conversion"
+    ],
+    "hexdec": [
+        "int hexdec(string hexadecimal_number)",
+        "Returns the decimal equivalent of the hexadecimal number"
+    ],
+    "highlight_file": [
+        "bool highlight_file(string file_name [, bool return] )",
+        "Syntax highlight a source file"
+    ],
+    "highlight_string": [
+        "bool highlight_string(string string [, bool return] )",
+        "Syntax highlight a string or optionally return it"
+    ],
+    "html_entity_decode": [
+        "string html_entity_decode(string string [, int quote_style][, string charset])",
+        "Convert all HTML entities to their applicable characters"
+    ],
+    "htmlentities": [
+        "string htmlentities(string string [, int quote_style[, string charset[, bool double_encode]]])",
+        "Convert all applicable characters to HTML entities"
+    ],
+    "htmlspecialchars": [
+        "string htmlspecialchars(string string [, int quote_style[, string charset[, bool double_encode]]])",
+        "Convert special characters to HTML entities"
+    ],
+    "htmlspecialchars_decode": [
+        "string htmlspecialchars_decode(string string [, int quote_style])",
+        "Convert special HTML entities back to characters"
+    ],
+    "http_build_query": [
+        "string http_build_query(mixed formdata [, string prefix [, string arg_separator]])",
+        "Generates a form-encoded query string from an associative array or object."
+    ],
+    "hypot": [
+        "float hypot(float num1, float num2)",
+        "Returns sqrt(num1*num1 + num2*num2)"
+    ],
+    "ibase_add_user": [
+        "bool ibase_add_user(resource service_handle, string user_name, string password [, string first_name [, string middle_name [, string last_name]]])",
+        "Add a user to security database"
+    ],
+    "ibase_affected_rows": [
+        "int ibase_affected_rows( [ resource link_identifier ] )",
+        "Returns the number of rows affected by the previous INSERT, UPDATE or DELETE statement"
+    ],
+    "ibase_backup": [
+        "mixed ibase_backup(resource service_handle, string source_db, string dest_file [, int options [, bool verbose]])",
+        "Initiates a backup task in the service manager and returns immediately"
+    ],
+    "ibase_blob_add": [
+        "bool ibase_blob_add(resource blob_handle, string data)",
+        "Add data into created blob"
+    ],
+    "ibase_blob_cancel": [
+        "bool ibase_blob_cancel(resource blob_handle)",
+        "Cancel creating blob"
+    ],
+    "ibase_blob_close": [
+        "string ibase_blob_close(resource blob_handle)",
+        "Close blob"
+    ],
+    "ibase_blob_create": [
+        "resource ibase_blob_create([resource link_identifier])",
+        "Create blob for adding data"
+    ],
+    "ibase_blob_echo": [
+        "bool ibase_blob_echo([ resource link_identifier, ] string blob_id)",
+        "Output blob contents to browser"
+    ],
+    "ibase_blob_get": [
+        "string ibase_blob_get(resource blob_handle, int len)",
+        "Get len bytes data from open blob"
+    ],
+    "ibase_blob_import": [
+        "string ibase_
