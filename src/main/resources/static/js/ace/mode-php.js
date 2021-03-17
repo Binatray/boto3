@@ -5117,4 +5117,417 @@ var functionMap = {
         "Draw a dashed line"
     ],
     "imagedestroy": [
-        "bool 
+        "bool imagedestroy(resource im)",
+        "Destroy an image"
+    ],
+    "imageellipse": [
+        "bool imageellipse(resource im, int cx, int cy, int w, int h, int color)",
+        "Draw an ellipse"
+    ],
+    "imagefill": [
+        "bool imagefill(resource im, int x, int y, int col)",
+        "Flood fill"
+    ],
+    "imagefilledarc": [
+        "bool imagefilledarc(resource im, int cx, int cy, int w, int h, int s, int e, int col, int style)",
+        "Draw a filled partial ellipse"
+    ],
+    "imagefilledellipse": [
+        "bool imagefilledellipse(resource im, int cx, int cy, int w, int h, int color)",
+        "Draw an ellipse"
+    ],
+    "imagefilledpolygon": [
+        "bool imagefilledpolygon(resource im, array point, int num_points, int col)",
+        "Draw a filled polygon"
+    ],
+    "imagefilledrectangle": [
+        "bool imagefilledrectangle(resource im, int x1, int y1, int x2, int y2, int col)",
+        "Draw a filled rectangle"
+    ],
+    "imagefilltoborder": [
+        "bool imagefilltoborder(resource im, int x, int y, int border, int col)",
+        "Flood fill to specific color"
+    ],
+    "imagefilter": [
+        "bool imagefilter(resource src_im, int filtertype, [args] )",
+        "Applies Filter an image using a custom angle"
+    ],
+    "imagefontheight": [
+        "int imagefontheight(int font)",
+        "Get font height"
+    ],
+    "imagefontwidth": [
+        "int imagefontwidth(int font)",
+        "Get font width"
+    ],
+    "imageftbbox": [
+        "array imageftbbox(float size, float angle, string font_file, string text [, array extrainfo])",
+        "Give the bounding box of a text using fonts via freetype2"
+    ],
+    "imagefttext": [
+        "array imagefttext(resource im, float size, float angle, int x, int y, int col, string font_file, string text [, array extrainfo])",
+        "Write text to the image using fonts via freetype2"
+    ],
+    "imagegammacorrect": [
+        "bool imagegammacorrect(resource im, float inputgamma, float outputgamma)",
+        "Apply a gamma correction to a GD image"
+    ],
+    "imagegd": [
+        "bool imagegd(resource im [, string filename])",
+        "Output GD image to browser or file"
+    ],
+    "imagegd2": [
+        "bool imagegd2(resource im [, string filename, [, int chunk_size, [, int type]]])",
+        "Output GD2 image to browser or file"
+    ],
+    "imagegif": [
+        "bool imagegif(resource im [, string filename])",
+        "Output GIF image to browser or file"
+    ],
+    "imagegrabscreen": [
+        "resource imagegrabscreen()",
+        "Grab a screenshot"
+    ],
+    "imagegrabwindow": [
+        "resource imagegrabwindow(int window_handle [, int client_area])",
+        "Grab a window or its client area using a windows handle (HWND property in COM instance)"
+    ],
+    "imageinterlace": [
+        "int imageinterlace(resource im [, int interlace])",
+        "Enable or disable interlace"
+    ],
+    "imageistruecolor": [
+        "bool imageistruecolor(resource im)",
+        "return true if the image uses truecolor"
+    ],
+    "imagejpeg": [
+        "bool imagejpeg(resource im [, string filename [, int quality]])",
+        "Output JPEG image to browser or file"
+    ],
+    "imagelayereffect": [
+        "bool imagelayereffect(resource im, int effect)",
+        "Set the alpha blending flag to use the bundled libgd layering effects"
+    ],
+    "imageline": [
+        "bool imageline(resource im, int x1, int y1, int x2, int y2, int col)",
+        "Draw a line"
+    ],
+    "imageloadfont": [
+        "int imageloadfont(string filename)",
+        "Load a new font"
+    ],
+    "imagepalettecopy": [
+        "void imagepalettecopy(resource dst, resource src)",
+        "Copy the palette from the src image onto the dst image"
+    ],
+    "imagepng": [
+        "bool imagepng(resource im [, string filename])",
+        "Output PNG image to browser or file"
+    ],
+    "imagepolygon": [
+        "bool imagepolygon(resource im, array point, int num_points, int col)",
+        "Draw a polygon"
+    ],
+    "imagepsbbox": [
+        "array imagepsbbox(string text, resource font, int size [, int space, int tightness, float angle])",
+        "Return the bounding box needed by a string if rasterized"
+    ],
+    "imagepscopyfont": [
+        "int imagepscopyfont(int font_index)",
+        "Make a copy of a font for purposes like extending or reenconding"
+    ],
+    "imagepsencodefont": [
+        "bool imagepsencodefont(resource font_index, string filename)",
+        "To change a fonts character encoding vector"
+    ],
+    "imagepsextendfont": [
+        "bool imagepsextendfont(resource font_index, float extend)",
+        "Extend or or condense (if extend < 1) a font"
+    ],
+    "imagepsfreefont": [
+        "bool imagepsfreefont(resource font_index)",
+        "Free memory used by a font"
+    ],
+    "imagepsloadfont": [
+        "resource imagepsloadfont(string pathname)",
+        "Load a new font from specified file"
+    ],
+    "imagepsslantfont": [
+        "bool imagepsslantfont(resource font_index, float slant)",
+        "Slant a font"
+    ],
+    "imagepstext": [
+        "array imagepstext(resource image, string text, resource font, int size, int foreground, int background, int xcoord, int ycoord [, int space [, int tightness [, float angle [, int antialias])",
+        "Rasterize a string over an image"
+    ],
+    "imagerectangle": [
+        "bool imagerectangle(resource im, int x1, int y1, int x2, int y2, int col)",
+        "Draw a rectangle"
+    ],
+    "imagerotate": [
+        "resource imagerotate(resource src_im, float angle, int bgdcolor [, int ignoretransparent])",
+        "Rotate an image using a custom angle"
+    ],
+    "imagesavealpha": [
+        "bool imagesavealpha(resource im, bool on)",
+        "Include alpha channel to a saved image"
+    ],
+    "imagesetbrush": [
+        "bool imagesetbrush(resource image, resource brush)",
+        "Set the brush image to $brush when filling $image with the \"IMG_COLOR_BRUSHED\" color"
+    ],
+    "imagesetpixel": [
+        "bool imagesetpixel(resource im, int x, int y, int col)",
+        "Set a single pixel"
+    ],
+    "imagesetstyle": [
+        "bool imagesetstyle(resource im, array styles)",
+        "Set the line drawing styles for use with imageline and IMG_COLOR_STYLED."
+    ],
+    "imagesetthickness": [
+        "bool imagesetthickness(resource im, int thickness)",
+        "Set line thickness for drawing lines, ellipses, rectangles, polygons etc."
+    ],
+    "imagesettile": [
+        "bool imagesettile(resource image, resource tile)",
+        "Set the tile image to $tile when filling $image with the \"IMG_COLOR_TILED\" color"
+    ],
+    "imagestring": [
+        "bool imagestring(resource im, int font, int x, int y, string str, int col)",
+        "Draw a string horizontally"
+    ],
+    "imagestringup": [
+        "bool imagestringup(resource im, int font, int x, int y, string str, int col)",
+        "Draw a string vertically - rotated 90 degrees counter-clockwise"
+    ],
+    "imagesx": [
+        "int imagesx(resource im)",
+        "Get image width"
+    ],
+    "imagesy": [
+        "int imagesy(resource im)",
+        "Get image height"
+    ],
+    "imagetruecolortopalette": [
+        "void imagetruecolortopalette(resource im, bool ditherFlag, int colorsWanted)",
+        "Convert a true colour image to a palette based image with a number of colours, optionally using dithering."
+    ],
+    "imagettfbbox": [
+        "array imagettfbbox(float size, float angle, string font_file, string text)",
+        "Give the bounding box of a text using TrueType fonts"
+    ],
+    "imagettftext": [
+        "array imagettftext(resource im, float size, float angle, int x, int y, int col, string font_file, string text)",
+        "Write text to the image using a TrueType font"
+    ],
+    "imagetypes": [
+        "int imagetypes(void)",
+        "Return the types of images supported in a bitfield - 1=GIF, 2=JPEG, 4=PNG, 8=WBMP, 16=XPM"
+    ],
+    "imagewbmp": [
+        "bool imagewbmp(resource im [, string filename, [, int foreground]])",
+        "Output WBMP image to browser or file"
+    ],
+    "imagexbm": [
+        "int imagexbm(int im, string filename [, int foreground])",
+        "Output XBM image to browser or file"
+    ],
+    "imap_8bit": [
+        "string imap_8bit(string text)",
+        "Convert an 8-bit string to a quoted-printable string"
+    ],
+    "imap_alerts": [
+        "array imap_alerts(void)",
+        "Returns an array of all IMAP alerts that have been generated since the last page load or since the last imap_alerts() call, whichever came last. The alert stack is cleared after imap_alerts() is called."
+    ],
+    "imap_append": [
+        "bool imap_append(resource stream_id, string folder, string message [, string options [, string internal_date]])",
+        "Append a new message to a specified mailbox"
+    ],
+    "imap_base64": [
+        "string imap_base64(string text)",
+        "Decode BASE64 encoded text"
+    ],
+    "imap_binary": [
+        "string imap_binary(string text)",
+        "Convert an 8bit string to a base64 string"
+    ],
+    "imap_body": [
+        "string imap_body(resource stream_id, int msg_no [, int options])",
+        "Read the message body"
+    ],
+    "imap_bodystruct": [
+        "object imap_bodystruct(resource stream_id, int msg_no, string section)",
+        "Read the structure of a specified body section of a specific message"
+    ],
+    "imap_check": [
+        "object imap_check(resource stream_id)",
+        "Get mailbox properties"
+    ],
+    "imap_clearflag_full": [
+        "bool imap_clearflag_full(resource stream_id, string sequence, string flag [, int options])",
+        "Clears flags on messages"
+    ],
+    "imap_close": [
+        "bool imap_close(resource stream_id [, int options])",
+        "Close an IMAP stream"
+    ],
+    "imap_createmailbox": [
+        "bool imap_createmailbox(resource stream_id, string mailbox)",
+        "Create a new mailbox"
+    ],
+    "imap_delete": [
+        "bool imap_delete(resource stream_id, int msg_no [, int options])",
+        "Mark a message for deletion"
+    ],
+    "imap_deletemailbox": [
+        "bool imap_deletemailbox(resource stream_id, string mailbox)",
+        "Delete a mailbox"
+    ],
+    "imap_errors": [
+        "array imap_errors(void)",
+        "Returns an array of all IMAP errors generated since the last page load, or since the last imap_errors() call, whichever came last. The error stack is cleared after imap_errors() is called."
+    ],
+    "imap_expunge": [
+        "bool imap_expunge(resource stream_id)",
+        "Permanently delete all messages marked for deletion"
+    ],
+    "imap_fetch_overview": [
+        "array imap_fetch_overview(resource stream_id, string sequence [, int options])",
+        "Read an overview of the information in the headers of the given message sequence"
+    ],
+    "imap_fetchbody": [
+        "string imap_fetchbody(resource stream_id, int msg_no, string section [, int options])",
+        "Get a specific body section"
+    ],
+    "imap_fetchheader": [
+        "string imap_fetchheader(resource stream_id, int msg_no [, int options])",
+        "Get the full unfiltered header for a message"
+    ],
+    "imap_fetchstructure": [
+        "object imap_fetchstructure(resource stream_id, int msg_no [, int options])",
+        "Read the full structure of a message"
+    ],
+    "imap_gc": [
+        "bool imap_gc(resource stream_id, int flags)",
+        "This function garbage collects (purges) the cache of entries of a specific type."
+    ],
+    "imap_get_quota": [
+        "array imap_get_quota(resource stream_id, string qroot)",
+        "Returns the quota set to the mailbox account qroot"
+    ],
+    "imap_get_quotaroot": [
+        "array imap_get_quotaroot(resource stream_id, string mbox)",
+        "Returns the quota set to the mailbox account mbox"
+    ],
+    "imap_getacl": [
+        "array imap_getacl(resource stream_id, string mailbox)",
+        "Gets the ACL for a given mailbox"
+    ],
+    "imap_getmailboxes": [
+        "array imap_getmailboxes(resource stream_id, string ref, string pattern)",
+        "Reads the list of mailboxes and returns a full array of objects containing name, attributes, and delimiter"
+    ],
+    "imap_getsubscribed": [
+        "array imap_getsubscribed(resource stream_id, string ref, string pattern)",
+        "Return a list of subscribed mailboxes, in the same format as imap_getmailboxes()"
+    ],
+    "imap_headerinfo": [
+        "object imap_headerinfo(resource stream_id, int msg_no [, int from_length [, int subject_length [, string default_host]]])",
+        "Read the headers of the message"
+    ],
+    "imap_headers": [
+        "array imap_headers(resource stream_id)",
+        "Returns headers for all messages in a mailbox"
+    ],
+    "imap_last_error": [
+        "string imap_last_error(void)",
+        "Returns the last error that was generated by an IMAP function. The error stack is NOT cleared after this call."
+    ],
+    "imap_list": [
+        "array imap_list(resource stream_id, string ref, string pattern)",
+        "Read the list of mailboxes"
+    ],
+    "imap_listscan": [
+        "array imap_listscan(resource stream_id, string ref, string pattern, string content)",
+        "Read list of mailboxes containing a certain string"
+    ],
+    "imap_lsub": [
+        "array imap_lsub(resource stream_id, string ref, string pattern)",
+        "Return a list of subscribed mailboxes"
+    ],
+    "imap_mail": [
+        "bool imap_mail(string to, string subject, string message [, string additional_headers [, string cc [, string bcc [, string rpath]]]])",
+        "Send an email message"
+    ],
+    "imap_mail_compose": [
+        "string imap_mail_compose(array envelope, array body)",
+        "Create a MIME message based on given envelope and body sections"
+    ],
+    "imap_mail_copy": [
+        "bool imap_mail_copy(resource stream_id, string msglist, string mailbox [, int options])",
+        "Copy specified message to a mailbox"
+    ],
+    "imap_mail_move": [
+        "bool imap_mail_move(resource stream_id, string sequence, string mailbox [, int options])",
+        "Move specified message to a mailbox"
+    ],
+    "imap_mailboxmsginfo": [
+        "object imap_mailboxmsginfo(resource stream_id)",
+        "Returns info about the current mailbox"
+    ],
+    "imap_mime_header_decode": [
+        "array imap_mime_header_decode(string str)",
+        "Decode mime header element in accordance with RFC 2047 and return array of objects containing 'charset' encoding and decoded 'text'"
+    ],
+    "imap_msgno": [
+        "int imap_msgno(resource stream_id, int unique_msg_id)",
+        "Get the sequence number associated with a UID"
+    ],
+    "imap_mutf7_to_utf8": [
+        "string imap_mutf7_to_utf8(string in)",
+        "Decode a modified UTF-7 string to UTF-8"
+    ],
+    "imap_num_msg": [
+        "int imap_num_msg(resource stream_id)",
+        "Gives the number of messages in the current mailbox"
+    ],
+    "imap_num_recent": [
+        "int imap_num_recent(resource stream_id)",
+        "Gives the number of recent messages in current mailbox"
+    ],
+    "imap_open": [
+        "resource imap_open(string mailbox, string user, string password [, int options [, int n_retries]])",
+        "Open an IMAP stream to a mailbox"
+    ],
+    "imap_ping": [
+        "bool imap_ping(resource stream_id)",
+        "Check if the IMAP stream is still active"
+    ],
+    "imap_qprint": [
+        "string imap_qprint(string text)",
+        "Convert a quoted-printable string to an 8-bit string"
+    ],
+    "imap_renamemailbox": [
+        "bool imap_renamemailbox(resource stream_id, string old_name, string new_name)",
+        "Rename a mailbox"
+    ],
+    "imap_reopen": [
+        "bool imap_reopen(resource stream_id, string mailbox [, int options [, int n_retries]])",
+        "Reopen an IMAP stream to a new mailbox"
+    ],
+    "imap_rfc822_parse_adrlist": [
+        "array imap_rfc822_parse_adrlist(string address_string, string default_host)",
+        "Parses an address string"
+    ],
+    "imap_rfc822_parse_headers": [
+        "object imap_rfc822_parse_headers(string headers [, string default_host])",
+        "Parse a set of mail headers contained in a string, and return an object similar to imap_headerinfo()"
+    ],
+    "imap_rfc822_write_address": [
+        "string imap_rfc822_write_address(string mailbox, string host, string personal)",
+        "Returns a properly formatted email address given the mailbox, host, and personal info"
+    ],
+    "imap_savebody": [
+        "bool imap_savebody(resource stream_id, string|resource file, int msg_no[, string section = \"\"[, int options = 0]])",
+        "S
