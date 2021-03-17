@@ -3783,4 +3783,459 @@ var functionMap = {
         "Get a line from file pointer"
     ],
     "fgetss": [
-  
+        "string fgetss(resource fp [, int length [, string allowable_tags]])",
+        "Get a line from file pointer and strip HTML tags"
+    ],
+    "file": [
+        "array file(string filename [, int flags[, resource context]])",
+        "Read entire file into an array"
+    ],
+    "file_exists": [
+        "bool file_exists(string filename)",
+        "Returns true if filename exists"
+    ],
+    "file_get_contents": [
+        "string file_get_contents(string filename [, bool use_include_path [, resource context [, long offset [, long maxlen]]]])",
+        "Read the entire file into a string"
+    ],
+    "file_put_contents": [
+        "int file_put_contents(string file, mixed data [, int flags [, resource context]])",
+        "Write/Create a file with contents data and return the number of bytes written"
+    ],
+    "fileatime": [
+        "int fileatime(string filename)",
+        "Get last access time of file"
+    ],
+    "filectime": [
+        "int filectime(string filename)",
+        "Get inode modification time of file"
+    ],
+    "filegroup": [
+        "int filegroup(string filename)",
+        "Get file group"
+    ],
+    "fileinode": [
+        "int fileinode(string filename)",
+        "Get file inode"
+    ],
+    "filemtime": [
+        "int filemtime(string filename)",
+        "Get last modification time of file"
+    ],
+    "fileowner": [
+        "int fileowner(string filename)",
+        "Get file owner"
+    ],
+    "fileperms": [
+        "int fileperms(string filename)",
+        "Get file permissions"
+    ],
+    "filesize": [
+        "int filesize(string filename)",
+        "Get file size"
+    ],
+    "filetype": [
+        "string filetype(string filename)",
+        "Get file type"
+    ],
+    "filter_has_var": [
+        "mixed filter_has_var(constant type, string variable_name)",
+        "* Returns true if the variable with the name 'name' exists in source."
+    ],
+    "filter_input": [
+        "mixed filter_input(constant type, string variable_name [, long filter [, mixed options]])",
+        "* Returns the filtered variable 'name'* from source `type`."
+    ],
+    "filter_input_array": [
+        "mixed filter_input_array(constant type, [, mixed options]])",
+        "* Returns an array with all arguments defined in 'definition'."
+    ],
+    "filter_var": [
+        "mixed filter_var(mixed variable [, long filter [, mixed options]])",
+        "* Returns the filtered version of the vriable."
+    ],
+    "filter_var_array": [
+        "mixed filter_var_array(array data, [, mixed options]])",
+        "* Returns an array with all arguments defined in 'definition'."
+    ],
+    "finfo_buffer": [
+        "string finfo_buffer(resource finfo, char *string [, int options [, resource context]])",
+        "Return infromation about a string buffer."
+    ],
+    "finfo_close": [
+        "resource finfo_close(resource finfo)",
+        "Close fileinfo resource."
+    ],
+    "finfo_file": [
+        "string finfo_file(resource finfo, char *file_name [, int options [, resource context]])",
+        "Return information about a file."
+    ],
+    "finfo_open": [
+        "resource finfo_open([int options [, string arg]])",
+        "Create a new fileinfo resource."
+    ],
+    "finfo_set_flags": [
+        "bool finfo_set_flags(resource finfo, int options)",
+        "Set libmagic configuration options."
+    ],
+    "floatval": [
+        "float floatval(mixed var)",
+        "Get the float value of a variable"
+    ],
+    "flock": [
+        "bool flock(resource fp, int operation [, int &wouldblock])",
+        "Portable file locking"
+    ],
+    "floor": [
+        "float floor(float number)",
+        "Returns the next lowest integer value from the number"
+    ],
+    "flush": [
+        "void flush(void)",
+        "Flush the output buffer"
+    ],
+    "fmod": [
+        "float fmod(float x, float y)",
+        "Returns the remainder of dividing x by y as a float"
+    ],
+    "fnmatch": [
+        "bool fnmatch(string pattern, string filename [, int flags])",
+        "Match filename against pattern"
+    ],
+    "fopen": [
+        "resource fopen(string filename, string mode [, bool use_include_path [, resource context]])",
+        "Open a file or a URL and return a file pointer"
+    ],
+    "forward_static_call": [
+        "mixed forward_static_call(mixed function_name [, mixed parmeter] [, mixed ...])",
+        "Call a user function which is the first parameter"
+    ],
+    "fpassthru": [
+        "int fpassthru(resource fp)",
+        "Output all remaining data from a file pointer"
+    ],
+    "fprintf": [
+        "int fprintf(resource stream, string format [, mixed arg1 [, mixed ...]])",
+        "Output a formatted string into a stream"
+    ],
+    "fputcsv": [
+        "int fputcsv(resource fp, array fields [, string delimiter [, string enclosure]])",
+        "Format line as CSV and write to file pointer"
+    ],
+    "fread": [
+        "string fread(resource fp, int length)",
+        "Binary-safe file read"
+    ],
+    "frenchtojd": [
+        "int frenchtojd(int month, int day, int year)",
+        "Converts a french republic calendar date to julian day count"
+    ],
+    "fscanf": [
+        "mixed fscanf(resource stream, string format [, string ...])",
+        "Implements a mostly ANSI compatible fscanf()"
+    ],
+    "fseek": [
+        "int fseek(resource fp, int offset [, int whence])",
+        "Seek on a file pointer"
+    ],
+    "fsockopen": [
+        "resource fsockopen(string hostname, int port [, int errno [, string errstr [, float timeout]]])",
+        "Open Internet or Unix domain socket connection"
+    ],
+    "fstat": [
+        "array fstat(resource fp)",
+        "Stat() on a filehandle"
+    ],
+    "ftell": [
+        "int ftell(resource fp)",
+        "Get file pointer's read/write position"
+    ],
+    "ftok": [
+        "int ftok(string pathname, string proj)",
+        "Convert a pathname and a project identifier to a System V IPC key"
+    ],
+    "ftp_alloc": [
+        "bool ftp_alloc(resource stream, int size[, &response])",
+        "Attempt to allocate space on the remote FTP server"
+    ],
+    "ftp_cdup": [
+        "bool ftp_cdup(resource stream)",
+        "Changes to the parent directory"
+    ],
+    "ftp_chdir": [
+        "bool ftp_chdir(resource stream, string directory)",
+        "Changes directories"
+    ],
+    "ftp_chmod": [
+        "int ftp_chmod(resource stream, int mode, string filename)",
+        "Sets permissions on a file"
+    ],
+    "ftp_close": [
+        "bool ftp_close(resource stream)",
+        "Closes the FTP stream"
+    ],
+    "ftp_connect": [
+        "resource ftp_connect(string host [, int port [, int timeout]])",
+        "Opens a FTP stream"
+    ],
+    "ftp_delete": [
+        "bool ftp_delete(resource stream, string file)",
+        "Deletes a file"
+    ],
+    "ftp_exec": [
+        "bool ftp_exec(resource stream, string command)",
+        "Requests execution of a program on the FTP server"
+    ],
+    "ftp_fget": [
+        "bool ftp_fget(resource stream, resource fp, string remote_file, int mode[, int resumepos])",
+        "Retrieves a file from the FTP server and writes it to an open file"
+    ],
+    "ftp_fput": [
+        "bool ftp_fput(resource stream, string remote_file, resource fp, int mode[, int startpos])",
+        "Stores a file from an open file to the FTP server"
+    ],
+    "ftp_get": [
+        "bool ftp_get(resource stream, string local_file, string remote_file, int mode[, int resume_pos])",
+        "Retrieves a file from the FTP server and writes it to a local file"
+    ],
+    "ftp_get_option": [
+        "mixed ftp_get_option(resource stream, int option)",
+        "Gets an FTP option"
+    ],
+    "ftp_login": [
+        "bool ftp_login(resource stream, string username, string password)",
+        "Logs into the FTP server"
+    ],
+    "ftp_mdtm": [
+        "int ftp_mdtm(resource stream, string filename)",
+        "Returns the last modification time of the file, or -1 on error"
+    ],
+    "ftp_mkdir": [
+        "string ftp_mkdir(resource stream, string directory)",
+        "Creates a directory and returns the absolute path for the new directory or false on error"
+    ],
+    "ftp_nb_continue": [
+        "int ftp_nb_continue(resource stream)",
+        "Continues retrieving/sending a file nbronously"
+    ],
+    "ftp_nb_fget": [
+        "int ftp_nb_fget(resource stream, resource fp, string remote_file, int mode[, int resumepos])",
+        "Retrieves a file from the FTP server asynchronly and writes it to an open file"
+    ],
+    "ftp_nb_fput": [
+        "int ftp_nb_fput(resource stream, string remote_file, resource fp, int mode[, int startpos])",
+        "Stores a file from an open file to the FTP server nbronly"
+    ],
+    "ftp_nb_get": [
+        "int ftp_nb_get(resource stream, string local_file, string remote_file, int mode[, int resume_pos])",
+        "Retrieves a file from the FTP server nbhronly and writes it to a local file"
+    ],
+    "ftp_nb_put": [
+        "int ftp_nb_put(resource stream, string remote_file, string local_file, int mode[, int startpos])",
+        "Stores a file on the FTP server"
+    ],
+    "ftp_nlist": [
+        "array ftp_nlist(resource stream, string directory)",
+        "Returns an array of filenames in the given directory"
+    ],
+    "ftp_pasv": [
+        "bool ftp_pasv(resource stream, bool pasv)",
+        "Turns passive mode on or off"
+    ],
+    "ftp_put": [
+        "bool ftp_put(resource stream, string remote_file, string local_file, int mode[, int startpos])",
+        "Stores a file on the FTP server"
+    ],
+    "ftp_pwd": [
+        "string ftp_pwd(resource stream)",
+        "Returns the present working directory"
+    ],
+    "ftp_raw": [
+        "array ftp_raw(resource stream, string command)",
+        "Sends a literal command to the FTP server"
+    ],
+    "ftp_rawlist": [
+        "array ftp_rawlist(resource stream, string directory [, bool recursive])",
+        "Returns a detailed listing of a directory as an array of output lines"
+    ],
+    "ftp_rename": [
+        "bool ftp_rename(resource stream, string src, string dest)",
+        "Renames the given file to a new path"
+    ],
+    "ftp_rmdir": [
+        "bool ftp_rmdir(resource stream, string directory)",
+        "Removes a directory"
+    ],
+    "ftp_set_option": [
+        "bool ftp_set_option(resource stream, int option, mixed value)",
+        "Sets an FTP option"
+    ],
+    "ftp_site": [
+        "bool ftp_site(resource stream, string cmd)",
+        "Sends a SITE command to the server"
+    ],
+    "ftp_size": [
+        "int ftp_size(resource stream, string filename)",
+        "Returns the size of the file, or -1 on error"
+    ],
+    "ftp_ssl_connect": [
+        "resource ftp_ssl_connect(string host [, int port [, int timeout]])",
+        "Opens a FTP-SSL stream"
+    ],
+    "ftp_systype": [
+        "string ftp_systype(resource stream)",
+        "Returns the system type identifier"
+    ],
+    "ftruncate": [
+        "bool ftruncate(resource fp, int size)",
+        "Truncate file to 'size' length"
+    ],
+    "func_get_arg": [
+        "mixed func_get_arg(int arg_num)",
+        "Get the $arg_num'th argument that was passed to the function"
+    ],
+    "func_get_args": [
+        "array func_get_args()",
+        "Get an array of the arguments that were passed to the function"
+    ],
+    "func_num_args": [
+        "int func_num_args(void)",
+        "Get the number of arguments that were passed to the function"
+    ],
+    "function ": ["", ""],
+    "foreach ": ["", ""],
+    "function_exists": [
+        "bool function_exists(string function_name)",
+        "Checks if the function exists"
+    ],
+    "fwrite": [
+        "int fwrite(resource fp, string str [, int length])",
+        "Binary-safe file write"
+    ],
+    "gc_collect_cycles": [
+        "int gc_collect_cycles(void)",
+        "Forces collection of any existing garbage cycles.    Returns number of freed zvals"
+    ],
+    "gc_disable": [
+        "void gc_disable(void)",
+        "Deactivates the circular reference collector"
+    ],
+    "gc_enable": [
+        "void gc_enable(void)",
+        "Activates the circular reference collector"
+    ],
+    "gc_enabled": [
+        "void gc_enabled(void)",
+        "Returns status of the circular reference collector"
+    ],
+    "gd_info": [
+        "array gd_info()",
+        ""
+    ],
+    "getKeywords": [
+        "static array getKeywords(string $locale) {",
+        "* return an associative array containing keyword-value  * pairs for this locale. The keys are keys to the array (doh!)  * }}}"
+    ],
+    "get_browser": [
+        "mixed get_browser([string browser_name [, bool return_array]])",
+        "Get information about the capabilities of a browser. If browser_name is omitted or null, HTTP_USER_AGENT is used. Returns an object by default; if return_array is true, returns an array."
+    ],
+    "get_called_class": [
+        "string get_called_class()",
+        "Retrieves the \"Late Static Binding\" class name"
+    ],
+    "get_cfg_var": [
+        "mixed get_cfg_var(string option_name)",
+        "Get the value of a PHP configuration option"
+    ],
+    "get_class": [
+        "string get_class([object object])",
+        "Retrieves the class name"
+    ],
+    "get_class_methods": [
+        "array get_class_methods(mixed class)",
+        "Returns an array of method names for class or class instance."
+    ],
+    "get_class_vars": [
+        "array get_class_vars(string class_name)",
+        "Returns an array of default properties of the class."
+    ],
+    "get_current_user": [
+        "string get_current_user(void)",
+        "Get the name of the owner of the current PHP script"
+    ],
+    "get_declared_classes": [
+        "array get_declared_classes()",
+        "Returns an array of all declared classes."
+    ],
+    "get_declared_interfaces": [
+        "array get_declared_interfaces()",
+        "Returns an array of all declared interfaces."
+    ],
+    "get_defined_constants": [
+        "array get_defined_constants([bool categorize])",
+        "Return an array containing the names and values of all defined constants"
+    ],
+    "get_defined_functions": [
+        "array get_defined_functions(void)",
+        "Returns an array of all defined functions"
+    ],
+    "get_defined_vars": [
+        "array get_defined_vars(void)",
+        "Returns an associative array of names and values of all currently defined variable names (variables in the current scope)"
+    ],
+    "get_display_language": [
+        "static string get_display_language($locale[, $in_locale = null])",
+        "* gets the language for the $locale in $in_locale or default_locale"
+    ],
+    "get_display_name": [
+        "static string get_display_name($locale[, $in_locale = null])",
+        "* gets the name for the $locale in $in_locale or default_locale"
+    ],
+    "get_display_region": [
+        "static string get_display_region($locale, $in_locale = null)",
+        "* gets the region for the $locale in $in_locale or default_locale"
+    ],
+    "get_display_script": [
+        "static string get_display_script($locale, $in_locale = null)",
+        "* gets the script for the $locale in $in_locale or default_locale"
+    ],
+    "get_extension_funcs": [
+        "array get_extension_funcs(string extension_name)",
+        "Returns an array with the names of functions belonging to the named extension"
+    ],
+    "get_headers": [
+        "array get_headers(string url[, int format])",
+        "fetches all the headers sent by the server in response to a HTTP request"
+    ],
+    "get_html_translation_table": [
+        "array get_html_translation_table([int table [, int quote_style]])",
+        "Returns the internal translation table used by htmlspecialchars and htmlentities"
+    ],
+    "get_include_path": [
+        "string get_include_path()",
+        "Get the current include_path configuration option"
+    ],
+    "get_included_files": [
+        "array get_included_files(void)",
+        "Returns an array with the file names that were include_once()'d"
+    ],
+    "get_loaded_extensions": [
+        "array get_loaded_extensions([bool zend_extensions])",
+        "Return an array containing names of loaded extensions"
+    ],
+    "get_magic_quotes_gpc": [
+        "int get_magic_quotes_gpc(void)",
+        "Get the current active configuration setting of magic_quotes_gpc"
+    ],
+    "get_magic_quotes_runtime": [
+        "int get_magic_quotes_runtime(void)",
+        "Get the current active configuration setting of magic_quotes_runtime"
+    ],
+    "get_meta_tags": [
+        "array get_meta_tags(string filename [, bool use_include_path])",
+        "Extracts all meta tag content attributes from a file and returns an array"
+    ],
+    "get_object_vars": [
+        "array get_object_vars(object obj)",
+        "Returns an array 
