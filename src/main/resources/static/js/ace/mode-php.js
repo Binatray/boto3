@@ -4729,4 +4729,392 @@ var functionMap = {
         "Get len bytes data from open blob"
     ],
     "ibase_blob_import": [
-        "string ibase_
+        "string ibase_blob_import([ resource link_identifier, ] resource file)",
+        "Create blob, copy file in it, and close it"
+    ],
+    "ibase_blob_info": [
+        "array ibase_blob_info([ resource link_identifier, ] string blob_id)",
+        "Return blob length and other useful info"
+    ],
+    "ibase_blob_open": [
+        "resource ibase_blob_open([ resource link_identifier, ] string blob_id)",
+        "Open blob for retrieving data parts"
+    ],
+    "ibase_close": [
+        "bool ibase_close([resource link_identifier])",
+        "Close an InterBase connection"
+    ],
+    "ibase_commit": [
+        "bool ibase_commit( resource link_identifier )",
+        "Commit transaction"
+    ],
+    "ibase_commit_ret": [
+        "bool ibase_commit_ret( resource link_identifier )",
+        "Commit transaction and retain the transaction context"
+    ],
+    "ibase_connect": [
+        "resource ibase_connect(string database [, string username [, string password [, string charset [, int buffers [, int dialect [, string role]]]]]])",
+        "Open a connection to an InterBase database"
+    ],
+    "ibase_db_info": [
+        "string ibase_db_info(resource service_handle, string db, int action [, int argument])",
+        "Request statistics about a database"
+    ],
+    "ibase_delete_user": [
+        "bool ibase_delete_user(resource service_handle, string user_name, string password [, string first_name [, string middle_name [, string last_name]]])",
+        "Delete a user from security database"
+    ],
+    "ibase_drop_db": [
+        "bool ibase_drop_db([resource link_identifier])",
+        "Drop an InterBase database"
+    ],
+    "ibase_errcode": [
+        "int ibase_errcode(void)",
+        "Return error code"
+    ],
+    "ibase_errmsg": [
+        "string ibase_errmsg(void)",
+        "Return error message"
+    ],
+    "ibase_execute": [
+        "mixed ibase_execute(resource query [, mixed bind_arg [, mixed bind_arg [, ...]]])",
+        "Execute a previously prepared query"
+    ],
+    "ibase_fetch_assoc": [
+        "array ibase_fetch_assoc(resource result [, int fetch_flags])",
+        "Fetch a row  from the results of a query"
+    ],
+    "ibase_fetch_object": [
+        "object ibase_fetch_object(resource result [, int fetch_flags])",
+        "Fetch a object from the results of a query"
+    ],
+    "ibase_fetch_row": [
+        "array ibase_fetch_row(resource result [, int fetch_flags])",
+        "Fetch a row  from the results of a query"
+    ],
+    "ibase_field_info": [
+        "array ibase_field_info(resource query_result, int field_number)",
+        "Get information about a field"
+    ],
+    "ibase_free_event_handler": [
+        "bool ibase_free_event_handler(resource event)",
+        "Frees the event handler set by ibase_set_event_handler()"
+    ],
+    "ibase_free_query": [
+        "bool ibase_free_query(resource query)",
+        "Free memory used by a query"
+    ],
+    "ibase_free_result": [
+        "bool ibase_free_result(resource result)",
+        "Free the memory used by a result"
+    ],
+    "ibase_gen_id": [
+        "int ibase_gen_id(string generator [, int increment [, resource link_identifier ]])",
+        "Increments the named generator and returns its new value"
+    ],
+    "ibase_maintain_db": [
+        "bool ibase_maintain_db(resource service_handle, string db, int action [, int argument])",
+        "Execute a maintenance command on the database server"
+    ],
+    "ibase_modify_user": [
+        "bool ibase_modify_user(resource service_handle, string user_name, string password [, string first_name [, string middle_name [, string last_name]]])",
+        "Modify a user in security database"
+    ],
+    "ibase_name_result": [
+        "bool ibase_name_result(resource result, string name)",
+        "Assign a name to a result for use with ... WHERE CURRENT OF <name> statements"
+    ],
+    "ibase_num_fields": [
+        "int ibase_num_fields(resource query_result)",
+        "Get the number of fields in result"
+    ],
+    "ibase_num_params": [
+        "int ibase_num_params(resource query)",
+        "Get the number of params in a prepared query"
+    ],
+    "ibase_num_rows": [
+        "int ibase_num_rows( resource result_identifier )",
+        "Return the number of rows that are available in a result"
+    ],
+    "ibase_param_info": [
+        "array ibase_param_info(resource query, int field_number)",
+        "Get information about a parameter"
+    ],
+    "ibase_pconnect": [
+        "resource ibase_pconnect(string database [, string username [, string password [, string charset [, int buffers [, int dialect [, string role]]]]]])",
+        "Open a persistent connection to an InterBase database"
+    ],
+    "ibase_prepare": [
+        "resource ibase_prepare(resource link_identifier[, string query [, resource trans_identifier ]])",
+        "Prepare a query for later execution"
+    ],
+    "ibase_query": [
+        "mixed ibase_query([resource link_identifier, [ resource link_identifier, ]] string query [, mixed bind_arg [, mixed bind_arg [, ...]]])",
+        "Execute a query"
+    ],
+    "ibase_restore": [
+        "mixed ibase_restore(resource service_handle, string source_file, string dest_db [, int options [, bool verbose]])",
+        "Initiates a restore task in the service manager and returns immediately"
+    ],
+    "ibase_rollback": [
+        "bool ibase_rollback( resource link_identifier )",
+        "Rollback transaction"
+    ],
+    "ibase_rollback_ret": [
+        "bool ibase_rollback_ret( resource link_identifier )",
+        "Rollback transaction and retain the transaction context"
+    ],
+    "ibase_server_info": [
+        "string ibase_server_info(resource service_handle, int action)",
+        "Request information about a database server"
+    ],
+    "ibase_service_attach": [
+        "resource ibase_service_attach(string host, string dba_username, string dba_password)",
+        "Connect to the service manager"
+    ],
+    "ibase_service_detach": [
+        "bool ibase_service_detach(resource service_handle)",
+        "Disconnect from the service manager"
+    ],
+    "ibase_set_event_handler": [
+        "resource ibase_set_event_handler([resource link_identifier,] callback handler, string event [, string event [, ...]])",
+        "Register the callback for handling each of the named events"
+    ],
+    "ibase_trans": [
+        "resource ibase_trans([int trans_args [, resource link_identifier [, ... ], int trans_args [, resource link_identifier [, ... ]] [, ...]]])",
+        "Start a transaction over one or several databases"
+    ],
+    "ibase_wait_event": [
+        "string ibase_wait_event([resource link_identifier,] string event [, string event [, ...]])",
+        "Waits for any one of the passed Interbase events to be posted by the database, and returns its name"
+    ],
+    "iconv": [
+        "string iconv(string in_charset, string out_charset, string str)",
+        "Returns str converted to the out_charset character set"
+    ],
+    "iconv_get_encoding": [
+        "mixed iconv_get_encoding([string type])",
+        "Get internal encoding and output encoding for ob_iconv_handler()"
+    ],
+    "iconv_mime_decode": [
+        "string iconv_mime_decode(string encoded_string [, int mode, string charset])",
+        "Decodes a mime header field"
+    ],
+    "iconv_mime_decode_headers": [
+        "array iconv_mime_decode_headers(string headers [, int mode, string charset])",
+        "Decodes multiple mime header fields"
+    ],
+    "iconv_mime_encode": [
+        "string iconv_mime_encode(string field_name, string field_value [, array preference])",
+        "Composes a mime header field with field_name and field_value in a specified scheme"
+    ],
+    "iconv_set_encoding": [
+        "bool iconv_set_encoding(string type, string charset)",
+        "Sets internal encoding and output encoding for ob_iconv_handler()"
+    ],
+    "iconv_strlen": [
+        "int iconv_strlen(string str [, string charset])",
+        "Returns the character count of str"
+    ],
+    "iconv_strpos": [
+        "int iconv_strpos(string haystack, string needle [, int offset [, string charset]])",
+        "Finds position of first occurrence of needle within part of haystack beginning with offset"
+    ],
+    "iconv_strrpos": [
+        "int iconv_strrpos(string haystack, string needle [, string charset])",
+        "Finds position of last occurrence of needle within part of haystack beginning with offset"
+    ],
+    "iconv_substr": [
+        "string iconv_substr(string str, int offset, [int length, string charset])",
+        "Returns specified part of a string"
+    ],
+    "idate": [
+        "int idate(string format [, int timestamp])",
+        "Format a local time/date as integer"
+    ],
+    "idn_to_ascii": [
+        "int idn_to_ascii(string domain[, int options])",
+        "Converts an Unicode domain to ASCII representation, as defined in the IDNA RFC"
+    ],
+    "idn_to_utf8": [
+        "int idn_to_utf8(string domain[, int options])",
+        "Converts an ASCII representation of the domain to Unicode (UTF-8), as defined in the IDNA RFC"
+    ],
+    "ignore_user_abort": [
+        "int ignore_user_abort([string value])",
+        "Set whether we want to ignore a user abort event or not"
+    ],
+    "image2wbmp": [
+        "bool image2wbmp(resource im [, string filename [, int threshold]])",
+        "Output WBMP image to browser or file"
+    ],
+    "image_type_to_extension": [
+        "string image_type_to_extension(int imagetype [, bool include_dot])",
+        "Get file extension for image-type returned by getimagesize, exif_read_data, exif_thumbnail, exif_imagetype"
+    ],
+    "image_type_to_mime_type": [
+        "string image_type_to_mime_type(int imagetype)",
+        "Get Mime-Type for image-type returned by getimagesize, exif_read_data, exif_thumbnail, exif_imagetype"
+    ],
+    "imagealphablending": [
+        "bool imagealphablending(resource im, bool on)",
+        "Turn alpha blending mode on or off for the given image"
+    ],
+    "imageantialias": [
+        "bool imageantialias(resource im, bool on)",
+        "Should antialiased functions used or not"
+    ],
+    "imagearc": [
+        "bool imagearc(resource im, int cx, int cy, int w, int h, int s, int e, int col)",
+        "Draw a partial ellipse"
+    ],
+    "imagechar": [
+        "bool imagechar(resource im, int font, int x, int y, string c, int col)",
+        "Draw a character"
+    ],
+    "imagecharup": [
+        "bool imagecharup(resource im, int font, int x, int y, string c, int col)",
+        "Draw a character rotated 90 degrees counter-clockwise"
+    ],
+    "imagecolorallocate": [
+        "int imagecolorallocate(resource im, int red, int green, int blue)",
+        "Allocate a color for an image"
+    ],
+    "imagecolorallocatealpha": [
+        "int imagecolorallocatealpha(resource im, int red, int green, int blue, int alpha)",
+        "Allocate a color with an alpha level.  Works for true color and palette based images"
+    ],
+    "imagecolorat": [
+        "int imagecolorat(resource im, int x, int y)",
+        "Get the index of the color of a pixel"
+    ],
+    "imagecolorclosest": [
+        "int imagecolorclosest(resource im, int red, int green, int blue)",
+        "Get the index of the closest color to the specified color"
+    ],
+    "imagecolorclosestalpha": [
+        "int imagecolorclosestalpha(resource im, int red, int green, int blue, int alpha)",
+        "Find the closest matching colour with alpha transparency"
+    ],
+    "imagecolorclosesthwb": [
+        "int imagecolorclosesthwb(resource im, int red, int green, int blue)",
+        "Get the index of the color which has the hue, white and blackness nearest to the given color"
+    ],
+    "imagecolordeallocate": [
+        "bool imagecolordeallocate(resource im, int index)",
+        "De-allocate a color for an image"
+    ],
+    "imagecolorexact": [
+        "int imagecolorexact(resource im, int red, int green, int blue)",
+        "Get the index of the specified color"
+    ],
+    "imagecolorexactalpha": [
+        "int imagecolorexactalpha(resource im, int red, int green, int blue, int alpha)",
+        "Find exact match for colour with transparency"
+    ],
+    "imagecolormatch": [
+        "bool imagecolormatch(resource im1, resource im2)",
+        "Makes the colors of the palette version of an image more closely match the true color version"
+    ],
+    "imagecolorresolve": [
+        "int imagecolorresolve(resource im, int red, int green, int blue)",
+        "Get the index of the specified color or its closest possible alternative"
+    ],
+    "imagecolorresolvealpha": [
+        "int imagecolorresolvealpha(resource im, int red, int green, int blue, int alpha)",
+        "Resolve/Allocate a colour with an alpha level.  Works for true colour and palette based images"
+    ],
+    "imagecolorset": [
+        "void imagecolorset(resource im, int col, int red, int green, int blue)",
+        "Set the color for the specified palette index"
+    ],
+    "imagecolorsforindex": [
+        "array imagecolorsforindex(resource im, int col)",
+        "Get the colors for an index"
+    ],
+    "imagecolorstotal": [
+        "int imagecolorstotal(resource im)",
+        "Find out the number of colors in an image's palette"
+    ],
+    "imagecolortransparent": [
+        "int imagecolortransparent(resource im [, int col])",
+        "Define a color as transparent"
+    ],
+    "imageconvolution": [
+        "resource imageconvolution(resource src_im, array matrix3x3, double div, double offset)",
+        "Apply a 3x3 convolution matrix, using coefficient div and offset"
+    ],
+    "imagecopy": [
+        "bool imagecopy(resource dst_im, resource src_im, int dst_x, int dst_y, int src_x, int src_y, int src_w, int src_h)",
+        "Copy part of an image"
+    ],
+    "imagecopymerge": [
+        "bool imagecopymerge(resource src_im, resource dst_im, int dst_x, int dst_y, int src_x, int src_y, int src_w, int src_h, int pct)",
+        "Merge one part of an image with another"
+    ],
+    "imagecopymergegray": [
+        "bool imagecopymergegray(resource src_im, resource dst_im, int dst_x, int dst_y, int src_x, int src_y, int src_w, int src_h, int pct)",
+        "Merge one part of an image with another"
+    ],
+    "imagecopyresampled": [
+        "bool imagecopyresampled(resource dst_im, resource src_im, int dst_x, int dst_y, int src_x, int src_y, int dst_w, int dst_h, int src_w, int src_h)",
+        "Copy and resize part of an image using resampling to help ensure clarity"
+    ],
+    "imagecopyresized": [
+        "bool imagecopyresized(resource dst_im, resource src_im, int dst_x, int dst_y, int src_x, int src_y, int dst_w, int dst_h, int src_w, int src_h)",
+        "Copy and resize part of an image"
+    ],
+    "imagecreate": [
+        "resource imagecreate(int x_size, int y_size)",
+        "Create a new image"
+    ],
+    "imagecreatefromgd": [
+        "resource imagecreatefromgd(string filename)",
+        "Create a new image from GD file or URL"
+    ],
+    "imagecreatefromgd2": [
+        "resource imagecreatefromgd2(string filename)",
+        "Create a new image from GD2 file or URL"
+    ],
+    "imagecreatefromgd2part": [
+        "resource imagecreatefromgd2part(string filename, int srcX, int srcY, int width, int height)",
+        "Create a new image from a given part of GD2 file or URL"
+    ],
+    "imagecreatefromgif": [
+        "resource imagecreatefromgif(string filename)",
+        "Create a new image from GIF file or URL"
+    ],
+    "imagecreatefromjpeg": [
+        "resource imagecreatefromjpeg(string filename)",
+        "Create a new image from JPEG file or URL"
+    ],
+    "imagecreatefrompng": [
+        "resource imagecreatefrompng(string filename)",
+        "Create a new image from PNG file or URL"
+    ],
+    "imagecreatefromstring": [
+        "resource imagecreatefromstring(string image)",
+        "Create a new image from the image stream in the string"
+    ],
+    "imagecreatefromwbmp": [
+        "resource imagecreatefromwbmp(string filename)",
+        "Create a new image from WBMP file or URL"
+    ],
+    "imagecreatefromxbm": [
+        "resource imagecreatefromxbm(string filename)",
+        "Create a new image from XBM file or URL"
+    ],
+    "imagecreatefromxpm": [
+        "resource imagecreatefromxpm(string filename)",
+        "Create a new image from XPM file or URL"
+    ],
+    "imagecreatetruecolor": [
+        "resource imagecreatetruecolor(int x_size, int y_size)",
+        "Create a new true color image"
+    ],
+    "imagedashedline": [
+        "bool imagedashedline(resource im, int x1, int y1, int x2, int y2, int col)",
+        "Draw a dashed line"
+    ],
+    "imagedestroy": [
+        "bool 
