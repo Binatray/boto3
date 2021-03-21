@@ -5530,4 +5530,467 @@ var functionMap = {
     ],
     "imap_savebody": [
         "bool imap_savebody(resource stream_id, string|resource file, int msg_no[, string section = \"\"[, int options = 0]])",
-        "S
+        "Save a specific body section to a file"
+    ],
+    "imap_search": [
+        "array imap_search(resource stream_id, string criteria [, int options [, string charset]])",
+        "Return a list of messages matching the given criteria"
+    ],
+    "imap_set_quota": [
+        "bool imap_set_quota(resource stream_id, string qroot, int mailbox_size)",
+        "Will set the quota for qroot mailbox"
+    ],
+    "imap_setacl": [
+        "bool imap_setacl(resource stream_id, string mailbox, string id, string rights)",
+        "Sets the ACL for a given mailbox"
+    ],
+    "imap_setflag_full": [
+        "bool imap_setflag_full(resource stream_id, string sequence, string flag [, int options])",
+        "Sets flags on messages"
+    ],
+    "imap_sort": [
+        "array imap_sort(resource stream_id, int criteria, int reverse [, int options [, string search_criteria [, string charset]]])",
+        "Sort an array of message headers, optionally including only messages that meet specified criteria."
+    ],
+    "imap_status": [
+        "object imap_status(resource stream_id, string mailbox, int options)",
+        "Get status info from a mailbox"
+    ],
+    "imap_subscribe": [
+        "bool imap_subscribe(resource stream_id, string mailbox)",
+        "Subscribe to a mailbox"
+    ],
+    "imap_thread": [
+        "array imap_thread(resource stream_id [, int options])",
+        "Return threaded by REFERENCES tree"
+    ],
+    "imap_timeout": [
+        "mixed imap_timeout(int timeout_type [, int timeout])",
+        "Set or fetch imap timeout"
+    ],
+    "imap_uid": [
+        "int imap_uid(resource stream_id, int msg_no)",
+        "Get the unique message id associated with a standard sequential message number"
+    ],
+    "imap_undelete": [
+        "bool imap_undelete(resource stream_id, int msg_no [, int flags])",
+        "Remove the delete flag from a message"
+    ],
+    "imap_unsubscribe": [
+        "bool imap_unsubscribe(resource stream_id, string mailbox)",
+        "Unsubscribe from a mailbox"
+    ],
+    "imap_utf7_decode": [
+        "string imap_utf7_decode(string buf)",
+        "Decode a modified UTF-7 string"
+    ],
+    "imap_utf7_encode": [
+        "string imap_utf7_encode(string buf)",
+        "Encode a string in modified UTF-7"
+    ],
+    "imap_utf8": [
+        "string imap_utf8(string mime_encoded_text)",
+        "Convert a mime-encoded text to UTF-8"
+    ],
+    "imap_utf8_to_mutf7": [
+        "string imap_utf8_to_mutf7(string in)",
+        "Encode a UTF-8 string to modified UTF-7"
+    ],
+    "implode": [
+        "string implode([string glue,] array pieces)",
+        "Joins array elements placing glue string between items and return one string"
+    ],
+    "import_request_variables": [
+        "bool import_request_variables(string types [, string prefix])",
+        "Import GET/POST/Cookie variables into the global scope"
+    ],
+    "in_array": [
+        "bool in_array(mixed needle, array haystack [, bool strict])",
+        "Checks if the given value exists in the array"
+    ],
+    "include": [
+        "bool include(string path)",
+        "Includes and evaluates the specified file"
+    ],
+    "include_once": [
+        "bool include_once(string path)",
+        "Includes and evaluates the specified file"
+    ],
+    "inet_ntop": [
+        "string inet_ntop(string in_addr)",
+        "Converts a packed inet address to a human readable IP address string"
+    ],
+    "inet_pton": [
+        "string inet_pton(string ip_address)",
+        "Converts a human readable IP address to a packed binary string"
+    ],
+    "ini_get": [
+        "string ini_get(string varname)",
+        "Get a configuration option"
+    ],
+    "ini_get_all": [
+        "array ini_get_all([string extension[, bool details = true]])",
+        "Get all configuration options"
+    ],
+    "ini_restore": [
+        "void ini_restore(string varname)",
+        "Restore the value of a configuration option specified by varname"
+    ],
+    "ini_set": [
+        "string ini_set(string varname, string newvalue)",
+        "Set a configuration option, returns false on error and the old value of the configuration option on success"
+    ],
+    "interface_exists": [
+        "bool interface_exists(string classname [, bool autoload])",
+        "Checks if the class exists"
+    ],
+    "intl_error_name": [
+        "string intl_error_name()",
+        "* Return a string for a given error code.  * The string will be the same as the name of the error code constant."
+    ],
+    "intl_get_error_code": [
+        "int intl_get_error_code()",
+        "* Get code of the last occured error."
+    ],
+    "intl_get_error_message": [
+        "string intl_get_error_message()",
+        "* Get text description of the last occured error."
+    ],
+    "intl_is_failure": [
+        "bool intl_is_failure()",
+        "* Check whether the given error code indicates a failure.  * Returns true if it does, and false if the code  * indicates success or a warning."
+    ],
+    "intval": [
+        "int intval(mixed var [, int base])",
+        "Get the integer value of a variable using the optional base for the conversion"
+    ],
+    "ip2long": [
+        "int ip2long(string ip_address)",
+        "Converts a string containing an (IPv4) Internet Protocol dotted address into a proper address"
+    ],
+    "iptcembed": [
+        "array iptcembed(string iptcdata, string jpeg_file_name [, int spool])",
+        "Embed binary IPTC data into a JPEG image."
+    ],
+    "iptcparse": [
+        "array iptcparse(string iptcdata)",
+        "Parse binary IPTC-data into associative array"
+    ],
+    "is_a": [
+        "bool is_a(object object, string class_name)",
+        "Returns true if the object is of this class or has this class as one of its parents"
+    ],
+    "is_array": [
+        "bool is_array(mixed var)",
+        "Returns true if variable is an array"
+    ],
+    "is_bool": [
+        "bool is_bool(mixed var)",
+        "Returns true if variable is a boolean"
+    ],
+    "is_callable": [
+        "bool is_callable(mixed var [, bool syntax_only [, string callable_name]])",
+        "Returns true if var is callable."
+    ],
+    "is_dir": [
+        "bool is_dir(string filename)",
+        "Returns true if file is directory"
+    ],
+    "is_executable": [
+        "bool is_executable(string filename)",
+        "Returns true if file is executable"
+    ],
+    "is_file": [
+        "bool is_file(string filename)",
+        "Returns true if file is a regular file"
+    ],
+    "is_finite": [
+        "bool is_finite(float val)",
+        "Returns whether argument is finite"
+    ],
+    "is_float": [
+        "bool is_float(mixed var)",
+        "Returns true if variable is float point"
+    ],
+    "is_infinite": [
+        "bool is_infinite(float val)",
+        "Returns whether argument is infinite"
+    ],
+    "is_link": [
+        "bool is_link(string filename)",
+        "Returns true if file is symbolic link"
+    ],
+    "is_long": [
+        "bool is_long(mixed var)",
+        "Returns true if variable is a long (integer)"
+    ],
+    "is_nan": [
+        "bool is_nan(float val)",
+        "Returns whether argument is not a number"
+    ],
+    "is_null": [
+        "bool is_null(mixed var)",
+        "Returns true if variable is null"
+    ],
+    "is_numeric": [
+        "bool is_numeric(mixed value)",
+        "Returns true if value is a number or a numeric string"
+    ],
+    "is_object": [
+        "bool is_object(mixed var)",
+        "Returns true if variable is an object"
+    ],
+    "is_readable": [
+        "bool is_readable(string filename)",
+        "Returns true if file can be read"
+    ],
+    "is_resource": [
+        "bool is_resource(mixed var)",
+        "Returns true if variable is a resource"
+    ],
+    "is_scalar": [
+        "bool is_scalar(mixed value)",
+        "Returns true if value is a scalar"
+    ],
+    "is_string": [
+        "bool is_string(mixed var)",
+        "Returns true if variable is a string"
+    ],
+    "is_subclass_of": [
+        "bool is_subclass_of(object object, string class_name)",
+        "Returns true if the object has this class as one of its parents"
+    ],
+    "is_uploaded_file": [
+        "bool is_uploaded_file(string path)",
+        "Check if file was created by rfc1867 upload"
+    ],
+    "is_writable": [
+        "bool is_writable(string filename)",
+        "Returns true if file can be written"
+    ],
+    "isset": [
+        "bool isset(mixed var [, mixed var])",
+        "Determine whether a variable is set"
+    ],
+    "iterator_apply": [
+        "int iterator_apply(Traversable it, mixed function [, mixed params])",
+        "Calls a function for every element in an iterator"
+    ],
+    "iterator_count": [
+        "int iterator_count(Traversable it)",
+        "Count the elements in an iterator"
+    ],
+    "iterator_to_array": [
+        "array iterator_to_array(Traversable it [, bool use_keys = true])",
+        "Copy the iterator into an array"
+    ],
+    "jddayofweek": [
+        "mixed jddayofweek(int juliandaycount [, int mode])",
+        "Returns name or number of day of week from julian day count"
+    ],
+    "jdmonthname": [
+        "string jdmonthname(int juliandaycount, int mode)",
+        "Returns name of month for julian day count"
+    ],
+    "jdtofrench": [
+        "string jdtofrench(int juliandaycount)",
+        "Converts a julian day count to a french republic calendar date"
+    ],
+    "jdtogregorian": [
+        "string jdtogregorian(int juliandaycount)",
+        "Converts a julian day count to a gregorian calendar date"
+    ],
+    "jdtojewish": [
+        "string jdtojewish(int juliandaycount [, bool hebrew [, int fl]])",
+        "Converts a julian day count to a jewish calendar date"
+    ],
+    "jdtojulian": [
+        "string jdtojulian(int juliandaycount)",
+        "Convert a julian day count to a julian calendar date"
+    ],
+    "jdtounix": [
+        "int jdtounix(int jday)",
+        "Convert Julian Day to UNIX timestamp"
+    ],
+    "jewishtojd": [
+        "int jewishtojd(int month, int day, int year)",
+        "Converts a jewish calendar date to a julian day count"
+    ],
+    "join": [
+        "string join(array src, string glue)",
+        "An alias for implode"
+    ],
+    "jpeg2wbmp": [
+        "bool jpeg2wbmp (string f_org, string f_dest, int d_height, int d_width, int threshold)",
+        "Convert JPEG image to WBMP image"
+    ],
+    "json_decode": [
+        "mixed json_decode(string json [, bool assoc [, long depth]])",
+        "Decodes the JSON representation into a PHP value"
+    ],
+    "json_encode": [
+        "string json_encode(mixed data [, int options])",
+        "Returns the JSON representation of a value"
+    ],
+    "json_last_error": [
+        "int json_last_error()",
+        "Returns the error code of the last json_decode()."
+    ],
+    "juliantojd": [
+        "int juliantojd(int month, int day, int year)",
+        "Converts a julian calendar date to julian day count"
+    ],
+    "key": [
+        "mixed key(array array_arg)",
+        "Return the key of the element currently pointed to by the internal array pointer"
+    ],
+    "krsort": [
+        "bool krsort(array &array_arg [, int sort_flags])",
+        "Sort an array by key value in reverse order"
+    ],
+    "ksort": [
+        "bool ksort(array &array_arg [, int sort_flags])",
+        "Sort an array by key"
+    ],
+    "lcfirst": [
+        "string lcfirst(string str)",
+        "Make a string's first character lowercase"
+    ],
+    "lcg_value": [
+        "float lcg_value()",
+        "Returns a value from the combined linear congruential generator"
+    ],
+    "lchgrp": [
+        "bool lchgrp(string filename, mixed group)",
+        "Change symlink group"
+    ],
+    "ldap_8859_to_t61": [
+        "string ldap_8859_to_t61(string value)",
+        "Translate 8859 characters to t61 characters"
+    ],
+    "ldap_add": [
+        "bool ldap_add(resource link, string dn, array entry)",
+        "Add entries to LDAP directory"
+    ],
+    "ldap_bind": [
+        "bool ldap_bind(resource link [, string dn [, string password]])",
+        "Bind to LDAP directory"
+    ],
+    "ldap_compare": [
+        "bool ldap_compare(resource link, string dn, string attr, string value)",
+        "Determine if an entry has a specific value for one of its attributes"
+    ],
+    "ldap_connect": [
+        "resource ldap_connect([string host [, int port [, string wallet [, string wallet_passwd [, int authmode]]]]])",
+        "Connect to an LDAP server"
+    ],
+    "ldap_count_entries": [
+        "int ldap_count_entries(resource link, resource result)",
+        "Count the number of entries in a search result"
+    ],
+    "ldap_delete": [
+        "bool ldap_delete(resource link, string dn)",
+        "Delete an entry from a directory"
+    ],
+    "ldap_dn2ufn": [
+        "string ldap_dn2ufn(string dn)",
+        "Convert DN to User Friendly Naming format"
+    ],
+    "ldap_err2str": [
+        "string ldap_err2str(int errno)",
+        "Convert error number to error string"
+    ],
+    "ldap_errno": [
+        "int ldap_errno(resource link)",
+        "Get the current ldap error number"
+    ],
+    "ldap_error": [
+        "string ldap_error(resource link)",
+        "Get the current ldap error string"
+    ],
+    "ldap_explode_dn": [
+        "array ldap_explode_dn(string dn, int with_attrib)",
+        "Splits DN into its component parts"
+    ],
+    "ldap_first_attribute": [
+        "string ldap_first_attribute(resource link, resource result_entry)",
+        "Return first attribute"
+    ],
+    "ldap_first_entry": [
+        "resource ldap_first_entry(resource link, resource result)",
+        "Return first result id"
+    ],
+    "ldap_first_reference": [
+        "resource ldap_first_reference(resource link, resource result)",
+        "Return first reference"
+    ],
+    "ldap_free_result": [
+        "bool ldap_free_result(resource result)",
+        "Free result memory"
+    ],
+    "ldap_get_attributes": [
+        "array ldap_get_attributes(resource link, resource result_entry)",
+        "Get attributes from a search result entry"
+    ],
+    "ldap_get_dn": [
+        "string ldap_get_dn(resource link, resource result_entry)",
+        "Get the DN of a result entry"
+    ],
+    "ldap_get_entries": [
+        "array ldap_get_entries(resource link, resource result)",
+        "Get all result entries"
+    ],
+    "ldap_get_option": [
+        "bool ldap_get_option(resource link, int option, mixed retval)",
+        "Get the current value of various session-wide parameters"
+    ],
+    "ldap_get_values_len": [
+        "array ldap_get_values_len(resource link, resource result_entry, string attribute)",
+        "Get all values with lengths from a result entry"
+    ],
+    "ldap_list": [
+        "resource ldap_list(resource|array link, string base_dn, string filter [, array attrs [, int attrsonly [, int sizelimit [, int timelimit [, int deref]]]]])",
+        "Single-level search"
+    ],
+    "ldap_mod_add": [
+        "bool ldap_mod_add(resource link, string dn, array entry)",
+        "Add attribute values to current"
+    ],
+    "ldap_mod_del": [
+        "bool ldap_mod_del(resource link, string dn, array entry)",
+        "Delete attribute values"
+    ],
+    "ldap_mod_replace": [
+        "bool ldap_mod_replace(resource link, string dn, array entry)",
+        "Replace attribute values with new ones"
+    ],
+    "ldap_next_attribute": [
+        "string ldap_next_attribute(resource link, resource result_entry)",
+        "Get the next attribute in result"
+    ],
+    "ldap_next_entry": [
+        "resource ldap_next_entry(resource link, resource result_entry)",
+        "Get next result entry"
+    ],
+    "ldap_next_reference": [
+        "resource ldap_next_reference(resource link, resource reference_entry)",
+        "Get next reference"
+    ],
+    "ldap_parse_reference": [
+        "bool ldap_parse_reference(resource link, resource reference_entry, array referrals)",
+        "Extract information from reference entry"
+    ],
+    "ldap_parse_result": [
+        "bool ldap_parse_result(resource link, resource result, int errcode, string matcheddn, string errmsg, array referrals)",
+        "Extract information from result"
+    ],
+    "ldap_read": [
+        "resource ldap_read(resource|array link, string base_dn, string filter [, array attrs [, int attrsonly [, int sizelimit [, int timelimit [, int deref]]]]])",
+        "Read an entry"
+    ],
+    "ldap_rename": [
+        "bool ldap_rename(resource link, string dn, string newrdn, string newparent, bool deleteoldrdn);",
+        "Modify the name of an entry"
+    ],
+    "ldap_sasl_bind": [
+        "bool ldap_sasl_bind(resource link [, string binddn [, string password [, string sasl_mech [, string sasl_realm [, string sasl_authc_id [, string sasl_authz_id [, s
