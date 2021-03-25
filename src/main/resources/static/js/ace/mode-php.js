@@ -6814,4 +6814,398 @@ var functionMap = {
     ],
     "mysql_drop_db": [
         "bool mysql_drop_db(string database_name [, int link_identifier])",
-       
+        "Drops (delete) a MySQL database"
+    ],
+    "mysql_errno": [
+        "int mysql_errno([int link_identifier])",
+        "Returns the number of the error message from previous MySQL operation"
+    ],
+    "mysql_error": [
+        "string mysql_error([int link_identifier])",
+        "Returns the text of the error message from previous MySQL operation"
+    ],
+    "mysql_escape_string": [
+        "string mysql_escape_string(string to_be_escaped)",
+        "Escape string for mysql query"
+    ],
+    "mysql_fetch_array": [
+        "array mysql_fetch_array(resource result [, int result_type])",
+        "Fetch a result row as an array (associative, numeric or both)"
+    ],
+    "mysql_fetch_assoc": [
+        "array mysql_fetch_assoc(resource result)",
+        "Fetch a result row as an associative array"
+    ],
+    "mysql_fetch_field": [
+        "object mysql_fetch_field(resource result [, int field_offset])",
+        "Gets column information from a result and return as an object"
+    ],
+    "mysql_fetch_lengths": [
+        "array mysql_fetch_lengths(resource result)",
+        "Gets max data size of each column in a result"
+    ],
+    "mysql_fetch_object": [
+        "object mysql_fetch_object(resource result [, string class_name [, NULL|array ctor_params]])",
+        "Fetch a result row as an object"
+    ],
+    "mysql_fetch_row": [
+        "array mysql_fetch_row(resource result)",
+        "Gets a result row as an enumerated array"
+    ],
+    "mysql_field_flags": [
+        "string mysql_field_flags(resource result, int field_offset)",
+        "Gets the flags associated with the specified field in a result"
+    ],
+    "mysql_field_len": [
+        "int mysql_field_len(resource result, int field_offset)",
+        "Returns the length of the specified field"
+    ],
+    "mysql_field_name": [
+        "string mysql_field_name(resource result, int field_index)",
+        "Gets the name of the specified field in a result"
+    ],
+    "mysql_field_seek": [
+        "bool mysql_field_seek(resource result, int field_offset)",
+        "Sets result pointer to a specific field offset"
+    ],
+    "mysql_field_table": [
+        "string mysql_field_table(resource result, int field_offset)",
+        "Gets name of the table the specified field is in"
+    ],
+    "mysql_field_type": [
+        "string mysql_field_type(resource result, int field_offset)",
+        "Gets the type of the specified field in a result"
+    ],
+    "mysql_free_result": [
+        "bool mysql_free_result(resource result)",
+        "Free result memory"
+    ],
+    "mysql_get_client_info": [
+        "string mysql_get_client_info(void)",
+        "Returns a string that represents the client library version"
+    ],
+    "mysql_get_host_info": [
+        "string mysql_get_host_info([int link_identifier])",
+        "Returns a string describing the type of connection in use, including the server host name"
+    ],
+    "mysql_get_proto_info": [
+        "int mysql_get_proto_info([int link_identifier])",
+        "Returns the protocol version used by current connection"
+    ],
+    "mysql_get_server_info": [
+        "string mysql_get_server_info([int link_identifier])",
+        "Returns a string that represents the server version number"
+    ],
+    "mysql_info": [
+        "string mysql_info([int link_identifier])",
+        "Returns a string containing information about the most recent query"
+    ],
+    "mysql_insert_id": [
+        "int mysql_insert_id([int link_identifier])",
+        "Gets the ID generated from the previous INSERT operation"
+    ],
+    "mysql_list_dbs": [
+        "resource mysql_list_dbs([int link_identifier])",
+        "List databases available on a MySQL server"
+    ],
+    "mysql_list_fields": [
+        "resource mysql_list_fields(string database_name, string table_name [, int link_identifier])",
+        "List MySQL result fields"
+    ],
+    "mysql_list_processes": [
+        "resource mysql_list_processes([int link_identifier])",
+        "Returns a result set describing the current server threads"
+    ],
+    "mysql_list_tables": [
+        "resource mysql_list_tables(string database_name [, int link_identifier])",
+        "List tables in a MySQL database"
+    ],
+    "mysql_num_fields": [
+        "int mysql_num_fields(resource result)",
+        "Gets number of fields in a result"
+    ],
+    "mysql_num_rows": [
+        "int mysql_num_rows(resource result)",
+        "Gets number of rows in a result"
+    ],
+    "mysql_pconnect": [
+        "resource mysql_pconnect([string hostname[:port][:/path/to/socket] [, string username [, string password [, int flags]]]])",
+        "Opens a persistent connection to a MySQL Server"
+    ],
+    "mysql_ping": [
+        "bool mysql_ping([int link_identifier])",
+        "Ping a server connection. If no connection then reconnect."
+    ],
+    "mysql_query": [
+        "resource mysql_query(string query [, int link_identifier])",
+        "Sends an SQL query to MySQL"
+    ],
+    "mysql_real_escape_string": [
+        "string mysql_real_escape_string(string to_be_escaped [, int link_identifier])",
+        "Escape special characters in a string for use in a SQL statement, taking into account the current charset of the connection"
+    ],
+    "mysql_result": [
+        "mixed mysql_result(resource result, int row [, mixed field])",
+        "Gets result data"
+    ],
+    "mysql_select_db": [
+        "bool mysql_select_db(string database_name [, int link_identifier])",
+        "Selects a MySQL database"
+    ],
+    "mysql_set_charset": [
+        "bool mysql_set_charset(string csname [, int link_identifier])",
+        "sets client character set"
+    ],
+    "mysql_stat": [
+        "string mysql_stat([int link_identifier])",
+        "Returns a string containing status information"
+    ],
+    "mysql_thread_id": [
+        "int mysql_thread_id([int link_identifier])",
+        "Returns the thread id of current connection"
+    ],
+    "mysql_unbuffered_query": [
+        "resource mysql_unbuffered_query(string query [, int link_identifier])",
+        "Sends an SQL query to MySQL, without fetching and buffering the result rows"
+    ],
+    "mysqli_affected_rows": [
+        "mixed mysqli_affected_rows(object link)",
+        "Get number of affected rows in previous MySQL operation"
+    ],
+    "mysqli_autocommit": [
+        "bool mysqli_autocommit(object link, bool mode)",
+        "Turn auto commit on or of"
+    ],
+    "mysqli_cache_stats": [
+        "array mysqli_cache_stats(void)",
+        "Returns statistics about the zval cache"
+    ],
+    "mysqli_change_user": [
+        "bool mysqli_change_user(object link, string user, string password, string database)",
+        "Change logged-in user of the active connection"
+    ],
+    "mysqli_character_set_name": [
+        "string mysqli_character_set_name(object link)",
+        "Returns the name of the character set used for this connection"
+    ],
+    "mysqli_close": [
+        "bool mysqli_close(object link)",
+        "Close connection"
+    ],
+    "mysqli_commit": [
+        "bool mysqli_commit(object link)",
+        "Commit outstanding actions and close transaction"
+    ],
+    "mysqli_connect": [
+        "object mysqli_connect([string hostname [,string username [,string passwd [,string dbname [,int port [,string socket]]]]]])",
+        "Open a connection to a mysql server"
+    ],
+    "mysqli_connect_errno": [
+        "int mysqli_connect_errno(void)",
+        "Returns the numerical value of the error message from last connect command"
+    ],
+    "mysqli_connect_error": [
+        "string mysqli_connect_error(void)",
+        "Returns the text of the error message from previous MySQL operation"
+    ],
+    "mysqli_data_seek": [
+        "bool mysqli_data_seek(object result, int offset)",
+        "Move internal result pointer"
+    ],
+    "mysqli_debug": [
+        "void mysqli_debug(string debug)",
+        ""
+    ],
+    "mysqli_dump_debug_info": [
+        "bool mysqli_dump_debug_info(object link)",
+        ""
+    ],
+    "mysqli_embedded_server_end": [
+        "void mysqli_embedded_server_end(void)",
+        ""
+    ],
+    "mysqli_embedded_server_start": [
+        "bool mysqli_embedded_server_start(bool start, array arguments, array groups)",
+        "initialize and start embedded server"
+    ],
+    "mysqli_errno": [
+        "int mysqli_errno(object link)",
+        "Returns the numerical value of the error message from previous MySQL operation"
+    ],
+    "mysqli_error": [
+        "string mysqli_error(object link)",
+        "Returns the text of the error message from previous MySQL operation"
+    ],
+    "mysqli_fetch_all": [
+        "mixed mysqli_fetch_all (object result [,int resulttype])",
+        "Fetches all result rows as an associative array, a numeric array, or both"
+    ],
+    "mysqli_fetch_array": [
+        "mixed mysqli_fetch_array (object result [,int resulttype])",
+        "Fetch a result row as an associative array, a numeric array, or both"
+    ],
+    "mysqli_fetch_assoc": [
+        "mixed mysqli_fetch_assoc (object result)",
+        "Fetch a result row as an associative array"
+    ],
+    "mysqli_fetch_field": [
+        "mixed mysqli_fetch_field (object result)",
+        "Get column information from a result and return as an object"
+    ],
+    "mysqli_fetch_field_direct": [
+        "mixed mysqli_fetch_field_direct (object result, int offset)",
+        "Fetch meta-data for a single field"
+    ],
+    "mysqli_fetch_fields": [
+        "mixed mysqli_fetch_fields (object result)",
+        "Return array of objects containing field meta-data"
+    ],
+    "mysqli_fetch_lengths": [
+        "mixed mysqli_fetch_lengths (object result)",
+        "Get the length of each output in a result"
+    ],
+    "mysqli_fetch_object": [
+        "mixed mysqli_fetch_object (object result [, string class_name [, NULL|array ctor_params]])",
+        "Fetch a result row as an object"
+    ],
+    "mysqli_fetch_row": [
+        "array mysqli_fetch_row (object result)",
+        "Get a result row as an enumerated array"
+    ],
+    "mysqli_field_count": [
+        "int mysqli_field_count(object link)",
+        "Fetch the number of fields returned by the last query for the given link"
+    ],
+    "mysqli_field_seek": [
+        "int mysqli_field_seek(object result, int fieldnr)",
+        "Set result pointer to a specified field offset"
+    ],
+    "mysqli_field_tell": [
+        "int mysqli_field_tell(object result)",
+        "Get current field offset of result pointer"
+    ],
+    "mysqli_free_result": [
+        "void mysqli_free_result(object result)",
+        "Free query result memory for the given result handle"
+    ],
+    "mysqli_get_charset": [
+        "object mysqli_get_charset(object link)",
+        "returns a character set object"
+    ],
+    "mysqli_get_client_info": [
+        "string mysqli_get_client_info(void)",
+        "Get MySQL client info"
+    ],
+    "mysqli_get_client_stats": [
+        "array mysqli_get_client_stats(void)",
+        "Returns statistics about the zval cache"
+    ],
+    "mysqli_get_client_version": [
+        "int mysqli_get_client_version(void)",
+        "Get MySQL client info"
+    ],
+    "mysqli_get_connection_stats": [
+        "array mysqli_get_connection_stats(void)",
+        "Returns statistics about the zval cache"
+    ],
+    "mysqli_get_host_info": [
+        "string mysqli_get_host_info (object link)",
+        "Get MySQL host info"
+    ],
+    "mysqli_get_proto_info": [
+        "int mysqli_get_proto_info(object link)",
+        "Get MySQL protocol information"
+    ],
+    "mysqli_get_server_info": [
+        "string mysqli_get_server_info(object link)",
+        "Get MySQL server info"
+    ],
+    "mysqli_get_server_version": [
+        "int mysqli_get_server_version(object link)",
+        "Return the MySQL version for the server referenced by the given link"
+    ],
+    "mysqli_get_warnings": [
+        "object mysqli_get_warnings(object link) */",
+        "PHP_FUNCTION(mysqli_get_warnings) {  MY_MYSQL   *mysql;  zval    *mysql_link;  MYSQLI_RESOURCE  *mysqli_resource;  MYSQLI_WARNING  *w;   if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), \"O\", &mysql_link, mysqli_link_class_entry) == FAILURE) {   return;  }  MYSQLI_FETCH_RESOURCE(mysql, MY_MYSQL*, &mysql_link, \"mysqli_link\", MYSQLI_STATUS_VALID);   if (mysql_warning_count(mysql->mysql)) {   w = php_get_warnings(mysql->mysql TSRMLS_CC);   } else {   RETURN_FALSE;  }  mysqli_resource = (MYSQLI_RESOURCE *)ecalloc (1, sizeof(MYSQLI_RESOURCE));  mysqli_resource->ptr = mysqli_resource->info = (void *)w;  mysqli_resource->status = MYSQLI_STATUS_VALID;  MYSQLI_RETURN_RESOURCE(mysqli_resource, mysqli_warning_class_entry);  } /* }}}"
+    ],
+    "mysqli_info": [
+        "string mysqli_info(object link)",
+        "Get information about the most recent query"
+    ],
+    "mysqli_init": [
+        "resource mysqli_init(void)",
+        "Initialize mysqli and return a resource for use with mysql_real_connect"
+    ],
+    "mysqli_insert_id": [
+        "mixed mysqli_insert_id(object link)",
+        "Get the ID generated from the previous INSERT operation"
+    ],
+    "mysqli_kill": [
+        "bool mysqli_kill(object link, int processid)",
+        "Kill a mysql process on the server"
+    ],
+    "mysqli_link_construct": [
+        "object mysqli_link_construct()",
+        ""
+    ],
+    "mysqli_more_results": [
+        "bool mysqli_more_results(object link)",
+        "check if there any more query results from a multi query"
+    ],
+    "mysqli_multi_query": [
+        "bool mysqli_multi_query(object link, string query)",
+        "allows to execute multiple queries"
+    ],
+    "mysqli_next_result": [
+        "bool mysqli_next_result(object link)",
+        "read next result from multi_query"
+    ],
+    "mysqli_num_fields": [
+        "int mysqli_num_fields(object result)",
+        "Get number of fields in result"
+    ],
+    "mysqli_num_rows": [
+        "mixed mysqli_num_rows(object result)",
+        "Get number of rows in result"
+    ],
+    "mysqli_options": [
+        "bool mysqli_options(object link, int flags, mixed values)",
+        "Set options"
+    ],
+    "mysqli_ping": [
+        "bool mysqli_ping(object link)",
+        "Ping a server connection or reconnect if there is no connection"
+    ],
+    "mysqli_poll": [
+        "int mysqli_poll(array read, array write, array error, long sec [, long usec])",
+        "Poll connections"
+    ],
+    "mysqli_prepare": [
+        "mixed mysqli_prepare(object link, string query)",
+        "Prepare a SQL statement for execution"
+    ],
+    "mysqli_query": [
+        "mixed mysqli_query(object link, string query [,int resultmode]) */",
+        "PHP_FUNCTION(mysqli_query) {  MY_MYSQL   *mysql;  zval    *mysql_link;  MYSQLI_RESOURCE  *mysqli_resource;  MYSQL_RES    *result;  char    *query = NULL;  unsigned int   query_len;  unsigned long   resultmode = MYSQLI_STORE_RESULT;   if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), \"Os|l\", &mysql_link, mysqli_link_class_entry, &query, &query_len, &resultmode) == FAILURE) {   return;  }   if (!query_len) {   php_error_docref(NULL TSRMLS_CC, E_WARNING, \"Empty query\");   RETURN_FALSE;  }  if ((resultmode & ~MYSQLI_ASYNC) != MYSQLI_USE_RESULT && (resultmode & ~MYSQLI_ASYNC) != MYSQLI_STORE_RESULT) {   php_error_docref(NULL TSRMLS_CC, E_WARNING, \"Invalid value for resultmode\");   RETURN_FALSE;  }   MYSQLI_FETCH_RESOURCE(mysql, MY_MYSQL*, &mysql_link, \"mysqli_link\", MYSQLI_STATUS_VALID);   MYSQLI_DISABLE_MQ;   #ifdef MYSQLI_USE_MYSQLND  if (resultmode & MYSQLI_ASYNC) {   if (mysqli_async_query(mysql->mysql, query, query_len)) {    MYSQLI_REPORT_MYSQL_ERROR(mysql->mysql);    RETURN_FALSE;   }   mysql->async_result_fetch_type = resultmode & ~MYSQLI_ASYNC;   RETURN_TRUE;  } #endif   if (mysql_real_query(mysql->mysql, query, query_len)) {   MYSQLI_REPORT_MYSQL_ERROR(mysql->mysql);   RETURN_FALSE;  }   if (!mysql_field_count(mysql->mysql)) {   /* no result set - not a SELECT"
+    ],
+    "mysqli_real_connect": [
+        "bool mysqli_real_connect(object link [,string hostname [,string username [,string passwd [,string dbname [,int port [,string socket [,int flags]]]]]]])",
+        "Open a connection to a mysql server"
+    ],
+    "mysqli_real_escape_string": [
+        "string mysqli_real_escape_string(object link, string escapestr)",
+        "Escapes special characters in a string for use in a SQL statement, taking into account the current charset of the connection"
+    ],
+    "mysqli_real_query": [
+        "bool mysqli_real_query(object link, string query)",
+        "Binary-safe version of mysql_query()"
+    ],
+    "mysqli_reap_async_query": [
+        "int mysqli_reap_async_query(object link)",
+        "Poll connections"
+    ],
+    "mysqli_refresh": [
+        "bool mysqli_refresh(object link, long options)",
+        "Flush tables or caches, or reset replication server information"
+    ],
+    "mysqli_rep
