@@ -6398,4 +6398,420 @@ var functionMap = {
     ],
     "mcrypt_enc_get_block_size": [
         "int mcrypt_enc_get_block_size(resource td)",
-        "Returns the block s
+        "Returns the block size of the cipher specified by the descriptor td"
+    ],
+    "mcrypt_enc_get_iv_size": [
+        "int mcrypt_enc_get_iv_size(resource td)",
+        "Returns the size of the IV in bytes of the algorithm specified by the descriptor td"
+    ],
+    "mcrypt_enc_get_key_size": [
+        "int mcrypt_enc_get_key_size(resource td)",
+        "Returns the maximum supported key size in bytes of the algorithm specified by the descriptor td"
+    ],
+    "mcrypt_enc_get_modes_name": [
+        "string mcrypt_enc_get_modes_name(resource td)",
+        "Returns the name of the mode specified by the descriptor td"
+    ],
+    "mcrypt_enc_get_supported_key_sizes": [
+        "array mcrypt_enc_get_supported_key_sizes(resource td)",
+        "This function decrypts the crypttext"
+    ],
+    "mcrypt_enc_is_block_algorithm": [
+        "bool mcrypt_enc_is_block_algorithm(resource td)",
+        "Returns TRUE if the alrogithm is a block algorithms"
+    ],
+    "mcrypt_enc_is_block_algorithm_mode": [
+        "bool mcrypt_enc_is_block_algorithm_mode(resource td)",
+        "Returns TRUE if the mode is for use with block algorithms"
+    ],
+    "mcrypt_enc_is_block_mode": [
+        "bool mcrypt_enc_is_block_mode(resource td)",
+        "Returns TRUE if the mode outputs blocks"
+    ],
+    "mcrypt_enc_self_test": [
+        "int mcrypt_enc_self_test(resource td)",
+        "This function runs the self test on the algorithm specified by the descriptor td"
+    ],
+    "mcrypt_encrypt": [
+        "string mcrypt_encrypt(string cipher, string key, string data, string mode, string iv)",
+        "OFB crypt/decrypt data using key key with cipher cipher starting with iv"
+    ],
+    "mcrypt_generic": [
+        "string mcrypt_generic(resource td, string data)",
+        "This function encrypts the plaintext"
+    ],
+    "mcrypt_generic_deinit": [
+        "bool mcrypt_generic_deinit(resource td)",
+        "This function terminates encrypt specified by the descriptor td"
+    ],
+    "mcrypt_generic_init": [
+        "int mcrypt_generic_init(resource td, string key, string iv)",
+        "This function initializes all buffers for the specific module"
+    ],
+    "mcrypt_get_block_size": [
+        "int mcrypt_get_block_size(string cipher, string module)",
+        "Get the key size of cipher"
+    ],
+    "mcrypt_get_cipher_name": [
+        "string mcrypt_get_cipher_name(string cipher)",
+        "Get the key size of cipher"
+    ],
+    "mcrypt_get_iv_size": [
+        "int mcrypt_get_iv_size(string cipher, string module)",
+        "Get the IV size of cipher (Usually the same as the blocksize)"
+    ],
+    "mcrypt_get_key_size": [
+        "int mcrypt_get_key_size(string cipher, string module)",
+        "Get the key size of cipher"
+    ],
+    "mcrypt_list_algorithms": [
+        "array mcrypt_list_algorithms([string lib_dir])",
+        "List all algorithms in \"module_dir\""
+    ],
+    "mcrypt_list_modes": [
+        "array mcrypt_list_modes([string lib_dir])",
+        "List all modes \"module_dir\""
+    ],
+    "mcrypt_module_close": [
+        "bool mcrypt_module_close(resource td)",
+        "Free the descriptor td"
+    ],
+    "mcrypt_module_get_algo_block_size": [
+        "int mcrypt_module_get_algo_block_size(string algorithm [, string lib_dir])",
+        "Returns the block size of the algorithm"
+    ],
+    "mcrypt_module_get_algo_key_size": [
+        "int mcrypt_module_get_algo_key_size(string algorithm [, string lib_dir])",
+        "Returns the maximum supported key size of the algorithm"
+    ],
+    "mcrypt_module_get_supported_key_sizes": [
+        "array mcrypt_module_get_supported_key_sizes(string algorithm [, string lib_dir])",
+        "This function decrypts the crypttext"
+    ],
+    "mcrypt_module_is_block_algorithm": [
+        "bool mcrypt_module_is_block_algorithm(string algorithm [, string lib_dir])",
+        "Returns TRUE if the algorithm is a block algorithm"
+    ],
+    "mcrypt_module_is_block_algorithm_mode": [
+        "bool mcrypt_module_is_block_algorithm_mode(string mode [, string lib_dir])",
+        "Returns TRUE if the mode is for use with block algorithms"
+    ],
+    "mcrypt_module_is_block_mode": [
+        "bool mcrypt_module_is_block_mode(string mode [, string lib_dir])",
+        "Returns TRUE if the mode outputs blocks of bytes"
+    ],
+    "mcrypt_module_open": [
+        "resource mcrypt_module_open(string cipher, string cipher_directory, string mode, string mode_directory)",
+        "Opens the module of the algorithm and the mode to be used"
+    ],
+    "mcrypt_module_self_test": [
+        "bool mcrypt_module_self_test(string algorithm [, string lib_dir])",
+        "Does a self test of the module \"module\""
+    ],
+    "mcrypt_ofb": [
+        "string mcrypt_ofb(int cipher, string key, string data, int mode, string iv)",
+        "OFB crypt/decrypt data using key key with cipher cipher starting with iv"
+    ],
+    "md5": [
+        "string md5(string str, [ bool raw_output])",
+        "Calculate the md5 hash of a string"
+    ],
+    "md5_file": [
+        "string md5_file(string filename [, bool raw_output])",
+        "Calculate the md5 hash of given filename"
+    ],
+    "mdecrypt_generic": [
+        "string mdecrypt_generic(resource td, string data)",
+        "This function decrypts the plaintext"
+    ],
+    "memory_get_peak_usage": [
+        "int memory_get_peak_usage([real_usage])",
+        "Returns the peak allocated by PHP memory"
+    ],
+    "memory_get_usage": [
+        "int memory_get_usage([real_usage])",
+        "Returns the allocated by PHP memory"
+    ],
+    "metaphone": [
+        "string metaphone(string text[, int phones])",
+        "Break english phrases down into their phonemes"
+    ],
+    "method_exists": [
+        "bool method_exists(object object, string method)",
+        "Checks if the class method exists"
+    ],
+    "mhash": [
+        "string mhash(int hash, string data [, string key])",
+        "Hash data with hash"
+    ],
+    "mhash_count": [
+        "int mhash_count(void)",
+        "Gets the number of available hashes"
+    ],
+    "mhash_get_block_size": [
+        "int mhash_get_block_size(int hash)",
+        "Gets the block size of hash"
+    ],
+    "mhash_get_hash_name": [
+        "string mhash_get_hash_name(int hash)",
+        "Gets the name of hash"
+    ],
+    "mhash_keygen_s2k": [
+        "string mhash_keygen_s2k(int hash, string input_password, string salt, int bytes)",
+        "Generates a key using hash functions"
+    ],
+    "microtime": [
+        "mixed microtime([bool get_as_float])",
+        "Returns either a string or a float containing the current time in seconds and microseconds"
+    ],
+    "mime_content_type": [
+        "string mime_content_type(string filename|resource stream)",
+        "Return content-type for file"
+    ],
+    "min": [
+        "mixed min(mixed arg1 [, mixed arg2 [, mixed ...]])",
+        "Return the lowest value in an array or a series of arguments"
+    ],
+    "mkdir": [
+        "bool mkdir(string pathname [, int mode [, bool recursive [, resource context]]])",
+        "Create a directory"
+    ],
+    "mktime": [
+        "int mktime([int hour [, int min [, int sec [, int mon [, int day [, int year]]]]]])",
+        "Get UNIX timestamp for a date"
+    ],
+    "money_format": [
+        "string money_format(string format , float value)",
+        "Convert monetary value(s) to string"
+    ],
+    "move_uploaded_file": [
+        "bool move_uploaded_file(string path, string new_path)",
+        "Move a file if and only if it was created by an upload"
+    ],
+    "msg_get_queue": [
+        "resource msg_get_queue(int key [, int perms])",
+        "Attach to a message queue"
+    ],
+    "msg_queue_exists": [
+        "bool msg_queue_exists(int key)",
+        "Check whether a message queue exists"
+    ],
+    "msg_receive": [
+        "mixed msg_receive(resource queue, int desiredmsgtype, int &msgtype, int maxsize, mixed message [, bool unserialize=true [, int flags=0 [, int errorcode]]])",
+        "Send a message of type msgtype (must be > 0) to a message queue"
+    ],
+    "msg_remove_queue": [
+        "bool msg_remove_queue(resource queue)",
+        "Destroy the queue"
+    ],
+    "msg_send": [
+        "bool msg_send(resource queue, int msgtype, mixed message [, bool serialize=true [, bool blocking=true [, int errorcode]]])",
+        "Send a message of type msgtype (must be > 0) to a message queue"
+    ],
+    "msg_set_queue": [
+        "bool msg_set_queue(resource queue, array data)",
+        "Set information for a message queue"
+    ],
+    "msg_stat_queue": [
+        "array msg_stat_queue(resource queue)",
+        "Returns information about a message queue"
+    ],
+    "msgfmt_create": [
+        "MessageFormatter msgfmt_create( string $locale, string $pattern )",
+        "* Create formatter."
+    ],
+    "msgfmt_format": [
+        "mixed msgfmt_format( MessageFormatter $nf, array $args )",
+        "* Format a message."
+    ],
+    "msgfmt_format_message": [
+        "mixed msgfmt_format_message( string $locale, string $pattern, array $args )",
+        "* Format a message."
+    ],
+    "msgfmt_get_error_code": [
+        "int msgfmt_get_error_code( MessageFormatter $nf )",
+        "* Get formatter's last error code."
+    ],
+    "msgfmt_get_error_message": [
+        "string msgfmt_get_error_message( MessageFormatter $coll )",
+        "* Get text description for formatter's last error code."
+    ],
+    "msgfmt_get_locale": [
+        "string msgfmt_get_locale(MessageFormatter $mf)",
+        "* Get formatter locale."
+    ],
+    "msgfmt_get_pattern": [
+        "string msgfmt_get_pattern( MessageFormatter $mf )",
+        "* Get formatter pattern."
+    ],
+    "msgfmt_parse": [
+        "array msgfmt_parse( MessageFormatter $nf, string $source )",
+        "* Parse a message."
+    ],
+    "msgfmt_set_pattern": [
+        "bool msgfmt_set_pattern( MessageFormatter $mf, string $pattern )",
+        "* Set formatter pattern."
+    ],
+    "mssql_bind": [
+        "bool mssql_bind(resource stmt, string param_name, mixed var, int type [, bool is_output [, bool is_null [, int maxlen]]])",
+        "Adds a parameter to a stored procedure or a remote stored procedure"
+    ],
+    "mssql_close": [
+        "bool mssql_close([resource conn_id])",
+        "Closes a connection to a MS-SQL server"
+    ],
+    "mssql_connect": [
+        "int mssql_connect([string servername [, string username [, string password [, bool new_link]]]])",
+        "Establishes a connection to a MS-SQL server"
+    ],
+    "mssql_data_seek": [
+        "bool mssql_data_seek(resource result_id, int offset)",
+        "Moves the internal row pointer of the MS-SQL result associated with the specified result identifier to pointer to the specified row number"
+    ],
+    "mssql_execute": [
+        "mixed mssql_execute(resource stmt [, bool skip_results = false])",
+        "Executes a stored procedure on a MS-SQL server database"
+    ],
+    "mssql_fetch_array": [
+        "array mssql_fetch_array(resource result_id [, int result_type])",
+        "Returns an associative array of the current row in the result set specified by result_id"
+    ],
+    "mssql_fetch_assoc": [
+        "array mssql_fetch_assoc(resource result_id)",
+        "Returns an associative array of the current row in the result set specified by result_id"
+    ],
+    "mssql_fetch_batch": [
+        "int mssql_fetch_batch(resource result_index)",
+        "Returns the next batch of records"
+    ],
+    "mssql_fetch_field": [
+        "object mssql_fetch_field(resource result_id [, int offset])",
+        "Gets information about certain fields in a query result"
+    ],
+    "mssql_fetch_object": [
+        "object mssql_fetch_object(resource result_id)",
+        "Returns a pseudo-object of the current row in the result set specified by result_id"
+    ],
+    "mssql_fetch_row": [
+        "array mssql_fetch_row(resource result_id)",
+        "Returns an array of the current row in the result set specified by result_id"
+    ],
+    "mssql_field_length": [
+        "int mssql_field_length(resource result_id [, int offset])",
+        "Get the length of a MS-SQL field"
+    ],
+    "mssql_field_name": [
+        "string mssql_field_name(resource result_id [, int offset])",
+        "Returns the name of the field given by offset in the result set given by result_id"
+    ],
+    "mssql_field_seek": [
+        "bool mssql_field_seek(resource result_id, int offset)",
+        "Seeks to the specified field offset"
+    ],
+    "mssql_field_type": [
+        "string mssql_field_type(resource result_id [, int offset])",
+        "Returns the type of a field"
+    ],
+    "mssql_free_result": [
+        "bool mssql_free_result(resource result_index)",
+        "Free a MS-SQL result index"
+    ],
+    "mssql_free_statement": [
+        "bool mssql_free_statement(resource result_index)",
+        "Free a MS-SQL statement index"
+    ],
+    "mssql_get_last_message": [
+        "string mssql_get_last_message(void)",
+        "Gets the last message from the MS-SQL server"
+    ],
+    "mssql_guid_string": [
+        "string mssql_guid_string(string binary [,bool short_format])",
+        "Converts a 16 byte binary GUID to a string"
+    ],
+    "mssql_init": [
+        "int mssql_init(string sp_name [, resource conn_id])",
+        "Initializes a stored procedure or a remote stored procedure"
+    ],
+    "mssql_min_error_severity": [
+        "void mssql_min_error_severity(int severity)",
+        "Sets the lower error severity"
+    ],
+    "mssql_min_message_severity": [
+        "void mssql_min_message_severity(int severity)",
+        "Sets the lower message severity"
+    ],
+    "mssql_next_result": [
+        "bool mssql_next_result(resource result_id)",
+        "Move the internal result pointer to the next result"
+    ],
+    "mssql_num_fields": [
+        "int mssql_num_fields(resource mssql_result_index)",
+        "Returns the number of fields fetched in from the result id specified"
+    ],
+    "mssql_num_rows": [
+        "int mssql_num_rows(resource mssql_result_index)",
+        "Returns the number of rows fetched in from the result id specified"
+    ],
+    "mssql_pconnect": [
+        "int mssql_pconnect([string servername [, string username [, string password [, bool new_link]]]])",
+        "Establishes a persistent connection to a MS-SQL server"
+    ],
+    "mssql_query": [
+        "resource mssql_query(string query [, resource conn_id [, int batch_size]])",
+        "Perform an SQL query on a MS-SQL server database"
+    ],
+    "mssql_result": [
+        "string mssql_result(resource result_id, int row, mixed field)",
+        "Returns the contents of one cell from a MS-SQL result set"
+    ],
+    "mssql_rows_affected": [
+        "int mssql_rows_affected(resource conn_id)",
+        "Returns the number of records affected by the query"
+    ],
+    "mssql_select_db": [
+        "bool mssql_select_db(string database_name [, resource conn_id])",
+        "Select a MS-SQL database"
+    ],
+    "mt_getrandmax": [
+        "int mt_getrandmax(void)",
+        "Returns the maximum value a random number from Mersenne Twister can have"
+    ],
+    "mt_rand": [
+        "int mt_rand([int min, int max])",
+        "Returns a random number from Mersenne Twister"
+    ],
+    "mt_srand": [
+        "void mt_srand([int seed])",
+        "Seeds Mersenne Twister random number generator"
+    ],
+    "mysql_affected_rows": [
+        "int mysql_affected_rows([int link_identifier])",
+        "Gets number of affected rows in previous MySQL operation"
+    ],
+    "mysql_client_encoding": [
+        "string mysql_client_encoding([int link_identifier])",
+        "Returns the default character set for the current connection"
+    ],
+    "mysql_close": [
+        "bool mysql_close([int link_identifier])",
+        "Close a MySQL connection"
+    ],
+    "mysql_connect": [
+        "resource mysql_connect([string hostname[:port][:/path/to/socket] [, string username [, string password [, bool new [, int flags]]]]])",
+        "Opens a connection to a MySQL Server"
+    ],
+    "mysql_create_db": [
+        "bool mysql_create_db(string database_name [, int link_identifier])",
+        "Create a MySQL database"
+    ],
+    "mysql_data_seek": [
+        "bool mysql_data_seek(resource result, int row_number)",
+        "Move internal result pointer"
+    ],
+    "mysql_db_query": [
+        "resource mysql_db_query(string database_name, string query [, int link_identifier])",
+        "Sends an SQL query to MySQL"
+    ],
+    "mysql_drop_db": [
+        "bool mysql_drop_db(string database_name [, int link_identifier])",
+       
