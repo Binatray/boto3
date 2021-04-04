@@ -7208,4 +7208,449 @@ var functionMap = {
         "bool mysqli_refresh(object link, long options)",
         "Flush tables or caches, or reset replication server information"
     ],
-    "mysqli_rep
+    "mysqli_report": [
+        "bool mysqli_report(int flags)",
+        "sets report level"
+    ],
+    "mysqli_rollback": [
+        "bool mysqli_rollback(object link)",
+        "Undo actions from current transaction"
+    ],
+    "mysqli_select_db": [
+        "bool mysqli_select_db(object link, string dbname)",
+        "Select a MySQL database"
+    ],
+    "mysqli_set_charset": [
+        "bool mysqli_set_charset(object link, string csname)",
+        "sets client character set"
+    ],
+    "mysqli_set_local_infile_default": [
+        "void mysqli_set_local_infile_default(object link)",
+        "unsets user defined handler for load local infile command"
+    ],
+    "mysqli_set_local_infile_handler": [
+        "bool mysqli_set_local_infile_handler(object link, callback read_func)",
+        "Set callback functions for LOAD DATA LOCAL INFILE"
+    ],
+    "mysqli_sqlstate": [
+        "string mysqli_sqlstate(object link)",
+        "Returns the SQLSTATE error from previous MySQL operation"
+    ],
+    "mysqli_ssl_set": [
+        "bool mysqli_ssl_set(object link ,string key ,string cert ,string ca ,string capath ,string cipher])",
+        ""
+    ],
+    "mysqli_stat": [
+        "mixed mysqli_stat(object link)",
+        "Get current system status"
+    ],
+    "mysqli_stmt_affected_rows": [
+        "mixed mysqli_stmt_affected_rows(object stmt)",
+        "Return the number of rows affected in the last query for the given link"
+    ],
+    "mysqli_stmt_attr_get": [
+        "int mysqli_stmt_attr_get(object stmt, long attr)",
+        ""
+    ],
+    "mysqli_stmt_attr_set": [
+        "int mysqli_stmt_attr_set(object stmt, long attr, long mode)",
+        ""
+    ],
+    "mysqli_stmt_bind_param": [
+        "bool mysqli_stmt_bind_param(object stmt, string types, mixed variable [,mixed,....])",
+        "Bind variables to a prepared statement as parameters"
+    ],
+    "mysqli_stmt_bind_result": [
+        "bool mysqli_stmt_bind_result(object stmt, mixed var, [,mixed, ...])",
+        "Bind variables to a prepared statement for result storage"
+    ],
+    "mysqli_stmt_close": [
+        "bool mysqli_stmt_close(object stmt)",
+        "Close statement"
+    ],
+    "mysqli_stmt_data_seek": [
+        "void mysqli_stmt_data_seek(object stmt, int offset)",
+        "Move internal result pointer"
+    ],
+    "mysqli_stmt_errno": [
+        "int mysqli_stmt_errno(object stmt)",
+        ""
+    ],
+    "mysqli_stmt_error": [
+        "string mysqli_stmt_error(object stmt)",
+        ""
+    ],
+    "mysqli_stmt_execute": [
+        "bool mysqli_stmt_execute(object stmt)",
+        "Execute a prepared statement"
+    ],
+    "mysqli_stmt_fetch": [
+        "mixed mysqli_stmt_fetch(object stmt)",
+        "Fetch results from a prepared statement into the bound variables"
+    ],
+    "mysqli_stmt_field_count": [
+        "int mysqli_stmt_field_count(object stmt) {",
+        "Return the number of result columns for the given statement"
+    ],
+    "mysqli_stmt_free_result": [
+        "void mysqli_stmt_free_result(object stmt)",
+        "Free stored result memory for the given statement handle"
+    ],
+    "mysqli_stmt_get_result": [
+        "object mysqli_stmt_get_result(object link)",
+        "Buffer result set on client"
+    ],
+    "mysqli_stmt_get_warnings": [
+        "object mysqli_stmt_get_warnings(object link) */",
+        "PHP_FUNCTION(mysqli_stmt_get_warnings) {  MY_STMT    *stmt;  zval    *stmt_link;  MYSQLI_RESOURCE  *mysqli_resource;  MYSQLI_WARNING  *w;   if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), \"O\", &stmt_link, mysqli_stmt_class_entry) == FAILURE) {   return;  }  MYSQLI_FETCH_RESOURCE(stmt, MY_STMT*, &stmt_link, \"mysqli_stmt\", MYSQLI_STATUS_VALID);   if (mysqli_stmt_warning_count(stmt->stmt)) {   w = php_get_warnings(mysqli_stmt_get_connection(stmt->stmt) TSRMLS_CC);   } else {   RETURN_FALSE;  }  mysqli_resource = (MYSQLI_RESOURCE *)ecalloc (1, sizeof(MYSQLI_RESOURCE));  mysqli_resource->ptr = mysqli_resource->info = (void *)w;  mysqli_resource->status = MYSQLI_STATUS_VALID;  MYSQLI_RETURN_RESOURCE(mysqli_resource, mysqli_warning_class_entry); } /* }}}"
+    ],
+    "mysqli_stmt_init": [
+        "mixed mysqli_stmt_init(object link)",
+        "Initialize statement object"
+    ],
+    "mysqli_stmt_insert_id": [
+        "mixed mysqli_stmt_insert_id(object stmt)",
+        "Get the ID generated from the previous INSERT operation"
+    ],
+    "mysqli_stmt_next_result": [
+        "bool mysqli_stmt_next_result(object link)",
+        "read next result from multi_query"
+    ],
+    "mysqli_stmt_num_rows": [
+        "mixed mysqli_stmt_num_rows(object stmt)",
+        "Return the number of rows in statements result set"
+    ],
+    "mysqli_stmt_param_count": [
+        "int mysqli_stmt_param_count(object stmt)",
+        "Return the number of parameter for the given statement"
+    ],
+    "mysqli_stmt_prepare": [
+        "bool mysqli_stmt_prepare(object stmt, string query)",
+        "prepare server side statement with query"
+    ],
+    "mysqli_stmt_reset": [
+        "bool mysqli_stmt_reset(object stmt)",
+        "reset a prepared statement"
+    ],
+    "mysqli_stmt_result_metadata": [
+        "mixed mysqli_stmt_result_metadata(object stmt)",
+        "return result set from statement"
+    ],
+    "mysqli_stmt_send_long_data": [
+        "bool mysqli_stmt_send_long_data(object stmt, int param_nr, string data)",
+        ""
+    ],
+    "mysqli_stmt_sqlstate": [
+        "string mysqli_stmt_sqlstate(object stmt)",
+        ""
+    ],
+    "mysqli_stmt_store_result": [
+        "bool mysqli_stmt_store_result(stmt)",
+        ""
+    ],
+    "mysqli_store_result": [
+        "object mysqli_store_result(object link)",
+        "Buffer result set on client"
+    ],
+    "mysqli_thread_id": [
+        "int mysqli_thread_id(object link)",
+        "Return the current thread ID"
+    ],
+    "mysqli_thread_safe": [
+        "bool mysqli_thread_safe(void)",
+        "Return whether thread safety is given or not"
+    ],
+    "mysqli_use_result": [
+        "mixed mysqli_use_result(object link)",
+        "Directly retrieve query results - do not buffer results on client side"
+    ],
+    "mysqli_warning_count": [
+        "int mysqli_warning_count (object link)",
+        "Return number of warnings from the last query for the given link"
+    ],
+    "natcasesort": [
+        "void natcasesort(array &array_arg)",
+        "Sort an array using case-insensitive natural sort"
+    ],
+    "natsort": [
+        "void natsort(array &array_arg)",
+        "Sort an array using natural sort"
+    ],
+    "next": [
+        "mixed next(array array_arg)",
+        "Move array argument's internal pointer to the next element and return it"
+    ],
+    "ngettext": [
+        "string ngettext(string MSGID1, string MSGID2, int N)",
+        "Plural version of gettext()"
+    ],
+    "nl2br": [
+        "string nl2br(string str [, bool is_xhtml])",
+        "Converts newlines to HTML line breaks"
+    ],
+    "nl_langinfo": [
+        "string nl_langinfo(int item)",
+        "Query language and locale information"
+    ],
+    "normalizer_is_normalize": [
+        "bool normalizer_is_normalize( string $input [, string $form = FORM_C] )",
+        "* Test if a string is in a given normalization form."
+    ],
+    "normalizer_normalize": [
+        "string normalizer_normalize( string $input [, string $form = FORM_C] )",
+        "* Normalize a string."
+    ],
+    "nsapi_request_headers": [
+        "array nsapi_request_headers(void)",
+        "Get all headers from the request"
+    ],
+    "nsapi_response_headers": [
+        "array nsapi_response_headers(void)",
+        "Get all headers from the response"
+    ],
+    "nsapi_virtual": [
+        "bool nsapi_virtual(string uri)",
+        "Perform an NSAPI sub-request"
+    ],
+    "number_format": [
+        "string number_format(float number [, int num_decimal_places [, string dec_seperator, string thousands_seperator]])",
+        "Formats a number with grouped thousands"
+    ],
+    "numfmt_create": [
+        "NumberFormatter numfmt_create( string $locale, int style[, string $pattern ] )",
+        "* Create number formatter."
+    ],
+    "numfmt_format": [
+        "mixed numfmt_format( NumberFormatter $nf, mixed $num[, int type] )",
+        "* Format a number."
+    ],
+    "numfmt_format_currency": [
+        "mixed numfmt_format_currency( NumberFormatter $nf, double $num, string $currency )",
+        "* Format a number as currency."
+    ],
+    "numfmt_get_attribute": [
+        "mixed numfmt_get_attribute( NumberFormatter $nf, int $attr )",
+        "* Get formatter attribute value."
+    ],
+    "numfmt_get_error_code": [
+        "int numfmt_get_error_code( NumberFormatter $nf )",
+        "* Get formatter's last error code."
+    ],
+    "numfmt_get_error_message": [
+        "string numfmt_get_error_message( NumberFormatter $nf )",
+        "* Get text description for formatter's last error code."
+    ],
+    "numfmt_get_locale": [
+        "string numfmt_get_locale( NumberFormatter $nf[, int type] )",
+        "* Get formatter locale."
+    ],
+    "numfmt_get_pattern": [
+        "string numfmt_get_pattern( NumberFormatter $nf )",
+        "* Get formatter pattern."
+    ],
+    "numfmt_get_symbol": [
+        "string numfmt_get_symbol( NumberFormatter $nf, int $attr )",
+        "* Get formatter symbol value."
+    ],
+    "numfmt_get_text_attribute": [
+        "string numfmt_get_text_attribute( NumberFormatter $nf, int $attr )",
+        "* Get formatter attribute value."
+    ],
+    "numfmt_parse": [
+        "mixed numfmt_parse( NumberFormatter $nf, string $str[, int $type, int &$position ])",
+        "* Parse a number."
+    ],
+    "numfmt_parse_currency": [
+        "double numfmt_parse_currency( NumberFormatter $nf, string $str, string $&currency[, int $&position] )",
+        "* Parse a number as currency."
+    ],
+    "numfmt_parse_message": [
+        "array numfmt_parse_message( string $locale, string $pattern, string $source )",
+        "* Parse a message."
+    ],
+    "numfmt_set_attribute": [
+        "bool numfmt_set_attribute( NumberFormatter $nf, int $attr, mixed $value )",
+        "* Get formatter attribute value."
+    ],
+    "numfmt_set_pattern": [
+        "bool numfmt_set_pattern( NumberFormatter $nf, string $pattern )",
+        "* Set formatter pattern."
+    ],
+    "numfmt_set_symbol": [
+        "bool numfmt_set_symbol( NumberFormatter $nf, int $attr, string $symbol )",
+        "* Set formatter symbol value."
+    ],
+    "numfmt_set_text_attribute": [
+        "bool numfmt_set_text_attribute( NumberFormatter $nf, int $attr, string $value )",
+        "* Get formatter attribute value."
+    ],
+    "ob_clean": [
+        "bool ob_clean(void)",
+        "Clean (delete) the current output buffer"
+    ],
+    "ob_end_clean": [
+        "bool ob_end_clean(void)",
+        "Clean the output buffer, and delete current output buffer"
+    ],
+    "ob_end_flush": [
+        "bool ob_end_flush(void)",
+        "Flush (send) the output buffer, and delete current output buffer"
+    ],
+    "ob_flush": [
+        "bool ob_flush(void)",
+        "Flush (send) contents of the output buffer. The last buffer content is sent to next buffer"
+    ],
+    "ob_get_clean": [
+        "bool ob_get_clean(void)",
+        "Get current buffer contents and delete current output buffer"
+    ],
+    "ob_get_contents": [
+        "string ob_get_contents(void)",
+        "Return the contents of the output buffer"
+    ],
+    "ob_get_flush": [
+        "bool ob_get_flush(void)",
+        "Get current buffer contents, flush (send) the output buffer, and delete current output buffer"
+    ],
+    "ob_get_length": [
+        "int ob_get_length(void)",
+        "Return the length of the output buffer"
+    ],
+    "ob_get_level": [
+        "int ob_get_level(void)",
+        "Return the nesting level of the output buffer"
+    ],
+    "ob_get_status": [
+        "false|array ob_get_status([bool full_status])",
+        "Return the status of the active or all output buffers"
+    ],
+    "ob_gzhandler": [
+        "string ob_gzhandler(string str, int mode)",
+        "Encode str based on accept-encoding setting - designed to be called from ob_start()"
+    ],
+    "ob_iconv_handler": [
+        "string ob_iconv_handler(string contents, int status)",
+        "Returns str in output buffer converted to the iconv.output_encoding character set"
+    ],
+    "ob_implicit_flush": [
+        "void ob_implicit_flush([int flag])",
+        "Turn implicit flush on/off and is equivalent to calling flush() after every output call"
+    ],
+    "ob_list_handlers": [
+        "false|array ob_list_handlers()",
+        "*  List all output_buffers in an array"
+    ],
+    "ob_start": [
+        "bool ob_start([ string|array user_function [, int chunk_size [, bool erase]]])",
+        "Turn on Output Buffering (specifying an optional output handler)."
+    ],
+    "oci_bind_array_by_name": [
+        "bool oci_bind_array_by_name(resource stmt, string name, array &var, int max_table_length [, int max_item_length [, int type ]])",
+        "Bind a PHP array to an Oracle PL/SQL type by name"
+    ],
+    "oci_bind_by_name": [
+        "bool oci_bind_by_name(resource stmt, string name, mixed &var, [, int maxlength [, int type]])",
+        "Bind a PHP variable to an Oracle placeholder by name"
+    ],
+    "oci_cancel": [
+        "bool oci_cancel(resource stmt)",
+        "Cancel reading from a cursor"
+    ],
+    "oci_close": [
+        "bool oci_close(resource connection)",
+        "Disconnect from database"
+    ],
+    "oci_collection_append": [
+        "bool oci_collection_append(string value)",
+        "Append an object to the collection"
+    ],
+    "oci_collection_assign": [
+        "bool oci_collection_assign(object from)",
+        "Assign a collection from another existing collection"
+    ],
+    "oci_collection_element_assign": [
+        "bool oci_collection_element_assign(int index, string val)",
+        "Assign element val to collection at index ndx"
+    ],
+    "oci_collection_element_get": [
+        "string oci_collection_element_get(int ndx)",
+        "Retrieve the value at collection index ndx"
+    ],
+    "oci_collection_max": [
+        "int oci_collection_max()",
+        "Return the max value of a collection. For a varray this is the maximum length of the array"
+    ],
+    "oci_collection_size": [
+        "int oci_collection_size()",
+        "Return the size of a collection"
+    ],
+    "oci_collection_trim": [
+        "bool oci_collection_trim(int num)",
+        "Trim num elements from the end of a collection"
+    ],
+    "oci_commit": [
+        "bool oci_commit(resource connection)",
+        "Commit the current context"
+    ],
+    "oci_connect": [
+        "resource oci_connect(string user, string pass [, string db [, string charset [, int session_mode ]])",
+        "Connect to an Oracle database and log on. Returns a new session."
+    ],
+    "oci_define_by_name": [
+        "bool oci_define_by_name(resource stmt, string name, mixed &var [, int type])",
+        "Define a PHP variable to an Oracle column by name"
+    ],
+    "oci_error": [
+        "array oci_error([resource stmt|connection|global])",
+        "Return the last error of stmt|connection|global. If no error happened returns false."
+    ],
+    "oci_execute": [
+        "bool oci_execute(resource stmt [, int mode])",
+        "Execute a parsed statement"
+    ],
+    "oci_fetch": [
+        "bool oci_fetch(resource stmt)",
+        "Prepare a new row of data for reading"
+    ],
+    "oci_fetch_all": [
+        "int oci_fetch_all(resource stmt, array &output[, int skip[, int maxrows[, int flags]]])",
+        "Fetch all rows of result data into an array"
+    ],
+    "oci_fetch_array": [
+        "array oci_fetch_array( resource stmt [, int mode ])",
+        "Fetch a result row as an array"
+    ],
+    "oci_fetch_assoc": [
+        "array oci_fetch_assoc( resource stmt )",
+        "Fetch a result row as an associative array"
+    ],
+    "oci_fetch_object": [
+        "object oci_fetch_object( resource stmt )",
+        "Fetch a result row as an object"
+    ],
+    "oci_fetch_row": [
+        "array oci_fetch_row( resource stmt )",
+        "Fetch a result row as an enumerated array"
+    ],
+    "oci_field_is_null": [
+        "bool oci_field_is_null(resource stmt, int col)",
+        "Tell whether a column is NULL"
+    ],
+    "oci_field_name": [
+        "string oci_field_name(resource stmt, int col)",
+        "Tell the name of a column"
+    ],
+    "oci_field_precision": [
+        "int oci_field_precision(resource stmt, int col)",
+        "Tell the precision of a column"
+    ],
+    "oci_field_scale": [
+        "int oci_field_scale(resource stmt, int col)",
+        "Tell the scale of a column"
+    ],
+    "oci_field_size": [
+        "int oci_field_size(resource stmt, int col)",
+        "Tell the maximum data size of a column"
+    ],
+    "oci_field_type": [
+        "mixed oci_field_ty
