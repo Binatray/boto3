@@ -7653,4 +7653,420 @@ var functionMap = {
         "Tell the maximum data size of a column"
     ],
     "oci_field_type": [
-        "mixed oci_field_ty
+        "mixed oci_field_type(resource stmt, int col)",
+        "Tell the data type of a column"
+    ],
+    "oci_field_type_raw": [
+        "int oci_field_type_raw(resource stmt, int col)",
+        "Tell the raw oracle data type of a column"
+    ],
+    "oci_free_collection": [
+        "bool oci_free_collection()",
+        "Deletes collection object"
+    ],
+    "oci_free_descriptor": [
+        "bool oci_free_descriptor()",
+        "Deletes large object description"
+    ],
+    "oci_free_statement": [
+        "bool oci_free_statement(resource stmt)",
+        "Free all resources associated with a statement"
+    ],
+    "oci_internal_debug": [
+        "void oci_internal_debug(int onoff)",
+        "Toggle internal debugging output for the OCI extension"
+    ],
+    "oci_lob_append": [
+        "bool oci_lob_append( object lob )",
+        "Appends data from a LOB to another LOB"
+    ],
+    "oci_lob_close": [
+        "bool oci_lob_close()",
+        "Closes lob descriptor"
+    ],
+    "oci_lob_copy": [
+        "bool oci_lob_copy( object lob_to, object lob_from [, int length ] )",
+        "Copies data from a LOB to another LOB"
+    ],
+    "oci_lob_eof": [
+        "bool oci_lob_eof()",
+        "Checks if EOF is reached"
+    ],
+    "oci_lob_erase": [
+        "int oci_lob_erase( [ int offset [, int length ] ] )",
+        "Erases a specified portion of the internal LOB, starting at a specified offset"
+    ],
+    "oci_lob_export": [
+        "bool oci_lob_export([string filename [, int start [, int length]]])",
+        "Writes a large object into a file"
+    ],
+    "oci_lob_flush": [
+        "bool oci_lob_flush( [ int flag ] )",
+        "Flushes the LOB buffer"
+    ],
+    "oci_lob_import": [
+        "bool oci_lob_import( string filename )",
+        "Loads file into a LOB"
+    ],
+    "oci_lob_is_equal": [
+        "bool oci_lob_is_equal( object lob1, object lob2 )",
+        "Tests to see if two LOB/FILE locators are equal"
+    ],
+    "oci_lob_load": [
+        "string oci_lob_load()",
+        "Loads a large object"
+    ],
+    "oci_lob_read": [
+        "string oci_lob_read( int length )",
+        "Reads particular part of a large object"
+    ],
+    "oci_lob_rewind": [
+        "bool oci_lob_rewind()",
+        "Rewind pointer of a LOB"
+    ],
+    "oci_lob_save": [
+        "bool oci_lob_save( string data [, int offset ])",
+        "Saves a large object"
+    ],
+    "oci_lob_seek": [
+        "bool oci_lob_seek( int offset [, int whence ])",
+        "Moves the pointer of a LOB"
+    ],
+    "oci_lob_size": [
+        "int oci_lob_size()",
+        "Returns size of a large object"
+    ],
+    "oci_lob_tell": [
+        "int oci_lob_tell()",
+        "Tells LOB pointer position"
+    ],
+    "oci_lob_truncate": [
+        "bool oci_lob_truncate( [ int length ])",
+        "Truncates a LOB"
+    ],
+    "oci_lob_write": [
+        "int oci_lob_write( string string [, int length ])",
+        "Writes data to current position of a LOB"
+    ],
+    "oci_lob_write_temporary": [
+        "bool oci_lob_write_temporary(string var [, int lob_type])",
+        "Writes temporary blob"
+    ],
+    "oci_new_collection": [
+        "object oci_new_collection(resource connection, string tdo [, string schema])",
+        "Initialize a new collection"
+    ],
+    "oci_new_connect": [
+        "resource oci_new_connect(string user, string pass [, string db])",
+        "Connect to an Oracle database and log on. Returns a new session."
+    ],
+    "oci_new_cursor": [
+        "resource oci_new_cursor(resource connection)",
+        "Return a new cursor (Statement-Handle) - use this to bind ref-cursors!"
+    ],
+    "oci_new_descriptor": [
+        "object oci_new_descriptor(resource connection [, int type])",
+        "Initialize a new empty descriptor LOB/FILE (LOB is default)"
+    ],
+    "oci_num_fields": [
+        "int oci_num_fields(resource stmt)",
+        "Return the number of result columns in a statement"
+    ],
+    "oci_num_rows": [
+        "int oci_num_rows(resource stmt)",
+        "Return the row count of an OCI statement"
+    ],
+    "oci_parse": [
+        "resource oci_parse(resource connection, string query)",
+        "Parse a query and return a statement"
+    ],
+    "oci_password_change": [
+        "bool oci_password_change(resource connection, string username, string old_password, string new_password)",
+        "Changes the password of an account"
+    ],
+    "oci_pconnect": [
+        "resource oci_pconnect(string user, string pass [, string db [, string charset ]])",
+        "Connect to an Oracle database using a persistent connection and log on. Returns a new session."
+    ],
+    "oci_result": [
+        "string oci_result(resource stmt, mixed column)",
+        "Return a single column of result data"
+    ],
+    "oci_rollback": [
+        "bool oci_rollback(resource connection)",
+        "Rollback the current context"
+    ],
+    "oci_server_version": [
+        "string oci_server_version(resource connection)",
+        "Return a string containing server version information"
+    ],
+    "oci_set_action": [
+        "bool oci_set_action(resource connection, string value)",
+        "Sets the action attribute on the connection"
+    ],
+    "oci_set_client_identifier": [
+        "bool oci_set_client_identifier(resource connection, string value)",
+        "Sets the client identifier attribute on the connection"
+    ],
+    "oci_set_client_info": [
+        "bool oci_set_client_info(resource connection, string value)",
+        "Sets the client info attribute on the connection"
+    ],
+    "oci_set_edition": [
+        "bool oci_set_edition(string value)",
+        "Sets the edition attribute for all subsequent connections created"
+    ],
+    "oci_set_module_name": [
+        "bool oci_set_module_name(resource connection, string value)",
+        "Sets the module attribute on the connection"
+    ],
+    "oci_set_prefetch": [
+        "bool oci_set_prefetch(resource stmt, int prefetch_rows)",
+        "Sets the number of rows to be prefetched on execute to prefetch_rows for stmt"
+    ],
+    "oci_statement_type": [
+        "string oci_statement_type(resource stmt)",
+        "Return the query type of an OCI statement"
+    ],
+    "ocifetchinto": [
+        "int ocifetchinto(resource stmt, array &output [, int mode])",
+        "Fetch a row of result data into an array"
+    ],
+    "ocigetbufferinglob": [
+        "bool ocigetbufferinglob()",
+        "Returns current state of buffering for a LOB"
+    ],
+    "ocisetbufferinglob": [
+        "bool ocisetbufferinglob( boolean flag )",
+        "Enables/disables buffering for a LOB"
+    ],
+    "octdec": [
+        "int octdec(string octal_number)",
+        "Returns the decimal equivalent of an octal string"
+    ],
+    "odbc_autocommit": [
+        "mixed odbc_autocommit(resource connection_id [, int OnOff])",
+        "Toggle autocommit mode or get status"
+    ],
+    "odbc_binmode": [
+        "bool odbc_binmode(int result_id, int mode)",
+        "Handle binary column data"
+    ],
+    "odbc_close": [
+        "void odbc_close(resource connection_id)",
+        "Close an ODBC connection"
+    ],
+    "odbc_close_all": [
+        "void odbc_close_all(void)",
+        "Close all ODBC connections"
+    ],
+    "odbc_columnprivileges": [
+        "resource odbc_columnprivileges(resource connection_id, string catalog, string schema, string table, string column)",
+        "Returns a result identifier that can be used to fetch a list of columns and associated privileges for the specified table"
+    ],
+    "odbc_columns": [
+        "resource odbc_columns(resource connection_id [, string qualifier [, string owner [, string table_name [, string column_name]]]])",
+        "Returns a result identifier that can be used to fetch a list of column names in specified tables"
+    ],
+    "odbc_commit": [
+        "bool odbc_commit(resource connection_id)",
+        "Commit an ODBC transaction"
+    ],
+    "odbc_connect": [
+        "resource odbc_connect(string DSN, string user, string password [, int cursor_option])",
+        "Connect to a datasource"
+    ],
+    "odbc_cursor": [
+        "string odbc_cursor(resource result_id)",
+        "Get cursor name"
+    ],
+    "odbc_data_source": [
+        "array odbc_data_source(resource connection_id, int fetch_type)",
+        "Return information about the currently connected data source"
+    ],
+    "odbc_error": [
+        "string odbc_error([resource connection_id])",
+        "Get the last error code"
+    ],
+    "odbc_errormsg": [
+        "string odbc_errormsg([resource connection_id])",
+        "Get the last error message"
+    ],
+    "odbc_exec": [
+        "resource odbc_exec(resource connection_id, string query [, int flags])",
+        "Prepare and execute an SQL statement"
+    ],
+    "odbc_execute": [
+        "bool odbc_execute(resource result_id [, array parameters_array])",
+        "Execute a prepared statement"
+    ],
+    "odbc_fetch_array": [
+        "array odbc_fetch_array(int result [, int rownumber])",
+        "Fetch a result row as an associative array"
+    ],
+    "odbc_fetch_into": [
+        "int odbc_fetch_into(resource result_id, array &result_array, [, int rownumber])",
+        "Fetch one result row into an array"
+    ],
+    "odbc_fetch_object": [
+        "object odbc_fetch_object(int result [, int rownumber])",
+        "Fetch a result row as an object"
+    ],
+    "odbc_fetch_row": [
+        "bool odbc_fetch_row(resource result_id [, int row_number])",
+        "Fetch a row"
+    ],
+    "odbc_field_len": [
+        "int odbc_field_len(resource result_id, int field_number)",
+        "Get the length (precision) of a column"
+    ],
+    "odbc_field_name": [
+        "string odbc_field_name(resource result_id, int field_number)",
+        "Get a column name"
+    ],
+    "odbc_field_num": [
+        "int odbc_field_num(resource result_id, string field_name)",
+        "Return column number"
+    ],
+    "odbc_field_scale": [
+        "int odbc_field_scale(resource result_id, int field_number)",
+        "Get the scale of a column"
+    ],
+    "odbc_field_type": [
+        "string odbc_field_type(resource result_id, int field_number)",
+        "Get the datatype of a column"
+    ],
+    "odbc_foreignkeys": [
+        "resource odbc_foreignkeys(resource connection_id, string pk_qualifier, string pk_owner, string pk_table, string fk_qualifier, string fk_owner, string fk_table)",
+        "Returns a result identifier to either a list of foreign keys in the specified table or a list of foreign keys in other tables that refer to the primary key in the specified table"
+    ],
+    "odbc_free_result": [
+        "bool odbc_free_result(resource result_id)",
+        "Free resources associated with a result"
+    ],
+    "odbc_gettypeinfo": [
+        "resource odbc_gettypeinfo(resource connection_id [, int data_type])",
+        "Returns a result identifier containing information about data types supported by the data source"
+    ],
+    "odbc_longreadlen": [
+        "bool odbc_longreadlen(int result_id, int length)",
+        "Handle LONG columns"
+    ],
+    "odbc_next_result": [
+        "bool odbc_next_result(resource result_id)",
+        "Checks if multiple results are avaiable"
+    ],
+    "odbc_num_fields": [
+        "int odbc_num_fields(resource result_id)",
+        "Get number of columns in a result"
+    ],
+    "odbc_num_rows": [
+        "int odbc_num_rows(resource result_id)",
+        "Get number of rows in a result"
+    ],
+    "odbc_pconnect": [
+        "resource odbc_pconnect(string DSN, string user, string password [, int cursor_option])",
+        "Establish a persistent connection to a datasource"
+    ],
+    "odbc_prepare": [
+        "resource odbc_prepare(resource connection_id, string query)",
+        "Prepares a statement for execution"
+    ],
+    "odbc_primarykeys": [
+        "resource odbc_primarykeys(resource connection_id, string qualifier, string owner, string table)",
+        "Returns a result identifier listing the column names that comprise the primary key for a table"
+    ],
+    "odbc_procedurecolumns": [
+        "resource odbc_procedurecolumns(resource connection_id [, string qualifier, string owner, string proc, string column])",
+        "Returns a result identifier containing the list of input and output parameters, as well as the columns that make up the result set for the specified procedures"
+    ],
+    "odbc_procedures": [
+        "resource odbc_procedures(resource connection_id [, string qualifier, string owner, string name])",
+        "Returns a result identifier containg the list of procedure names in a datasource"
+    ],
+    "odbc_result": [
+        "mixed odbc_result(resource result_id, mixed field)",
+        "Get result data"
+    ],
+    "odbc_result_all": [
+        "int odbc_result_all(resource result_id [, string format])",
+        "Print result as HTML table"
+    ],
+    "odbc_rollback": [
+        "bool odbc_rollback(resource connection_id)",
+        "Rollback a transaction"
+    ],
+    "odbc_setoption": [
+        "bool odbc_setoption(resource conn_id|result_id, int which, int option, int value)",
+        "Sets connection or statement options"
+    ],
+    "odbc_specialcolumns": [
+        "resource odbc_specialcolumns(resource connection_id, int type, string qualifier, string owner, string table, int scope, int nullable)",
+        "Returns a result identifier containing either the optimal set of columns that uniquely identifies a row in the table or columns that are automatically updated when any value in the row is updated by a transaction"
+    ],
+    "odbc_statistics": [
+        "resource odbc_statistics(resource connection_id, string qualifier, string owner, string name, int unique, int accuracy)",
+        "Returns a result identifier that contains statistics about a single table and the indexes associated with the table"
+    ],
+    "odbc_tableprivileges": [
+        "resource odbc_tableprivileges(resource connection_id, string qualifier, string owner, string name)",
+        "Returns a result identifier containing a list of tables and the privileges associated with each table"
+    ],
+    "odbc_tables": [
+        "resource odbc_tables(resource connection_id [, string qualifier [, string owner [, string name [, string table_types]]]])",
+        "Call the SQLTables function"
+    ],
+    "opendir": [
+        "mixed opendir(string path[, resource context])",
+        "Open a directory and return a dir_handle"
+    ],
+    "openlog": [
+        "bool openlog(string ident, int option, int facility)",
+        "Open connection to system logger"
+    ],
+    "openssl_csr_export": [
+        "bool openssl_csr_export(resource csr, string &out [, bool notext=true])",
+        "Exports a CSR to file or a var"
+    ],
+    "openssl_csr_export_to_file": [
+        "bool openssl_csr_export_to_file(resource csr, string outfilename [, bool notext=true])",
+        "Exports a CSR to file"
+    ],
+    "openssl_csr_get_public_key": [
+        "mixed openssl_csr_get_public_key(mixed csr)",
+        "Returns the subject of a CERT or FALSE on error"
+    ],
+    "openssl_csr_get_subject": [
+        "mixed openssl_csr_get_subject(mixed csr)",
+        "Returns the subject of a CERT or FALSE on error"
+    ],
+    "openssl_csr_new": [
+        "bool openssl_csr_new(array dn, resource &privkey [, array configargs [, array extraattribs]])",
+        "Generates a privkey and CSR"
+    ],
+    "openssl_csr_sign": [
+        "resource openssl_csr_sign(mixed csr, mixed x509, mixed priv_key, long days [, array config_args [, long serial]])",
+        "Signs a cert with another CERT"
+    ],
+    "openssl_decrypt": [
+        "string openssl_decrypt(string data, string method, string password [, bool raw_input=false])",
+        "Takes raw or base64 encoded string and dectupt it using given method and key"
+    ],
+    "openssl_dh_compute_key": [
+        "string openssl_dh_compute_key(string pub_key, resource dh_key)",
+        "Computes shared sicret for public value of remote DH key and local DH key"
+    ],
+    "openssl_digest": [
+        "string openssl_digest(string data, string method [, bool raw_output=false])",
+        "Computes digest hash value for given data using given method, returns raw or binhex encoded string"
+    ],
+    "openssl_encrypt": [
+        "string openssl_encrypt(string data, string method, string password [, bool raw_output=false])",
+        "Encrypts given data with given method and key, returns raw or base64 encoded string"
+    ],
+    "openssl_error_string": [
+        "mixed openssl_error_string(void)",
+        "Returns a description of the last error, and alters the index of the error messages. Returns false when the are no more messages"
+    ],
+    "openssl_get_cipher_methods": [
+        "array openssl_get_cipher_methods([bool ali
