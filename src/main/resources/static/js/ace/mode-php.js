@@ -8484,4 +8484,453 @@ var functionMap = {
         "string pg_last_notice(resource connection)",
         "Returns the last notice set by the backend"
     ],
- 
+    "pg_last_oid": [
+        "string pg_last_oid(resource result)",
+        "Returns the last object identifier"
+    ],
+    "pg_lo_close": [
+        "bool pg_lo_close(resource large_object)",
+        "Close a large object"
+    ],
+    "pg_lo_create": [
+        "mixed pg_lo_create([resource connection],[mixed large_object_oid])",
+        "Create a large object"
+    ],
+    "pg_lo_export": [
+        "bool pg_lo_export([resource connection, ] int objoid, string filename)",
+        "Export large object direct to filesystem"
+    ],
+    "pg_lo_import": [
+        "int pg_lo_import([resource connection, ] string filename [, mixed oid])",
+        "Import large object direct from filesystem"
+    ],
+    "pg_lo_open": [
+        "resource pg_lo_open([resource connection,] int large_object_oid, string mode)",
+        "Open a large object and return fd"
+    ],
+    "pg_lo_read": [
+        "string pg_lo_read(resource large_object [, int len])",
+        "Read a large object"
+    ],
+    "pg_lo_read_all": [
+        "int pg_lo_read_all(resource large_object)",
+        "Read a large object and send straight to browser"
+    ],
+    "pg_lo_seek": [
+        "bool pg_lo_seek(resource large_object, int offset [, int whence])",
+        "Seeks position of large object"
+    ],
+    "pg_lo_tell": [
+        "int pg_lo_tell(resource large_object)",
+        "Returns current position of large object"
+    ],
+    "pg_lo_unlink": [
+        "bool pg_lo_unlink([resource connection,] string large_object_oid)",
+        "Delete a large object"
+    ],
+    "pg_lo_write": [
+        "int pg_lo_write(resource large_object, string buf [, int len])",
+        "Write a large object"
+    ],
+    "pg_meta_data": [
+        "array pg_meta_data(resource db, string table)",
+        "Get meta_data"
+    ],
+    "pg_num_fields": [
+        "int pg_num_fields(resource result)",
+        "Return the number of fields in the result"
+    ],
+    "pg_num_rows": [
+        "int pg_num_rows(resource result)",
+        "Return the number of rows in the result"
+    ],
+    "pg_options": [
+        "string pg_options([resource connection])",
+        "Get the options associated with the connection"
+    ],
+    "pg_parameter_status": [
+        "string|false pg_parameter_status([resource connection,] string param_name)",
+        "Returns the value of a server parameter"
+    ],
+    "pg_pconnect": [
+        "resource pg_pconnect(string connection_string | [string host, string port [, string options [, string tty,]]] string database)",
+        "Open a persistent PostgreSQL connection"
+    ],
+    "pg_ping": [
+        "bool pg_ping([resource connection])",
+        "Ping database. If connection is bad, try to reconnect."
+    ],
+    "pg_port": [
+        "int pg_port([resource connection])",
+        "Return the port number associated with the connection"
+    ],
+    "pg_prepare": [
+        "resource pg_prepare([resource connection,] string stmtname, string query)",
+        "Prepare a query for future execution"
+    ],
+    "pg_put_line": [
+        "bool pg_put_line([resource connection,] string query)",
+        "Send null-terminated string to backend server"
+    ],
+    "pg_query": [
+        "resource pg_query([resource connection,] string query)",
+        "Execute a query"
+    ],
+    "pg_query_params": [
+        "resource pg_query_params([resource connection,] string query, array params)",
+        "Execute a query"
+    ],
+    "pg_result_error": [
+        "string pg_result_error(resource result)",
+        "Get error message associated with result"
+    ],
+    "pg_result_error_field": [
+        "string pg_result_error_field(resource result, int fieldcode)",
+        "Get error message field associated with result"
+    ],
+    "pg_result_seek": [
+        "bool pg_result_seek(resource result, int offset)",
+        "Set internal row offset"
+    ],
+    "pg_result_status": [
+        "mixed pg_result_status(resource result[, long result_type])",
+        "Get status of query result"
+    ],
+    "pg_select": [
+        "mixed pg_select(resource db, string table, array ids[, int options])",
+        "Select records that has ids (id=>value)"
+    ],
+    "pg_send_execute": [
+        "bool pg_send_execute(resource connection, string stmtname, array params)",
+        "Executes prevriously prepared stmtname asynchronously"
+    ],
+    "pg_send_prepare": [
+        "bool pg_send_prepare(resource connection, string stmtname, string query)",
+        "Asynchronously prepare a query for future execution"
+    ],
+    "pg_send_query": [
+        "bool pg_send_query(resource connection, string query)",
+        "Send asynchronous query"
+    ],
+    "pg_send_query_params": [
+        "bool pg_send_query_params(resource connection, string query, array params)",
+        "Send asynchronous parameterized query"
+    ],
+    "pg_set_client_encoding": [
+        "int pg_set_client_encoding([resource connection,] string encoding)",
+        "Set client encoding"
+    ],
+    "pg_set_error_verbosity": [
+        "int pg_set_error_verbosity([resource connection,] int verbosity)",
+        "Set error verbosity"
+    ],
+    "pg_trace": [
+        "bool pg_trace(string filename [, string mode [, resource connection]])",
+        "Enable tracing a PostgreSQL connection"
+    ],
+    "pg_transaction_status": [
+        "int pg_transaction_status(resource connnection)",
+        "Get transaction status"
+    ],
+    "pg_tty": [
+        "string pg_tty([resource connection])",
+        "Return the tty name associated with the connection"
+    ],
+    "pg_unescape_bytea": [
+        "string pg_unescape_bytea(string data)",
+        "Unescape binary for bytea type"
+    ],
+    "pg_untrace": [
+        "bool pg_untrace([resource connection])",
+        "Disable tracing of a PostgreSQL connection"
+    ],
+    "pg_update": [
+        "mixed pg_update(resource db, string table, array fields, array ids[, int options])",
+        "Update table using values (field=>value) and ids (id=>value)"
+    ],
+    "pg_version": [
+        "array pg_version([resource connection])",
+        "Returns an array with client, protocol and server version (when available)"
+    ],
+    "php_egg_logo_guid": [
+        "string php_egg_logo_guid(void)",
+        "Return the special ID used to request the PHP logo in phpinfo screens"
+    ],
+    "php_ini_loaded_file": [
+        "string php_ini_loaded_file(void)",
+        "Return the actual loaded ini filename"
+    ],
+    "php_ini_scanned_files": [
+        "string php_ini_scanned_files(void)",
+        "Return comma-separated string of .ini files parsed from the additional ini dir"
+    ],
+    "php_logo_guid": [
+        "string php_logo_guid(void)",
+        "Return the special ID used to request the PHP logo in phpinfo screens"
+    ],
+    "php_real_logo_guid": [
+        "string php_real_logo_guid(void)",
+        "Return the special ID used to request the PHP logo in phpinfo screens"
+    ],
+    "php_sapi_name": [
+        "string php_sapi_name(void)",
+        "Return the current SAPI module name"
+    ],
+    "php_snmpv3": [
+        "void php_snmpv3(INTERNAL_FUNCTION_PARAMETERS, int st)",
+        "* * Generic SNMPv3 object fetcher * From here is passed on the the common internal object fetcher. * * st=SNMP_CMD_GET   snmp3_get() - query an agent and return a single value. * st=SNMP_CMD_GETNEXT   snmp3_getnext() - query an agent and return the next single value. * st=SNMP_CMD_WALK   snmp3_walk() - walk the mib and return a single dimensional array  *                       containing the values. * st=SNMP_CMD_REALWALK   snmp3_real_walk() - walk the mib and return an  *                            array of oid,value pairs. * st=SNMP_CMD_SET  snmp3_set() - query an agent and set a single value *"
+    ],
+    "php_strip_whitespace": [
+        "string php_strip_whitespace(string file_name)",
+        "Return source with stripped comments and whitespace"
+    ],
+    "php_uname": [
+        "string php_uname(void)",
+        "Return information about the system PHP was built on"
+    ],
+    "phpcredits": [
+        "void phpcredits([int flag])",
+        "Prints the list of people who've contributed to the PHP project"
+    ],
+    "phpinfo": [
+        "void phpinfo([int what])",
+        "Output a page of useful information about PHP and the current request"
+    ],
+    "phpversion": [
+        "string phpversion([string extension])",
+        "Return the current PHP version"
+    ],
+    "pi": [
+        "float pi(void)",
+        "Returns an approximation of pi"
+    ],
+    "png2wbmp": [
+        "bool png2wbmp (string f_org, string f_dest, int d_height, int d_width, int threshold)",
+        "Convert PNG image to WBMP image"
+    ],
+    "popen": [
+        "resource popen(string command, string mode)",
+        "Execute a command and open either a read or a write pipe to it"
+    ],
+    "posix_access": [
+        "bool posix_access(string file [, int mode])",
+        "Determine accessibility of a file (POSIX.1 5.6.3)"
+    ],
+    "posix_ctermid": [
+        "string posix_ctermid(void)",
+        "Generate terminal path name (POSIX.1, 4.7.1)"
+    ],
+    "posix_get_last_error": [
+        "int posix_get_last_error(void)",
+        "Retrieve the error number set by the last posix function which failed."
+    ],
+    "posix_getcwd": [
+        "string posix_getcwd(void)",
+        "Get working directory pathname (POSIX.1, 5.2.2)"
+    ],
+    "posix_getegid": [
+        "int posix_getegid(void)",
+        "Get the current effective group id (POSIX.1, 4.2.1)"
+    ],
+    "posix_geteuid": [
+        "int posix_geteuid(void)",
+        "Get the current effective user id (POSIX.1, 4.2.1)"
+    ],
+    "posix_getgid": [
+        "int posix_getgid(void)",
+        "Get the current group id (POSIX.1, 4.2.1)"
+    ],
+    "posix_getgrgid": [
+        "array posix_getgrgid(long gid)",
+        "Group database access (POSIX.1, 9.2.1)"
+    ],
+    "posix_getgrnam": [
+        "array posix_getgrnam(string groupname)",
+        "Group database access (POSIX.1, 9.2.1)"
+    ],
+    "posix_getgroups": [
+        "array posix_getgroups(void)",
+        "Get supplementary group id's (POSIX.1, 4.2.3)"
+    ],
+    "posix_getlogin": [
+        "string posix_getlogin(void)",
+        "Get user name (POSIX.1, 4.2.4)"
+    ],
+    "posix_getpgid": [
+        "int posix_getpgid(void)",
+        "Get the process group id of the specified process (This is not a POSIX function, but a SVR4ism, so we compile conditionally)"
+    ],
+    "posix_getpgrp": [
+        "int posix_getpgrp(void)",
+        "Get current process group id (POSIX.1, 4.3.1)"
+    ],
+    "posix_getpid": [
+        "int posix_getpid(void)",
+        "Get the current process id (POSIX.1, 4.1.1)"
+    ],
+    "posix_getppid": [
+        "int posix_getppid(void)",
+        "Get the parent process id (POSIX.1, 4.1.1)"
+    ],
+    "posix_getpwnam": [
+        "array posix_getpwnam(string groupname)",
+        "User database access (POSIX.1, 9.2.2)"
+    ],
+    "posix_getpwuid": [
+        "array posix_getpwuid(long uid)",
+        "User database access (POSIX.1, 9.2.2)"
+    ],
+    "posix_getrlimit": [
+        "array posix_getrlimit(void)",
+        "Get system resource consumption limits (This is not a POSIX function, but a BSDism and a SVR4ism. We compile conditionally)"
+    ],
+    "posix_getsid": [
+        "int posix_getsid(void)",
+        "Get process group id of session leader (This is not a POSIX function, but a SVR4ism, so be compile conditionally)"
+    ],
+    "posix_getuid": [
+        "int posix_getuid(void)",
+        "Get the current user id (POSIX.1, 4.2.1)"
+    ],
+    "posix_initgroups": [
+        "bool posix_initgroups(string name, int base_group_id)",
+        "Calculate the group access list for the user specified in name."
+    ],
+    "posix_isatty": [
+        "bool posix_isatty(int fd)",
+        "Determine if filedesc is a tty (POSIX.1, 4.7.1)"
+    ],
+    "posix_kill": [
+        "bool posix_kill(int pid, int sig)",
+        "Send a signal to a process (POSIX.1, 3.3.2)"
+    ],
+    "posix_mkfifo": [
+        "bool posix_mkfifo(string pathname, int mode)",
+        "Make a FIFO special file (POSIX.1, 5.4.2)"
+    ],
+    "posix_mknod": [
+        "bool posix_mknod(string pathname, int mode [, int major [, int minor]])",
+        "Make a special or ordinary file (POSIX.1)"
+    ],
+    "posix_setegid": [
+        "bool posix_setegid(long uid)",
+        "Set effective group id"
+    ],
+    "posix_seteuid": [
+        "bool posix_seteuid(long uid)",
+        "Set effective user id"
+    ],
+    "posix_setgid": [
+        "bool posix_setgid(int uid)",
+        "Set group id (POSIX.1, 4.2.2)"
+    ],
+    "posix_setpgid": [
+        "bool posix_setpgid(int pid, int pgid)",
+        "Set process group id for job control (POSIX.1, 4.3.3)"
+    ],
+    "posix_setsid": [
+        "int posix_setsid(void)",
+        "Create session and set process group id (POSIX.1, 4.3.2)"
+    ],
+    "posix_setuid": [
+        "bool posix_setuid(long uid)",
+        "Set user id (POSIX.1, 4.2.2)"
+    ],
+    "posix_strerror": [
+        "string posix_strerror(int errno)",
+        "Retrieve the system error message associated with the given errno."
+    ],
+    "posix_times": [
+        "array posix_times(void)",
+        "Get process times (POSIX.1, 4.5.2)"
+    ],
+    "posix_ttyname": [
+        "string posix_ttyname(int fd)",
+        "Determine terminal device name (POSIX.1, 4.7.2)"
+    ],
+    "posix_uname": [
+        "array posix_uname(void)",
+        "Get system name (POSIX.1, 4.4.1)"
+    ],
+    "pow": [
+        "number pow(number base, number exponent)",
+        "Returns base raised to the power of exponent. Returns integer result when possible"
+    ],
+    "preg_filter": [
+        "mixed preg_filter(mixed regex, mixed replace, mixed subject [, int limit [, int &count]])",
+        "Perform Perl-style regular expression replacement and only return matches."
+    ],
+    "preg_grep": [
+        "array preg_grep(string regex, array input [, int flags])",
+        "Searches array and returns entries which match regex"
+    ],
+    "preg_last_error": [
+        "int preg_last_error()",
+        "Returns the error code of the last regexp execution."
+    ],
+    "preg_match": [
+        "int preg_match(string pattern, string subject [, array &subpatterns [, int flags [, int offset]]])",
+        "Perform a Perl-style regular expression match"
+    ],
+    "preg_match_all": [
+        "int preg_match_all(string pattern, string subject, array &subpatterns [, int flags [, int offset]])",
+        "Perform a Perl-style global regular expression match"
+    ],
+    "preg_quote": [
+        "string preg_quote(string str [, string delim_char])",
+        "Quote regular expression characters plus an optional character"
+    ],
+    "preg_replace": [
+        "mixed preg_replace(mixed regex, mixed replace, mixed subject [, int limit [, int &count]])",
+        "Perform Perl-style regular expression replacement."
+    ],
+    "preg_replace_callback": [
+        "mixed preg_replace_callback(mixed regex, mixed callback, mixed subject [, int limit [, int &count]])",
+        "Perform Perl-style regular expression replacement using replacement callback."
+    ],
+    "preg_split": [
+        "array preg_split(string pattern, string subject [, int limit [, int flags]])",
+        "Split string into an array using a perl-style regular expression as a delimiter"
+    ],
+    "prev": [
+        "mixed prev(array array_arg)",
+        "Move array argument's internal pointer to the previous element and return it"
+    ],
+    "print": [
+        "int print(string arg)",
+        "Output a string"
+    ],
+    "print_r": [
+        "mixed print_r(mixed var [, bool return])",
+        "Prints out or returns information about the specified variable"
+    ],
+    "printf": [
+        "int printf(string format [, mixed arg1 [, mixed ...]])",
+        "Output a formatted string"
+    ],
+    "proc_close": [
+        "int proc_close(resource process)",
+        "close a process opened by proc_open"
+    ],
+    "proc_get_status": [
+        "array proc_get_status(resource process)",
+        "get information about a process opened by proc_open"
+    ],
+    "proc_nice": [
+        "bool proc_nice(int priority)",
+        "Change the priority of the current process"
+    ],
+    "proc_open": [
+        "resource proc_open(string command, array descriptorspec, array &pipes [, string cwd [, array env [, array other_options]]])",
+        "Run a process with more control over it's file descriptors"
+    ],
+    "proc_terminate": [
+        "bool proc_terminate(resource process [, long signal])",
+        "kill a process opened by proc_open"
+    ],
+    "property_exists": [
+        "bool property_exists(mixed object_or_class, string property_name)",
+        "Checks if the object or class has a property"
+    ],
+    "pspell_add_to_personal": [
+        "bool pspell_add_to_personal(int pspell, string word)",
