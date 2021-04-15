@@ -8934,3 +8934,433 @@ var functionMap = {
     ],
     "pspell_add_to_personal": [
         "bool pspell_add_to_personal(int pspell, string word)",
+        "Adds a word to a personal list"
+    ],
+    "pspell_add_to_session": [
+        "bool pspell_add_to_session(int pspell, string word)",
+        "Adds a word to the current session"
+    ],
+    "pspell_check": [
+        "bool pspell_check(int pspell, string word)",
+        "Returns true if word is valid"
+    ],
+    "pspell_clear_session": [
+        "bool pspell_clear_session(int pspell)",
+        "Clears the current session"
+    ],
+    "pspell_config_create": [
+        "int pspell_config_create(string language [, string spelling [, string jargon [, string encoding]]])",
+        "Create a new config to be used later to create a manager"
+    ],
+    "pspell_config_data_dir": [
+        "bool pspell_config_data_dir(int conf, string directory)",
+        "location of language data files"
+    ],
+    "pspell_config_dict_dir": [
+        "bool pspell_config_dict_dir(int conf, string directory)",
+        "location of the main word list"
+    ],
+    "pspell_config_ignore": [
+        "bool pspell_config_ignore(int conf, int ignore)",
+        "Ignore words <= n chars"
+    ],
+    "pspell_config_mode": [
+        "bool pspell_config_mode(int conf, long mode)",
+        "Select mode for config (PSPELL_FAST, PSPELL_NORMAL or PSPELL_BAD_SPELLERS)"
+    ],
+    "pspell_config_personal": [
+        "bool pspell_config_personal(int conf, string personal)",
+        "Use a personal dictionary for this config"
+    ],
+    "pspell_config_repl": [
+        "bool pspell_config_repl(int conf, string repl)",
+        "Use a personal dictionary with replacement pairs for this config"
+    ],
+    "pspell_config_runtogether": [
+        "bool pspell_config_runtogether(int conf, bool runtogether)",
+        "Consider run-together words as valid components"
+    ],
+    "pspell_config_save_repl": [
+        "bool pspell_config_save_repl(int conf, bool save)",
+        "Save replacement pairs when personal list is saved for this config"
+    ],
+    "pspell_new": [
+        "int pspell_new(string language [, string spelling [, string jargon [, string encoding [, int mode]]]])",
+        "Load a dictionary"
+    ],
+    "pspell_new_config": [
+        "int pspell_new_config(int config)",
+        "Load a dictionary based on the given config"
+    ],
+    "pspell_new_personal": [
+        "int pspell_new_personal(string personal, string language [, string spelling [, string jargon [, string encoding [, int mode]]]])",
+        "Load a dictionary with a personal wordlist"
+    ],
+    "pspell_save_wordlist": [
+        "bool pspell_save_wordlist(int pspell)",
+        "Saves the current (personal) wordlist"
+    ],
+    "pspell_store_replacement": [
+        "bool pspell_store_replacement(int pspell, string misspell, string correct)",
+        "Notify the dictionary of a user-selected replacement"
+    ],
+    "pspell_suggest": [
+        "array pspell_suggest(int pspell, string word)",
+        "Returns array of suggestions"
+    ],
+    "putenv": [
+        "bool putenv(string setting)",
+        "Set the value of an environment variable"
+    ],
+    "quoted_printable_decode": [
+        "string quoted_printable_decode(string str)",
+        "Convert a quoted-printable string to an 8 bit string"
+    ],
+    "quoted_printable_encode": [
+        "string quoted_printable_encode(string str) */",
+        "PHP_FUNCTION(quoted_printable_encode) {  char *str, *new_str;  int str_len;  size_t new_str_len;   if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, \"s\", &str, &str_len) != SUCCESS) {   return;  }   if (!str_len) {   RETURN_EMPTY_STRING();  }   new_str = (char *)php_quot_print_encode((unsigned char *)str, (size_t)str_len, &new_str_len);  RETURN_STRINGL(new_str, new_str_len, 0); } /* }}}"
+    ],
+    "quotemeta": [
+        "string quotemeta(string str)",
+        "Quotes meta characters"
+    ],
+    "rad2deg": [
+        "float rad2deg(float number)",
+        "Converts the radian number to the equivalent number in degrees"
+    ],
+    "rand": [
+        "int rand([int min, int max])",
+        "Returns a random number"
+    ],
+    "range": [
+        "array range(mixed low, mixed high[, int step])",
+        "Create an array containing the range of integers or characters from low to high (inclusive)"
+    ],
+    "rawurldecode": [
+        "string rawurldecode(string str)",
+        "Decodes URL-encodes string"
+    ],
+    "rawurlencode": [
+        "string rawurlencode(string str)",
+        "URL-encodes string"
+    ],
+    "readdir": [
+        "string readdir([resource dir_handle])",
+        "Read directory entry from dir_handle"
+    ],
+    "readfile": [
+        "int readfile(string filename [, bool use_include_path[, resource context]])",
+        "Output a file or a URL"
+    ],
+    "readgzfile": [
+        "int readgzfile(string filename [, int use_include_path])",
+        "Output a .gz-file"
+    ],
+    "readline": [
+        "string readline([string prompt])",
+        "Reads a line"
+    ],
+    "readline_add_history": [
+        "bool readline_add_history(string prompt)",
+        "Adds a line to the history"
+    ],
+    "readline_callback_handler_install": [
+        "void readline_callback_handler_install(string prompt, mixed callback)",
+        "Initializes the readline callback interface and terminal, prints the prompt and returns immediately"
+    ],
+    "readline_callback_handler_remove": [
+        "bool readline_callback_handler_remove()",
+        "Removes a previously installed callback handler and restores terminal settings"
+    ],
+    "readline_callback_read_char": [
+        "void readline_callback_read_char()",
+        "Informs the readline callback interface that a character is ready for input"
+    ],
+    "readline_clear_history": [
+        "bool readline_clear_history(void)",
+        "Clears the history"
+    ],
+    "readline_completion_function": [
+        "bool readline_completion_function(string funcname)",
+        "Readline completion function?"
+    ],
+    "readline_info": [
+        "mixed readline_info([string varname [, string newvalue]])",
+        "Gets/sets various internal readline variables."
+    ],
+    "readline_list_history": [
+        "array readline_list_history(void)",
+        "Lists the history"
+    ],
+    "readline_on_new_line": [
+        "void readline_on_new_line(void)",
+        "Inform readline that the cursor has moved to a new line"
+    ],
+    "readline_read_history": [
+        "bool readline_read_history([string filename])",
+        "Reads the history"
+    ],
+    "readline_redisplay": [
+        "void readline_redisplay(void)",
+        "Ask readline to redraw the display"
+    ],
+    "readline_write_history": [
+        "bool readline_write_history([string filename])",
+        "Writes the history"
+    ],
+    "readlink": [
+        "string readlink(string filename)",
+        "Return the target of a symbolic link"
+    ],
+    "realpath": [
+        "string realpath(string path)",
+        "Return the resolved path"
+    ],
+    "realpath_cache_get": [
+        "bool realpath_cache_get()",
+        "Get current size of realpath cache"
+    ],
+    "realpath_cache_size": [
+        "bool realpath_cache_size()",
+        "Get current size of realpath cache"
+    ],
+    "recode_file": [
+        "bool recode_file(string request, resource input, resource output)",
+        "Recode file input into file output according to request"
+    ],
+    "recode_string": [
+        "string recode_string(string request, string str)",
+        "Recode string str according to request string"
+    ],
+    "register_shutdown_function": [
+        "void register_shutdown_function(string function_name)",
+        "Register a user-level function to be called on request termination"
+    ],
+    "register_tick_function": [
+        "bool register_tick_function(string function_name [, mixed arg [, mixed ... ]])",
+        "Registers a tick callback function"
+    ],
+    "rename": [
+        "bool rename(string old_name, string new_name[, resource context])",
+        "Rename a file"
+    ],
+    "require": [
+        "bool require(string path)",
+        "Includes and evaluates the specified file, erroring if the file cannot be included"
+    ],
+    "require_once": [
+        "bool require_once(string path)",
+        "Includes and evaluates the specified file, erroring if the file cannot be included"
+    ],
+    "reset": [
+        "mixed reset(array array_arg)",
+        "Set array argument's internal pointer to the first element and return it"
+    ],
+    "restore_error_handler": [
+        "void restore_error_handler(void)",
+        "Restores the previously defined error handler function"
+    ],
+    "restore_exception_handler": [
+        "void restore_exception_handler(void)",
+        "Restores the previously defined exception handler function"
+    ],
+    "restore_include_path": [
+        "void restore_include_path()",
+        "Restore the value of the include_path configuration option"
+    ],
+    "rewind": [
+        "bool rewind(resource fp)",
+        "Rewind the position of a file pointer"
+    ],
+    "rewinddir": [
+        "void rewinddir([resource dir_handle])",
+        "Rewind dir_handle back to the start"
+    ],
+    "rmdir": [
+        "bool rmdir(string dirname[, resource context])",
+        "Remove a directory"
+    ],
+    "round": [
+        "float round(float number [, int precision [, int mode]])",
+        "Returns the number rounded to specified precision"
+    ],
+    "rsort": [
+        "bool rsort(array &array_arg [, int sort_flags])",
+        "Sort an array in reverse order"
+    ],
+    "rtrim": [
+        "string rtrim(string str [, string character_mask])",
+        "Removes trailing whitespace"
+    ],
+    "scandir": [
+        "array scandir(string dir [, int sorting_order [, resource context]])",
+        "List files & directories inside the specified path"
+    ],
+    "sem_acquire": [
+        "bool sem_acquire(resource id)",
+        "Acquires the semaphore with the given id, blocking if necessary"
+    ],
+    "sem_get": [
+        "resource sem_get(int key [, int max_acquire [, int perm [, int auto_release]])",
+        "Return an id for the semaphore with the given key, and allow max_acquire (default 1) processes to acquire it simultaneously"
+    ],
+    "sem_release": [
+        "bool sem_release(resource id)",
+        "Releases the semaphore with the given id"
+    ],
+    "sem_remove": [
+        "bool sem_remove(resource id)",
+        "Removes semaphore from Unix systems"
+    ],
+    "serialize": [
+        "string serialize(mixed variable)",
+        "Returns a string representation of variable (which can later be unserialized)"
+    ],
+    "session_cache_expire": [
+        "int session_cache_expire([int new_cache_expire])",
+        "Return the current cache expire. If new_cache_expire is given, the current cache_expire is replaced with new_cache_expire"
+    ],
+    "session_cache_limiter": [
+        "string session_cache_limiter([string new_cache_limiter])",
+        "Return the current cache limiter. If new_cache_limited is given, the current cache_limiter is replaced with new_cache_limiter"
+    ],
+    "session_decode": [
+        "bool session_decode(string data)",
+        "Deserializes data and reinitializes the variables"
+    ],
+    "session_destroy": [
+        "bool session_destroy(void)",
+        "Destroy the current session and all data associated with it"
+    ],
+    "session_encode": [
+        "string session_encode(void)",
+        "Serializes the current setup and returns the serialized representation"
+    ],
+    "session_get_cookie_params": [
+        "array session_get_cookie_params(void)",
+        "Return the session cookie parameters"
+    ],
+    "session_id": [
+        "string session_id([string newid])",
+        "Return the current session id. If newid is given, the session id is replaced with newid"
+    ],
+    "session_is_registered": [
+        "bool session_is_registered(string varname)",
+        "Checks if a variable is registered in session"
+    ],
+    "session_module_name": [
+        "string session_module_name([string newname])",
+        "Return the current module name used for accessing session data. If newname is given, the module name is replaced with newname"
+    ],
+    "session_name": [
+        "string session_name([string newname])",
+        "Return the current session name. If newname is given, the session name is replaced with newname"
+    ],
+    "session_regenerate_id": [
+        "bool session_regenerate_id([bool delete_old_session])",
+        "Update the current session id with a newly generated one. If delete_old_session is set to true, remove the old session."
+    ],
+    "session_register": [
+        "bool session_register(mixed var_names [, mixed ...])",
+        "Adds varname(s) to the list of variables which are freezed at the session end"
+    ],
+    "session_save_path": [
+        "string session_save_path([string newname])",
+        "Return the current save path passed to module_name. If newname is given, the save path is replaced with newname"
+    ],
+    "session_set_cookie_params": [
+        "void session_set_cookie_params(int lifetime [, string path [, string domain [, bool secure[, bool httponly]]]])",
+        "Set session cookie parameters"
+    ],
+    "session_set_save_handler": [
+        "void session_set_save_handler(string open, string close, string read, string write, string destroy, string gc)",
+        "Sets user-level functions"
+    ],
+    "session_start": [
+        "bool session_start(void)",
+        "Begin session - reinitializes freezed variables, registers browsers etc"
+    ],
+    "session_unregister": [
+        "bool session_unregister(string varname)",
+        "Removes varname from the list of variables which are freezed at the session end"
+    ],
+    "session_unset": [
+        "void session_unset(void)",
+        "Unset all registered variables"
+    ],
+    "session_write_close": [
+        "void session_write_close(void)",
+        "Write session data and end session"
+    ],
+    "set_error_handler": [
+        "string set_error_handler(string error_handler [, int error_types])",
+        "Sets a user-defined error handler function.  Returns the previously defined error handler, or false on error"
+    ],
+    "set_exception_handler": [
+        "string set_exception_handler(callable exception_handler)",
+        "Sets a user-defined exception handler function.  Returns the previously defined exception handler, or false on error"
+    ],
+    "set_include_path": [
+        "string set_include_path(string new_include_path)",
+        "Sets the include_path configuration option"
+    ],
+    "set_magic_quotes_runtime": [
+        "bool set_magic_quotes_runtime(int new_setting)",
+        "Set the current active configuration setting of magic_quotes_runtime and return previous"
+    ],
+    "set_time_limit": [
+        "bool set_time_limit(int seconds)",
+        "Sets the maximum time a script can run"
+    ],
+    "setcookie": [
+        "bool setcookie(string name [, string value [, int expires [, string path [, string domain [, bool secure[, bool httponly]]]]]])",
+        "Send a cookie"
+    ],
+    "setlocale": [
+        "string setlocale(mixed category, string locale [, string ...])",
+        "Set locale information"
+    ],
+    "setrawcookie": [
+        "bool setrawcookie(string name [, string value [, int expires [, string path [, string domain [, bool secure[, bool httponly]]]]]])",
+        "Send a cookie with no url encoding of the value"
+    ],
+    "settype": [
+        "bool settype(mixed var, string type)",
+        "Set the type of the variable"
+    ],
+    "sha1": [
+        "string sha1(string str [, bool raw_output])",
+        "Calculate the sha1 hash of a string"
+    ],
+    "sha1_file": [
+        "string sha1_file(string filename [, bool raw_output])",
+        "Calculate the sha1 hash of given filename"
+    ],
+    "shell_exec": [
+        "string shell_exec(string cmd)",
+        "Execute command via shell and return complete output as string"
+    ],
+    "shm_attach": [
+        "int shm_attach(int key [, int memsize [, int perm]])",
+        "Creates or open a shared memory segment"
+    ],
+    "shm_detach": [
+        "bool shm_detach(resource shm_identifier)",
+        "Disconnects from shared memory segment"
+    ],
+    "shm_get_var": [
+        "mixed shm_get_var(resource id, int variable_key)",
+        "Returns a variable from shared memory"
+    ],
+    "shm_has_var": [
+        "bool shm_has_var(resource id, int variable_key)",
+        "Checks whether a specific entry exists"
+    ],
+    "shm_put_var": [
+        "bool shm_put_var(resource shm_identifier, int variable_key, mixed variable)",
+        "Inserts or updates a variable in shared memory"
+    ],
+    "shm_remove": [
+        "bool shm_remove(resource shm_identifier)",
+        "Removes shared memory from Unix systems"
+   
