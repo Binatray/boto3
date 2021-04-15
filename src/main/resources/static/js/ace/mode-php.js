@@ -8069,4 +8069,419 @@ var functionMap = {
         "Returns a description of the last error, and alters the index of the error messages. Returns false when the are no more messages"
     ],
     "openssl_get_cipher_methods": [
-        "array openssl_get_cipher_methods([bool ali
+        "array openssl_get_cipher_methods([bool aliases = false])",
+        "Return array of available cipher methods"
+    ],
+    "openssl_get_md_methods": [
+        "array openssl_get_md_methods([bool aliases = false])",
+        "Return array of available digest methods"
+    ],
+    "openssl_open": [
+        "bool openssl_open(string data, &string opendata, string ekey, mixed privkey)",
+        "Opens data"
+    ],
+    "openssl_pkcs12_export": [
+        "bool openssl_pkcs12_export(mixed x509, string &out, mixed priv_key, string pass[, array args])",
+        "Creates and exports a PKCS12 to a var"
+    ],
+    "openssl_pkcs12_export_to_file": [
+        "bool openssl_pkcs12_export_to_file(mixed x509, string filename, mixed priv_key, string pass[, array args])",
+        "Creates and exports a PKCS to file"
+    ],
+    "openssl_pkcs12_read": [
+        "bool openssl_pkcs12_read(string PKCS12, array &certs, string pass)",
+        "Parses a PKCS12 to an array"
+    ],
+    "openssl_pkcs7_decrypt": [
+        "bool openssl_pkcs7_decrypt(string infilename, string outfilename, mixed recipcert [, mixed recipkey])",
+        "Decrypts the S/MIME message in the file name infilename and output the results to the file name outfilename.  recipcert is a CERT for one of the recipients. recipkey specifies the private key matching recipcert, if recipcert does not include the key"
+    ],
+    "openssl_pkcs7_encrypt": [
+        "bool openssl_pkcs7_encrypt(string infile, string outfile, mixed recipcerts, array headers [, long flags [, long cipher]])",
+        "Encrypts the message in the file named infile with the certificates in recipcerts and output the result to the file named outfile"
+    ],
+    "openssl_pkcs7_sign": [
+        "bool openssl_pkcs7_sign(string infile, string outfile, mixed signcert, mixed signkey, array headers [, long flags [, string extracertsfilename]])",
+        "Signs the MIME message in the file named infile with signcert/signkey and output the result to file name outfile. headers lists plain text headers to exclude from the signed portion of the message, and should include to, from and subject as a minimum"
+    ],
+    "openssl_pkcs7_verify": [
+        "bool openssl_pkcs7_verify(string filename, long flags [, string signerscerts [, array cainfo [, string extracerts [, string content]]]])",
+        "Verifys that the data block is intact, the signer is who they say they are, and returns the CERTs of the signers"
+    ],
+    "openssl_pkey_export": [
+        "bool openssl_pkey_export(mixed key, &mixed out [, string passphrase [, array config_args]])",
+        "Gets an exportable representation of a key into a string or file"
+    ],
+    "openssl_pkey_export_to_file": [
+        "bool openssl_pkey_export_to_file(mixed key, string outfilename [, string passphrase, array config_args)",
+        "Gets an exportable representation of a key into a file"
+    ],
+    "openssl_pkey_free": [
+        "void openssl_pkey_free(int key)",
+        "Frees a key"
+    ],
+    "openssl_pkey_get_details": [
+        "resource openssl_pkey_get_details(resource key)",
+        "returns an array with the key details (bits, pkey, type)"
+    ],
+    "openssl_pkey_get_private": [
+        "int openssl_pkey_get_private(string key [, string passphrase])",
+        "Gets private keys"
+    ],
+    "openssl_pkey_get_public": [
+        "int openssl_pkey_get_public(mixed cert)",
+        "Gets public key from X.509 certificate"
+    ],
+    "openssl_pkey_new": [
+        "resource openssl_pkey_new([array configargs])",
+        "Generates a new private key"
+    ],
+    "openssl_private_decrypt": [
+        "bool openssl_private_decrypt(string data, string &decrypted, mixed key [, int padding])",
+        "Decrypts data with private key"
+    ],
+    "openssl_private_encrypt": [
+        "bool openssl_private_encrypt(string data, string &crypted, mixed key [, int padding])",
+        "Encrypts data with private key"
+    ],
+    "openssl_public_decrypt": [
+        "bool openssl_public_decrypt(string data, string &crypted, resource key [, int padding])",
+        "Decrypts data with public key"
+    ],
+    "openssl_public_encrypt": [
+        "bool openssl_public_encrypt(string data, string &crypted, mixed key [, int padding])",
+        "Encrypts data with public key"
+    ],
+    "openssl_random_pseudo_bytes": [
+        "string openssl_random_pseudo_bytes(integer length [, &bool returned_strong_result])",
+        "Returns a string of the length specified filled with random pseudo bytes"
+    ],
+    "openssl_seal": [
+        "int openssl_seal(string data, &string sealdata, &array ekeys, array pubkeys)",
+        "Seals data"
+    ],
+    "openssl_sign": [
+        "bool openssl_sign(string data, &string signature, mixed key[, mixed method])",
+        "Signs data"
+    ],
+    "openssl_verify": [
+        "int openssl_verify(string data, string signature, mixed key[, mixed method])",
+        "Verifys data"
+    ],
+    "openssl_x509_check_private_key": [
+        "bool openssl_x509_check_private_key(mixed cert, mixed key)",
+        "Checks if a private key corresponds to a CERT"
+    ],
+    "openssl_x509_checkpurpose": [
+        "int openssl_x509_checkpurpose(mixed x509cert, int purpose, array cainfo [, string untrustedfile])",
+        "Checks the CERT to see if it can be used for the purpose in purpose. cainfo holds information about trusted CAs"
+    ],
+    "openssl_x509_export": [
+        "bool openssl_x509_export(mixed x509, string &out [, bool notext = true])",
+        "Exports a CERT to file or a var"
+    ],
+    "openssl_x509_export_to_file": [
+        "bool openssl_x509_export_to_file(mixed x509, string outfilename [, bool notext = true])",
+        "Exports a CERT to file or a var"
+    ],
+    "openssl_x509_free": [
+        "void openssl_x509_free(resource x509)",
+        "Frees X.509 certificates"
+    ],
+    "openssl_x509_parse": [
+        "array openssl_x509_parse(mixed x509 [, bool shortnames=true])",
+        "Returns an array of the fields/values of the CERT"
+    ],
+    "openssl_x509_read": [
+        "resource openssl_x509_read(mixed cert)",
+        "Reads X.509 certificates"
+    ],
+    "ord": [
+        "int ord(string character)",
+        "Returns ASCII value of character"
+    ],
+    "output_add_rewrite_var": [
+        "bool output_add_rewrite_var(string name, string value)",
+        "Add URL rewriter values"
+    ],
+    "output_reset_rewrite_vars": [
+        "bool output_reset_rewrite_vars(void)",
+        "Reset(clear) URL rewriter values"
+    ],
+    "pack": [
+        "string pack(string format, mixed arg1 [, mixed arg2 [, mixed ...]])",
+        "Takes one or more arguments and packs them into a binary string according to the format argument"
+    ],
+    "parse_ini_file": [
+        "array parse_ini_file(string filename [, bool process_sections [, int scanner_mode]])",
+        "Parse configuration file"
+    ],
+    "parse_ini_string": [
+        "array parse_ini_string(string ini_string [, bool process_sections [, int scanner_mode]])",
+        "Parse configuration string"
+    ],
+    "parse_locale": [
+        "static array parse_locale($locale)",
+        "* parses a locale-id into an array the different parts of it"
+    ],
+    "parse_str": [
+        "void parse_str(string encoded_string [, array result])",
+        "Parses GET/POST/COOKIE data and sets global variables"
+    ],
+    "parse_url": [
+        "mixed parse_url(string url, [int url_component])",
+        "Parse a URL and return its components"
+    ],
+    "passthru": [
+        "void passthru(string command [, int &return_value])",
+        "Execute an external program and display raw output"
+    ],
+    "pathinfo": [
+        "array pathinfo(string path[, int options])",
+        "Returns information about a certain string"
+    ],
+    "pclose": [
+        "int pclose(resource fp)",
+        "Close a file pointer opened by popen()"
+    ],
+    "pcnlt_sigwaitinfo": [
+        "int pcnlt_sigwaitinfo(array set[, array &siginfo])",
+        "Synchronously wait for queued signals"
+    ],
+    "pcntl_alarm": [
+        "int pcntl_alarm(int seconds)",
+        "Set an alarm clock for delivery of a signal"
+    ],
+    "pcntl_exec": [
+        "bool pcntl_exec(string path [, array args [, array envs]])",
+        "Executes specified program in current process space as defined by exec(2)"
+    ],
+    "pcntl_fork": [
+        "int pcntl_fork(void)",
+        "Forks the currently running process following the same behavior as the UNIX fork() system call"
+    ],
+    "pcntl_getpriority": [
+        "int pcntl_getpriority([int pid [, int process_identifier]])",
+        "Get the priority of any process"
+    ],
+    "pcntl_setpriority": [
+        "bool pcntl_setpriority(int priority [, int pid [, int process_identifier]])",
+        "Change the priority of any process"
+    ],
+    "pcntl_signal": [
+        "bool pcntl_signal(int signo, callback handle [, bool restart_syscalls])",
+        "Assigns a system signal handler to a PHP function"
+    ],
+    "pcntl_signal_dispatch": [
+        "bool pcntl_signal_dispatch()",
+        "Dispatch signals to signal handlers"
+    ],
+    "pcntl_sigprocmask": [
+        "bool pcntl_sigprocmask(int how, array set[, array &oldset])",
+        "Examine and change blocked signals"
+    ],
+    "pcntl_sigtimedwait": [
+        "int pcntl_sigtimedwait(array set[, array &siginfo[, int seconds[, int nanoseconds]]])",
+        "Wait for queued signals"
+    ],
+    "pcntl_wait": [
+        "int pcntl_wait(int &status)",
+        "Waits on or returns the status of a forked child as defined by the waitpid() system call"
+    ],
+    "pcntl_waitpid": [
+        "int pcntl_waitpid(int pid, int &status, int options)",
+        "Waits on or returns the status of a forked child as defined by the waitpid() system call"
+    ],
+    "pcntl_wexitstatus": [
+        "int pcntl_wexitstatus(int status)",
+        "Returns the status code of a child's exit"
+    ],
+    "pcntl_wifexited": [
+        "bool pcntl_wifexited(int status)",
+        "Returns true if the child status code represents a successful exit"
+    ],
+    "pcntl_wifsignaled": [
+        "bool pcntl_wifsignaled(int status)",
+        "Returns true if the child status code represents a process that was terminated due to a signal"
+    ],
+    "pcntl_wifstopped": [
+        "bool pcntl_wifstopped(int status)",
+        "Returns true if the child status code represents a stopped process (WUNTRACED must have been used with waitpid)"
+    ],
+    "pcntl_wstopsig": [
+        "int pcntl_wstopsig(int status)",
+        "Returns the number of the signal that caused the process to stop who's status code is passed"
+    ],
+    "pcntl_wtermsig": [
+        "int pcntl_wtermsig(int status)",
+        "Returns the number of the signal that terminated the process who's status code is passed"
+    ],
+    "pdo_drivers": [
+        "array pdo_drivers()",
+        "Return array of available PDO drivers"
+    ],
+    "pfsockopen": [
+        "resource pfsockopen(string hostname, int port [, int errno [, string errstr [, float timeout]]])",
+        "Open persistent Internet or Unix domain socket connection"
+    ],
+    "pg_affected_rows": [
+        "int pg_affected_rows(resource result)",
+        "Returns the number of affected tuples"
+    ],
+    "pg_cancel_query": [
+        "bool pg_cancel_query(resource connection)",
+        "Cancel request"
+    ],
+    "pg_client_encoding": [
+        "string pg_client_encoding([resource connection])",
+        "Get the current client encoding"
+    ],
+    "pg_close": [
+        "bool pg_close([resource connection])",
+        "Close a PostgreSQL connection"
+    ],
+    "pg_connect": [
+        "resource pg_connect(string connection_string[, int connect_type] | [string host, string port [, string options [, string tty,]]] string database)",
+        "Open a PostgreSQL connection"
+    ],
+    "pg_connection_busy": [
+        "bool pg_connection_busy(resource connection)",
+        "Get connection is busy or not"
+    ],
+    "pg_connection_reset": [
+        "bool pg_connection_reset(resource connection)",
+        "Reset connection (reconnect)"
+    ],
+    "pg_connection_status": [
+        "int pg_connection_status(resource connnection)",
+        "Get connection status"
+    ],
+    "pg_convert": [
+        "array pg_convert(resource db, string table, array values[, int options])",
+        "Check and convert values for PostgreSQL SQL statement"
+    ],
+    "pg_copy_from": [
+        "bool pg_copy_from(resource connection, string table_name , array rows [, string delimiter [, string null_as]])",
+        "Copy table from array"
+    ],
+    "pg_copy_to": [
+        "array pg_copy_to(resource connection, string table_name [, string delimiter [, string null_as]])",
+        "Copy table to array"
+    ],
+    "pg_dbname": [
+        "string pg_dbname([resource connection])",
+        "Get the database name"
+    ],
+    "pg_delete": [
+        "mixed pg_delete(resource db, string table, array ids[, int options])",
+        "Delete records has ids (id=>value)"
+    ],
+    "pg_end_copy": [
+        "bool pg_end_copy([resource connection])",
+        "Sync with backend. Completes the Copy command"
+    ],
+    "pg_escape_bytea": [
+        "string pg_escape_bytea([resource connection,] string data)",
+        "Escape binary for bytea type"
+    ],
+    "pg_escape_string": [
+        "string pg_escape_string([resource connection,] string data)",
+        "Escape string for text/char type"
+    ],
+    "pg_execute": [
+        "resource pg_execute([resource connection,] string stmtname, array params)",
+        "Execute a prepared query"
+    ],
+    "pg_fetch_all": [
+        "array pg_fetch_all(resource result)",
+        "Fetch all rows into array"
+    ],
+    "pg_fetch_all_columns": [
+        "array pg_fetch_all_columns(resource result [, int column_number])",
+        "Fetch all rows into array"
+    ],
+    "pg_fetch_array": [
+        "array pg_fetch_array(resource result [, int row [, int result_type]])",
+        "Fetch a row as an array"
+    ],
+    "pg_fetch_assoc": [
+        "array pg_fetch_assoc(resource result [, int row])",
+        "Fetch a row as an assoc array"
+    ],
+    "pg_fetch_object": [
+        "object pg_fetch_object(resource result [, int row [, string class_name [, NULL|array ctor_params]]])",
+        "Fetch a row as an object"
+    ],
+    "pg_fetch_result": [
+        "mixed pg_fetch_result(resource result, [int row_number,] mixed field_name)",
+        "Returns values from a result identifier"
+    ],
+    "pg_fetch_row": [
+        "array pg_fetch_row(resource result [, int row [, int result_type]])",
+        "Get a row as an enumerated array"
+    ],
+    "pg_field_is_null": [
+        "int pg_field_is_null(resource result, [int row,] mixed field_name_or_number)",
+        "Test if a field is NULL"
+    ],
+    "pg_field_name": [
+        "string pg_field_name(resource result, int field_number)",
+        "Returns the name of the field"
+    ],
+    "pg_field_num": [
+        "int pg_field_num(resource result, string field_name)",
+        "Returns the field number of the named field"
+    ],
+    "pg_field_prtlen": [
+        "int pg_field_prtlen(resource result, [int row,] mixed field_name_or_number)",
+        "Returns the printed length"
+    ],
+    "pg_field_size": [
+        "int pg_field_size(resource result, int field_number)",
+        "Returns the internal size of the field"
+    ],
+    "pg_field_table": [
+        "mixed pg_field_table(resource result, int field_number[, bool oid_only])",
+        "Returns the name of the table field belongs to, or table's oid if oid_only is true"
+    ],
+    "pg_field_type": [
+        "string pg_field_type(resource result, int field_number)",
+        "Returns the type name for the given field"
+    ],
+    "pg_field_type_oid": [
+        "string pg_field_type_oid(resource result, int field_number)",
+        "Returns the type oid for the given field"
+    ],
+    "pg_free_result": [
+        "bool pg_free_result(resource result)",
+        "Free result memory"
+    ],
+    "pg_get_notify": [
+        "array pg_get_notify([resource connection[, result_type]])",
+        "Get asynchronous notification"
+    ],
+    "pg_get_pid": [
+        "int pg_get_pid([resource connection)",
+        "Get backend(server) pid"
+    ],
+    "pg_get_result": [
+        "resource pg_get_result(resource connection)",
+        "Get asynchronous query result"
+    ],
+    "pg_host": [
+        "string pg_host([resource connection])",
+        "Returns the host name associated with the connection"
+    ],
+    "pg_insert": [
+        "mixed pg_insert(resource db, string table, array values[, int options])",
+        "Insert values (filed=>value) to table"
+    ],
+    "pg_last_error": [
+        "string pg_last_error([resource connection])",
+        "Get the error message string"
+    ],
+    "pg_last_notice": [
+        "string pg_last_notice(resource connection)",
+        "Returns the last notice set by the backend"
+    ],
+ 
