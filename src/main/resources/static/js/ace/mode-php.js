@@ -9363,4 +9363,394 @@ var functionMap = {
     "shm_remove": [
         "bool shm_remove(resource shm_identifier)",
         "Removes shared memory from Unix systems"
-   
+    ],
+    "shm_remove_var": [
+        "bool shm_remove_var(resource id, int variable_key)",
+        "Removes variable from shared memory"
+    ],
+    "shmop_close": [
+        "void shmop_close (int shmid)",
+        "closes a shared memory segment"
+    ],
+    "shmop_delete": [
+        "bool shmop_delete (int shmid)",
+        "mark segment for deletion"
+    ],
+    "shmop_open": [
+        "int shmop_open (int key, string flags, int mode, int size)",
+        "gets and attaches a shared memory segment"
+    ],
+    "shmop_read": [
+        "string shmop_read (int shmid, int start, int count)",
+        "reads from a shm segment"
+    ],
+    "shmop_size": [
+        "int shmop_size (int shmid)",
+        "returns the shm size"
+    ],
+    "shmop_write": [
+        "int shmop_write (int shmid, string data, int offset)",
+        "writes to a shared memory segment"
+    ],
+    "shuffle": [
+        "bool shuffle(array array_arg)",
+        "Randomly shuffle the contents of an array"
+    ],
+    "similar_text": [
+        "int similar_text(string str1, string str2 [, float percent])",
+        "Calculates the similarity between two strings"
+    ],
+    "simplexml_import_dom": [
+        "simplemxml_element simplexml_import_dom(domNode node [, string class_name])",
+        "Get a simplexml_element object from dom to allow for processing"
+    ],
+    "simplexml_load_file": [
+        "simplemxml_element simplexml_load_file(string filename [, string class_name [, int options [, string ns [, bool is_prefix]]]])",
+        "Load a filename and return a simplexml_element object to allow for processing"
+    ],
+    "simplexml_load_string": [
+        "simplemxml_element simplexml_load_string(string data [, string class_name [, int options [, string ns [, bool is_prefix]]]])",
+        "Load a string and return a simplexml_element object to allow for processing"
+    ],
+    "sin": [
+        "float sin(float number)",
+        "Returns the sine of the number in radians"
+    ],
+    "sinh": [
+        "float sinh(float number)",
+        "Returns the hyperbolic sine of the number, defined as (exp(number) - exp(-number))/2"
+    ],
+    "sleep": [
+        "void sleep(int seconds)",
+        "Delay for a given number of seconds"
+    ],
+    "smfi_addheader": [
+        "bool smfi_addheader(string headerf, string headerv)",
+        "Adds a header to the current message."
+    ],
+    "smfi_addrcpt": [
+        "bool smfi_addrcpt(string rcpt)",
+        "Add a recipient to the message envelope."
+    ],
+    "smfi_chgheader": [
+        "bool smfi_chgheader(string headerf, string headerv)",
+        "Changes a header's value for the current message."
+    ],
+    "smfi_delrcpt": [
+        "bool smfi_delrcpt(string rcpt)",
+        "Removes the named recipient from the current message's envelope."
+    ],
+    "smfi_getsymval": [
+        "string smfi_getsymval(string macro)",
+        "Returns the value of the given macro or NULL if the macro is not defined."
+    ],
+    "smfi_replacebody": [
+        "bool smfi_replacebody(string body)",
+        "Replaces the body of the current message. If called more than once,    subsequent calls result in data being appended to the new body."
+    ],
+    "smfi_setflags": [
+        "void smfi_setflags(long flags)",
+        "Sets the flags describing the actions the filter may take."
+    ],
+    "smfi_setreply": [
+        "bool smfi_setreply(string rcode, string xcode, string message)",
+        "Directly set the SMTP error reply code for this connection.    This code will be used on subsequent error replies resulting from actions taken by this filter."
+    ],
+    "smfi_settimeout": [
+        "void smfi_settimeout(long timeout)",
+        "Sets the number of seconds libmilter will wait for an MTA connection before timing out a socket."
+    ],
+    "snmp2_get": [
+        "string snmp2_get(string host, string community, string object_id [, int timeout [, int retries]])",
+        "Fetch a SNMP object"
+    ],
+    "snmp2_getnext": [
+        "string snmp2_getnext(string host, string community, string object_id [, int timeout [, int retries]])",
+        "Fetch a SNMP object"
+    ],
+    "snmp2_real_walk": [
+        "array snmp2_real_walk(string host, string community, string object_id [, int timeout [, int retries]])",
+        "Return all objects including their respective object id withing the specified one"
+    ],
+    "snmp2_set": [
+        "int snmp2_set(string host, string community, string object_id, string type, mixed value [, int timeout [, int retries]])",
+        "Set the value of a SNMP object"
+    ],
+    "snmp2_walk": [
+        "array snmp2_walk(string host, string community, string object_id [, int timeout [, int retries]])",
+        "Return all objects under the specified object id"
+    ],
+    "snmp3_get": [
+        "int snmp3_get(string host, string sec_name, string sec_level, string auth_protocol, string auth_passphrase, string priv_protocol, string priv_passphrase, string object_id [, int timeout [, int retries]])",
+        "Fetch the value of a SNMP object"
+    ],
+    "snmp3_getnext": [
+        "int snmp3_getnext(string host, string sec_name, string sec_level, string auth_protocol, string auth_passphrase, string priv_protocol, string priv_passphrase, string object_id [, int timeout [, int retries]])",
+        "Fetch the value of a SNMP object"
+    ],
+    "snmp3_real_walk": [
+        "int snmp3_real_walk(string host, string sec_name, string sec_level, string auth_protocol, string auth_passphrase, string priv_protocol, string priv_passphrase, string object_id [, int timeout [, int retries]])",
+        "Fetch the value of a SNMP object"
+    ],
+    "snmp3_set": [
+        "int snmp3_set(string host, string sec_name, string sec_level, string auth_protocol, string auth_passphrase, string priv_protocol, string priv_passphrase, string object_id, string type, mixed value [, int timeout [, int retries]])",
+        "Fetch the value of a SNMP object"
+    ],
+    "snmp3_walk": [
+        "int snmp3_walk(string host, string sec_name, string sec_level, string auth_protocol, string auth_passphrase, string priv_protocol, string priv_passphrase, string object_id [, int timeout [, int retries]])",
+        "Fetch the value of a SNMP object"
+    ],
+    "snmp_get_quick_print": [
+        "bool snmp_get_quick_print(void)",
+        "Return the current status of quick_print"
+    ],
+    "snmp_get_valueretrieval": [
+        "int snmp_get_valueretrieval()",
+        "Return the method how the SNMP values will be returned"
+    ],
+    "snmp_read_mib": [
+        "int snmp_read_mib(string filename)",
+        "Reads and parses a MIB file into the active MIB tree."
+    ],
+    "snmp_set_enum_print": [
+        "void snmp_set_enum_print(int enum_print)",
+        "Return all values that are enums with their enum value instead of the raw integer"
+    ],
+    "snmp_set_oid_output_format": [
+        "void snmp_set_oid_output_format(int oid_format)",
+        "Set the OID output format."
+    ],
+    "snmp_set_quick_print": [
+        "void snmp_set_quick_print(int quick_print)",
+        "Return all objects including their respective object id withing the specified one"
+    ],
+    "snmp_set_valueretrieval": [
+        "void snmp_set_valueretrieval(int method)",
+        "Specify the method how the SNMP values will be returned"
+    ],
+    "snmpget": [
+        "string snmpget(string host, string community, string object_id [, int timeout [, int retries]])",
+        "Fetch a SNMP object"
+    ],
+    "snmpgetnext": [
+        "string snmpgetnext(string host, string community, string object_id [, int timeout [, int retries]])",
+        "Fetch a SNMP object"
+    ],
+    "snmprealwalk": [
+        "array snmprealwalk(string host, string community, string object_id [, int timeout [, int retries]])",
+        "Return all objects including their respective object id withing the specified one"
+    ],
+    "snmpset": [
+        "int snmpset(string host, string community, string object_id, string type, mixed value [, int timeout [, int retries]])",
+        "Set the value of a SNMP object"
+    ],
+    "snmpwalk": [
+        "array snmpwalk(string host, string community, string object_id [, int timeout [, int retries]])",
+        "Return all objects under the specified object id"
+    ],
+    "socket_accept": [
+        "resource socket_accept(resource socket)",
+        "Accepts a connection on the listening socket fd"
+    ],
+    "socket_bind": [
+        "bool socket_bind(resource socket, string addr [, int port])",
+        "Binds an open socket to a listening port, port is only specified in AF_INET family."
+    ],
+    "socket_clear_error": [
+        "void socket_clear_error([resource socket])",
+        "Clears the error on the socket or the last error code."
+    ],
+    "socket_close": [
+        "void socket_close(resource socket)",
+        "Closes a file descriptor"
+    ],
+    "socket_connect": [
+        "bool socket_connect(resource socket, string addr [, int port])",
+        "Opens a connection to addr:port on the socket specified by socket"
+    ],
+    "socket_create": [
+        "resource socket_create(int domain, int type, int protocol)",
+        "Creates an endpoint for communication in the domain specified by domain, of type specified by type"
+    ],
+    "socket_create_listen": [
+        "resource socket_create_listen(int port[, int backlog])",
+        "Opens a socket on port to accept connections"
+    ],
+    "socket_create_pair": [
+        "bool socket_create_pair(int domain, int type, int protocol, array &fd)",
+        "Creates a pair of indistinguishable sockets and stores them in fds."
+    ],
+    "socket_get_option": [
+        "mixed socket_get_option(resource socket, int level, int optname)",
+        "Gets socket options for the socket"
+    ],
+    "socket_getpeername": [
+        "bool socket_getpeername(resource socket, string &addr[, int &port])",
+        "Queries the remote side of the given socket which may either result in host/port or in a UNIX filesystem path, dependent on its type."
+    ],
+    "socket_getsockname": [
+        "bool socket_getsockname(resource socket, string &addr[, int &port])",
+        "Queries the remote side of the given socket which may either result in host/port or in a UNIX filesystem path, dependent on its type."
+    ],
+    "socket_last_error": [
+        "int socket_last_error([resource socket])",
+        "Returns the last socket error (either the last used or the provided socket resource)"
+    ],
+    "socket_listen": [
+        "bool socket_listen(resource socket[, int backlog])",
+        "Sets the maximum number of connections allowed to be waited for on the socket specified by fd"
+    ],
+    "socket_read": [
+        "string socket_read(resource socket, int length [, int type])",
+        "Reads a maximum of length bytes from socket"
+    ],
+    "socket_recv": [
+        "int socket_recv(resource socket, string &buf, int len, int flags)",
+        "Receives data from a connected socket"
+    ],
+    "socket_recvfrom": [
+        "int socket_recvfrom(resource socket, string &buf, int len, int flags, string &name [, int &port])",
+        "Receives data from a socket, connected or not"
+    ],
+    "socket_select": [
+        "int socket_select(array &read_fds, array &write_fds, array &except_fds, int tv_sec[, int tv_usec])",
+        "Runs the select() system call on the sets mentioned with a timeout specified by tv_sec and tv_usec"
+    ],
+    "socket_send": [
+        "int socket_send(resource socket, string buf, int len, int flags)",
+        "Sends data to a connected socket"
+    ],
+    "socket_sendto": [
+        "int socket_sendto(resource socket, string buf, int len, int flags, string addr [, int port])",
+        "Sends a message to a socket, whether it is connected or not"
+    ],
+    "socket_set_block": [
+        "bool socket_set_block(resource socket)",
+        "Sets blocking mode on a socket resource"
+    ],
+    "socket_set_nonblock": [
+        "bool socket_set_nonblock(resource socket)",
+        "Sets nonblocking mode on a socket resource"
+    ],
+    "socket_set_option": [
+        "bool socket_set_option(resource socket, int level, int optname, int|array optval)",
+        "Sets socket options for the socket"
+    ],
+    "socket_shutdown": [
+        "bool socket_shutdown(resource socket[, int how])",
+        "Shuts down a socket for receiving, sending, or both."
+    ],
+    "socket_strerror": [
+        "string socket_strerror(int errno)",
+        "Returns a string describing an error"
+    ],
+    "socket_write": [
+        "int socket_write(resource socket, string buf[, int length])",
+        "Writes the buffer to the socket resource, length is optional"
+    ],
+    "solid_fetch_prev": [
+        "bool solid_fetch_prev(resource result_id)",
+        ""
+    ],
+    "sort": [
+        "bool sort(array &array_arg [, int sort_flags])",
+        "Sort an array"
+    ],
+    "soundex": [
+        "string soundex(string str)",
+        "Calculate the soundex key of a string"
+    ],
+    "spl_autoload": [
+        "void spl_autoload(string class_name [, string file_extensions])",
+        "Default implementation for __autoload()"
+    ],
+    "spl_autoload_call": [
+        "void spl_autoload_call(string class_name)",
+        "Try all registerd autoload function to load the requested class"
+    ],
+    "spl_autoload_extensions": [
+        "string spl_autoload_extensions([string file_extensions])",
+        "Register and return default file extensions for spl_autoload"
+    ],
+    "spl_autoload_functions": [
+        "false|array spl_autoload_functions()",
+        "Return all registered __autoload() functionns"
+    ],
+    "spl_autoload_register": [
+        "bool spl_autoload_register([mixed autoload_function = \"spl_autoload\" [, throw = true [, prepend]]])",
+        "Register given function as __autoload() implementation"
+    ],
+    "spl_autoload_unregister": [
+        "bool spl_autoload_unregister(mixed autoload_function)",
+        "Unregister given function as __autoload() implementation"
+    ],
+    "spl_classes": [
+        "array spl_classes()",
+        "Return an array containing the names of all clsses and interfaces defined in SPL"
+    ],
+    "spl_object_hash": [
+        "string spl_object_hash(object obj)",
+        "Return hash id for given object"
+    ],
+    "split": [
+        "array split(string pattern, string string [, int limit])",
+        "Split string into array by regular expression"
+    ],
+    "spliti": [
+        "array spliti(string pattern, string string [, int limit])",
+        "Split string into array by regular expression case-insensitive"
+    ],
+    "sprintf": [
+        "string sprintf(string format [, mixed arg1 [, mixed ...]])",
+        "Return a formatted string"
+    ],
+    "sql_regcase": [
+        "string sql_regcase(string string)",
+        "Make regular expression for case insensitive match"
+    ],
+    "sqlite_array_query": [
+        "array sqlite_array_query(resource db, string query [ , int result_type [, bool decode_binary]])",
+        "Executes a query against a given database and returns an array of arrays."
+    ],
+    "sqlite_busy_timeout": [
+        "void sqlite_busy_timeout(resource db, int ms)",
+        "Set busy timeout duration. If ms <= 0, all busy handlers are disabled."
+    ],
+    "sqlite_changes": [
+        "int sqlite_changes(resource db)",
+        "Returns the number of rows that were changed by the most recent SQL statement."
+    ],
+    "sqlite_close": [
+        "void sqlite_close(resource db)",
+        "Closes an open sqlite database."
+    ],
+    "sqlite_column": [
+        "mixed sqlite_column(resource result, mixed index_or_name [, bool decode_binary])",
+        "Fetches a column from the current row of a result set."
+    ],
+    "sqlite_create_aggregate": [
+        "bool sqlite_create_aggregate(resource db, string funcname, mixed step_func, mixed finalize_func[, long num_args])",
+        "Registers an aggregate function for queries."
+    ],
+    "sqlite_create_function": [
+        "bool sqlite_create_function(resource db, string funcname, mixed callback[, long num_args])",
+        "Registers a \"regular\" function for queries."
+    ],
+    "sqlite_current": [
+        "array sqlite_current(resource result [, int result_type [, bool decode_binary]])",
+        "Fetches the current row from a result set as an array."
+    ],
+    "sqlite_error_string": [
+        "string sqlite_error_string(int error_code)",
+        "Returns the textual description of an error code."
+    ],
+    "sqlite_escape_string": [
+        "string sqlite_escape_string(string item)",
+        "Escapes a string for use as a query parameter."
+    ],
+    "sqlite_exec": [
+        "boolean sqlite_exec(string query, resource db[, string &error_message])",
+        "Executes a result-less query against a given database"
+    ],
+    "sqlite_factory": [
+        "object sqlite_factory(string filename [, int mode [, string &error_messag
