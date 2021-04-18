@@ -11020,4 +11020,492 @@ var functionMap = {
         "bool xmlwriter_write_cdata(resource xmlwriter, string content)",
         "Write full CDATA tag - returns FALSE on error"
     ],
-    "xmlwrit
+    "xmlwriter_write_comment": [
+        "bool xmlwriter_write_comment(resource xmlwriter, string content)",
+        "Write full comment tag - returns FALSE on error"
+    ],
+    "xmlwriter_write_dtd": [
+        "bool xmlwriter_write_dtd(resource xmlwriter, string name, string pubid, string sysid, string subset)",
+        "Write full DTD tag - returns FALSE on error"
+    ],
+    "xmlwriter_write_dtd_attlist": [
+        "bool xmlwriter_write_dtd_attlist(resource xmlwriter, string name, string content)",
+        "Write full DTD AttList tag - returns FALSE on error"
+    ],
+    "xmlwriter_write_dtd_element": [
+        "bool xmlwriter_write_dtd_element(resource xmlwriter, string name, string content)",
+        "Write full DTD element tag - returns FALSE on error"
+    ],
+    "xmlwriter_write_dtd_entity": [
+        "bool xmlwriter_write_dtd_entity(resource xmlwriter, string name, string content [, int pe [, string pubid [, string sysid [, string ndataid]]]])",
+        "Write full DTD Entity tag - returns FALSE on error"
+    ],
+    "xmlwriter_write_element": [
+        "bool xmlwriter_write_element(resource xmlwriter, string name[, string content])",
+        "Write full element tag - returns FALSE on error"
+    ],
+    "xmlwriter_write_element_ns": [
+        "bool xmlwriter_write_element_ns(resource xmlwriter, string prefix, string name, string uri[, string content])",
+        "Write full namesapced element tag - returns FALSE on error"
+    ],
+    "xmlwriter_write_pi": [
+        "bool xmlwriter_write_pi(resource xmlwriter, string target, string content)",
+        "Write full PI tag - returns FALSE on error"
+    ],
+    "xmlwriter_write_raw": [
+        "bool xmlwriter_write_raw(resource xmlwriter, string content)",
+        "Write text - returns FALSE on error"
+    ],
+    "xsl_xsltprocessor_get_parameter": [
+        "string xsl_xsltprocessor_get_parameter(string namespace, string name);",
+        ""
+    ],
+    "xsl_xsltprocessor_has_exslt_support": [
+        "bool xsl_xsltprocessor_has_exslt_support();",
+        ""
+    ],
+    "xsl_xsltprocessor_import_stylesheet": [
+        "void xsl_xsltprocessor_import_stylesheet(domdocument doc);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html# Since:"
+    ],
+    "xsl_xsltprocessor_register_php_functions": [
+        "void xsl_xsltprocessor_register_php_functions([mixed $restrict]);",
+        ""
+    ],
+    "xsl_xsltprocessor_remove_parameter": [
+        "bool xsl_xsltprocessor_remove_parameter(string namespace, string name);",
+        ""
+    ],
+    "xsl_xsltprocessor_set_parameter": [
+        "bool xsl_xsltprocessor_set_parameter(string namespace, mixed name [, string value]);",
+        ""
+    ],
+    "xsl_xsltprocessor_set_profiling": [
+        "bool xsl_xsltprocessor_set_profiling(string filename) */",
+        "PHP_FUNCTION(xsl_xsltprocessor_set_profiling) {  zval *id;  xsl_object *intern;  char *filename = NULL;  int filename_len;  DOM_GET_THIS(id);   if (zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS() TSRMLS_CC, \"s!\", &filename, &filename_len) == SUCCESS) {   intern = (xsl_object *)zend_object_store_get_object(id TSRMLS_CC);   if (intern->profiling) {    efree(intern->profiling);   }   if (filename != NULL) {    intern->profiling = estrndup(filename,filename_len);   } else {    intern->profiling = NULL;   }   RETURN_TRUE;  } else {   WRONG_PARAM_COUNT;  } } /* }}} end xsl_xsltprocessor_set_profiling"
+    ],
+    "xsl_xsltprocessor_transform_to_doc": [
+        "domdocument xsl_xsltprocessor_transform_to_doc(domnode doc);",
+        "URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html# Since:"
+    ],
+    "xsl_xsltprocessor_transform_to_uri": [
+        "int xsl_xsltprocessor_transform_to_uri(domdocument doc, string uri);",
+        ""
+    ],
+    "xsl_xsltprocessor_transform_to_xml": [
+        "string xsl_xsltprocessor_transform_to_xml(domdocument doc);",
+        ""
+    ],
+    "zend_logo_guid": [
+        "string zend_logo_guid(void)",
+        "Return the special ID used to request the Zend logo in phpinfo screens"
+    ],
+    "zend_version": [
+        "string zend_version(void)",
+        "Get the version of the Zend Engine"
+    ],
+    "zip_close": [
+        "void zip_close(resource zip)",
+        "Close a Zip archive"
+    ],
+    "zip_entry_close": [
+        "void zip_entry_close(resource zip_ent)",
+        "Close a zip entry"
+    ],
+    "zip_entry_compressedsize": [
+        "int zip_entry_compressedsize(resource zip_entry)",
+        "Return the compressed size of a ZZip entry"
+    ],
+    "zip_entry_compressionmethod": [
+        "string zip_entry_compressionmethod(resource zip_entry)",
+        "Return a string containing the compression method used on a particular entry"
+    ],
+    "zip_entry_filesize": [
+        "int zip_entry_filesize(resource zip_entry)",
+        "Return the actual filesize of a ZZip entry"
+    ],
+    "zip_entry_name": [
+        "string zip_entry_name(resource zip_entry)",
+        "Return the name given a ZZip entry"
+    ],
+    "zip_entry_open": [
+        "bool zip_entry_open(resource zip_dp, resource zip_entry [, string mode])",
+        "Open a Zip File, pointed by the resource entry"
+    ],
+    "zip_entry_read": [
+        "mixed zip_entry_read(resource zip_entry [, int len])",
+        "Read from an open directory entry"
+    ],
+    "zip_open": [
+        "resource zip_open(string filename)",
+        "Create new zip using source uri for output"
+    ],
+    "zip_read": [
+        "resource zip_read(resource zip)",
+        "Returns the next file in the archive"
+    ],
+    "zlib_get_coding_type": [
+        "string zlib_get_coding_type(void)",
+        "Returns the coding type used for output compression"
+    ]
+};
+
+var variableMap = {
+    "$_COOKIE": {
+        type: "array"
+    },
+    "$_ENV": {
+        type: "array"
+    },
+    "$_FILES": {
+        type: "array"
+    },
+    "$_GET": {
+        type: "array"
+    },
+    "$_POST": {
+        type: "array"
+    },
+    "$_REQUEST": {
+        type: "array"
+    },
+    "$_SERVER": {
+        type: "array",
+        value: {
+            "DOCUMENT_ROOT":  1,
+            "GATEWAY_INTERFACE":  1,
+            "HTTP_ACCEPT":  1,
+            "HTTP_ACCEPT_CHARSET":  1,
+            "HTTP_ACCEPT_ENCODING":  1 ,
+            "HTTP_ACCEPT_LANGUAGE":  1,
+            "HTTP_CONNECTION":  1,
+            "HTTP_HOST":  1,
+            "HTTP_REFERER":  1,
+            "HTTP_USER_AGENT":  1,
+            "PATH_TRANSLATED":  1,
+            "PHP_SELF":  1,
+            "QUERY_STRING":  1,
+            "REMOTE_ADDR":  1,
+            "REMOTE_PORT":  1,
+            "REQUEST_METHOD":  1,
+            "REQUEST_URI":  1,
+            "SCRIPT_FILENAME":  1,
+            "SCRIPT_NAME":  1,
+            "SERVER_ADMIN":  1,
+            "SERVER_NAME":  1,
+            "SERVER_PORT":  1,
+            "SERVER_PROTOCOL":  1,
+            "SERVER_SIGNATURE":  1,
+            "SERVER_SOFTWARE":  1
+        }
+    },
+    "$_SESSION": {
+        type: "array"
+    },
+    "$GLOBALS": {
+        type: "array"
+    }
+};
+
+function is(token, type) {
+    return token.type.lastIndexOf(type) > -1;
+}
+
+var PhpCompletions = function() {
+
+};
+
+(function() {
+
+    this.getCompletions = function(state, session, pos, prefix) {
+        var token = session.getTokenAt(pos.row, pos.column);
+
+        if (!token)
+            return [];
+        
+        if (token.type==='support.php_tag' && token.value==='<?')
+            return this.getTagCompletions(state, session, pos, prefix);
+        if (token.type==='identifier') {
+            if (token.index > 0) {
+                var prevToken = session.getTokenAt(pos.row, token.start);
+                if (prevToken.type==='support.php_tag') {
+                    return this.getTagCompletions(state, session, pos, prefix);
+                }
+            }
+            return this.getFunctionCompletions(state, session, pos, prefix);
+        }
+        if (is(token, "variable"))
+            return this.getVariableCompletions(state, session, pos, prefix);
+        var line = session.getLine(pos.row).substr(0, pos.column);
+        if (token.type==='string' && /(\$[\w]*)\[["']([^'"]*)$/i.test(line))
+            return this.getArrayKeyCompletions(state, session, pos, prefix);
+
+        return [];
+    };
+    
+    this.getTagCompletions = function(state, session, pos, prefix) {
+        return [{
+            caption: 'php',
+            value: 'php',
+            meta: "php tag",
+            score: 1000000
+        }, {
+            caption: '=',
+            value: '=',
+            meta: "php tag",
+            score: 1000000
+        }];
+    };
+
+    this.getFunctionCompletions = function(state, session, pos, prefix) {
+        var functions = Object.keys(functionMap);
+        return functions.map(function(func){
+            return {
+                caption: func,
+                snippet: func + '($0)',
+                meta: "php function",
+                score: 1000000,
+                docHTML: functionMap[func][1]
+            };
+        });
+    };
+
+    this.getVariableCompletions = function(state, session, pos, prefix) {
+        var variables = Object.keys(variableMap);
+        return variables.map(function(variable){
+            return {
+                caption: variable,
+                value: variable,
+                meta: "php variable",
+                score: 1000000
+            };
+        });
+    };
+
+    this.getArrayKeyCompletions = function(state, session, pos, prefix) {
+        var line = session.getLine(pos.row).substr(0, pos.column);
+        var variable = line.match(/(\$[\w]*)\[["']([^'"]*)$/i)[1];
+
+        if (!variableMap[variable]) {
+            return [];
+        }
+
+        var keys = [];
+        if (variableMap[variable].type==='array' && variableMap[variable].value)
+            keys = Object.keys(variableMap[variable].value);
+
+        return keys.map(function(key) {
+            return {
+                caption: key,
+                value: key,
+                meta: "php array key",
+                score: 1000000
+            };
+        });
+    };
+
+}).call(PhpCompletions.prototype);
+
+exports.PhpCompletions = PhpCompletions;
+});
+
+define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../../lib/oop");
+var Range = require("../../range").Range;
+var BaseFoldMode = require("./fold_mode").FoldMode;
+
+var FoldMode = exports.FoldMode = function(commentRegex) {
+    if (commentRegex) {
+        this.foldingStartMarker = new RegExp(
+            this.foldingStartMarker.source.replace(/\|[^|]*?$/, "|" + commentRegex.start)
+        );
+        this.foldingStopMarker = new RegExp(
+            this.foldingStopMarker.source.replace(/\|[^|]*?$/, "|" + commentRegex.end)
+        );
+    }
+};
+oop.inherits(FoldMode, BaseFoldMode);
+
+(function() {
+    
+    this.foldingStartMarker = /([\{\[\(])[^\}\]\)]*$|^\s*(\/\*)/;
+    this.foldingStopMarker = /^[^\[\{\(]*([\}\]\)])|^[\s\*]*(\*\/)/;
+    this.singleLineBlockCommentRe= /^\s*(\/\*).*\*\/\s*$/;
+    this.tripleStarBlockCommentRe = /^\s*(\/\*\*\*).*\*\/\s*$/;
+    this.startRegionRe = /^\s*(\/\*|\/\/)#?region\b/;
+    this._getFoldWidgetBase = this.getFoldWidget;
+    this.getFoldWidget = function(session, foldStyle, row) {
+        var line = session.getLine(row);
+    
+        if (this.singleLineBlockCommentRe.test(line)) {
+            if (!this.startRegionRe.test(line) && !this.tripleStarBlockCommentRe.test(line))
+                return "";
+        }
+    
+        var fw = this._getFoldWidgetBase(session, foldStyle, row);
+    
+        if (!fw && this.startRegionRe.test(line))
+            return "start"; // lineCommentRegionStart
+    
+        return fw;
+    };
+
+    this.getFoldWidgetRange = function(session, foldStyle, row, forceMultiline) {
+        var line = session.getLine(row);
+        
+        if (this.startRegionRe.test(line))
+            return this.getCommentRegionBlock(session, line, row);
+        
+        var match = line.match(this.foldingStartMarker);
+        if (match) {
+            var i = match.index;
+
+            if (match[1])
+                return this.openingBracketBlock(session, match[1], row, i);
+                
+            var range = session.getCommentFoldRange(row, i + match[0].length, 1);
+            
+            if (range && !range.isMultiLine()) {
+                if (forceMultiline) {
+                    range = this.getSectionRange(session, row);
+                } else if (foldStyle != "all")
+                    range = null;
+            }
+            
+            return range;
+        }
+
+        if (foldStyle === "markbegin")
+            return;
+
+        var match = line.match(this.foldingStopMarker);
+        if (match) {
+            var i = match.index + match[0].length;
+
+            if (match[1])
+                return this.closingBracketBlock(session, match[1], row, i);
+
+            return session.getCommentFoldRange(row, i, -1);
+        }
+    };
+    
+    this.getSectionRange = function(session, row) {
+        var line = session.getLine(row);
+        var startIndent = line.search(/\S/);
+        var startRow = row;
+        var startColumn = line.length;
+        row = row + 1;
+        var endRow = row;
+        var maxRow = session.getLength();
+        while (++row < maxRow) {
+            line = session.getLine(row);
+            var indent = line.search(/\S/);
+            if (indent === -1)
+                continue;
+            if  (startIndent > indent)
+                break;
+            var subRange = this.getFoldWidgetRange(session, "all", row);
+            
+            if (subRange) {
+                if (subRange.start.row <= startRow) {
+                    break;
+                } else if (subRange.isMultiLine()) {
+                    row = subRange.end.row;
+                } else if (startIndent == indent) {
+                    break;
+                }
+            }
+            endRow = row;
+        }
+        
+        return new Range(startRow, startColumn, endRow, session.getLine(endRow).length);
+    };
+    this.getCommentRegionBlock = function(session, line, row) {
+        var startColumn = line.search(/\s*$/);
+        var maxRow = session.getLength();
+        var startRow = row;
+        
+        var re = /^\s*(?:\/\*|\/\/|--)#?(end)?region\b/;
+        var depth = 1;
+        while (++row < maxRow) {
+            line = session.getLine(row);
+            var m = re.exec(line);
+            if (!m) continue;
+            if (m[1]) depth--;
+            else depth++;
+
+            if (!depth) break;
+        }
+
+        var endRow = row;
+        if (endRow > startRow) {
+            return new Range(startRow, startColumn, endRow, line.length);
+        }
+    };
+
+}).call(FoldMode.prototype);
+
+});
+
+define("ace/mode/javascript",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/javascript_highlight_rules","ace/mode/matching_brace_outdent","ace/worker/worker_client","ace/mode/behaviour/cstyle","ace/mode/folding/cstyle"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var TextMode = require("./text").Mode;
+var JavaScriptHighlightRules = require("./javascript_highlight_rules").JavaScriptHighlightRules;
+var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
+var WorkerClient = require("../worker/worker_client").WorkerClient;
+var CstyleBehaviour = require("./behaviour/cstyle").CstyleBehaviour;
+var CStyleFoldMode = require("./folding/cstyle").FoldMode;
+
+var Mode = function() {
+    this.HighlightRules = JavaScriptHighlightRules;
+    
+    this.$outdent = new MatchingBraceOutdent();
+    this.$behaviour = new CstyleBehaviour();
+    this.foldingRules = new CStyleFoldMode();
+};
+oop.inherits(Mode, TextMode);
+
+(function() {
+
+    this.lineCommentStart = "//";
+    this.blockComment = {start: "/*", end: "*/"};
+    this.$quotes = {'"': '"', "'": "'", "`": "`"};
+
+    this.getNextLineIndent = function(state, line, tab) {
+        var indent = this.$getIndent(line);
+
+        var tokenizedLine = this.getTokenizer().getLineTokens(line, state);
+        var tokens = tokenizedLine.tokens;
+        var endState = tokenizedLine.state;
+
+        if (tokens.length && tokens[tokens.length-1].type == "comment") {
+            return indent;
+        }
+
+        if (state == "start" || state == "no_regex") {
+            var match = line.match(/^.*(?:\bcase\b.*:|[\{\(\[])\s*$/);
+            if (match) {
+                indent += tab;
+            }
+        } else if (state == "doc-start") {
+            if (endState == "start" || endState == "no_regex") {
+                return "";
+            }
+            var match = line.match(/^\s*(\/?)\*/);
+            if (match) {
+                if (match[1]) {
+                    indent += " ";
+                }
+                indent += "* ";
+            }
+        }
+
+        return indent;
+    };
+
+    this.checkOutdent = function(state, line, input) {
+     
