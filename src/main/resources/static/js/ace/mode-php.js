@@ -10593,4 +10593,431 @@ var functionMap = {
         "Outputs or returns a string representation of a variable"
     ],
     "variant_abs": [
-        "mixed vari
+        "mixed variant_abs(mixed left)",
+        "Returns the absolute value of a variant"
+    ],
+    "variant_add": [
+        "mixed variant_add(mixed left, mixed right)",
+        "\"Adds\" two variant values together and returns the result"
+    ],
+    "variant_and": [
+        "mixed variant_and(mixed left, mixed right)",
+        "performs a bitwise AND operation between two variants and returns the result"
+    ],
+    "variant_cast": [
+        "object variant_cast(object variant, int type)",
+        "Convert a variant into a new variant object of another type"
+    ],
+    "variant_cat": [
+        "mixed variant_cat(mixed left, mixed right)",
+        "concatenates two variant values together and returns the result"
+    ],
+    "variant_cmp": [
+        "int variant_cmp(mixed left, mixed right [, int lcid [, int flags]])",
+        "Compares two variants"
+    ],
+    "variant_date_from_timestamp": [
+        "object variant_date_from_timestamp(int timestamp)",
+        "Returns a variant date representation of a unix timestamp"
+    ],
+    "variant_date_to_timestamp": [
+        "int variant_date_to_timestamp(object variant)",
+        "Converts a variant date/time value to unix timestamp"
+    ],
+    "variant_div": [
+        "mixed variant_div(mixed left, mixed right)",
+        "Returns the result from dividing two variants"
+    ],
+    "variant_eqv": [
+        "mixed variant_eqv(mixed left, mixed right)",
+        "Performs a bitwise equivalence on two variants"
+    ],
+    "variant_fix": [
+        "mixed variant_fix(mixed left)",
+        "Returns the integer part ? of a variant"
+    ],
+    "variant_get_type": [
+        "int variant_get_type(object variant)",
+        "Returns the VT_XXX type code for a variant"
+    ],
+    "variant_idiv": [
+        "mixed variant_idiv(mixed left, mixed right)",
+        "Converts variants to integers and then returns the result from dividing them"
+    ],
+    "variant_imp": [
+        "mixed variant_imp(mixed left, mixed right)",
+        "Performs a bitwise implication on two variants"
+    ],
+    "variant_int": [
+        "mixed variant_int(mixed left)",
+        "Returns the integer portion of a variant"
+    ],
+    "variant_mod": [
+        "mixed variant_mod(mixed left, mixed right)",
+        "Divides two variants and returns only the remainder"
+    ],
+    "variant_mul": [
+        "mixed variant_mul(mixed left, mixed right)",
+        "multiplies the values of the two variants and returns the result"
+    ],
+    "variant_neg": [
+        "mixed variant_neg(mixed left)",
+        "Performs logical negation on a variant"
+    ],
+    "variant_not": [
+        "mixed variant_not(mixed left)",
+        "Performs bitwise not negation on a variant"
+    ],
+    "variant_or": [
+        "mixed variant_or(mixed left, mixed right)",
+        "Performs a logical disjunction on two variants"
+    ],
+    "variant_pow": [
+        "mixed variant_pow(mixed left, mixed right)",
+        "Returns the result of performing the power function with two variants"
+    ],
+    "variant_round": [
+        "mixed variant_round(mixed left, int decimals)",
+        "Rounds a variant to the specified number of decimal places"
+    ],
+    "variant_set": [
+        "void variant_set(object variant, mixed value)",
+        "Assigns a new value for a variant object"
+    ],
+    "variant_set_type": [
+        "void variant_set_type(object variant, int type)",
+        "Convert a variant into another type.  Variant is modified \"in-place\""
+    ],
+    "variant_sub": [
+        "mixed variant_sub(mixed left, mixed right)",
+        "subtracts the value of the right variant from the left variant value and returns the result"
+    ],
+    "variant_xor": [
+        "mixed variant_xor(mixed left, mixed right)",
+        "Performs a logical exclusion on two variants"
+    ],
+    "version_compare": [
+        "int version_compare(string ver1, string ver2 [, string oper])",
+        "Compares two \"PHP-standardized\" version number strings"
+    ],
+    "vfprintf": [
+        "int vfprintf(resource stream, string format, array args)",
+        "Output a formatted string into a stream"
+    ],
+    "virtual": [
+        "bool virtual(string filename)",
+        "Perform an Apache sub-request"
+    ],
+    "vprintf": [
+        "int vprintf(string format, array args)",
+        "Output a formatted string"
+    ],
+    "vsprintf": [
+        "string vsprintf(string format, array args)",
+        "Return a formatted string"
+    ],
+    "wddx_add_vars": [
+        "int wddx_add_vars(resource packet_id,  mixed var_names [, mixed ...])",
+        "Serializes given variables and adds them to packet given by packet_id"
+    ],
+    "wddx_deserialize": [
+        "mixed wddx_deserialize(mixed packet)",
+        "Deserializes given packet and returns a PHP value"
+    ],
+    "wddx_packet_end": [
+        "string wddx_packet_end(resource packet_id)",
+        "Ends specified WDDX packet and returns the string containing the packet"
+    ],
+    "wddx_packet_start": [
+        "resource wddx_packet_start([string comment])",
+        "Starts a WDDX packet with optional comment and returns the packet id"
+    ],
+    "wddx_serialize_value": [
+        "string wddx_serialize_value(mixed var [, string comment])",
+        "Creates a new packet and serializes the given value"
+    ],
+    "wddx_serialize_vars": [
+        "string wddx_serialize_vars(mixed var_name [, mixed ...])",
+        "Creates a new packet and serializes given variables into a struct"
+    ],
+    "wordwrap": [
+        "string wordwrap(string str [, int width [, string break [, boolean cut]]])",
+        "Wraps buffer to selected number of characters using string break char"
+    ],
+    "xml_error_string": [
+        "string xml_error_string(int code)",
+        "Get XML parser error string"
+    ],
+    "xml_get_current_byte_index": [
+        "int xml_get_current_byte_index(resource parser)",
+        "Get current byte index for an XML parser"
+    ],
+    "xml_get_current_column_number": [
+        "int xml_get_current_column_number(resource parser)",
+        "Get current column number for an XML parser"
+    ],
+    "xml_get_current_line_number": [
+        "int xml_get_current_line_number(resource parser)",
+        "Get current line number for an XML parser"
+    ],
+    "xml_get_error_code": [
+        "int xml_get_error_code(resource parser)",
+        "Get XML parser error code"
+    ],
+    "xml_parse": [
+        "int xml_parse(resource parser, string data [, int isFinal])",
+        "Start parsing an XML document"
+    ],
+    "xml_parse_into_struct": [
+        "int xml_parse_into_struct(resource parser, string data, array &values [, array &index ])",
+        "Parsing a XML document"
+    ],
+    "xml_parser_create": [
+        "resource xml_parser_create([string encoding])",
+        "Create an XML parser"
+    ],
+    "xml_parser_create_ns": [
+        "resource xml_parser_create_ns([string encoding [, string sep]])",
+        "Create an XML parser"
+    ],
+    "xml_parser_free": [
+        "int xml_parser_free(resource parser)",
+        "Free an XML parser"
+    ],
+    "xml_parser_get_option": [
+        "int xml_parser_get_option(resource parser, int option)",
+        "Get options from an XML parser"
+    ],
+    "xml_parser_set_option": [
+        "int xml_parser_set_option(resource parser, int option, mixed value)",
+        "Set options in an XML parser"
+    ],
+    "xml_set_character_data_handler": [
+        "int xml_set_character_data_handler(resource parser, string hdl)",
+        "Set up character data handler"
+    ],
+    "xml_set_default_handler": [
+        "int xml_set_default_handler(resource parser, string hdl)",
+        "Set up default handler"
+    ],
+    "xml_set_element_handler": [
+        "int xml_set_element_handler(resource parser, string shdl, string ehdl)",
+        "Set up start and end element handlers"
+    ],
+    "xml_set_end_namespace_decl_handler": [
+        "int xml_set_end_namespace_decl_handler(resource parser, string hdl)",
+        "Set up character data handler"
+    ],
+    "xml_set_external_entity_ref_handler": [
+        "int xml_set_external_entity_ref_handler(resource parser, string hdl)",
+        "Set up external entity reference handler"
+    ],
+    "xml_set_notation_decl_handler": [
+        "int xml_set_notation_decl_handler(resource parser, string hdl)",
+        "Set up notation declaration handler"
+    ],
+    "xml_set_object": [
+        "int xml_set_object(resource parser, object &obj)",
+        "Set up object which should be used for callbacks"
+    ],
+    "xml_set_processing_instruction_handler": [
+        "int xml_set_processing_instruction_handler(resource parser, string hdl)",
+        "Set up processing instruction (PI) handler"
+    ],
+    "xml_set_start_namespace_decl_handler": [
+        "int xml_set_start_namespace_decl_handler(resource parser, string hdl)",
+        "Set up character data handler"
+    ],
+    "xml_set_unparsed_entity_decl_handler": [
+        "int xml_set_unparsed_entity_decl_handler(resource parser, string hdl)",
+        "Set up unparsed entity declaration handler"
+    ],
+    "xmlrpc_decode": [
+        "array xmlrpc_decode(string xml [, string encoding])",
+        "Decodes XML into native PHP types"
+    ],
+    "xmlrpc_decode_request": [
+        "array xmlrpc_decode_request(string xml, string& method [, string encoding])",
+        "Decodes XML into native PHP types"
+    ],
+    "xmlrpc_encode": [
+        "string xmlrpc_encode(mixed value)",
+        "Generates XML for a PHP value"
+    ],
+    "xmlrpc_encode_request": [
+        "string xmlrpc_encode_request(string method, mixed params [, array output_options])",
+        "Generates XML for a method request"
+    ],
+    "xmlrpc_get_type": [
+        "string xmlrpc_get_type(mixed value)",
+        "Gets xmlrpc type for a PHP value. Especially useful for base64 and datetime strings"
+    ],
+    "xmlrpc_is_fault": [
+        "bool xmlrpc_is_fault(array)",
+        "Determines if an array value represents an XMLRPC fault."
+    ],
+    "xmlrpc_parse_method_descriptions": [
+        "array xmlrpc_parse_method_descriptions(string xml)",
+        "Decodes XML into a list of method descriptions"
+    ],
+    "xmlrpc_server_add_introspection_data": [
+        "int xmlrpc_server_add_introspection_data(resource server, array desc)",
+        "Adds introspection documentation"
+    ],
+    "xmlrpc_server_call_method": [
+        "mixed xmlrpc_server_call_method(resource server, string xml, mixed user_data [, array output_options])",
+        "Parses XML requests and call methods"
+    ],
+    "xmlrpc_server_create": [
+        "resource xmlrpc_server_create(void)",
+        "Creates an xmlrpc server"
+    ],
+    "xmlrpc_server_destroy": [
+        "int xmlrpc_server_destroy(resource server)",
+        "Destroys server resources"
+    ],
+    "xmlrpc_server_register_introspection_callback": [
+        "bool xmlrpc_server_register_introspection_callback(resource server, string function)",
+        "Register a PHP function to generate documentation"
+    ],
+    "xmlrpc_server_register_method": [
+        "bool xmlrpc_server_register_method(resource server, string method_name, string function)",
+        "Register a PHP function to handle method matching method_name"
+    ],
+    "xmlrpc_set_type": [
+        "bool xmlrpc_set_type(string value, string type)",
+        "Sets xmlrpc type, base64 or datetime, for a PHP string value"
+    ],
+    "xmlwriter_end_attribute": [
+        "bool xmlwriter_end_attribute(resource xmlwriter)",
+        "End attribute - returns FALSE on error"
+    ],
+    "xmlwriter_end_cdata": [
+        "bool xmlwriter_end_cdata(resource xmlwriter)",
+        "End current CDATA - returns FALSE on error"
+    ],
+    "xmlwriter_end_comment": [
+        "bool xmlwriter_end_comment(resource xmlwriter)",
+        "Create end comment - returns FALSE on error"
+    ],
+    "xmlwriter_end_document": [
+        "bool xmlwriter_end_document(resource xmlwriter)",
+        "End current document - returns FALSE on error"
+    ],
+    "xmlwriter_end_dtd": [
+        "bool xmlwriter_end_dtd(resource xmlwriter)",
+        "End current DTD - returns FALSE on error"
+    ],
+    "xmlwriter_end_dtd_attlist": [
+        "bool xmlwriter_end_dtd_attlist(resource xmlwriter)",
+        "End current DTD AttList - returns FALSE on error"
+    ],
+    "xmlwriter_end_dtd_element": [
+        "bool xmlwriter_end_dtd_element(resource xmlwriter)",
+        "End current DTD element - returns FALSE on error"
+    ],
+    "xmlwriter_end_dtd_entity": [
+        "bool xmlwriter_end_dtd_entity(resource xmlwriter)",
+        "End current DTD Entity - returns FALSE on error"
+    ],
+    "xmlwriter_end_element": [
+        "bool xmlwriter_end_element(resource xmlwriter)",
+        "End current element - returns FALSE on error"
+    ],
+    "xmlwriter_end_pi": [
+        "bool xmlwriter_end_pi(resource xmlwriter)",
+        "End current PI - returns FALSE on error"
+    ],
+    "xmlwriter_flush": [
+        "mixed xmlwriter_flush(resource xmlwriter [,bool empty])",
+        "Output current buffer"
+    ],
+    "xmlwriter_full_end_element": [
+        "bool xmlwriter_full_end_element(resource xmlwriter)",
+        "End current element - returns FALSE on error"
+    ],
+    "xmlwriter_open_memory": [
+        "resource xmlwriter_open_memory()",
+        "Create new xmlwriter using memory for string output"
+    ],
+    "xmlwriter_open_uri": [
+        "resource xmlwriter_open_uri(resource xmlwriter, string source)",
+        "Create new xmlwriter using source uri for output"
+    ],
+    "xmlwriter_output_memory": [
+        "string xmlwriter_output_memory(resource xmlwriter [,bool flush])",
+        "Output current buffer as string"
+    ],
+    "xmlwriter_set_indent": [
+        "bool xmlwriter_set_indent(resource xmlwriter, bool indent)",
+        "Toggle indentation on/off - returns FALSE on error"
+    ],
+    "xmlwriter_set_indent_string": [
+        "bool xmlwriter_set_indent_string(resource xmlwriter, string indentString)",
+        "Set string used for indenting - returns FALSE on error"
+    ],
+    "xmlwriter_start_attribute": [
+        "bool xmlwriter_start_attribute(resource xmlwriter, string name)",
+        "Create start attribute - returns FALSE on error"
+    ],
+    "xmlwriter_start_attribute_ns": [
+        "bool xmlwriter_start_attribute_ns(resource xmlwriter, string prefix, string name, string uri)",
+        "Create start namespaced attribute - returns FALSE on error"
+    ],
+    "xmlwriter_start_cdata": [
+        "bool xmlwriter_start_cdata(resource xmlwriter)",
+        "Create start CDATA tag - returns FALSE on error"
+    ],
+    "xmlwriter_start_comment": [
+        "bool xmlwriter_start_comment(resource xmlwriter)",
+        "Create start comment - returns FALSE on error"
+    ],
+    "xmlwriter_start_document": [
+        "bool xmlwriter_start_document(resource xmlwriter, string version, string encoding, string standalone)",
+        "Create document tag - returns FALSE on error"
+    ],
+    "xmlwriter_start_dtd": [
+        "bool xmlwriter_start_dtd(resource xmlwriter, string name, string pubid, string sysid)",
+        "Create start DTD tag - returns FALSE on error"
+    ],
+    "xmlwriter_start_dtd_attlist": [
+        "bool xmlwriter_start_dtd_attlist(resource xmlwriter, string name)",
+        "Create start DTD AttList - returns FALSE on error"
+    ],
+    "xmlwriter_start_dtd_element": [
+        "bool xmlwriter_start_dtd_element(resource xmlwriter, string name)",
+        "Create start DTD element - returns FALSE on error"
+    ],
+    "xmlwriter_start_dtd_entity": [
+        "bool xmlwriter_start_dtd_entity(resource xmlwriter, string name, bool isparam)",
+        "Create start DTD Entity - returns FALSE on error"
+    ],
+    "xmlwriter_start_element": [
+        "bool xmlwriter_start_element(resource xmlwriter, string name)",
+        "Create start element tag - returns FALSE on error"
+    ],
+    "xmlwriter_start_element_ns": [
+        "bool xmlwriter_start_element_ns(resource xmlwriter, string prefix, string name, string uri)",
+        "Create start namespaced element tag - returns FALSE on error"
+    ],
+    "xmlwriter_start_pi": [
+        "bool xmlwriter_start_pi(resource xmlwriter, string target)",
+        "Create start PI tag - returns FALSE on error"
+    ],
+    "xmlwriter_text": [
+        "bool xmlwriter_text(resource xmlwriter, string content)",
+        "Write text - returns FALSE on error"
+    ],
+    "xmlwriter_write_attribute": [
+        "bool xmlwriter_write_attribute(resource xmlwriter, string name, string content)",
+        "Write full attribute - returns FALSE on error"
+    ],
+    "xmlwriter_write_attribute_ns": [
+        "bool xmlwriter_write_attribute_ns(resource xmlwriter, string prefix, string name, string uri, string content)",
+        "Write full namespaced attribute - returns FALSE on error"
+    ],
+    "xmlwriter_write_cdata": [
+        "bool xmlwriter_write_cdata(resource xmlwriter, string content)",
+        "Write full CDATA tag - returns FALSE on error"
+    ],
+    "xmlwrit
