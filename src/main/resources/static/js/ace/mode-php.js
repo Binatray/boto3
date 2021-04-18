@@ -9753,4 +9753,381 @@ var functionMap = {
         "Executes a result-less query against a given database"
     ],
     "sqlite_factory": [
-        "object sqlite_factory(string filename [, int mode [, string &error_messag
+        "object sqlite_factory(string filename [, int mode [, string &error_message]])",
+        "Opens a SQLite database and creates an object for it. Will create the database if it does not exist."
+    ],
+    "sqlite_fetch_all": [
+        "array sqlite_fetch_all(resource result [, int result_type [, bool decode_binary]])",
+        "Fetches all rows from a result set as an array of arrays."
+    ],
+    "sqlite_fetch_array": [
+        "array sqlite_fetch_array(resource result [, int result_type [, bool decode_binary]])",
+        "Fetches the next row from a result set as an array."
+    ],
+    "sqlite_fetch_column_types": [
+        "resource sqlite_fetch_column_types(string table_name, resource db [, int result_type])",
+        "Return an array of column types from a particular table."
+    ],
+    "sqlite_fetch_object": [
+        "object sqlite_fetch_object(resource result [, string class_name [, NULL|array ctor_params [, bool decode_binary]]])",
+        "Fetches the next row from a result set as an object."
+    ],
+    "sqlite_fetch_single": [
+        "string sqlite_fetch_single(resource result [, bool decode_binary])",
+        "Fetches the first column of a result set as a string."
+    ],
+    "sqlite_field_name": [
+        "string sqlite_field_name(resource result, int field_index)",
+        "Returns the name of a particular field of a result set."
+    ],
+    "sqlite_has_prev": [
+        "bool sqlite_has_prev(resource result)",
+        "* Returns whether a previous row is available."
+    ],
+    "sqlite_key": [
+        "int sqlite_key(resource result)",
+        "Return the current row index of a buffered result."
+    ],
+    "sqlite_last_error": [
+        "int sqlite_last_error(resource db)",
+        "Returns the error code of the last error for a database."
+    ],
+    "sqlite_last_insert_rowid": [
+        "int sqlite_last_insert_rowid(resource db)",
+        "Returns the rowid of the most recently inserted row."
+    ],
+    "sqlite_libencoding": [
+        "string sqlite_libencoding()",
+        "Returns the encoding (iso8859 or UTF-8) of the linked SQLite library."
+    ],
+    "sqlite_libversion": [
+        "string sqlite_libversion()",
+        "Returns the version of the linked SQLite library."
+    ],
+    "sqlite_next": [
+        "bool sqlite_next(resource result)",
+        "Seek to the next row number of a result set."
+    ],
+    "sqlite_num_fields": [
+        "int sqlite_num_fields(resource result)",
+        "Returns the number of fields in a result set."
+    ],
+    "sqlite_num_rows": [
+        "int sqlite_num_rows(resource result)",
+        "Returns the number of rows in a buffered result set."
+    ],
+    "sqlite_open": [
+        "resource sqlite_open(string filename [, int mode [, string &error_message]])",
+        "Opens a SQLite database. Will create the database if it does not exist."
+    ],
+    "sqlite_popen": [
+        "resource sqlite_popen(string filename [, int mode [, string &error_message]])",
+        "Opens a persistent handle to a SQLite database. Will create the database if it does not exist."
+    ],
+    "sqlite_prev": [
+        "bool sqlite_prev(resource result)",
+        "* Seek to the previous row number of a result set."
+    ],
+    "sqlite_query": [
+        "resource sqlite_query(string query, resource db [, int result_type [, string &error_message]])",
+        "Executes a query against a given database and returns a result handle."
+    ],
+    "sqlite_rewind": [
+        "bool sqlite_rewind(resource result)",
+        "Seek to the first row number of a buffered result set."
+    ],
+    "sqlite_seek": [
+        "bool sqlite_seek(resource result, int row)",
+        "Seek to a particular row number of a buffered result set."
+    ],
+    "sqlite_single_query": [
+        "array sqlite_single_query(resource db, string query [, bool first_row_only [, bool decode_binary]])",
+        "Executes a query and returns either an array for one single column or the value of the first row."
+    ],
+    "sqlite_udf_decode_binary": [
+        "string sqlite_udf_decode_binary(string data)",
+        "Decode binary encoding on a string parameter passed to an UDF."
+    ],
+    "sqlite_udf_encode_binary": [
+        "string sqlite_udf_encode_binary(string data)",
+        "Apply binary encoding (if required) to a string to return from an UDF."
+    ],
+    "sqlite_unbuffered_query": [
+        "resource sqlite_unbuffered_query(string query, resource db [ , int result_type [, string &error_message]])",
+        "Executes a query that does not prefetch and buffer all data."
+    ],
+    "sqlite_valid": [
+        "bool sqlite_valid(resource result)",
+        "Returns whether more rows are available."
+    ],
+    "sqrt": [
+        "float sqrt(float number)",
+        "Returns the square root of the number"
+    ],
+    "srand": [
+        "void srand([int seed])",
+        "Seeds random number generator"
+    ],
+    "sscanf": [
+        "mixed sscanf(string str, string format [, string ...])",
+        "Implements an ANSI C compatible sscanf"
+    ],
+    "stat": [
+        "array stat(string filename)",
+        "Give information about a file"
+    ],
+    "str_getcsv": [
+        "array str_getcsv(string input[, string delimiter[, string enclosure[, string escape]]])",
+        "Parse a CSV string into an array"
+    ],
+    "str_ireplace": [
+        "mixed str_ireplace(mixed search, mixed replace, mixed subject [, int &replace_count])",
+        "Replaces all occurrences of search in haystack with replace / case-insensitive"
+    ],
+    "str_pad": [
+        "string str_pad(string input, int pad_length [, string pad_string [, int pad_type]])",
+        "Returns input string padded on the left or right to specified length with pad_string"
+    ],
+    "str_repeat": [
+        "string str_repeat(string input, int mult)",
+        "Returns the input string repeat mult times"
+    ],
+    "str_replace": [
+        "mixed str_replace(mixed search, mixed replace, mixed subject [, int &replace_count])",
+        "Replaces all occurrences of search in haystack with replace"
+    ],
+    "str_rot13": [
+        "string str_rot13(string str)",
+        "Perform the rot13 transform on a string"
+    ],
+    "str_shuffle": [
+        "void str_shuffle(string str)",
+        "Shuffles string. One permutation of all possible is created"
+    ],
+    "str_split": [
+        "array str_split(string str [, int split_length])",
+        "Convert a string to an array. If split_length is specified, break the string down into chunks each split_length characters long."
+    ],
+    "str_word_count": [
+        "mixed str_word_count(string str, [int format [, string charlist]])",
+        "Counts the number of words inside a string. If format of 1 is specified,     then the function will return an array containing all the words     found inside the string. If format of 2 is specified, then the function     will return an associated array where the position of the word is the key     and the word itself is the value.          For the purpose of this function, 'word' is defined as a locale dependent     string containing alphabetic characters, which also may contain, but not start     with \"'\" and \"-\" characters."
+    ],
+    "strcasecmp": [
+        "int strcasecmp(string str1, string str2)",
+        "Binary safe case-insensitive string comparison"
+    ],
+    "strchr": [
+        "string strchr(string haystack, string needle)",
+        "An alias for strstr"
+    ],
+    "strcmp": [
+        "int strcmp(string str1, string str2)",
+        "Binary safe string comparison"
+    ],
+    "strcoll": [
+        "int strcoll(string str1, string str2)",
+        "Compares two strings using the current locale"
+    ],
+    "strcspn": [
+        "int strcspn(string str, string mask [, start [, len]])",
+        "Finds length of initial segment consisting entirely of characters not found in mask. If start or/and length is provide works like strcspn(substr($s,$start,$len),$bad_chars)"
+    ],
+    "stream_bucket_append": [
+        "void stream_bucket_append(resource brigade, resource bucket)",
+        "Append bucket to brigade"
+    ],
+    "stream_bucket_make_writeable": [
+        "object stream_bucket_make_writeable(resource brigade)",
+        "Return a bucket object from the brigade for operating on"
+    ],
+    "stream_bucket_new": [
+        "resource stream_bucket_new(resource stream, string buffer)",
+        "Create a new bucket for use on the current stream"
+    ],
+    "stream_bucket_prepend": [
+        "void stream_bucket_prepend(resource brigade, resource bucket)",
+        "Prepend bucket to brigade"
+    ],
+    "stream_context_create": [
+        "resource stream_context_create([array options[, array params]])",
+        "Create a file context and optionally set parameters"
+    ],
+    "stream_context_get_default": [
+        "resource stream_context_get_default([array options])",
+        "Get a handle on the default file/stream context and optionally set parameters"
+    ],
+    "stream_context_get_options": [
+        "array stream_context_get_options(resource context|resource stream)",
+        "Retrieve options for a stream/wrapper/context"
+    ],
+    "stream_context_get_params": [
+        "array stream_context_get_params(resource context|resource stream)",
+        "Get parameters of a file context"
+    ],
+    "stream_context_set_default": [
+        "resource stream_context_set_default(array options)",
+        "Set default file/stream context, returns the context as a resource"
+    ],
+    "stream_context_set_option": [
+        "bool stream_context_set_option(resource context|resource stream, string wrappername, string optionname, mixed value)",
+        "Set an option for a wrapper"
+    ],
+    "stream_context_set_params": [
+        "bool stream_context_set_params(resource context|resource stream, array options)",
+        "Set parameters for a file context"
+    ],
+    "stream_copy_to_stream": [
+        "long stream_copy_to_stream(resource source, resource dest [, long maxlen [, long pos]])",
+        "Reads up to maxlen bytes from source stream and writes them to dest stream."
+    ],
+    "stream_filter_append": [
+        "resource stream_filter_append(resource stream, string filtername[, int read_write[, string filterparams]])",
+        "Append a filter to a stream"
+    ],
+    "stream_filter_prepend": [
+        "resource stream_filter_prepend(resource stream, string filtername[, int read_write[, string filterparams]])",
+        "Prepend a filter to a stream"
+    ],
+    "stream_filter_register": [
+        "bool stream_filter_register(string filtername, string classname)",
+        "Registers a custom filter handler class"
+    ],
+    "stream_filter_remove": [
+        "bool stream_filter_remove(resource stream_filter)",
+        "Flushes any data in the filter's internal buffer, removes it from the chain, and frees the resource"
+    ],
+    "stream_get_contents": [
+        "string stream_get_contents(resource source [, long maxlen [, long offset]])",
+        "Reads all remaining bytes (or up to maxlen bytes) from a stream and returns them as a string."
+    ],
+    "stream_get_filters": [
+        "array stream_get_filters(void)",
+        "Returns a list of registered filters"
+    ],
+    "stream_get_line": [
+        "string stream_get_line(resource stream, int maxlen [, string ending])",
+        "Read up to maxlen bytes from a stream or until the ending string is found"
+    ],
+    "stream_get_meta_data": [
+        "array stream_get_meta_data(resource fp)",
+        "Retrieves header/meta data from streams/file pointers"
+    ],
+    "stream_get_transports": [
+        "array stream_get_transports()",
+        "Retrieves list of registered socket transports"
+    ],
+    "stream_get_wrappers": [
+        "array stream_get_wrappers()",
+        "Retrieves list of registered stream wrappers"
+    ],
+    "stream_is_local": [
+        "bool stream_is_local(resource stream|string url)",
+        ""
+    ],
+    "stream_resolve_include_path": [
+        "string stream_resolve_include_path(string filename)",
+        "Determine what file will be opened by calls to fopen() with a relative path"
+    ],
+    "stream_select": [
+        "int stream_select(array &read_streams, array &write_streams, array &except_streams, int tv_sec[, int tv_usec])",
+        "Runs the select() system call on the sets of streams with a timeout specified by tv_sec and tv_usec"
+    ],
+    "stream_set_blocking": [
+        "bool stream_set_blocking(resource socket, int mode)",
+        "Set blocking/non-blocking mode on a socket or stream"
+    ],
+    "stream_set_timeout": [
+        "bool stream_set_timeout(resource stream, int seconds [, int microseconds])",
+        "Set timeout on stream read to seconds + microseonds"
+    ],
+    "stream_set_write_buffer": [
+        "int stream_set_write_buffer(resource fp, int buffer)",
+        "Set file write buffer"
+    ],
+    "stream_socket_accept": [
+        "resource stream_socket_accept(resource serverstream, [ double timeout [, string &peername ]])",
+        "Accept a client connection from a server socket"
+    ],
+    "stream_socket_client": [
+        "resource stream_socket_client(string remoteaddress [, long &errcode [, string &errstring [, double timeout [, long flags [, resource context]]]]])",
+        "Open a client connection to a remote address"
+    ],
+    "stream_socket_enable_crypto": [
+        "int stream_socket_enable_crypto(resource stream, bool enable [, int cryptokind [, resource sessionstream]])",
+        "Enable or disable a specific kind of crypto on the stream"
+    ],
+    "stream_socket_get_name": [
+        "string stream_socket_get_name(resource stream, bool want_peer)",
+        "Returns either the locally bound or remote name for a socket stream"
+    ],
+    "stream_socket_pair": [
+        "array stream_socket_pair(int domain, int type, int protocol)",
+        "Creates a pair of connected, indistinguishable socket streams"
+    ],
+    "stream_socket_recvfrom": [
+        "string stream_socket_recvfrom(resource stream, long amount [, long flags [, string &remote_addr]])",
+        "Receives data from a socket stream"
+    ],
+    "stream_socket_sendto": [
+        "long stream_socket_sendto(resouce stream, string data [, long flags [, string target_addr]])",
+        "Send data to a socket stream.  If target_addr is specified it must be in dotted quad (or [ipv6]) format"
+    ],
+    "stream_socket_server": [
+        "resource stream_socket_server(string localaddress [, long &errcode [, string &errstring [, long flags [, resource context]]]])",
+        "Create a server socket bound to localaddress"
+    ],
+    "stream_socket_shutdown": [
+        "int stream_socket_shutdown(resource stream, int how)",
+        "causes all or part of a full-duplex connection on the socket associated  with stream to be shut down.  If how is SHUT_RD,  further receptions will  be disallowed. If how is SHUT_WR, further transmissions will be disallowed.  If how is SHUT_RDWR,  further  receptions and transmissions will be  disallowed."
+    ],
+    "stream_supports_lock": [
+        "bool stream_supports_lock(resource stream)",
+        "Tells whether the stream supports locking through flock()."
+    ],
+    "stream_wrapper_register": [
+        "bool stream_wrapper_register(string protocol, string classname[, integer flags])",
+        "Registers a custom URL protocol handler class"
+    ],
+    "stream_wrapper_restore": [
+        "bool stream_wrapper_restore(string protocol)",
+        "Restore the original protocol handler, overriding if necessary"
+    ],
+    "stream_wrapper_unregister": [
+        "bool stream_wrapper_unregister(string protocol)",
+        "Unregister a wrapper for the life of the current request."
+    ],
+    "strftime": [
+        "string strftime(string format [, int timestamp])",
+        "Format a local time/date according to locale settings"
+    ],
+    "strip_tags": [
+        "string strip_tags(string str [, string allowable_tags])",
+        "Strips HTML and PHP tags from a string"
+    ],
+    "stripcslashes": [
+        "string stripcslashes(string str)",
+        "Strips backslashes from a string. Uses C-style conventions"
+    ],
+    "stripos": [
+        "int stripos(string haystack, string needle [, int offset])",
+        "Finds position of first occurrence of a string within another, case insensitive"
+    ],
+    "stripslashes": [
+        "string stripslashes(string str)",
+        "Strips backslashes from a string"
+    ],
+    "stristr": [
+        "string stristr(string haystack, string needle[, bool part])",
+        "Finds first occurrence of a string within another, case insensitive"
+    ],
+    "strlen": [
+        "int strlen(string str)",
+        "Get string length"
+    ],
+    "strnatcasecmp": [
+        "int strnatcasecmp(string s1, string s2)",
+        "Returns the result of case-insensitive string comparison using 'natural' algorithm"
+    ],
+    "strnatcmp": [
+        "int strnatcmp(string s1, string s2)",
+     
