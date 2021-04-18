@@ -10130,4 +10130,467 @@ var functionMap = {
     ],
     "strnatcmp": [
         "int strnatcmp(string s1, string s2)",
-     
+        "Returns the result of string comparison using 'natural' algorithm"
+    ],
+    "strncasecmp": [
+        "int strncasecmp(string str1, string str2, int len)",
+        "Binary safe string comparison"
+    ],
+    "strncmp": [
+        "int strncmp(string str1, string str2, int len)",
+        "Binary safe string comparison"
+    ],
+    "strpbrk": [
+        "array strpbrk(string haystack, string char_list)",
+        "Search a string for any of a set of characters"
+    ],
+    "strpos": [
+        "int strpos(string haystack, string needle [, int offset])",
+        "Finds position of first occurrence of a string within another"
+    ],
+    "strptime": [
+        "string strptime(string timestamp, string format)",
+        "Parse a time/date generated with strftime()"
+    ],
+    "strrchr": [
+        "string strrchr(string haystack, string needle)",
+        "Finds the last occurrence of a character in a string within another"
+    ],
+    "strrev": [
+        "string strrev(string str)",
+        "Reverse a string"
+    ],
+    "strripos": [
+        "int strripos(string haystack, string needle [, int offset])",
+        "Finds position of last occurrence of a string within another string"
+    ],
+    "strrpos": [
+        "int strrpos(string haystack, string needle [, int offset])",
+        "Finds position of last occurrence of a string within another string"
+    ],
+    "strspn": [
+        "int strspn(string str, string mask [, start [, len]])",
+        "Finds length of initial segment consisting entirely of characters found in mask. If start or/and length is provided works like strspn(substr($s,$start,$len),$good_chars)"
+    ],
+    "strstr": [
+        "string strstr(string haystack, string needle[, bool part])",
+        "Finds first occurrence of a string within another"
+    ],
+    "strtok": [
+        "string strtok([string str,] string token)",
+        "Tokenize a string"
+    ],
+    "strtolower": [
+        "string strtolower(string str)",
+        "Makes a string lowercase"
+    ],
+    "strtotime": [
+        "int strtotime(string time [, int now ])",
+        "Convert string representation of date and time to a timestamp"
+    ],
+    "strtoupper": [
+        "string strtoupper(string str)",
+        "Makes a string uppercase"
+    ],
+    "strtr": [
+        "string strtr(string str, string from[, string to])",
+        "Translates characters in str using given translation tables"
+    ],
+    "strval": [
+        "string strval(mixed var)",
+        "Get the string value of a variable"
+    ],
+    "substr": [
+        "string substr(string str, int start [, int length])",
+        "Returns part of a string"
+    ],
+    "substr_compare": [
+        "int substr_compare(string main_str, string str, int offset [, int length [, bool case_sensitivity]])",
+        "Binary safe optionally case insensitive comparison of 2 strings from an offset, up to length characters"
+    ],
+    "substr_count": [
+        "int substr_count(string haystack, string needle [, int offset [, int length]])",
+        "Returns the number of times a substring occurs in the string"
+    ],
+    "substr_replace": [
+        "mixed substr_replace(mixed str, mixed repl, mixed start [, mixed length])",
+        "Replaces part of a string with another string"
+    ],
+    "sybase_affected_rows": [
+        "int sybase_affected_rows([resource link_id])",
+        "Get number of affected rows in last query"
+    ],
+    "sybase_close": [
+        "bool sybase_close([resource link_id])",
+        "Close Sybase connection"
+    ],
+    "sybase_connect": [
+        "int sybase_connect([string host [, string user [, string password [, string charset [, string appname [, bool new]]]]]])",
+        "Open Sybase server connection"
+    ],
+    "sybase_data_seek": [
+        "bool sybase_data_seek(resource result, int offset)",
+        "Move internal row pointer"
+    ],
+    "sybase_deadlock_retry_count": [
+        "void sybase_deadlock_retry_count(int retry_count)",
+        "Sets deadlock retry count"
+    ],
+    "sybase_fetch_array": [
+        "array sybase_fetch_array(resource result)",
+        "Fetch row as array"
+    ],
+    "sybase_fetch_assoc": [
+        "array sybase_fetch_assoc(resource result)",
+        "Fetch row as array without numberic indices"
+    ],
+    "sybase_fetch_field": [
+        "object sybase_fetch_field(resource result [, int offset])",
+        "Get field information"
+    ],
+    "sybase_fetch_object": [
+        "object sybase_fetch_object(resource result [, mixed object])",
+        "Fetch row as object"
+    ],
+    "sybase_fetch_row": [
+        "array sybase_fetch_row(resource result)",
+        "Get row as enumerated array"
+    ],
+    "sybase_field_seek": [
+        "bool sybase_field_seek(resource result, int offset)",
+        "Set field offset"
+    ],
+    "sybase_free_result": [
+        "bool sybase_free_result(resource result)",
+        "Free result memory"
+    ],
+    "sybase_get_last_message": [
+        "string sybase_get_last_message(void)",
+        "Returns the last message from server (over min_message_severity)"
+    ],
+    "sybase_min_client_severity": [
+        "void sybase_min_client_severity(int severity)",
+        "Sets minimum client severity"
+    ],
+    "sybase_min_server_severity": [
+        "void sybase_min_server_severity(int severity)",
+        "Sets minimum server severity"
+    ],
+    "sybase_num_fields": [
+        "int sybase_num_fields(resource result)",
+        "Get number of fields in result"
+    ],
+    "sybase_num_rows": [
+        "int sybase_num_rows(resource result)",
+        "Get number of rows in result"
+    ],
+    "sybase_pconnect": [
+        "int sybase_pconnect([string host [, string user [, string password [, string charset [, string appname]]]]])",
+        "Open persistent Sybase connection"
+    ],
+    "sybase_query": [
+        "int sybase_query(string query [, resource link_id])",
+        "Send Sybase query"
+    ],
+    "sybase_result": [
+        "string sybase_result(resource result, int row, mixed field)",
+        "Get result data"
+    ],
+    "sybase_select_db": [
+        "bool sybase_select_db(string database [, resource link_id])",
+        "Select Sybase database"
+    ],
+    "sybase_set_message_handler": [
+        "bool sybase_set_message_handler(mixed error_func [, resource connection])",
+        "Set the error handler, to be called when a server message is raised.     If error_func is NULL the handler will be deleted"
+    ],
+    "sybase_unbuffered_query": [
+        "int sybase_unbuffered_query(string query [, resource link_id])",
+        "Send Sybase query"
+    ],
+    "symlink": [
+        "int symlink(string target, string link)",
+        "Create a symbolic link"
+    ],
+    "sys_get_temp_dir": [
+        "string sys_get_temp_dir()",
+        "Returns directory path used for temporary files"
+    ],
+    "sys_getloadavg": [
+        "array sys_getloadavg()",
+        ""
+    ],
+    "syslog": [
+        "bool syslog(int priority, string message)",
+        "Generate a system log message"
+    ],
+    "system": [
+        "int system(string command [, int &return_value])",
+        "Execute an external program and display output"
+    ],
+    "tan": [
+        "float tan(float number)",
+        "Returns the tangent of the number in radians"
+    ],
+    "tanh": [
+        "float tanh(float number)",
+        "Returns the hyperbolic tangent of the number, defined as sinh(number)/cosh(number)"
+    ],
+    "tempnam": [
+        "string tempnam(string dir, string prefix)",
+        "Create a unique filename in a directory"
+    ],
+    "textdomain": [
+        "string textdomain(string domain)",
+        "Set the textdomain to \"domain\". Returns the current domain"
+    ],
+    "tidy_access_count": [
+        "int tidy_access_count()",
+        "Returns the Number of Tidy accessibility warnings encountered for specified document."
+    ],
+    "tidy_clean_repair": [
+        "boolean tidy_clean_repair()",
+        "Execute configured cleanup and repair operations on parsed markup"
+    ],
+    "tidy_config_count": [
+        "int tidy_config_count()",
+        "Returns the Number of Tidy configuration errors encountered for specified document."
+    ],
+    "tidy_diagnose": [
+        "boolean tidy_diagnose()",
+        "Run configured diagnostics on parsed and repaired markup."
+    ],
+    "tidy_error_count": [
+        "int tidy_error_count()",
+        "Returns the Number of Tidy errors encountered for specified document."
+    ],
+    "tidy_get_body": [
+        "TidyNode tidy_get_body(resource tidy)",
+        "Returns a TidyNode Object starting from the <BODY> tag of the tidy parse tree"
+    ],
+    "tidy_get_config": [
+        "array tidy_get_config()",
+        "Get current Tidy configuarion"
+    ],
+    "tidy_get_error_buffer": [
+        "string tidy_get_error_buffer([boolean detailed])",
+        "Return warnings and errors which occured parsing the specified document"
+    ],
+    "tidy_get_head": [
+        "TidyNode tidy_get_head()",
+        "Returns a TidyNode Object starting from the <HEAD> tag of the tidy parse tree"
+    ],
+    "tidy_get_html": [
+        "TidyNode tidy_get_html()",
+        "Returns a TidyNode Object starting from the <HTML> tag of the tidy parse tree"
+    ],
+    "tidy_get_html_ver": [
+        "int tidy_get_html_ver()",
+        "Get the Detected HTML version for the specified document."
+    ],
+    "tidy_get_opt_doc": [
+        "string tidy_get_opt_doc(tidy resource, string optname)",
+        "Returns the documentation for the given option name"
+    ],
+    "tidy_get_output": [
+        "string tidy_get_output()",
+        "Return a string representing the parsed tidy markup"
+    ],
+    "tidy_get_release": [
+        "string tidy_get_release()",
+        "Get release date (version) for Tidy library"
+    ],
+    "tidy_get_root": [
+        "TidyNode tidy_get_root()",
+        "Returns a TidyNode Object representing the root of the tidy parse tree"
+    ],
+    "tidy_get_status": [
+        "int tidy_get_status()",
+        "Get status of specfied document."
+    ],
+    "tidy_getopt": [
+        "mixed tidy_getopt(string option)",
+        "Returns the value of the specified configuration option for the tidy document."
+    ],
+    "tidy_is_xhtml": [
+        "boolean tidy_is_xhtml()",
+        "Indicates if the document is a XHTML document."
+    ],
+    "tidy_is_xml": [
+        "boolean tidy_is_xml()",
+        "Indicates if the document is a generic (non HTML/XHTML) XML document."
+    ],
+    "tidy_parse_file": [
+        "boolean tidy_parse_file(string file [, mixed config_options [, string encoding [, bool use_include_path]]])",
+        "Parse markup in file or URI"
+    ],
+    "tidy_parse_string": [
+        "bool tidy_parse_string(string input [, mixed config_options [, string encoding]])",
+        "Parse a document stored in a string"
+    ],
+    "tidy_repair_file": [
+        "boolean tidy_repair_file(string filename [, mixed config_file [, string encoding [, bool use_include_path]]])",
+        "Repair a file using an optionally provided configuration file"
+    ],
+    "tidy_repair_string": [
+        "boolean tidy_repair_string(string data [, mixed config_file [, string encoding]])",
+        "Repair a string using an optionally provided configuration file"
+    ],
+    "tidy_warning_count": [
+        "int tidy_warning_count()",
+        "Returns the Number of Tidy warnings encountered for specified document."
+    ],
+    "time": [
+        "int time(void)",
+        "Return current UNIX timestamp"
+    ],
+    "time_nanosleep": [
+        "mixed time_nanosleep(long seconds, long nanoseconds)",
+        "Delay for a number of seconds and nano seconds"
+    ],
+    "time_sleep_until": [
+        "mixed time_sleep_until(float timestamp)",
+        "Make the script sleep until the specified time"
+    ],
+    "timezone_abbreviations_list": [
+        "array timezone_abbreviations_list()",
+        "Returns associative array containing dst, offset and the timezone name"
+    ],
+    "timezone_identifiers_list": [
+        "array timezone_identifiers_list([long what[, string country]])",
+        "Returns numerically index array with all timezone identifiers."
+    ],
+    "timezone_location_get": [
+        "array timezone_location_get()",
+        "Returns location information for a timezone, including country code, latitude/longitude and comments"
+    ],
+    "timezone_name_from_abbr": [
+        "string timezone_name_from_abbr(string abbr[, long gmtOffset[, long isdst]])",
+        "Returns the timezone name from abbrevation"
+    ],
+    "timezone_name_get": [
+        "string timezone_name_get(DateTimeZone object)",
+        "Returns the name of the timezone."
+    ],
+    "timezone_offset_get": [
+        "long timezone_offset_get(DateTimeZone object, DateTime object)",
+        "Returns the timezone offset."
+    ],
+    "timezone_open": [
+        "DateTimeZone timezone_open(string timezone)",
+        "Returns new DateTimeZone object"
+    ],
+    "timezone_transitions_get": [
+        "array timezone_transitions_get(DateTimeZone object [, long timestamp_begin [, long timestamp_end ]])",
+        "Returns numerically indexed array containing associative array for all transitions in the specified range for the timezone."
+    ],
+    "timezone_version_get": [
+        "array timezone_version_get()",
+        "Returns the Olson database version number."
+    ],
+    "tmpfile": [
+        "resource tmpfile(void)",
+        "Create a temporary file that will be deleted automatically after use"
+    ],
+    "token_get_all": [
+        "array token_get_all(string source)",
+        ""
+    ],
+    "token_name": [
+        "string token_name(int type)",
+        ""
+    ],
+    "touch": [
+        "bool touch(string filename [, int time [, int atime]])",
+        "Set modification time of file"
+    ],
+    "trigger_error": [
+        "void trigger_error(string messsage [, int error_type])",
+        "Generates a user-level error/warning/notice message"
+    ],
+    "trim": [
+        "string trim(string str [, string character_mask])",
+        "Strips whitespace from the beginning and end of a string"
+    ],
+    "uasort": [
+        "bool uasort(array array_arg, string cmp_function)",
+        "Sort an array with a user-defined comparison function and maintain index association"
+    ],
+    "ucfirst": [
+        "string ucfirst(string str)",
+        "Make a string's first character lowercase"
+    ],
+    "ucwords": [
+        "string ucwords(string str)",
+        "Uppercase the first character of every word in a string"
+    ],
+    "uksort": [
+        "bool uksort(array array_arg, string cmp_function)",
+        "Sort an array by keys using a user-defined comparison function"
+    ],
+    "umask": [
+        "int umask([int mask])",
+        "Return or change the umask"
+    ],
+    "uniqid": [
+        "string uniqid([string prefix [, bool more_entropy]])",
+        "Generates a unique ID"
+    ],
+    "unixtojd": [
+        "int unixtojd([int timestamp])",
+        "Convert UNIX timestamp to Julian Day"
+    ],
+    "unlink": [
+        "bool unlink(string filename[, context context])",
+        "Delete a file"
+    ],
+    "unpack": [
+        "array unpack(string format, string input)",
+        "Unpack binary string into named array elements according to format argument"
+    ],
+    "unregister_tick_function": [
+        "void unregister_tick_function(string function_name)",
+        "Unregisters a tick callback function"
+    ],
+    "unserialize": [
+        "mixed unserialize(string variable_representation)",
+        "Takes a string representation of variable and recreates it"
+    ],
+    "unset": [
+        "void unset (mixed var [, mixed var])",
+        "Unset a given variable"
+    ],
+    "urldecode": [
+        "string urldecode(string str)",
+        "Decodes URL-encoded string"
+    ],
+    "urlencode": [
+        "string urlencode(string str)",
+        "URL-encodes string"
+    ],
+    "usleep": [
+        "void usleep(int micro_seconds)",
+        "Delay for a given number of micro seconds"
+    ],
+    "usort": [
+        "bool usort(array array_arg, string cmp_function)",
+        "Sort an array by values using a user-defined comparison function"
+    ],
+    "utf8_decode": [
+        "string utf8_decode(string data)",
+        "Converts a UTF-8 encoded string to ISO-8859-1"
+    ],
+    "utf8_encode": [
+        "string utf8_encode(string data)",
+        "Encodes an ISO-8859-1 string to UTF-8"
+    ],
+    "var_dump": [
+        "void var_dump(mixed var)",
+        "Dumps a string representation of variable to output"
+    ],
+    "var_export": [
+        "mixed var_export(mixed var [, bool return])",
+        "Outputs or returns a string representation of a variable"
+    ],
+    "variant_abs": [
+        "mixed vari
