@@ -2410,4 +2410,467 @@ var HtmlCompletions = function() {
     };
 
     this.getHTMLEntityCompletions = function(state, session, pos, prefix) {
-        var values = ['Aacute;', 'aacute;', 'Acirc;', 'acirc;', 'acute;', 'AElig;', 'aelig;', 'Agrave;', 'agrave;', 'alefsym;', 'Alpha;', 'alpha;', 'amp;', 'and;', 'ang;', 'Aring;', 'aring;', 'asymp;', 'Atilde;', 'atilde;', 'Auml;', 'auml;', 'bdquo;', 'Beta;', 'beta;', 'brvbar;', 'bull;', 'cap;', 'Ccedil;', 'ccedil;', 'cedil;', 'cent;', 'Chi;', 'chi;', 'circ;', 'clubs;', 'cong;', 'copy;', 'crarr;', 'cup;', 'curren;', 'Dagger;', 'dagger;', 'dArr;', 'darr;', 'deg;', 'Delta;', 'delta;', 'diams;', 'divide;', 'Eacute;', 'eacute;', 'Ecirc;', 'ecirc;', 'Egrave;', 'egrave;', 'empty;', 'emsp;', 'ensp;', 'Epsilon;', 'epsilon;', 'equiv;', 'Eta;', 'eta;', 'ETH;', 'eth;', 'Euml;', 'euml;', 'euro;', 'exist;', 'fnof;', 'forall;', 'frac12;', 'frac14;', 'frac34;', 'frasl;', 'Gamma;', 'gamma;', 'ge;', 'gt;', 'hArr;', 'harr;', 'hearts;', 'hellip;', 'Iacute;', 'iacute;', 'Icirc;', 'icirc;', 'iexcl;', 'Igrave;', 'igrave;', 'image;', 'infin;', 'int;', 'Iota;', 'iota;', 'iquest;', 'isin;', 'Iuml;', 'iuml;', 'Kappa;', 'kappa;', 'Lambda;', 'lambda;', 'lang;', 'laquo;', 'lArr;', 'larr;', 'lceil;', 'ldquo;', 'le;', 'lfloor;', 'lowast;', 'loz;', 'lrm;', 'lsaquo;', 'lsquo;', 'lt;', 'macr;', 'mdash;', 'micro;', 'middot;', 'minus;', 'Mu;', 'mu;', 'nabla;', 'nbsp;', 'ndash;', 'ne;', 'ni;', 'not;', 'notin;', 'nsub;', 'Ntilde;', 'ntilde;', 'Nu;', 'nu;', 'Oacute;', 'oacute;', 'Ocirc;', 'ocirc;', 'OElig;', 'oelig;', 'Ograve;', 'ograve;', 'oline;', 'Omega;', 'omega;', 'Omicron;', 'omicron;', 'oplus;', 'or;', 'ordf;', 'ordm;', 'Oslash;', 'oslash;', 'Otilde;', 'otilde;', 'otimes;', 'Ouml;', 'ouml;', 'para;', 'part;', 'permil;', 'perp;', 'Phi;', 'phi;', 'Pi;', 'pi;', 'piv;', 'plusmn;', 'pound;', 'Prime;', 'prime;', 'prod;', 'prop;', 'Psi;', 'psi;', 'quot;', 'radic;', 'rang;', 'raquo;', 'rArr;', 'rarr;', 'rceil;', 'rdquo;', 'real;', 'reg;', 'rfloor;', 'Rho;', 'rho;', 'rlm;', 'rsaquo;', 'rsquo;', 'sbquo;', 'Scaron;', 'scaron;', 'sdot;', 'sect;', 'shy;', 'Sigma;', 'sigma;', 'sigmaf;', 'sim;', 'spades;', 'sub;', 'sube;', 'sum;', 'sup;', 'sup1;', 'sup2;', 'sup3;', 'supe;', 'szlig;', 'Tau;', 'tau;', 'there4;', 'Theta;', 'theta;', 'thetasym;', 'thinsp;', 'THORN;', 'thorn;', 'tilde;', 'times;', 'trade;', 'Uacute;', 'uacute;', 'uArr;', 'uarr;'
+        var values = ['Aacute;', 'aacute;', 'Acirc;', 'acirc;', 'acute;', 'AElig;', 'aelig;', 'Agrave;', 'agrave;', 'alefsym;', 'Alpha;', 'alpha;', 'amp;', 'and;', 'ang;', 'Aring;', 'aring;', 'asymp;', 'Atilde;', 'atilde;', 'Auml;', 'auml;', 'bdquo;', 'Beta;', 'beta;', 'brvbar;', 'bull;', 'cap;', 'Ccedil;', 'ccedil;', 'cedil;', 'cent;', 'Chi;', 'chi;', 'circ;', 'clubs;', 'cong;', 'copy;', 'crarr;', 'cup;', 'curren;', 'Dagger;', 'dagger;', 'dArr;', 'darr;', 'deg;', 'Delta;', 'delta;', 'diams;', 'divide;', 'Eacute;', 'eacute;', 'Ecirc;', 'ecirc;', 'Egrave;', 'egrave;', 'empty;', 'emsp;', 'ensp;', 'Epsilon;', 'epsilon;', 'equiv;', 'Eta;', 'eta;', 'ETH;', 'eth;', 'Euml;', 'euml;', 'euro;', 'exist;', 'fnof;', 'forall;', 'frac12;', 'frac14;', 'frac34;', 'frasl;', 'Gamma;', 'gamma;', 'ge;', 'gt;', 'hArr;', 'harr;', 'hearts;', 'hellip;', 'Iacute;', 'iacute;', 'Icirc;', 'icirc;', 'iexcl;', 'Igrave;', 'igrave;', 'image;', 'infin;', 'int;', 'Iota;', 'iota;', 'iquest;', 'isin;', 'Iuml;', 'iuml;', 'Kappa;', 'kappa;', 'Lambda;', 'lambda;', 'lang;', 'laquo;', 'lArr;', 'larr;', 'lceil;', 'ldquo;', 'le;', 'lfloor;', 'lowast;', 'loz;', 'lrm;', 'lsaquo;', 'lsquo;', 'lt;', 'macr;', 'mdash;', 'micro;', 'middot;', 'minus;', 'Mu;', 'mu;', 'nabla;', 'nbsp;', 'ndash;', 'ne;', 'ni;', 'not;', 'notin;', 'nsub;', 'Ntilde;', 'ntilde;', 'Nu;', 'nu;', 'Oacute;', 'oacute;', 'Ocirc;', 'ocirc;', 'OElig;', 'oelig;', 'Ograve;', 'ograve;', 'oline;', 'Omega;', 'omega;', 'Omicron;', 'omicron;', 'oplus;', 'or;', 'ordf;', 'ordm;', 'Oslash;', 'oslash;', 'Otilde;', 'otilde;', 'otimes;', 'Ouml;', 'ouml;', 'para;', 'part;', 'permil;', 'perp;', 'Phi;', 'phi;', 'Pi;', 'pi;', 'piv;', 'plusmn;', 'pound;', 'Prime;', 'prime;', 'prod;', 'prop;', 'Psi;', 'psi;', 'quot;', 'radic;', 'rang;', 'raquo;', 'rArr;', 'rarr;', 'rceil;', 'rdquo;', 'real;', 'reg;', 'rfloor;', 'Rho;', 'rho;', 'rlm;', 'rsaquo;', 'rsquo;', 'sbquo;', 'Scaron;', 'scaron;', 'sdot;', 'sect;', 'shy;', 'Sigma;', 'sigma;', 'sigmaf;', 'sim;', 'spades;', 'sub;', 'sube;', 'sum;', 'sup;', 'sup1;', 'sup2;', 'sup3;', 'supe;', 'szlig;', 'Tau;', 'tau;', 'there4;', 'Theta;', 'theta;', 'thetasym;', 'thinsp;', 'THORN;', 'thorn;', 'tilde;', 'times;', 'trade;', 'Uacute;', 'uacute;', 'uArr;', 'uarr;', 'Ucirc;', 'ucirc;', 'Ugrave;', 'ugrave;', 'uml;', 'upsih;', 'Upsilon;', 'upsilon;', 'Uuml;', 'uuml;', 'weierp;', 'Xi;', 'xi;', 'Yacute;', 'yacute;', 'yen;', 'Yuml;', 'yuml;', 'Zeta;', 'zeta;', 'zwj;', 'zwnj;'];
+
+        return values.map(function(value){
+            return {
+                caption: value,
+                snippet: value,
+                meta: "html entity",
+                score: 1000000
+            };
+        });
+    };
+
+}).call(HtmlCompletions.prototype);
+
+exports.HtmlCompletions = HtmlCompletions;
+});
+
+define("ace/mode/html",["require","exports","module","ace/lib/oop","ace/lib/lang","ace/mode/text","ace/mode/javascript","ace/mode/css","ace/mode/html_highlight_rules","ace/mode/behaviour/xml","ace/mode/folding/html","ace/mode/html_completions","ace/worker/worker_client"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var lang = require("../lib/lang");
+var TextMode = require("./text").Mode;
+var JavaScriptMode = require("./javascript").Mode;
+var CssMode = require("./css").Mode;
+var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var XmlBehaviour = require("./behaviour/xml").XmlBehaviour;
+var HtmlFoldMode = require("./folding/html").FoldMode;
+var HtmlCompletions = require("./html_completions").HtmlCompletions;
+var WorkerClient = require("../worker/worker_client").WorkerClient;
+var voidElements = ["area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "meta", "menuitem", "param", "source", "track", "wbr"];
+var optionalEndTags = ["li", "dt", "dd", "p", "rt", "rp", "optgroup", "option", "colgroup", "td", "th"];
+
+var Mode = function(options) {
+    this.fragmentContext = options && options.fragmentContext;
+    this.HighlightRules = HtmlHighlightRules;
+    this.$behaviour = new XmlBehaviour();
+    this.$completer = new HtmlCompletions();
+    
+    this.createModeDelegates({
+        "js-": JavaScriptMode,
+        "css-": CssMode
+    });
+    
+    this.foldingRules = new HtmlFoldMode(this.voidElements, lang.arrayToMap(optionalEndTags));
+};
+oop.inherits(Mode, TextMode);
+
+(function() {
+
+    this.blockComment = {start: "<!--", end: "-->"};
+
+    this.voidElements = lang.arrayToMap(voidElements);
+
+    this.getNextLineIndent = function(state, line, tab) {
+        return this.$getIndent(line);
+    };
+
+    this.checkOutdent = function(state, line, input) {
+        return false;
+    };
+
+    this.getCompletions = function(state, session, pos, prefix) {
+        return this.$completer.getCompletions(state, session, pos, prefix);
+    };
+
+    this.createWorker = function(session) {
+        if (this.constructor != Mode)
+            return;
+        var worker = new WorkerClient(["ace"], "ace/mode/html_worker", "Worker");
+        worker.attachToDocument(session.getDocument());
+
+        if (this.fragmentContext)
+            worker.call("setOptions", [{context: this.fragmentContext}]);
+
+        worker.on("error", function(e) {
+            session.setAnnotations(e.data);
+        });
+
+        worker.on("terminate", function() {
+            session.clearAnnotations();
+        });
+
+        return worker;
+    };
+
+    this.$id = "ace/mode/html";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+
+define("ace/mode/csharp_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/doc_comment_highlight_rules","ace/mode/text_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var DocCommentHighlightRules = require("./doc_comment_highlight_rules").DocCommentHighlightRules;
+var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+
+var CSharpHighlightRules = function() {
+    var keywordMapper = this.createKeywordMapper({
+        "variable.language": "this",
+        "keyword": "abstract|async|await|event|new|struct|as|explicit|null|switch|base|extern|object|this|bool|false|operator|throw|break|finally|out|true|byte|fixed|override|try|case|float|params|typeof|catch|for|private|uint|char|foreach|protected|ulong|checked|goto|public|unchecked|class|if|readonly|unsafe|const|implicit|ref|ushort|continue|in|return|using|decimal|int|sbyte|virtual|default|interface|sealed|volatile|delegate|internal|partial|short|void|do|is|sizeof|while|double|lock|stackalloc|else|long|static|enum|namespace|string|var|dynamic",
+        "constant.language": "null|true|false"
+    }, "identifier");
+
+    this.$rules = {
+        "start" : [
+            {
+                token : "comment",
+                regex : "\\/\\/.*$"
+            },
+            DocCommentHighlightRules.getStartRule("doc-start"),
+            {
+                token : "comment", // multi line comment
+                regex : "\\/\\*",
+                next : "comment"
+            }, {
+                token : "string", // character
+                regex : /'(?:.|\\(:?u[\da-fA-F]+|x[\da-fA-F]+|[tbrf'"n]))?'/
+            }, {
+                token : "string", start : '"', end : '"|$', next: [
+                    {token: "constant.language.escape", regex: /\\(:?u[\da-fA-F]+|x[\da-fA-F]+|[tbrf'"n])/},
+                    {token: "invalid", regex: /\\./}
+                ]
+            }, {
+                token : "string", start : '@"', end : '"', next:[
+                    {token: "constant.language.escape", regex: '""'}
+                ]
+            }, {
+                token : "string", start : /\$"/, end : '"|$', next: [
+                    {token: "constant.language.escape", regex: /\\(:?$)|{{/},
+                    {token: "constant.language.escape", regex: /\\(:?u[\da-fA-F]+|x[\da-fA-F]+|[tbrf'"n])/},
+                    {token: "invalid", regex: /\\./}
+                ]
+            }, {
+                token : "constant.numeric", // hex
+                regex : "0[xX][0-9a-fA-F]+\\b"
+            }, {
+                token : "constant.numeric", // float
+                regex : "[+-]?\\d+(?:(?:\\.\\d*)?(?:[eE][+-]?\\d+)?)?\\b"
+            }, {
+                token : "constant.language.boolean",
+                regex : "(?:true|false)\\b"
+            }, {
+                token : keywordMapper,
+                regex : "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"
+            }, {
+                token : "keyword.operator",
+                regex : "!|\\$|%|&|\\*|\\-\\-|\\-|\\+\\+|\\+|~|===|==|=|!=|!==|<=|>=|<<=|>>=|>>>=|<>|<|>|!|&&|\\|\\||\\?\\:|\\*=|%=|\\+=|\\-=|&=|\\^=|\\b(?:in|instanceof|new|delete|typeof|void)"
+            }, {
+                token : "keyword",
+                regex : "^\\s*#(if|else|elif|endif|define|undef|warning|error|line|region|endregion|pragma)"
+            }, {
+                token : "punctuation.operator",
+                regex : "\\?|\\:|\\,|\\;|\\."
+            }, {
+                token : "paren.lparen",
+                regex : "[[({]"
+            }, {
+                token : "paren.rparen",
+                regex : "[\\])}]"
+            }, {
+                token : "text",
+                regex : "\\s+"
+            }
+        ],
+        "comment" : [
+            {
+                token : "comment", // closing comment
+                regex : "\\*\\/",
+                next : "start"
+            }, {
+                defaultToken : "comment"
+            }
+        ]
+    };
+
+    this.embedRules(DocCommentHighlightRules, "doc-",
+        [ DocCommentHighlightRules.getEndRule("start") ]);
+    this.normalizeRules();
+};
+
+oop.inherits(CSharpHighlightRules, TextHighlightRules);
+
+exports.CSharpHighlightRules = CSharpHighlightRules;
+});
+
+define("ace/mode/razor_highlight_rules",["require","exports","module","ace/lib/oop","ace/lib/lang","ace/mode/doc_comment_highlight_rules","ace/mode/html_highlight_rules","ace/mode/csharp_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var lang = require("../lib/lang");
+var DocCommentHighlightRules = require("./doc_comment_highlight_rules").DocCommentHighlightRules;
+var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var CSharpHighlightRules = require("./csharp_highlight_rules").CSharpHighlightRules;
+
+var blockPrefix = 'razor-block-';
+var RazorLangHighlightRules = function() {
+    CSharpHighlightRules.call(this);
+
+    var processPotentialCallback = function(value, stackItem) {
+        if (typeof stackItem === "function")
+            return stackItem(value);
+
+        return stackItem;
+    };
+
+    var inBraces = 'in-braces';
+    this.$rules.start.unshift({
+        regex: '[\\[({]',
+        onMatch: function(value, state, stack) {
+            var prefix = /razor-[^\-]+-/.exec(state)[0];
+
+            stack.unshift(value);
+            stack.unshift(prefix + inBraces);
+            this.next = prefix + inBraces;
+            return 'paren.lparen';
+        }
+    }, {
+        start: "@\\*",
+        end: "\\*@",
+        token: "comment"
+    });
+
+    var parentCloseMap = {
+        '{': '}',
+        '[': ']',
+        '(': ')'
+    };
+
+    this.$rules[inBraces] = lang.deepCopy(this.$rules.start);
+    this.$rules[inBraces].unshift({
+        regex: '[\\])}]',
+        onMatch: function(value, state, stack) {
+            var open = stack[1];
+            if (parentCloseMap[open] !== value)
+                return 'invalid.illegal';
+
+            stack.shift(); // exit in-braces block
+            stack.shift(); // exit brace marker
+            this.next = processPotentialCallback(value, stack[0]) || 'start';
+            return 'paren.rparen';
+        }
+    });
+};
+
+oop.inherits(RazorLangHighlightRules, CSharpHighlightRules);
+
+var RazorHighlightRules = function() {
+    HtmlHighlightRules.call(this);
+
+    var blockStartRule = {
+        regex: '@[({]|@functions{',
+        onMatch: function(value, state, stack) {
+            stack.unshift(value);
+            stack.unshift('razor-block-start');
+            this.next = 'razor-block-start';
+            return 'punctuation.block.razor';
+        }
+    };
+
+    var blockEndMap = {
+        '@{': '}',
+        '@(': ')',
+        '@functions{':'}'
+    };
+
+    var blockEndRule = {
+        regex: '[})]',
+        onMatch: function(value, state, stack) {
+            var blockStart = stack[1];
+            if (blockEndMap[blockStart] !== value)
+                return 'invalid.illegal';
+
+            stack.shift(); // exit razor block
+            stack.shift(); // remove block type marker
+            this.next = stack.shift() || 'start';
+            return 'punctuation.block.razor';
+        }
+    };
+
+    var shortStartRule = {
+        regex: "@(?![{(])",
+        onMatch: function(value, state, stack) {
+            stack.unshift("razor-short-start");
+            this.next = "razor-short-start";
+            return 'punctuation.short.razor';
+        }
+    };
+
+    var shortEndRule = {
+        token: "",
+        regex: "(?=[^A-Za-z_\\.()\\[\\]])",
+        next: 'pop'
+    };
+
+    var ifStartRule = {
+        regex: "@(?=if)",
+        onMatch: function(value, state, stack) {
+            stack.unshift(function(value) {
+                if (value !== '}')
+                    return 'start';
+
+                return stack.shift() || 'start';
+            });
+            this.next = 'razor-block-start';
+            return 'punctuation.control.razor';
+        }
+    };
+
+    var razorStartRules = [
+        {
+            start: "@\\*",
+            end: "\\*@",
+            token: "comment"
+        },
+        {
+            token: ["meta.directive.razor", "text", "identifier"],
+            regex: "^(\\s*@model)(\\s+)(.+)$"
+        },
+        blockStartRule,
+        shortStartRule
+    ];
+
+    for (var key in this.$rules)
+        this.$rules[key].unshift.apply(this.$rules[key], razorStartRules);
+
+    this.embedRules(RazorLangHighlightRules, "razor-block-", [blockEndRule], ["start"]);
+    this.embedRules(RazorLangHighlightRules, "razor-short-", [shortEndRule], ["start"]);
+
+    this.normalizeRules();
+};
+
+oop.inherits(RazorHighlightRules, HtmlHighlightRules);
+
+exports.RazorHighlightRules = RazorHighlightRules;
+exports.RazorLangHighlightRules = RazorLangHighlightRules;
+});
+
+define("ace/mode/razor_completions",["require","exports","module","ace/token_iterator"], function(require, exports, module) {
+"use strict";
+
+var TokenIterator = require("../token_iterator").TokenIterator;
+
+var keywords = [
+    "abstract", "as", "base", "bool",
+    "break", "byte", "case", "catch",
+    "char", "checked", "class", "const",
+    "continue", "decimal", "default", "delegate",
+    "do", "double","else","enum",
+    "event", "explicit", "extern", "false",
+    "finally", "fixed", "float", "for",
+    "foreach", "goto", "if", "implicit",
+    "in", "int", "interface", "internal",
+    "is", "lock", "long", "namespace",
+    "new", "null", "object", "operator",
+    "out", "override", "params", "private",
+    "protected", "public", "readonly", "ref",
+    "return", "sbyte", "sealed", "short",
+    "sizeof", "stackalloc", "static", "string",
+    "struct", "switch", "this", "throw",
+    "true", "try", "typeof", "uint",
+    "ulong", "unchecked", "unsafe", "ushort",
+    "using", "var", "virtual", "void",
+    "volatile", "while"];
+
+var shortHands  = [
+    "Html", "Model", "Url", "Layout"
+];
+    
+var RazorCompletions = function() {
+
+};
+
+(function() {
+
+    this.getCompletions = function(state, session, pos, prefix) {
+        
+        if(state.lastIndexOf("razor-short-start") == -1 && state.lastIndexOf("razor-block-start") == -1)
+            return [];
+        
+        var token = session.getTokenAt(pos.row, pos.column);
+        if (!token)
+            return [];
+        
+        if(state.lastIndexOf("razor-short-start") != -1) {
+            return this.getShortStartCompletions(state, session, pos, prefix);
+        }
+        
+        if(state.lastIndexOf("razor-block-start") != -1) {
+            return this.getKeywordCompletions(state, session, pos, prefix);
+        }
+
+        
+    };
+    
+    this.getShortStartCompletions = function(state, session, pos, prefix) {
+        return shortHands.map(function(element){
+            return {
+                value: element,
+                meta: "keyword",
+                score: 1000000
+            };
+        });
+    };
+
+    this.getKeywordCompletions = function(state, session, pos, prefix) {
+        return shortHands.concat(keywords).map(function(element){
+            return {
+                value: element,
+                meta: "keyword",
+                score: 1000000
+            };
+        });
+    };
+
+}).call(RazorCompletions.prototype);
+
+exports.RazorCompletions = RazorCompletions;
+
+});
+
+define("ace/mode/razor",["require","exports","module","ace/lib/oop","ace/mode/html","ace/mode/razor_highlight_rules","ace/mode/razor_completions","ace/mode/html_completions"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var HtmlMode = require("./html").Mode;
+var RazorHighlightRules = require("./razor_highlight_rules").RazorHighlightRules;
+var RazorCompletions = require("./razor_completions").RazorCompletions;
+var HtmlCompletions = require("./html_completions").HtmlCompletions;
+
+var Mode = function() {
+    HtmlMode.call(this);
+    this.$highlightRules = new RazorHighlightRules();
+    this.$completer = new RazorCompletions();
+    this.$htmlCompleter = new HtmlCompletions();
+};
+oop.inherits(Mode, HtmlMode);
+
+(function() {
+    this.getCompletions = function(state, session, pos, prefix) {
+        var razorToken = this.$completer.getCompletions(state, session, pos, prefix);
+        var htmlToken = this.$htmlCompleter.getCompletions(state, session, pos, prefix);
+        return razorToken.concat(htmlToken);
+    };
+    
+    this.createWorker = function(session) {
+        return null;
+    };
+
+    this.$id = "ace/mode/razor";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+                (function() {
+                    window.require(["ace/mode/razor"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
