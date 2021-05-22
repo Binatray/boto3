@@ -2635,4 +2635,418 @@ var HtmlCompletions = function() {
             return {
                 caption: attribute,
                 snippet: attribute + '="$0"',
- 
+                meta: "attribute",
+                score: 1000000
+            };
+        });
+    };
+
+    this.getAttributeValueCompletions = function(state, session, pos, prefix) {
+        var tagName = findTagName(session, pos);
+        var attributeName = findAttributeName(session, pos);
+        
+        if (!tagName)
+            return [];
+        var values = [];
+        if (tagName in attributeMap && attributeName in attributeMap[tagName] && typeof attributeMap[tagName][attributeName] === "object") {
+            values = Object.keys(attributeMap[tagName][attributeName]);
+        }
+        return values.map(function(value){
+            return {
+                caption: value,
+                snippet: value,
+                meta: "attribute value",
+                score: 1000000
+            };
+        });
+    };
+
+    this.getHTMLEntityCompletions = function(state, session, pos, prefix) {
+        var values = ['Aacute;', 'aacute;', 'Acirc;', 'acirc;', 'acute;', 'AElig;', 'aelig;', 'Agrave;', 'agrave;', 'alefsym;', 'Alpha;', 'alpha;', 'amp;', 'and;', 'ang;', 'Aring;', 'aring;', 'asymp;', 'Atilde;', 'atilde;', 'Auml;', 'auml;', 'bdquo;', 'Beta;', 'beta;', 'brvbar;', 'bull;', 'cap;', 'Ccedil;', 'ccedil;', 'cedil;', 'cent;', 'Chi;', 'chi;', 'circ;', 'clubs;', 'cong;', 'copy;', 'crarr;', 'cup;', 'curren;', 'Dagger;', 'dagger;', 'dArr;', 'darr;', 'deg;', 'Delta;', 'delta;', 'diams;', 'divide;', 'Eacute;', 'eacute;', 'Ecirc;', 'ecirc;', 'Egrave;', 'egrave;', 'empty;', 'emsp;', 'ensp;', 'Epsilon;', 'epsilon;', 'equiv;', 'Eta;', 'eta;', 'ETH;', 'eth;', 'Euml;', 'euml;', 'euro;', 'exist;', 'fnof;', 'forall;', 'frac12;', 'frac14;', 'frac34;', 'frasl;', 'Gamma;', 'gamma;', 'ge;', 'gt;', 'hArr;', 'harr;', 'hearts;', 'hellip;', 'Iacute;', 'iacute;', 'Icirc;', 'icirc;', 'iexcl;', 'Igrave;', 'igrave;', 'image;', 'infin;', 'int;', 'Iota;', 'iota;', 'iquest;', 'isin;', 'Iuml;', 'iuml;', 'Kappa;', 'kappa;', 'Lambda;', 'lambda;', 'lang;', 'laquo;', 'lArr;', 'larr;', 'lceil;', 'ldquo;', 'le;', 'lfloor;', 'lowast;', 'loz;', 'lrm;', 'lsaquo;', 'lsquo;', 'lt;', 'macr;', 'mdash;', 'micro;', 'middot;', 'minus;', 'Mu;', 'mu;', 'nabla;', 'nbsp;', 'ndash;', 'ne;', 'ni;', 'not;', 'notin;', 'nsub;', 'Ntilde;', 'ntilde;', 'Nu;', 'nu;', 'Oacute;', 'oacute;', 'Ocirc;', 'ocirc;', 'OElig;', 'oelig;', 'Ograve;', 'ograve;', 'oline;', 'Omega;', 'omega;', 'Omicron;', 'omicron;', 'oplus;', 'or;', 'ordf;', 'ordm;', 'Oslash;', 'oslash;', 'Otilde;', 'otilde;', 'otimes;', 'Ouml;', 'ouml;', 'para;', 'part;', 'permil;', 'perp;', 'Phi;', 'phi;', 'Pi;', 'pi;', 'piv;', 'plusmn;', 'pound;', 'Prime;', 'prime;', 'prod;', 'prop;', 'Psi;', 'psi;', 'quot;', 'radic;', 'rang;', 'raquo;', 'rArr;', 'rarr;', 'rceil;', 'rdquo;', 'real;', 'reg;', 'rfloor;', 'Rho;', 'rho;', 'rlm;', 'rsaquo;', 'rsquo;', 'sbquo;', 'Scaron;', 'scaron;', 'sdot;', 'sect;', 'shy;', 'Sigma;', 'sigma;', 'sigmaf;', 'sim;', 'spades;', 'sub;', 'sube;', 'sum;', 'sup;', 'sup1;', 'sup2;', 'sup3;', 'supe;', 'szlig;', 'Tau;', 'tau;', 'there4;', 'Theta;', 'theta;', 'thetasym;', 'thinsp;', 'THORN;', 'thorn;', 'tilde;', 'times;', 'trade;', 'Uacute;', 'uacute;', 'uArr;', 'uarr;', 'Ucirc;', 'ucirc;', 'Ugrave;', 'ugrave;', 'uml;', 'upsih;', 'Upsilon;', 'upsilon;', 'Uuml;', 'uuml;', 'weierp;', 'Xi;', 'xi;', 'Yacute;', 'yacute;', 'yen;', 'Yuml;', 'yuml;', 'Zeta;', 'zeta;', 'zwj;', 'zwnj;'];
+
+        return values.map(function(value){
+            return {
+                caption: value,
+                snippet: value,
+                meta: "html entity",
+                score: 1000000
+            };
+        });
+    };
+
+}).call(HtmlCompletions.prototype);
+
+exports.HtmlCompletions = HtmlCompletions;
+});
+
+define("ace/mode/html",["require","exports","module","ace/lib/oop","ace/lib/lang","ace/mode/text","ace/mode/javascript","ace/mode/css","ace/mode/html_highlight_rules","ace/mode/behaviour/xml","ace/mode/folding/html","ace/mode/html_completions","ace/worker/worker_client"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var lang = require("../lib/lang");
+var TextMode = require("./text").Mode;
+var JavaScriptMode = require("./javascript").Mode;
+var CssMode = require("./css").Mode;
+var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+var XmlBehaviour = require("./behaviour/xml").XmlBehaviour;
+var HtmlFoldMode = require("./folding/html").FoldMode;
+var HtmlCompletions = require("./html_completions").HtmlCompletions;
+var WorkerClient = require("../worker/worker_client").WorkerClient;
+var voidElements = ["area", "base", "br", "col", "embed", "hr", "img", "input", "keygen", "link", "meta", "menuitem", "param", "source", "track", "wbr"];
+var optionalEndTags = ["li", "dt", "dd", "p", "rt", "rp", "optgroup", "option", "colgroup", "td", "th"];
+
+var Mode = function(options) {
+    this.fragmentContext = options && options.fragmentContext;
+    this.HighlightRules = HtmlHighlightRules;
+    this.$behaviour = new XmlBehaviour();
+    this.$completer = new HtmlCompletions();
+    
+    this.createModeDelegates({
+        "js-": JavaScriptMode,
+        "css-": CssMode
+    });
+    
+    this.foldingRules = new HtmlFoldMode(this.voidElements, lang.arrayToMap(optionalEndTags));
+};
+oop.inherits(Mode, TextMode);
+
+(function() {
+
+    this.blockComment = {start: "<!--", end: "-->"};
+
+    this.voidElements = lang.arrayToMap(voidElements);
+
+    this.getNextLineIndent = function(state, line, tab) {
+        return this.$getIndent(line);
+    };
+
+    this.checkOutdent = function(state, line, input) {
+        return false;
+    };
+
+    this.getCompletions = function(state, session, pos, prefix) {
+        return this.$completer.getCompletions(state, session, pos, prefix);
+    };
+
+    this.createWorker = function(session) {
+        if (this.constructor != Mode)
+            return;
+        var worker = new WorkerClient(["ace"], "ace/mode/html_worker", "Worker");
+        worker.attachToDocument(session.getDocument());
+
+        if (this.fragmentContext)
+            worker.call("setOptions", [{context: this.fragmentContext}]);
+
+        worker.on("error", function(e) {
+            session.setAnnotations(e.data);
+        });
+
+        worker.on("terminate", function() {
+            session.clearAnnotations();
+        });
+
+        return worker;
+    };
+
+    this.$id = "ace/mode/html";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+
+define("ace/mode/markdown_highlight_rules",["require","exports","module","ace/config","ace/lib/oop","ace/lib/lang","ace/mode/text_highlight_rules","ace/mode/html_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var modes = require("../config").$modes;
+
+var oop = require("../lib/oop");
+var lang = require("../lib/lang");
+var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+var HtmlHighlightRules = require("./html_highlight_rules").HtmlHighlightRules;
+
+var escaped = function(ch) {
+    return "(?:[^" + lang.escapeRegExp(ch) + "\\\\]|\\\\.)*";
+};
+
+var MarkdownHighlightRules = function() {
+    HtmlHighlightRules.call(this);
+    var codeBlockStartRule = {
+        token : "support.function",
+        regex : /^\s*(```+[^`]*|~~~+[^~]*)$/,
+        onMatch: function(value, state, stack, line) {
+            var m = value.match(/^(\s*)([`~]+)(.*)/);
+            var language = /[\w-]+|$/.exec(m[3])[0];
+            if (!modes[language])
+                language = "";
+            stack.unshift("githubblock", [], [m[1], m[2], language], state);
+            return this.token;
+        },
+        next  : "githubblock"
+    };
+    var codeBlockRules = [{
+        token : "support.function",
+        regex : ".*",
+        onMatch: function(value, state, stack, line) {
+            var embedState = stack[1];
+            var indent = stack[2][0];
+            var endMarker = stack[2][1];
+            var language = stack[2][2];
+            
+            var m = /^(\s*)(`+|~+)\s*$/.exec(value);
+            if (
+                m && m[1].length < indent.length + 3
+                && m[2].length >= endMarker.length && m[2][0] == endMarker[0]
+            ) {
+                stack.splice(0, 3);
+                this.next = stack.shift();
+                return this.token;
+            }
+            this.next = "";
+            if (language && modes[language]) {
+                var data = modes[language].getTokenizer().getLineTokens(value, embedState.slice(0));
+                stack[1] = data.state;
+                return data.tokens;
+            }
+            return this.token;
+        }
+    }];
+
+    this.$rules["start"].unshift({
+        token : "empty_line",
+        regex : '^$',
+        next: "allowBlock"
+    }, { // h1
+        token: "markup.heading.1",
+        regex: "^=+(?=\\s*$)"
+    }, { // h2
+        token: "markup.heading.2",
+        regex: "^\\-+(?=\\s*$)"
+    }, {
+        token : function(value) {
+            return "markup.heading." + value.length;
+        },
+        regex : /^#{1,6}(?=\s|$)/,
+        next : "header"
+    },
+    codeBlockStartRule,
+    { // block quote
+        token : "string.blockquote",
+        regex : "^\\s*>\\s*(?:[*+-]|\\d+\\.)?\\s+",
+        next  : "blockquote"
+    }, { // HR * - _
+        token : "constant",
+        regex : "^ {0,2}(?:(?: ?\\* ?){3,}|(?: ?\\- ?){3,}|(?: ?\\_ ?){3,})\\s*$",
+        next: "allowBlock"
+    }, { // list
+        token : "markup.list",
+        regex : "^\\s{0,3}(?:[*+-]|\\d+\\.)\\s+",
+        next  : "listblock-start"
+    }, {
+        include : "basic"
+    });
+
+    this.addRules({
+        "basic" : [{
+            token : "constant.language.escape",
+            regex : /\\[\\`*_{}\[\]()#+\-.!]/
+        }, { // code span `
+            token : "support.function",
+            regex : "(`+)(.*?[^`])(\\1)"
+        }, { // reference
+            token : ["text", "constant", "text", "url", "string", "text"],
+            regex : "^([ ]{0,3}\\[)([^\\]]+)(\\]:\\s*)([^ ]+)(\\s*(?:[\"][^\"]+[\"])?(\\s*))$"
+        }, { // link by reference
+            token : ["text", "string", "text", "constant", "text"],
+            regex : "(\\[)(" + escaped("]") + ")(\\]\\s*\\[)("+ escaped("]") + ")(\\])"
+        }, { // link by url
+            token : ["text", "string", "text", "markup.underline", "string", "text"],
+            regex : "(\\!?\\[)(" +                                        // [
+                    escaped("]") +                                    // link text or alt text
+                    ")(\\]\\()"+                                      // ](
+                    '((?:[^\\)\\s\\\\]|\\\\.|\\s(?=[^"]))*)' +        // href or image
+                    '(\\s*"' +  escaped('"') + '"\\s*)?' +            // "title"
+                    "(\\))"                                           // )
+        }, { // strong ** __
+            token : "string.strong",
+            regex : "([*]{2}|[_]{2}(?=\\S))(.*?\\S[*_]*)(\\1)"
+        }, { // emphasis * _
+            token : "string.emphasis",
+            regex : "([*]|[_](?=\\S))(.*?\\S[*_]*)(\\1)"
+        }, { //
+            token : ["text", "url", "text"],
+            regex : "(<)("+
+                      "(?:https?|ftp|dict):[^'\">\\s]+"+
+                      "|"+
+                      "(?:mailto:)?[-.\\w]+\\@[-a-z0-9]+(?:\\.[-a-z0-9]+)*\\.[a-z]+"+
+                    ")(>)"
+        }],
+        "allowBlock": [
+            {token : "support.function", regex : "^ {4}.+", next : "allowBlock"},
+            {token : "empty_line", regex : '^$', next: "allowBlock"},
+            {token : "empty", regex : "", next : "start"}
+        ],
+
+        "header" : [{
+            regex: "$",
+            next : "start"
+        }, {
+            include: "basic"
+        }, {
+            defaultToken : "heading"
+        } ],
+
+        "listblock-start" : [{
+            token : "support.variable",
+            regex : /(?:\[[ x]\])?/,
+            next  : "listblock"
+        }],
+
+        "listblock" : [ { // Lists only escape on completely blank lines.
+            token : "empty_line",
+            regex : "^$",
+            next  : "start"
+        }, { // list
+            token : "markup.list",
+            regex : "^\\s{0,3}(?:[*+-]|\\d+\\.)\\s+",
+            next  : "listblock-start"
+        }, {
+            include : "basic", noEscape: true
+        },
+        codeBlockStartRule,
+        {
+            defaultToken : "list" //do not use markup.list to allow stling leading `*` differntly
+        } ],
+
+        "blockquote" : [ { // Blockquotes only escape on blank lines.
+            token : "empty_line",
+            regex : "^\\s*$",
+            next  : "start"
+        }, { // block quote
+            token : "string.blockquote",
+            regex : "^\\s*>\\s*(?:[*+-]|\\d+\\.)?\\s+",
+            next  : "blockquote"
+        }, {
+            include : "basic", noEscape: true
+        }, {
+            defaultToken : "string.blockquote"
+        } ],
+
+        "githubblock" : codeBlockRules
+    });
+
+    this.normalizeRules();
+};
+oop.inherits(MarkdownHighlightRules, TextHighlightRules);
+
+exports.MarkdownHighlightRules = MarkdownHighlightRules;
+});
+
+define("ace/mode/folding/markdown",["require","exports","module","ace/lib/oop","ace/mode/folding/fold_mode","ace/range"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../../lib/oop");
+var BaseFoldMode = require("./fold_mode").FoldMode;
+var Range = require("../../range").Range;
+
+var FoldMode = exports.FoldMode = function() {};
+oop.inherits(FoldMode, BaseFoldMode);
+
+(function() {
+    this.foldingStartMarker = /^(?:[=-]+\s*$|#{1,6} |`{3})/;
+
+    this.getFoldWidget = function(session, foldStyle, row) {
+        var line = session.getLine(row);
+        if (!this.foldingStartMarker.test(line))
+            return "";
+
+        if (line[0] == "`") {
+            if (session.bgTokenizer.getState(row) == "start")
+                return "end";
+            return "start";
+        }
+
+        return "start";
+    };
+
+    this.getFoldWidgetRange = function(session, foldStyle, row) {
+        var line = session.getLine(row);
+        var startColumn = line.length;
+        var maxRow = session.getLength();
+        var startRow = row;
+        var endRow = row;
+        if (!line.match(this.foldingStartMarker))
+            return;
+
+        if (line[0] == "`") {
+            if (session.bgTokenizer.getState(row) !== "start") {
+                while (++row < maxRow) {
+                    line = session.getLine(row);
+                    if (line[0] == "`" & line.substring(0, 3) == "```")
+                        break;
+                }
+                return new Range(startRow, startColumn, row, 0);
+            } else {
+                while (row -- > 0) {
+                    line = session.getLine(row);
+                    if (line[0] == "`" & line.substring(0, 3) == "```")
+                        break;
+                }
+                return new Range(row, line.length, startRow, 0);
+            }
+        }
+
+        var token;
+        function isHeading(row) {
+            token = session.getTokens(row)[0];
+            return token && token.type.lastIndexOf(heading, 0) === 0;
+        }
+
+        var heading = "markup.heading";
+        function getLevel() {
+            var ch = token.value[0];
+            if (ch == "=") return 6;
+            if (ch == "-") return 5;
+            return 7 - token.value.search(/[^#]/);
+        }
+
+        if (isHeading(row)) {
+            var startHeadingLevel = getLevel();
+            while (++row < maxRow) {
+                if (!isHeading(row))
+                    continue;
+                var level = getLevel();
+                if (level >= startHeadingLevel)
+                    break;
+            }
+
+            endRow = row - (!token || ["=", "-"].indexOf(token.value[0]) == -1 ? 1 : 2);
+
+            if (endRow > startRow) {
+                while (endRow > startRow && /^\s*$/.test(session.getLine(endRow)))
+                    endRow--;
+            }
+
+            if (endRow > startRow) {
+                var endColumn = session.getLine(endRow).length;
+                return new Range(startRow, startColumn, endRow, endColumn);
+            }
+        }
+    };
+
+}).call(FoldMode.prototype);
+
+});
+
+define("ace/mode/sh_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
+
+var reservedKeywords = exports.reservedKeywords = (
+        '!|{|}|case|do|done|elif|else|'+
+        'esac|fi|for|if|in|then|until|while|'+
+        '&|;|export|local|read|typeset|unset|'+
+        'elif|select|set|function|declare|readonly'
+    );
+
