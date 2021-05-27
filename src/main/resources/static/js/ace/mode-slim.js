@@ -4418,4 +4418,221 @@ var RubyHighlightRules = function() {
                 regex : "@{1,2}[a-zA-Z_\\d]+"
             }, {
                 token : "support.class", // class name
-                regex : "[A-Z][a-zA-Z
+                regex : "[A-Z][a-zA-Z_\\d]+"
+            },
+
+            constantOtherSymbol,
+            constantNumericHex,
+            constantNumericFloat,
+
+            {
+                token : "constant.language.boolean",
+                regex : "(?:true|false)\\b"
+            }, {
+                token : keywordMapper,
+                regex : "[a-zA-Z_$][a-zA-Z0-9_$]*\\b"
+            }, {
+                token : "punctuation.separator.key-value",
+                regex : "=>"
+            }, {
+                stateName: "heredoc",
+                onMatch : function(value, currentState, stack) {
+                    var next = value[2] == '-' ? "indentedHeredoc" : "heredoc";
+                    var tokens = value.split(this.splitRegex);
+                    stack.push(next, tokens[3]);
+                    return [
+                        {type:"constant", value: tokens[1]},
+                        {type:"string", value: tokens[2]},
+                        {type:"support.class", value: tokens[3]},
+                        {type:"string", value: tokens[4]}
+                    ];
+                },
+                regex : "(<<-?)(['\"`]?)([\\w]+)(['\"`]?)",
+                rules: {
+                    heredoc: [{
+                        onMatch:  function(value, currentState, stack) {
+                            if (value === stack[1]) {
+                                stack.shift();
+                                stack.shift();
+                                this.next = stack[0] || "start";
+                                return "support.class";
+                            }
+                            this.next = "";
+                            return "string";
+                        },
+                        regex: ".*$",
+                        next: "start"
+                    }],
+                    indentedHeredoc: [{
+                        token: "string",
+                        regex: "^ +"
+                    }, {
+                        onMatch:  function(value, currentState, stack) {
+                            if (value === stack[1]) {
+                                stack.shift();
+                                stack.shift();
+                                this.next = stack[0] || "start";
+                                return "support.class";
+                            }
+                            this.next = "";
+                            return "string";
+                        },
+                        regex: ".*$",
+                        next: "start"
+                    }]
+                }
+            }, {
+                regex : "$",
+                token : "empty",
+                next : function(currentState, stack) {
+                    if (stack[0] === "heredoc" || stack[0] === "indentedHeredoc")
+                        return stack[0];
+                    return currentState;
+                }
+            }, {
+               token : "string.character",
+               regex : "\\B\\?."
+            }, {
+                token : "keyword.operator",
+                regex : "!|\\$|%|&|\\*|\\-\\-|\\-|\\+\\+|\\+|~|===|==|=|!=|!==|<=|>=|<<=|>>=|>>>=|<>|<|>|!|&&|\\|\\||\\?\\:|\\*=|%=|\\+=|\\-=|&=|\\^=|\\b(?:in|instanceof|new|delete|typeof|void)"
+            }, {
+                token : "paren.lparen",
+                regex : "[[({]"
+            }, {
+                token : "paren.rparen",
+                regex : "[\\])}]"
+            }, {
+                token : "text",
+                regex : "\\s+"
+            }
+        ],
+        "comment" : [
+            {
+                token : "comment", // closing comment
+                regex : "^=end(?:$|\\s.*$)",
+                next : "start"
+            }, {
+                token : "comment", // comment spanning whole line
+                regex : ".+"
+            }
+        ]
+    };
+
+    this.normalizeRules();
+};
+
+oop.inherits(RubyHighlightRules, TextHighlightRules);
+
+exports.RubyHighlightRules = RubyHighlightRules;
+});
+
+define("ace/mode/ruby",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/ruby_highlight_rules","ace/mode/matching_brace_outdent","ace/range","ace/mode/behaviour/cstyle","ace/mode/folding/coffee"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var TextMode = require("./text").Mode;
+var RubyHighlightRules = require("./ruby_highlight_rules").RubyHighlightRules;
+var MatchingBraceOutdent = require("./matching_brace_outdent").MatchingBraceOutdent;
+var Range = require("../range").Range;
+var CstyleBehaviour = require("./behaviour/cstyle").CstyleBehaviour;
+var FoldMode = require("./folding/coffee").FoldMode;
+
+var Mode = function() {
+    this.HighlightRules = RubyHighlightRules;
+    this.$outdent = new MatchingBraceOutdent();
+    this.$behaviour = new CstyleBehaviour();
+    this.foldingRules = new FoldMode();
+};
+oop.inherits(Mode, TextMode);
+
+(function() {
+
+
+    this.lineCommentStart = "#";
+
+    this.getNextLineIndent = function(state, line, tab) {
+        var indent = this.$getIndent(line);
+
+        var tokenizedLine = this.getTokenizer().getLineTokens(line, state);
+        var tokens = tokenizedLine.tokens;
+
+        if (tokens.length && tokens[tokens.length-1].type == "comment") {
+            return indent;
+        }
+
+        if (state == "start") {
+            var match = line.match(/^.*[\{\(\[]\s*$/);
+            var startingClassOrMethod = line.match(/^\s*(class|def|module)\s.*$/);
+            var startingDoBlock = line.match(/.*do(\s*|\s+\|.*\|\s*)$/);
+            var startingConditional = line.match(/^\s*(if|else|when)\s*/);
+            if (match || startingClassOrMethod || startingDoBlock || startingConditional) {
+                indent += tab;
+            }
+        }
+
+        return indent;
+    };
+
+    this.checkOutdent = function(state, line, input) {
+        return /^\s+(end|else)$/.test(line + input) || this.$outdent.checkOutdent(line, input);
+    };
+
+    this.autoOutdent = function(state, session, row) {
+        var line = session.getLine(row);
+        if (/}/.test(line))
+            return this.$outdent.autoOutdent(session, row);
+        var indent = this.$getIndent(line);
+        var prevLine = session.getLine(row - 1);
+        var prevIndent = this.$getIndent(prevLine);
+        var tab = session.getTabString();
+        if (prevIndent.length <= indent.length) {
+            if (indent.slice(-tab.length) == tab)
+                session.remove(new Range(row, indent.length-tab.length, row, indent.length));
+        }
+    };
+
+    this.$id = "ace/mode/ruby";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+
+define("ace/mode/slim",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/slim_highlight_rules","ace/mode/javascript","ace/mode/markdown","ace/mode/coffee","ace/mode/scss","ace/mode/sass","ace/mode/less","ace/mode/ruby","ace/mode/css"], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var TextMode = require("./text").Mode;
+var SlimHighlightRules = require("./slim_highlight_rules").SlimHighlightRules;
+
+var Mode = function() {
+    TextMode.call(this);
+    this.HighlightRules = SlimHighlightRules;
+    this.createModeDelegates({
+        javascript: require("./javascript").Mode,
+        markdown: require("./markdown").Mode,
+        coffee: require("./coffee").Mode,
+        scss: require("./scss").Mode,
+        sass: require("./sass").Mode,
+        less: require("./less").Mode,
+        ruby: require("./ruby").Mode,
+        css: require("./css").Mode
+    });
+};
+
+oop.inherits(Mode, TextMode);
+
+(function() {
+
+    this.$id = "ace/mode/slim";
+}).call(Mode.prototype);
+
+exports.Mode = Mode;
+});
+                (function() {
+                    window.require(["ace/mode/slim"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
