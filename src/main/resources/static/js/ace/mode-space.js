@@ -91,4 +91,78 @@ define("ace/mode/space_highlight_rules",["require","exports","module","ace/lib/o
 var oop = require("../lib/oop");
 var TextHighlightRules = require("./text_highlight_rules").TextHighlightRules;
 
-var SpaceHighligh
+var SpaceHighlightRules = function() {
+    this.$rules = {
+        "start" : [
+            {
+                token : "empty_line",
+                regex : / */,
+                next : "key"
+            },
+            {
+                token : "empty_line",
+                regex : /$/,
+                next : "key"
+            }
+        ],
+        "key" : [
+            {
+                token : "variable",
+                regex : /\S+/
+            },
+            {
+                token : "empty_line",
+                regex : /$/,
+                next : "start"
+            },{
+                token : "keyword.operator",
+                regex : / /,
+                next  : "value"
+            }
+        ],
+        "value" : [
+            {
+                token : "keyword.operator",
+                regex : /$/,
+                next  : "start"
+            },
+            {
+                token : "string",
+                regex : /[^$]/
+            }
+        ]
+    };
+    
+};
+
+oop.inherits(SpaceHighlightRules, TextHighlightRules);
+
+exports.SpaceHighlightRules = SpaceHighlightRules;
+});
+
+define("ace/mode/space",["require","exports","module","ace/lib/oop","ace/mode/text","ace/mode/folding/coffee","ace/mode/space_highlight_rules"], function(require, exports, module) {
+"use strict";
+var oop = require("../lib/oop");
+var TextMode = require("./text").Mode;
+var FoldMode = require("./folding/coffee").FoldMode;
+var SpaceHighlightRules = require("./space_highlight_rules").SpaceHighlightRules;
+var Mode = function() {
+    this.HighlightRules = SpaceHighlightRules;
+    this.foldingRules = new FoldMode();
+    this.$behaviour = this.$defaultBehaviour;
+};
+oop.inherits(Mode, TextMode);
+(function() {
+    
+    this.$id = "ace/mode/space";
+}).call(Mode.prototype);
+exports.Mode = Mode;
+});
+                (function() {
+                    window.require(["ace/mode/space"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
