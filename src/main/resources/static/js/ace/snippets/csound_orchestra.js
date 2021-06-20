@@ -35,4 +35,28 @@ snippet kwhile\n\
 	od\n\
 # opcode\n\
 snippet opcode\n\
-	opcode ${1:na
+	opcode ${1:name}, ${2:/* output types */ 0}, ${3:/* input types */ 0}\n\
+		${4:/* statements */}\n\
+	endop\n\
+# until loop\n\
+snippet until\n\
+	until ${1:/* condition */} do\n\
+		${2:/* statements */}\n\
+	od\n\
+# while loop\n\
+snippet while\n\
+	while ${1:/* condition */} do\n\
+		${2:/* statements */}\n\
+	od\n\
+";
+exports.scope = "csound_orchestra";
+
+});
+                (function() {
+                    window.require(["ace/snippets/csound_orchestra"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
