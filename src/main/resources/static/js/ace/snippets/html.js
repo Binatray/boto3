@@ -640,4 +640,231 @@ snippet nav#\n\
 		${2}\n\
 	</nav>\n\
 snippet noscript\n\
-	<no
+	<noscript>\n\
+		${1}\n\
+	</noscript>\n\
+snippet object\n\
+	<object data=\"${1}\" type=\"${2}\">\n\
+		${3}\n\
+	</object>${4}\n\
+# Embed QT Movie\n\
+snippet movie\n\
+	<object width=\"$2\" height=\"$3\" classid=\"clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B\"\n\
+	 codebase=\"http://www.apple.com/qtactivex/qtplugin.cab\">\n\
+		<param name=\"src\" value=\"$1\" />\n\
+		<param name=\"controller\" value=\"$4\" />\n\
+		<param name=\"autoplay\" value=\"$5\" />\n\
+		<embed src=\"${1:movie.mov}\"\n\
+			width=\"${2:320}\" height=\"${3:240}\"\n\
+			controller=\"${4:true}\" autoplay=\"${5:true}\"\n\
+			scale=\"tofit\" cache=\"true\"\n\
+			pluginspage=\"http://www.apple.com/quicktime/download/\" />\n\
+	</object>${6}\n\
+snippet ol\n\
+	<ol>\n\
+		${1}\n\
+	</ol>\n\
+snippet ol.\n\
+	<ol class=\"${1}>\n\
+		${2}\n\
+	</ol>\n\
+snippet ol#\n\
+	<ol id=\"${1}>\n\
+		${2}\n\
+	</ol>\n\
+snippet ol+\n\
+	<ol>\n\
+		<li>${1}</li>\n\
+		li+${2}\n\
+	</ol>\n\
+snippet opt\n\
+	<option value=\"${1}\">${2:$1}</option>\n\
+snippet opt+\n\
+	<option value=\"${1}\">${2:$1}</option>\n\
+	opt+${3}\n\
+snippet optt\n\
+	<option>${1}</option>\n\
+snippet optgroup\n\
+	<optgroup>\n\
+		<option value=\"${1}\">${2:$1}</option>\n\
+		opt+${3}\n\
+	</optgroup>\n\
+snippet output\n\
+	<output>${1}</output>\n\
+snippet p\n\
+	<p>${1}</p>\n\
+snippet param\n\
+	<param name=\"${1}\" value=\"${2}\" />${3}\n\
+snippet pre\n\
+	<pre>\n\
+		${1}\n\
+	</pre>\n\
+snippet progress\n\
+	<progress>${1}</progress>\n\
+snippet q\n\
+	<q>${1}</q>\n\
+snippet rp\n\
+	<rp>${1}</rp>\n\
+snippet rt\n\
+	<rt>${1}</rt>\n\
+snippet ruby\n\
+	<ruby>\n\
+		<rp><rt>${1}</rt></rp>\n\
+	</ruby>\n\
+snippet s\n\
+	<s>${1}</s>\n\
+snippet samp\n\
+	<samp>\n\
+		${1}\n\
+	</samp>\n\
+snippet script\n\
+	<script type=\"text/javascript\" charset=\"utf-8\">\n\
+		${1}\n\
+	</script>\n\
+snippet scriptsrc\n\
+	<script src=\"${1}.js\" type=\"text/javascript\" charset=\"utf-8\"></script>\n\
+snippet newscript\n\
+	<script type=\"application/javascript\" charset=\"utf-8\">\n\
+		${1}\n\
+	</script>\n\
+snippet newscriptsrc\n\
+	<script src=\"${1}.js\" type=\"application/javascript\" charset=\"utf-8\"></script>\n\
+snippet section\n\
+	<section>\n\
+		${1}\n\
+	</section>\n\
+snippet section.\n\
+	<section class=\"${1}\">\n\
+		${2}\n\
+	</section>\n\
+snippet section#\n\
+	<section id=\"${1}\">\n\
+		${2}\n\
+	</section>\n\
+snippet select\n\
+	<select name=\"${1}\" id=\"${2:$1}\">\n\
+		${3}\n\
+	</select>\n\
+snippet select.\n\
+	<select name=\"${1}\" id=\"${2:$1}\" class=\"${3}>\n\
+		${4}\n\
+	</select>\n\
+snippet select+\n\
+	<select name=\"${1}\" id=\"${2:$1}\">\n\
+		<option value=\"${3}\">${4:$3}</option>\n\
+		opt+${5}\n\
+	</select>\n\
+snippet small\n\
+	<small>${1}</small>\n\
+snippet source\n\
+	<source src=\"${1}\" type=\"${2}\" media=\"${3}\" />\n\
+snippet span\n\
+	<span>${1}</span>\n\
+snippet strong\n\
+	<strong>${1}</strong>\n\
+snippet style\n\
+	<style type=\"text/css\" media=\"${1:all}\">\n\
+		${2}\n\
+	</style>\n\
+snippet sub\n\
+	<sub>${1}</sub>\n\
+snippet summary\n\
+	<summary>\n\
+		${1}\n\
+	</summary>\n\
+snippet sup\n\
+	<sup>${1}</sup>\n\
+snippet table\n\
+	<table border=\"${1:0}\">\n\
+		${2}\n\
+	</table>\n\
+snippet table.\n\
+	<table class=\"${1}\" border=\"${2:0}\">\n\
+		${3}\n\
+	</table>\n\
+snippet table#\n\
+	<table id=\"${1}\" border=\"${2:0}\">\n\
+		${3}\n\
+	</table>\n\
+snippet tbody\n\
+	<tbody>\n\
+		${1}\n\
+	</tbody>\n\
+snippet td\n\
+	<td>${1}</td>\n\
+snippet td.\n\
+	<td class=\"${1}\">${2}</td>\n\
+snippet td#\n\
+	<td id=\"${1}\">${2}</td>\n\
+snippet td+\n\
+	<td>${1}</td>\n\
+	td+${2}\n\
+snippet textarea\n\
+	<textarea name=\"${1}\" id=${2:$1} rows=\"${3:8}\" cols=\"${4:40}\">${5}</textarea>${6}\n\
+snippet tfoot\n\
+	<tfoot>\n\
+		${1}\n\
+	</tfoot>\n\
+snippet th\n\
+	<th>${1}</th>\n\
+snippet th.\n\
+	<th class=\"${1}\">${2}</th>\n\
+snippet th#\n\
+	<th id=\"${1}\">${2}</th>\n\
+snippet th+\n\
+	<th>${1}</th>\n\
+	th+${2}\n\
+snippet thead\n\
+	<thead>\n\
+		${1}\n\
+	</thead>\n\
+snippet time\n\
+	<time datetime=\"${1}\" pubdate=\"${2:$1}>${3:$1}</time>\n\
+snippet title\n\
+	<title>${1:`substitute(Filename('', 'Page Title'), '^.', '\\u&', '')`}</title>\n\
+snippet tr\n\
+	<tr>\n\
+		${1}\n\
+	</tr>\n\
+snippet tr+\n\
+	<tr>\n\
+		<td>${1}</td>\n\
+		td+${2}\n\
+	</tr>\n\
+snippet track\n\
+	<track src=\"${1}\" srclang=\"${2}\" label=\"${3}\" default=\"${4:default}>${5}</track>${6}\n\
+snippet ul\n\
+	<ul>\n\
+		${1}\n\
+	</ul>\n\
+snippet ul.\n\
+	<ul class=\"${1}\">\n\
+		${2}\n\
+	</ul>\n\
+snippet ul#\n\
+	<ul id=\"${1}\">\n\
+		${2}\n\
+	</ul>\n\
+snippet ul+\n\
+	<ul>\n\
+		<li>${1}</li>\n\
+		li+${2}\n\
+	</ul>\n\
+snippet var\n\
+	<var>${1}</var>\n\
+snippet video\n\
+	<video src=\"${1} height=\"${2}\" width=\"${3}\" preload=\"${5:none}\" autoplay=\"${6:autoplay}>${7}</video>${8}\n\
+snippet wbr\n\
+	<wbr />${1}\n\
+";
+exports.scope = "html";
+
+});
+                (function() {
+                    window.require(["ace/snippets/html"], function(m) {
+                        if (typeof module == "object" && typeof exports == "object" && module) {
+                            module.exports = m;
+                        }
+                    });
+                })();
+            
