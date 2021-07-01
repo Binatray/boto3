@@ -1,12 +1,12 @@
-define("ace/snippets/logiql",["require","exports","module"], function(require, exports, module) {
+define("ace/snippets/mask",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 exports.snippetText =undefined;
-exports.scope = "logiql";
+exports.scope = "mask";
 
 });
                 (function() {
-                    window.require(["ace/snippets/logiql"], function(m) {
+                    window.require(["ace/snippets/mask"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }
