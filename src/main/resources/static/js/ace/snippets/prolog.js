@@ -1,12 +1,13 @@
-define("ace/snippets/plain_text",["require","exports","module"], function(require, exports, module) {
+
+define("ace/snippets/prolog",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
 exports.snippetText =undefined;
-exports.scope = "plain_text";
+exports.scope = "prolog";
 
 });
                 (function() {
-                    window.require(["ace/snippets/plain_text"], function(m) {
+                    window.require(["ace/snippets/prolog"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }

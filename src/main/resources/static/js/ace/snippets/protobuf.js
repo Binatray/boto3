@@ -1,12 +1,13 @@
-define("ace/snippets/plain_text",["require","exports","module"], function(require, exports, module) {
+
+define("ace/snippets/protobuf",["require","exports","module"], function(require, exports, module) {
 "use strict";
 
-exports.snippetText =undefined;
-exports.scope = "plain_text";
+exports.snippetText = "";
+exports.scope = "protobuf";
 
 });
                 (function() {
-                    window.require(["ace/snippets/plain_text"], function(m) {
+                    window.require(["ace/snippets/protobuf"], function(m) {
                         if (typeof module == "object" && typeof exports == "object" && module) {
                             module.exports = m;
                         }
