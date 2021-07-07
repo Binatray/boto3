@@ -1,0 +1,27 @@
+
+.ace-ambiance .ace_gutter {
+  background-color: #3d3d3d;
+  background-image: linear-gradient(left, #3D3D3D, #333);
+  background-repeat: repeat-x;
+  border-right: 1px solid #4d4d4d;
+  text-shadow: 0px 1px 1px #4d4d4d;
+  color: #222;
+}
+
+.ace-ambiance .ace_gutter-layer {
+  background: repeat left top;
+}
+
+.ace-ambiance .ace_gutter-active-line {
+  background-color: #3F3F3F;
+}
+
+.ace-ambiance .ace_fold-widget {
+  text-align: center;
+}
+
+.ace-ambiance .ace_fold-widget:hover {
+  color: #777;
+}
+
+.ace-ambiance .ace_fold-widget.ace_start,
