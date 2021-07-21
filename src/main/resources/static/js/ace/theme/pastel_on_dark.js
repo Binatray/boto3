@@ -1,9 +1,10 @@
+
 /* ***** BEGIN LICENSE BLOCK *****
  * Distributed under the BSD license:
  *
  * Copyright (c) 2010, Ajax.org B.V.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     * Redistributions of source code must retain the above copyright
@@ -29,9 +30,10 @@
  * ***** END LICENSE BLOCK ***** */
 
 define(function(require, exports, module) {
-exports.isDark = false;
-exports.cssClass = "ace-dreamweaver";
-exports.cssText = require("../requirejs/text!./dreamweaver.css");
+
+exports.isDark = true;
+exports.cssClass = "ace-pastel-on-dark";
+exports.cssText = require("../requirejs/text!./pastel_on_dark.css");
 
 var dom = require("../lib/dom");
 dom.importCssString(exports.cssText, exports.cssClass);
