@@ -30,9 +30,9 @@
 
 define(function(require, exports, module) {
 
-exports.isDark = true;
-exports.cssClass = "ace-twilight";
-exports.cssText = require("../requirejs/text!./twilight.css");
+exports.isDark = false;
+exports.cssClass = "ace-xcode";
+exports.cssText = require("../requirejs/text!./xcode.css");
 
 var dom = require("../lib/dom");
 dom.importCssString(exports.cssText, exports.cssClass);
