@@ -970,4 +970,445 @@ var Document = function(textOrLines) {
         if (position.row >= length) {
             position.row = Math.max(0, length - 1);
             position.column = this.getLine(length - 1).length;
+        } else {
+            position.row = Math.max(0, position.row);
+            position.column = Math.min(Math.max(position.column, 0), this.getLine(position.row).length);
+        }
+        return position;
+    };
+    this.insertFullLines = function(row, lines) {
+        row = Math.min(Math.max(row, 0), this.getLength());
+        var column = 0;
+        if (row < this.getLength()) {
+            lines = lines.concat([""]);
+            column = 0;
+        } else {
+            lines = [""].concat(lines);
+            row--;
+            column = this.$lines[row].length;
+        }
+        this.insertMergedLines({row: row, column: column}, lines);
+    };    
+    this.insertMergedLines = function(position, lines) {
+        var start = this.clippedPos(position.row, position.column);
+        var end = {
+            row: start.row + lines.length - 1,
+            column: (lines.length == 1 ? start.column : 0) + lines[lines.length - 1].length
+        };
         
+        this.applyDelta({
+            start: start,
+            end: end,
+            action: "insert",
+            lines: lines
+        });
+        
+        return this.clonePos(end);
+    };
+    this.remove = function(range) {
+        var start = this.clippedPos(range.start.row, range.start.column);
+        var end = this.clippedPos(range.end.row, range.end.column);
+        this.applyDelta({
+            start: start,
+            end: end,
+            action: "remove",
+            lines: this.getLinesForRange({start: start, end: end})
+        });
+        return this.clonePos(start);
+    };
+    this.removeInLine = function(row, startColumn, endColumn) {
+        var start = this.clippedPos(row, startColumn);
+        var end = this.clippedPos(row, endColumn);
+        
+        this.applyDelta({
+            start: start,
+            end: end,
+            action: "remove",
+            lines: this.getLinesForRange({start: start, end: end})
+        }, true);
+        
+        return this.clonePos(start);
+    };
+    this.removeFullLines = function(firstRow, lastRow) {
+        firstRow = Math.min(Math.max(0, firstRow), this.getLength() - 1);
+        lastRow  = Math.min(Math.max(0, lastRow ), this.getLength() - 1);
+        var deleteFirstNewLine = lastRow == this.getLength() - 1 && firstRow > 0;
+        var deleteLastNewLine  = lastRow  < this.getLength() - 1;
+        var startRow = ( deleteFirstNewLine ? firstRow - 1                  : firstRow                    );
+        var startCol = ( deleteFirstNewLine ? this.getLine(startRow).length : 0                           );
+        var endRow   = ( deleteLastNewLine  ? lastRow + 1                   : lastRow                     );
+        var endCol   = ( deleteLastNewLine  ? 0                             : this.getLine(endRow).length ); 
+        var range = new Range(startRow, startCol, endRow, endCol);
+        var deletedLines = this.$lines.slice(firstRow, lastRow + 1);
+        
+        this.applyDelta({
+            start: range.start,
+            end: range.end,
+            action: "remove",
+            lines: this.getLinesForRange(range)
+        });
+        return deletedLines;
+    };
+    this.removeNewLine = function(row) {
+        if (row < this.getLength() - 1 && row >= 0) {
+            this.applyDelta({
+                start: this.pos(row, this.getLine(row).length),
+                end: this.pos(row + 1, 0),
+                action: "remove",
+                lines: ["", ""]
+            });
+        }
+    };
+    this.replace = function(range, text) {
+        if (!(range instanceof Range))
+            range = Range.fromPoints(range.start, range.end);
+        if (text.length === 0 && range.isEmpty())
+            return range.start;
+        if (text == this.getTextRange(range))
+            return range.end;
+
+        this.remove(range);
+        var end;
+        if (text) {
+            end = this.insert(range.start, text);
+        }
+        else {
+            end = range.start;
+        }
+        
+        return end;
+    };
+    this.applyDeltas = function(deltas) {
+        for (var i=0; i<deltas.length; i++) {
+            this.applyDelta(deltas[i]);
+        }
+    };
+    this.revertDeltas = function(deltas) {
+        for (var i=deltas.length-1; i>=0; i--) {
+            this.revertDelta(deltas[i]);
+        }
+    };
+    this.applyDelta = function(delta, doNotValidate) {
+        var isInsert = delta.action == "insert";
+        if (isInsert ? delta.lines.length <= 1 && !delta.lines[0]
+            : !Range.comparePoints(delta.start, delta.end)) {
+            return;
+        }
+        
+        if (isInsert && delta.lines.length > 20000) {
+            this.$splitAndapplyLargeDelta(delta, 20000);
+        }
+        else {
+            applyDelta(this.$lines, delta, doNotValidate);
+            this._signal("change", delta);
+        }
+    };
+    
+    this.$splitAndapplyLargeDelta = function(delta, MAX) {
+        var lines = delta.lines;
+        var l = lines.length - MAX + 1;
+        var row = delta.start.row; 
+        var column = delta.start.column;
+        for (var from = 0, to = 0; from < l; from = to) {
+            to += MAX - 1;
+            var chunk = lines.slice(from, to);
+            chunk.push("");
+            this.applyDelta({
+                start: this.pos(row + from, column),
+                end: this.pos(row + to, column = 0),
+                action: delta.action,
+                lines: chunk
+            }, true);
+        }
+        delta.lines = lines.slice(from);
+        delta.start.row = row + from;
+        delta.start.column = column;
+        this.applyDelta(delta, true);
+    };
+    this.revertDelta = function(delta) {
+        this.applyDelta({
+            start: this.clonePos(delta.start),
+            end: this.clonePos(delta.end),
+            action: (delta.action == "insert" ? "remove" : "insert"),
+            lines: delta.lines.slice()
+        });
+    };
+    this.indexToPosition = function(index, startRow) {
+        var lines = this.$lines || this.getAllLines();
+        var newlineLength = this.getNewLineCharacter().length;
+        for (var i = startRow || 0, l = lines.length; i < l; i++) {
+            index -= lines[i].length + newlineLength;
+            if (index < 0)
+                return {row: i, column: index + lines[i].length + newlineLength};
+        }
+        return {row: l-1, column: index + lines[l-1].length + newlineLength};
+    };
+    this.positionToIndex = function(pos, startRow) {
+        var lines = this.$lines || this.getAllLines();
+        var newlineLength = this.getNewLineCharacter().length;
+        var index = 0;
+        var row = Math.min(pos.row, lines.length);
+        for (var i = startRow || 0; i < row; ++i)
+            index += lines[i].length + newlineLength;
+
+        return index + pos.column;
+    };
+
+}).call(Document.prototype);
+
+exports.Document = Document;
+});
+
+define("ace/lib/lang",[], function(require, exports, module) {
+"use strict";
+
+exports.last = function(a) {
+    return a[a.length - 1];
+};
+
+exports.stringReverse = function(string) {
+    return string.split("").reverse().join("");
+};
+
+exports.stringRepeat = function (string, count) {
+    var result = '';
+    while (count > 0) {
+        if (count & 1)
+            result += string;
+
+        if (count >>= 1)
+            string += string;
+    }
+    return result;
+};
+
+var trimBeginRegexp = /^\s\s*/;
+var trimEndRegexp = /\s\s*$/;
+
+exports.stringTrimLeft = function (string) {
+    return string.replace(trimBeginRegexp, '');
+};
+
+exports.stringTrimRight = function (string) {
+    return string.replace(trimEndRegexp, '');
+};
+
+exports.copyObject = function(obj) {
+    var copy = {};
+    for (var key in obj) {
+        copy[key] = obj[key];
+    }
+    return copy;
+};
+
+exports.copyArray = function(array){
+    var copy = [];
+    for (var i=0, l=array.length; i<l; i++) {
+        if (array[i] && typeof array[i] == "object")
+            copy[i] = this.copyObject(array[i]);
+        else 
+            copy[i] = array[i];
+    }
+    return copy;
+};
+
+exports.deepCopy = function deepCopy(obj) {
+    if (typeof obj !== "object" || !obj)
+        return obj;
+    var copy;
+    if (Array.isArray(obj)) {
+        copy = [];
+        for (var key = 0; key < obj.length; key++) {
+            copy[key] = deepCopy(obj[key]);
+        }
+        return copy;
+    }
+    if (Object.prototype.toString.call(obj) !== "[object Object]")
+        return obj;
+    
+    copy = {};
+    for (var key in obj)
+        copy[key] = deepCopy(obj[key]);
+    return copy;
+};
+
+exports.arrayToMap = function(arr) {
+    var map = {};
+    for (var i=0; i<arr.length; i++) {
+        map[arr[i]] = 1;
+    }
+    return map;
+
+};
+
+exports.createMap = function(props) {
+    var map = Object.create(null);
+    for (var i in props) {
+        map[i] = props[i];
+    }
+    return map;
+};
+exports.arrayRemove = function(array, value) {
+  for (var i = 0; i <= array.length; i++) {
+    if (value === array[i]) {
+      array.splice(i, 1);
+    }
+  }
+};
+
+exports.escapeRegExp = function(str) {
+    return str.replace(/([.*+?^${}()|[\]\/\\])/g, '\\$1');
+};
+
+exports.escapeHTML = function(str) {
+    return ("" + str).replace(/&/g, "&#38;").replace(/"/g, "&#34;").replace(/'/g, "&#39;").replace(/</g, "&#60;");
+};
+
+exports.getMatchOffsets = function(string, regExp) {
+    var matches = [];
+
+    string.replace(regExp, function(str) {
+        matches.push({
+            offset: arguments[arguments.length-2],
+            length: str.length
+        });
+    });
+
+    return matches;
+};
+exports.deferredCall = function(fcn) {
+    var timer = null;
+    var callback = function() {
+        timer = null;
+        fcn();
+    };
+
+    var deferred = function(timeout) {
+        deferred.cancel();
+        timer = setTimeout(callback, timeout || 0);
+        return deferred;
+    };
+
+    deferred.schedule = deferred;
+
+    deferred.call = function() {
+        this.cancel();
+        fcn();
+        return deferred;
+    };
+
+    deferred.cancel = function() {
+        clearTimeout(timer);
+        timer = null;
+        return deferred;
+    };
+    
+    deferred.isPending = function() {
+        return timer;
+    };
+
+    return deferred;
+};
+
+
+exports.delayedCall = function(fcn, defaultTimeout) {
+    var timer = null;
+    var callback = function() {
+        timer = null;
+        fcn();
+    };
+
+    var _self = function(timeout) {
+        if (timer == null)
+            timer = setTimeout(callback, timeout || defaultTimeout);
+    };
+
+    _self.delay = function(timeout) {
+        timer && clearTimeout(timer);
+        timer = setTimeout(callback, timeout || defaultTimeout);
+    };
+    _self.schedule = _self;
+
+    _self.call = function() {
+        this.cancel();
+        fcn();
+    };
+
+    _self.cancel = function() {
+        timer && clearTimeout(timer);
+        timer = null;
+    };
+
+    _self.isPending = function() {
+        return timer;
+    };
+
+    return _self;
+};
+});
+
+define("ace/worker/mirror",[], function(require, exports, module) {
+"use strict";
+
+var Range = require("../range").Range;
+var Document = require("../document").Document;
+var lang = require("../lib/lang");
+    
+var Mirror = exports.Mirror = function(sender) {
+    this.sender = sender;
+    var doc = this.doc = new Document("");
+    
+    var deferredUpdate = this.deferredUpdate = lang.delayedCall(this.onUpdate.bind(this));
+    
+    var _self = this;
+    sender.on("change", function(e) {
+        var data = e.data;
+        if (data[0].start) {
+            doc.applyDeltas(data);
+        } else {
+            for (var i = 0; i < data.length; i += 2) {
+                if (Array.isArray(data[i+1])) {
+                    var d = {action: "insert", start: data[i], lines: data[i+1]};
+                } else {
+                    var d = {action: "remove", start: data[i], end: data[i+1]};
+                }
+                doc.applyDelta(d, true);
+            }
+        }
+        if (_self.$timeout)
+            return deferredUpdate.schedule(_self.$timeout);
+        _self.onUpdate();
+    });
+};
+
+(function() {
+    
+    this.$timeout = 500;
+    
+    this.setTimeout = function(timeout) {
+        this.$timeout = timeout;
+    };
+    
+    this.setValue = function(value) {
+        this.doc.setValue(value);
+        this.deferredUpdate.schedule(this.$timeout);
+    };
+    
+    this.getValue = function(callbackId) {
+        this.sender.callback(this.doc.getValue(), callbackId);
+    };
+    
+    this.onUpdate = function() {
+    };
+    
+    this.isPending = function() {
+        return this.deferredUpdate.isPending();
+    };
+    
+}).call(Mirror.prototype);
+
+});
+
+define("ace/mode/coffee/coffee",[], function(require, exports, module) {
+function define(f) { module.exports = f() }; define.amd = {};
+var _typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},_get=function e(a,t,o){null===a&&(a=Function.prototype);var n=Object.getOwnPropertyDescriptor(a,t);if(n===void 0){var r=Object.getPrototypeOf(a);return null===r?void 0:e(r,t,o)}if("value"in n)return n.value;var l=n.get;return void 0===l?void 0:l.call(o)},_slicedToArray=function(){function e(e,a){var t=[],o=!0,n=!1,r=void 0;try{for(var l=e[Symbol.iterator](),s;!(o=(s=l.next()).done)&&(t.push(s.value),!(a&&t.length===a));o=!0);}catch(e){n=!0,r=e}finally{try{!o&&l["return"]&&l["return"]()}finally{if(n)throw r}}return t}return function(a,t){if(Array.isArray(a))return a;if(Symbol.iterator in Object(a))return e(a,t);throw new TypeError("Invalid attempt to destructure non-iterable instance")}}(),_createClass=function(){function e(e,a){for(var t=0,o;t<a.length;t++)o=a[t],o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}return function(a,t,o){return t&&e(a.prototype,t),o&&e(a,o),a}}();function _toArray(e){return Array.isArray(e)?e:Array.from(e)}function _possibleConstructorReturn(e,a){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return a&&("object"==typeof a||"function"==typeof a)?a:e}function _inherits(e,a){if("function"!=typeof a&&null!==a)throw new TypeError("Super expression must either be null or a function, not "+typeof a);e.prototype=Object.create(a&&a.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),a&&(Object.setPrototypeOf?Object.setPrototypeOf(e,a):e.__proto__=a)}function _classCallCheck(e,a){if(!(e instanceof a))throw new TypeError("Cannot call a class as a function")}function _toConsumableArray(e){if(Array.isArray(e)){for(var a=0,t=Array(e.length);a<e.length;a++)t[a]=e[a];return t}return Array.from(e)}(function(root){var CoffeeScript=function(){function require(e){return require[e]}var _Mathabs=Math.abs,_StringfromCharCode=String.fromCharCode,_Mathfloor=Math.floor;return require["../../package.json"]=function(){return{name:"coffeescript",description:"Unfancy JavaScript",keywords:["javascript","language","coffeescript","compiler"],author:"Jeremy Ashkenas",version:"2.2.1",license:"MIT",engines:{node:">=6"},directories:{lib:"./lib/coffeescript"},main:"./lib/coffeescript/index",browser:"./lib/coffeescript/browser",bin:{coffee:"./bin/coffee",cake:"./bin/cake"},files:["bin","lib","register.js","repl.js"],scripts:{test:"node ./bin/cake test","test-harmony":"node --harmony ./bin/cake test"},homepage:"http://coffeescript.org",bugs:"https://github.com/jashkenas/coffeescript/issues",repository:{type:"git",url:"git://github.com/jashkenas/coffeescript.git"},devDependencies:{"babel-core":"~6.26.0","babel-preset-babili":"~0.1.4","babel-preset-env":"~1.6.1","babel-preset-minify":"^0.3.0",codemirror:"^5.32.0",docco:"~0.8.0","highlight.js":"~9.12.0",jison:">=0.4.18","markdown-it":"~8.4.0",underscore:"~1.8.3",webpack:"~3.10.0"},dependencies:{}}}(),require["./helpers"]=function(){var e={};return function(){var a,t,o,n,r,l,s,i;e.starts=function(e,a,t){return a===e.substr(t,a.length)},e.ends=function(e,a,t){var o;return o=a.length,a===e.substr(e.length-o-(t||0),o)},e.repeat=s=function(e,a){var t;for(t="";0<a;)1&a&&(t+=e),a>>>=1,e+=e;return t},e.compact=function(e){var a,t,o,n;for(n=[],a=0,o=e.length;a<o;a++)t=e[a],t&&n.push(t);return n},e.count=function(e,a){var t,o;if(t=o=0,!a.length)return 1/0;for(;o=1+e.indexOf(a,o);)t++;return t},e.merge=function(e,a){return n(n({},e),a)},n=e.extend=function(e,a){var t,o;for(t in a)o=a[t],e[t]=o;return e},e.flatten=r=function flatten(e){var a,t,o,n;for(t=[],o=0,n=e.length;o<n;o++)a=e[o],"[object Array]"===Object.prototype.toString.call(a)?t=t.concat(r(a)):t.push(a);return t},e.del=function(e,a){var t;return t=e[a],delete e[a],t},e.some=null==(l=Array.p
