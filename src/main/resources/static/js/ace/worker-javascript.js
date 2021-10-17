@@ -7559,3 +7559,4974 @@ var JSHINT = (function() {
       }
       if (bracketStack === 0 && checkPunctuators(pn, ["}", "]"])) {
         if (pn1.value === "=") {
+          ret.isDestAssign = true;
+          ret.notJson = true;
+          break;
+        } else if (pn1.value === ".") {
+          ret.notJson = true;
+          break;
+        }
+      }
+      if (checkPunctuator(pn, ";")) {
+        ret.isBlock = true;
+        ret.notJson = true;
+      }
+    } while (bracketStack > 0 && pn.id !== "(end)");
+    return ret;
+  };
+
+  function saveProperty(props, name, tkn, isClass, isStatic) {
+    var msg = ["key", "class method", "static class method"];
+    msg = msg[(isClass || false) + (isStatic || false)];
+    if (tkn.identifier) {
+      name = tkn.value;
+    }
+
+    if (props[name] && name !== "__proto__") {
+      warning("W075", state.tokens.next, msg, name);
+    } else {
+      props[name] = Object.create(null);
+    }
+
+    props[name].basic = true;
+    props[name].basictkn = tkn;
+  }
+  function saveAccessor(accessorType, props, name, tkn, isClass, isStatic) {
+    var flagName = accessorType === "get" ? "getterToken" : "setterToken";
+    var msg = "";
+
+    if (isClass) {
+      if (isStatic) {
+        msg += "static ";
+      }
+      msg += accessorType + "ter method";
+    } else {
+      msg = "key";
+    }
+
+    state.tokens.curr.accessorType = accessorType;
+    state.nameStack.set(tkn);
+
+    if (props[name]) {
+      if ((props[name].basic || props[name][flagName]) && name !== "__proto__") {
+        warning("W075", state.tokens.next, msg, name);
+      }
+    } else {
+      props[name] = Object.create(null);
+    }
+
+    props[name][flagName] = tkn;
+  }
+
+  function computedPropertyName() {
+    advance("[");
+    if (!state.inES6()) {
+      warning("W119", state.tokens.curr, "computed property names", "6");
+    }
+    var value = expression(10);
+    advance("]");
+    return value;
+  }
+  function checkPunctuators(token, values) {
+    if (token.type === "(punctuator)") {
+      return _.contains(values, token.value);
+    }
+    return false;
+  }
+  function checkPunctuator(token, value) {
+    return token.type === "(punctuator)" && token.value === value;
+  }
+  function destructuringAssignOrJsonValue() {
+
+    var block = lookupBlockType();
+    if (block.notJson) {
+      if (!state.inES6() && block.isDestAssign) {
+        warning("W104", state.tokens.curr, "destructuring assignment", "6");
+      }
+      statements();
+    } else {
+      state.option.laxbreak = true;
+      state.jsonMode = true;
+      jsonValue();
+    }
+  }
+
+  var arrayComprehension = function() {
+    var CompArray = function() {
+      this.mode = "use";
+      this.variables = [];
+    };
+    var _carrays = [];
+    var _current;
+    function declare(v) {
+      var l = _current.variables.filter(function(elt) {
+        if (elt.value === v) {
+          elt.undef = false;
+          return v;
+        }
+      }).length;
+      return l !== 0;
+    }
+    function use(v) {
+      var l = _current.variables.filter(function(elt) {
+        if (elt.value === v && !elt.undef) {
+          if (elt.unused === true) {
+            elt.unused = false;
+          }
+          return v;
+        }
+      }).length;
+      return (l === 0);
+    }
+    return { stack: function() {
+          _current = new CompArray();
+          _carrays.push(_current);
+        },
+        unstack: function() {
+          _current.variables.filter(function(v) {
+            if (v.unused)
+              warning("W098", v.token, v.raw_text || v.value);
+            if (v.undef)
+              state.funct["(scope)"].block.use(v.value, v.token);
+          });
+          _carrays.splice(-1, 1);
+          _current = _carrays[_carrays.length - 1];
+        },
+        setState: function(s) {
+          if (_.contains(["use", "define", "generate", "filter"], s))
+            _current.mode = s;
+        },
+        check: function(v) {
+          if (!_current) {
+            return;
+          }
+          if (_current && _current.mode === "use") {
+            if (use(v)) {
+              _current.variables.push({
+                funct: state.funct,
+                token: state.tokens.curr,
+                value: v,
+                undef: true,
+                unused: false
+              });
+            }
+            return true;
+          } else if (_current && _current.mode === "define") {
+            if (!declare(v)) {
+              _current.variables.push({
+                funct: state.funct,
+                token: state.tokens.curr,
+                value: v,
+                undef: false,
+                unused: true
+              });
+            }
+            return true;
+          } else if (_current && _current.mode === "generate") {
+            state.funct["(scope)"].block.use(v, state.tokens.curr);
+            return true;
+          } else if (_current && _current.mode === "filter") {
+            if (use(v)) {
+              state.funct["(scope)"].block.use(v, state.tokens.curr);
+            }
+            return true;
+          }
+          return false;
+        }
+        };
+  };
+
+  function jsonValue() {
+    function jsonObject() {
+      var o = {}, t = state.tokens.next;
+      advance("{");
+      if (state.tokens.next.id !== "}") {
+        for (;;) {
+          if (state.tokens.next.id === "(end)") {
+            error("E026", state.tokens.next, t.line);
+          } else if (state.tokens.next.id === "}") {
+            warning("W094", state.tokens.curr);
+            break;
+          } else if (state.tokens.next.id === ",") {
+            error("E028", state.tokens.next);
+          } else if (state.tokens.next.id !== "(string)") {
+            warning("W095", state.tokens.next, state.tokens.next.value);
+          }
+          if (o[state.tokens.next.value] === true) {
+            warning("W075", state.tokens.next, "key", state.tokens.next.value);
+          } else if ((state.tokens.next.value === "__proto__" &&
+            !state.option.proto) || (state.tokens.next.value === "__iterator__" &&
+            !state.option.iterator)) {
+            warning("W096", state.tokens.next, state.tokens.next.value);
+          } else {
+            o[state.tokens.next.value] = true;
+          }
+          advance();
+          advance(":");
+          jsonValue();
+          if (state.tokens.next.id !== ",") {
+            break;
+          }
+          advance(",");
+        }
+      }
+      advance("}");
+    }
+
+    function jsonArray() {
+      var t = state.tokens.next;
+      advance("[");
+      if (state.tokens.next.id !== "]") {
+        for (;;) {
+          if (state.tokens.next.id === "(end)") {
+            error("E027", state.tokens.next, t.line);
+          } else if (state.tokens.next.id === "]") {
+            warning("W094", state.tokens.curr);
+            break;
+          } else if (state.tokens.next.id === ",") {
+            error("E028", state.tokens.next);
+          }
+          jsonValue();
+          if (state.tokens.next.id !== ",") {
+            break;
+          }
+          advance(",");
+        }
+      }
+      advance("]");
+    }
+
+    switch (state.tokens.next.id) {
+    case "{":
+      jsonObject();
+      break;
+    case "[":
+      jsonArray();
+      break;
+    case "true":
+    case "false":
+    case "null":
+    case "(number)":
+    case "(string)":
+      advance();
+      break;
+    case "-":
+      advance("-");
+      advance("(number)");
+      break;
+    default:
+      error("E003", state.tokens.next);
+    }
+  }
+
+  var escapeRegex = function(str) {
+    return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+  };
+  var itself = function(s, o, g) {
+    var i, k, x, reIgnoreStr, reIgnore;
+    var optionKeys;
+    var newOptionObj = {};
+    var newIgnoredObj = {};
+
+    o = _.clone(o);
+    state.reset();
+
+    if (o && o.scope) {
+      JSHINT.scope = o.scope;
+    } else {
+      JSHINT.errors = [];
+      JSHINT.undefs = [];
+      JSHINT.internals = [];
+      JSHINT.blacklist = {};
+      JSHINT.scope = "(main)";
+    }
+
+    predefined = Object.create(null);
+    combine(predefined, vars.ecmaIdentifiers[3]);
+    combine(predefined, vars.reservedVars);
+
+    combine(predefined, g || {});
+
+    declared = Object.create(null);
+    var exported = Object.create(null); // Variables that live outside the current file
+
+    function each(obj, cb) {
+      if (!obj)
+        return;
+
+      if (!Array.isArray(obj) && typeof obj === "object")
+        obj = Object.keys(obj);
+
+      obj.forEach(cb);
+    }
+
+    if (o) {
+      each(o.predef || null, function(item) {
+        var slice, prop;
+
+        if (item[0] === "-") {
+          slice = item.slice(1);
+          JSHINT.blacklist[slice] = slice;
+          delete predefined[slice];
+        } else {
+          prop = Object.getOwnPropertyDescriptor(o.predef, item);
+          predefined[item] = prop ? prop.value : false;
+        }
+      });
+
+      each(o.exported || null, function(item) {
+        exported[item] = true;
+      });
+
+      delete o.predef;
+      delete o.exported;
+
+      optionKeys = Object.keys(o);
+      for (x = 0; x < optionKeys.length; x++) {
+        if (/^-W\d{3}$/g.test(optionKeys[x])) {
+          newIgnoredObj[optionKeys[x].slice(1)] = true;
+        } else {
+          var optionKey = optionKeys[x];
+          newOptionObj[optionKey] = o[optionKey];
+          if ((optionKey === "esversion" && o[optionKey] === 5) ||
+              (optionKey === "es5" && o[optionKey])) {
+            warning("I003");
+          }
+
+          if (optionKeys[x] === "newcap" && o[optionKey] === false)
+            newOptionObj["(explicitNewcap)"] = true;
+        }
+      }
+    }
+
+    state.option = newOptionObj;
+    state.ignored = newIgnoredObj;
+
+    state.option.indent = state.option.indent || 4;
+    state.option.maxerr = state.option.maxerr || 50;
+
+    indent = 1;
+
+    var scopeManagerInst = scopeManager(state, predefined, exported, declared);
+    scopeManagerInst.on("warning", function(ev) {
+      warning.apply(null, [ ev.code, ev.token].concat(ev.data));
+    });
+
+    scopeManagerInst.on("error", function(ev) {
+      error.apply(null, [ ev.code, ev.token ].concat(ev.data));
+    });
+
+    state.funct = functor("(global)", null, {
+      "(global)"    : true,
+      "(scope)"     : scopeManagerInst,
+      "(comparray)" : arrayComprehension(),
+      "(metrics)"   : createMetrics(state.tokens.next)
+    });
+
+    functions = [state.funct];
+    urls = [];
+    stack = null;
+    member = {};
+    membersOnly = null;
+    inblock = false;
+    lookahead = [];
+
+    if (!isString(s) && !Array.isArray(s)) {
+      errorAt("E004", 0);
+      return false;
+    }
+
+    api = {
+      get isJSON() {
+        return state.jsonMode;
+      },
+
+      getOption: function(name) {
+        return state.option[name] || null;
+      },
+
+      getCache: function(name) {
+        return state.cache[name];
+      },
+
+      setCache: function(name, value) {
+        state.cache[name] = value;
+      },
+
+      warn: function(code, data) {
+        warningAt.apply(null, [ code, data.line, data.char ].concat(data.data));
+      },
+
+      on: function(names, listener) {
+        names.split(" ").forEach(function(name) {
+          emitter.on(name, listener);
+        }.bind(this));
+      }
+    };
+
+    emitter.removeAllListeners();
+    (extraModules || []).forEach(function(func) {
+      func(api);
+    });
+
+    state.tokens.prev = state.tokens.curr = state.tokens.next = state.syntax["(begin)"];
+
+    if (o && o.ignoreDelimiters) {
+
+      if (!Array.isArray(o.ignoreDelimiters)) {
+        o.ignoreDelimiters = [o.ignoreDelimiters];
+      }
+
+      o.ignoreDelimiters.forEach(function(delimiterPair) {
+        if (!delimiterPair.start || !delimiterPair.end)
+            return;
+
+        reIgnoreStr = escapeRegex(delimiterPair.start) +
+                      "[\\s\\S]*?" +
+                      escapeRegex(delimiterPair.end);
+
+        reIgnore = new RegExp(reIgnoreStr, "ig");
+
+        s = s.replace(reIgnore, function(match) {
+          return match.replace(/./g, " ");
+        });
+      });
+    }
+
+    lex = new Lexer(s);
+
+    lex.on("warning", function(ev) {
+      warningAt.apply(null, [ ev.code, ev.line, ev.character].concat(ev.data));
+    });
+
+    lex.on("error", function(ev) {
+      errorAt.apply(null, [ ev.code, ev.line, ev.character ].concat(ev.data));
+    });
+
+    lex.on("fatal", function(ev) {
+      quit("E041", ev.line, ev.from);
+    });
+
+    lex.on("Identifier", function(ev) {
+      emitter.emit("Identifier", ev);
+    });
+
+    lex.on("String", function(ev) {
+      emitter.emit("String", ev);
+    });
+
+    lex.on("Number", function(ev) {
+      emitter.emit("Number", ev);
+    });
+
+    lex.start();
+    for (var name in o) {
+      if (_.has(o, name)) {
+        checkOption(name, state.tokens.curr);
+      }
+    }
+
+    assume();
+    combine(predefined, g || {});
+    comma.first = true;
+
+    try {
+      advance();
+      switch (state.tokens.next.id) {
+      case "{":
+      case "[":
+        destructuringAssignOrJsonValue();
+        break;
+      default:
+        directives();
+
+        if (state.directive["use strict"]) {
+          if (state.option.strict !== "global") {
+            warning("W097", state.tokens.prev);
+          }
+        }
+
+        statements();
+      }
+
+      if (state.tokens.next.id !== "(end)") {
+        quit("E041", state.tokens.curr.line);
+      }
+
+      state.funct["(scope)"].unstack();
+
+    } catch (err) {
+      if (err && err.name === "JSHintError") {
+        var nt = state.tokens.next || {};
+        JSHINT.errors.push({
+          scope     : "(main)",
+          raw       : err.raw,
+          code      : err.code,
+          reason    : err.message,
+          line      : err.line || nt.line,
+          character : err.character || nt.from
+        }, null);
+      } else {
+        throw err;
+      }
+    }
+
+    if (JSHINT.scope === "(main)") {
+      o = o || {};
+
+      for (i = 0; i < JSHINT.internals.length; i += 1) {
+        k = JSHINT.internals[i];
+        o.scope = k.elem;
+        itself(k.value, o, g);
+      }
+    }
+
+    return JSHINT.errors.length === 0;
+  };
+  itself.addModule = function(func) {
+    extraModules.push(func);
+  };
+
+  itself.addModule(style.register);
+  itself.data = function() {
+    var data = {
+      functions: [],
+      options: state.option
+    };
+
+    var fu, f, i, j, n, globals;
+
+    if (itself.errors.length) {
+      data.errors = itself.errors;
+    }
+
+    if (state.jsonMode) {
+      data.json = true;
+    }
+
+    var impliedGlobals = state.funct["(scope)"].getImpliedGlobals();
+    if (impliedGlobals.length > 0) {
+      data.implieds = impliedGlobals;
+    }
+
+    if (urls.length > 0) {
+      data.urls = urls;
+    }
+
+    globals = state.funct["(scope)"].getUsedOrDefinedGlobals();
+    if (globals.length > 0) {
+      data.globals = globals;
+    }
+
+    for (i = 1; i < functions.length; i += 1) {
+      f = functions[i];
+      fu = {};
+
+      for (j = 0; j < functionicity.length; j += 1) {
+        fu[functionicity[j]] = [];
+      }
+
+      for (j = 0; j < functionicity.length; j += 1) {
+        if (fu[functionicity[j]].length === 0) {
+          delete fu[functionicity[j]];
+        }
+      }
+
+      fu.name = f["(name)"];
+      fu.param = f["(params)"];
+      fu.line = f["(line)"];
+      fu.character = f["(character)"];
+      fu.last = f["(last)"];
+      fu.lastcharacter = f["(lastcharacter)"];
+
+      fu.metrics = {
+        complexity: f["(metrics)"].ComplexityCount,
+        parameters: f["(metrics)"].arity,
+        statements: f["(metrics)"].statementCount
+      };
+
+      data.functions.push(fu);
+    }
+
+    var unuseds = state.funct["(scope)"].getUnuseds();
+    if (unuseds.length > 0) {
+      data.unused = unuseds;
+    }
+
+    for (n in member) {
+      if (typeof member[n] === "number") {
+        data.member = member;
+        break;
+      }
+    }
+
+    return data;
+  };
+
+  itself.jshint = itself;
+
+  return itself;
+}());
+if (typeof exports === "object" && exports) {
+  exports.JSHINT = JSHINT;
+}
+
+},{"../lodash":"/node_modules/jshint/lodash.js","./lex.js":"/node_modules/jshint/src/lex.js","./messages.js":"/node_modules/jshint/src/messages.js","./options.js":"/node_modules/jshint/src/options.js","./reg.js":"/node_modules/jshint/src/reg.js","./scope-manager.js":"/node_modules/jshint/src/scope-manager.js","./state.js":"/node_modules/jshint/src/state.js","./style.js":"/node_modules/jshint/src/style.js","./vars.js":"/node_modules/jshint/src/vars.js","events":"/node_modules/browserify/node_modules/events/events.js"}],"/node_modules/jshint/src/lex.js":[function(_dereq_,module,exports){
+
+"use strict";
+
+var _      = _dereq_("../lodash");
+var events = _dereq_("events");
+var reg    = _dereq_("./reg.js");
+var state  = _dereq_("./state.js").state;
+
+var unicodeData = _dereq_("../data/ascii-identifier-data.js");
+var asciiIdentifierStartTable = unicodeData.asciiIdentifierStartTable;
+var asciiIdentifierPartTable = unicodeData.asciiIdentifierPartTable;
+
+var Token = {
+  Identifier: 1,
+  Punctuator: 2,
+  NumericLiteral: 3,
+  StringLiteral: 4,
+  Comment: 5,
+  Keyword: 6,
+  NullLiteral: 7,
+  BooleanLiteral: 8,
+  RegExp: 9,
+  TemplateHead: 10,
+  TemplateMiddle: 11,
+  TemplateTail: 12,
+  NoSubstTemplate: 13
+};
+
+var Context = {
+  Block: 1,
+  Template: 2
+};
+
+function asyncTrigger() {
+  var _checks = [];
+
+  return {
+    push: function(fn) {
+      _checks.push(fn);
+    },
+
+    check: function() {
+      for (var check = 0; check < _checks.length; ++check) {
+        _checks[check]();
+      }
+
+      _checks.splice(0, _checks.length);
+    }
+  };
+}
+function Lexer(source) {
+  var lines = source;
+
+  if (typeof lines === "string") {
+    lines = lines
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .split("\n");
+  }
+
+  if (lines[0] && lines[0].substr(0, 2) === "#!") {
+    if (lines[0].indexOf("node") !== -1) {
+      state.option.node = true;
+    }
+    lines[0] = "";
+  }
+
+  this.emitter = new events.EventEmitter();
+  this.source = source;
+  this.setLines(lines);
+  this.prereg = true;
+
+  this.line = 0;
+  this.char = 1;
+  this.from = 1;
+  this.input = "";
+  this.inComment = false;
+  this.context = [];
+  this.templateStarts = [];
+
+  for (var i = 0; i < state.option.indent; i += 1) {
+    state.tab += " ";
+  }
+  this.ignoreLinterErrors = false;
+}
+
+Lexer.prototype = {
+  _lines: [],
+
+  inContext: function(ctxType) {
+    return this.context.length > 0 && this.context[this.context.length - 1].type === ctxType;
+  },
+
+  pushContext: function(ctxType) {
+    this.context.push({ type: ctxType });
+  },
+
+  popContext: function() {
+    return this.context.pop();
+  },
+
+  isContext: function(context) {
+    return this.context.length > 0 && this.context[this.context.length - 1] === context;
+  },
+
+  currentContext: function() {
+    return this.context.length > 0 && this.context[this.context.length - 1];
+  },
+
+  getLines: function() {
+    this._lines = state.lines;
+    return this._lines;
+  },
+
+  setLines: function(val) {
+    this._lines = val;
+    state.lines = this._lines;
+  },
+  peek: function(i) {
+    return this.input.charAt(i || 0);
+  },
+  skip: function(i) {
+    i = i || 1;
+    this.char += i;
+    this.input = this.input.slice(i);
+  },
+  on: function(names, listener) {
+    names.split(" ").forEach(function(name) {
+      this.emitter.on(name, listener);
+    }.bind(this));
+  },
+  trigger: function() {
+    this.emitter.emit.apply(this.emitter, Array.prototype.slice.call(arguments));
+  },
+  triggerAsync: function(type, args, checks, fn) {
+    checks.push(function() {
+      if (fn()) {
+        this.trigger(type, args);
+      }
+    }.bind(this));
+  },
+  scanPunctuator: function() {
+    var ch1 = this.peek();
+    var ch2, ch3, ch4;
+
+    switch (ch1) {
+    case ".":
+      if ((/^[0-9]$/).test(this.peek(1))) {
+        return null;
+      }
+      if (this.peek(1) === "." && this.peek(2) === ".") {
+        return {
+          type: Token.Punctuator,
+          value: "..."
+        };
+      }
+    case "(":
+    case ")":
+    case ";":
+    case ",":
+    case "[":
+    case "]":
+    case ":":
+    case "~":
+    case "?":
+      return {
+        type: Token.Punctuator,
+        value: ch1
+      };
+    case "{":
+      this.pushContext(Context.Block);
+      return {
+        type: Token.Punctuator,
+        value: ch1
+      };
+    case "}":
+      if (this.inContext(Context.Block)) {
+        this.popContext();
+      }
+      return {
+        type: Token.Punctuator,
+        value: ch1
+      };
+    case "#":
+      return {
+        type: Token.Punctuator,
+        value: ch1
+      };
+    case "":
+      return null;
+    }
+
+    ch2 = this.peek(1);
+    ch3 = this.peek(2);
+    ch4 = this.peek(3);
+
+    if (ch1 === ">" && ch2 === ">" && ch3 === ">" && ch4 === "=") {
+      return {
+        type: Token.Punctuator,
+        value: ">>>="
+      };
+    }
+
+    if (ch1 === "=" && ch2 === "=" && ch3 === "=") {
+      return {
+        type: Token.Punctuator,
+        value: "==="
+      };
+    }
+
+    if (ch1 === "!" && ch2 === "=" && ch3 === "=") {
+      return {
+        type: Token.Punctuator,
+        value: "!=="
+      };
+    }
+
+    if (ch1 === ">" && ch2 === ">" && ch3 === ">") {
+      return {
+        type: Token.Punctuator,
+        value: ">>>"
+      };
+    }
+
+    if (ch1 === "<" && ch2 === "<" && ch3 === "=") {
+      return {
+        type: Token.Punctuator,
+        value: "<<="
+      };
+    }
+
+    if (ch1 === ">" && ch2 === ">" && ch3 === "=") {
+      return {
+        type: Token.Punctuator,
+        value: ">>="
+      };
+    }
+    if (ch1 === "=" && ch2 === ">") {
+      return {
+        type: Token.Punctuator,
+        value: ch1 + ch2
+      };
+    }
+    if (ch1 === ch2 && ("+-<>&|".indexOf(ch1) >= 0)) {
+      return {
+        type: Token.Punctuator,
+        value: ch1 + ch2
+      };
+    }
+
+    if ("<>=!+-*%&|^".indexOf(ch1) >= 0) {
+      if (ch2 === "=") {
+        return {
+          type: Token.Punctuator,
+          value: ch1 + ch2
+        };
+      }
+
+      return {
+        type: Token.Punctuator,
+        value: ch1
+      };
+    }
+
+    if (ch1 === "/") {
+      if (ch2 === "=") {
+        return {
+          type: Token.Punctuator,
+          value: "/="
+        };
+      }
+
+      return {
+        type: Token.Punctuator,
+        value: "/"
+      };
+    }
+
+    return null;
+  },
+  scanComments: function() {
+    var ch1 = this.peek();
+    var ch2 = this.peek(1);
+    var rest = this.input.substr(2);
+    var startLine = this.line;
+    var startChar = this.char;
+    var self = this;
+
+    function commentToken(label, body, opt) {
+      var special = ["jshint", "jslint", "members", "member", "globals", "global", "exported"];
+      var isSpecial = false;
+      var value = label + body;
+      var commentType = "plain";
+      opt = opt || {};
+
+      if (opt.isMultiline) {
+        value += "*/";
+      }
+
+      body = body.replace(/\n/g, " ");
+
+      if (label === "/*" && reg.fallsThrough.test(body)) {
+        isSpecial = true;
+        commentType = "falls through";
+      }
+
+      special.forEach(function(str) {
+        if (isSpecial) {
+          return;
+        }
+        if (label === "//" && str !== "jshint") {
+          return;
+        }
+
+        if (body.charAt(str.length) === " " && body.substr(0, str.length) === str) {
+          isSpecial = true;
+          label = label + str;
+          body = body.substr(str.length);
+        }
+
+        if (!isSpecial && body.charAt(0) === " " && body.charAt(str.length + 1) === " " &&
+          body.substr(1, str.length) === str) {
+          isSpecial = true;
+          label = label + " " + str;
+          body = body.substr(str.length + 1);
+        }
+
+        if (!isSpecial) {
+          return;
+        }
+
+        switch (str) {
+        case "member":
+          commentType = "members";
+          break;
+        case "global":
+          commentType = "globals";
+          break;
+        default:
+          var options = body.split(":").map(function(v) {
+            return v.replace(/^\s+/, "").replace(/\s+$/, "");
+          });
+
+          if (options.length === 2) {
+            switch (options[0]) {
+            case "ignore":
+              switch (options[1]) {
+              case "start":
+                self.ignoringLinterErrors = true;
+                isSpecial = false;
+                break;
+              case "end":
+                self.ignoringLinterErrors = false;
+                isSpecial = false;
+                break;
+              }
+            }
+          }
+
+          commentType = str;
+        }
+      });
+
+      return {
+        type: Token.Comment,
+        commentType: commentType,
+        value: value,
+        body: body,
+        isSpecial: isSpecial,
+        isMultiline: opt.isMultiline || false,
+        isMalformed: opt.isMalformed || false
+      };
+    }
+    if (ch1 === "*" && ch2 === "/") {
+      this.trigger("error", {
+        code: "E018",
+        line: startLine,
+        character: startChar
+      });
+
+      this.skip(2);
+      return null;
+    }
+    if (ch1 !== "/" || (ch2 !== "*" && ch2 !== "/")) {
+      return null;
+    }
+    if (ch2 === "/") {
+      this.skip(this.input.length); // Skip to the EOL.
+      return commentToken("//", rest);
+    }
+
+    var body = "";
+    if (ch2 === "*") {
+      this.inComment = true;
+      this.skip(2);
+
+      while (this.peek() !== "*" || this.peek(1) !== "/") {
+        if (this.peek() === "") { // End of Line
+          body += "\n";
+          if (!this.nextLine()) {
+            this.trigger("error", {
+              code: "E017",
+              line: startLine,
+              character: startChar
+            });
+
+            this.inComment = false;
+            return commentToken("/*", body, {
+              isMultiline: true,
+              isMalformed: true
+            });
+          }
+        } else {
+          body += this.peek();
+          this.skip();
+        }
+      }
+
+      this.skip(2);
+      this.inComment = false;
+      return commentToken("/*", body, { isMultiline: true });
+    }
+  },
+  scanKeyword: function() {
+    var result = /^[a-zA-Z_$][a-zA-Z0-9_$]*/.exec(this.input);
+    var keywords = [
+      "if", "in", "do", "var", "for", "new",
+      "try", "let", "this", "else", "case",
+      "void", "with", "enum", "while", "break",
+      "catch", "throw", "const", "yield", "class",
+      "super", "return", "typeof", "delete",
+      "switch", "export", "import", "default",
+      "finally", "extends", "function", "continue",
+      "debugger", "instanceof"
+    ];
+
+    if (result && keywords.indexOf(result[0]) >= 0) {
+      return {
+        type: Token.Keyword,
+        value: result[0]
+      };
+    }
+
+    return null;
+  },
+  scanIdentifier: function() {
+    var id = "";
+    var index = 0;
+    var type, char;
+
+    function isNonAsciiIdentifierStart(code) {
+      return code > 256;
+    }
+
+    function isNonAsciiIdentifierPart(code) {
+      return code > 256;
+    }
+
+    function isHexDigit(str) {
+      return (/^[0-9a-fA-F]$/).test(str);
+    }
+
+    var readUnicodeEscapeSequence = function() {
+      index += 1;
+
+      if (this.peek(index) !== "u") {
+        return null;
+      }
+
+      var ch1 = this.peek(index + 1);
+      var ch2 = this.peek(index + 2);
+      var ch3 = this.peek(index + 3);
+      var ch4 = this.peek(index + 4);
+      var code;
+
+      if (isHexDigit(ch1) && isHexDigit(ch2) && isHexDigit(ch3) && isHexDigit(ch4)) {
+        code = parseInt(ch1 + ch2 + ch3 + ch4, 16);
+
+        if (asciiIdentifierPartTable[code] || isNonAsciiIdentifierPart(code)) {
+          index += 5;
+          return "\\u" + ch1 + ch2 + ch3 + ch4;
+        }
+
+        return null;
+      }
+
+      return null;
+    }.bind(this);
+
+    var getIdentifierStart = function() {
+      var chr = this.peek(index);
+      var code = chr.charCodeAt(0);
+
+      if (code === 92) {
+        return readUnicodeEscapeSequence();
+      }
+
+      if (code < 128) {
+        if (asciiIdentifierStartTable[code]) {
+          index += 1;
+          return chr;
+        }
+
+        return null;
+      }
+
+      if (isNonAsciiIdentifierStart(code)) {
+        index += 1;
+        return chr;
+      }
+
+      return null;
+    }.bind(this);
+
+    var getIdentifierPart = function() {
+      var chr = this.peek(index);
+      var code = chr.charCodeAt(0);
+
+      if (code === 92) {
+        return readUnicodeEscapeSequence();
+      }
+
+      if (code < 128) {
+        if (asciiIdentifierPartTable[code]) {
+          index += 1;
+          return chr;
+        }
+
+        return null;
+      }
+
+      if (isNonAsciiIdentifierPart(code)) {
+        index += 1;
+        return chr;
+      }
+
+      return null;
+    }.bind(this);
+
+    function removeEscapeSequences(id) {
+      return id.replace(/\\u([0-9a-fA-F]{4})/g, function(m0, codepoint) {
+        return String.fromCharCode(parseInt(codepoint, 16));
+      });
+    }
+
+    char = getIdentifierStart();
+    if (char === null) {
+      return null;
+    }
+
+    id = char;
+    for (;;) {
+      char = getIdentifierPart();
+
+      if (char === null) {
+        break;
+      }
+
+      id += char;
+    }
+
+    switch (id) {
+    case "true":
+    case "false":
+      type = Token.BooleanLiteral;
+      break;
+    case "null":
+      type = Token.NullLiteral;
+      break;
+    default:
+      type = Token.Identifier;
+    }
+
+    return {
+      type: type,
+      value: removeEscapeSequences(id),
+      text: id,
+      tokenLength: id.length
+    };
+  },
+  scanNumericLiteral: function() {
+    var index = 0;
+    var value = "";
+    var length = this.input.length;
+    var char = this.peek(index);
+    var bad;
+    var isAllowedDigit = isDecimalDigit;
+    var base = 10;
+    var isLegacy = false;
+
+    function isDecimalDigit(str) {
+      return (/^[0-9]$/).test(str);
+    }
+
+    function isOctalDigit(str) {
+      return (/^[0-7]$/).test(str);
+    }
+
+    function isBinaryDigit(str) {
+      return (/^[01]$/).test(str);
+    }
+
+    function isHexDigit(str) {
+      return (/^[0-9a-fA-F]$/).test(str);
+    }
+
+    function isIdentifierStart(ch) {
+      return (ch === "$") || (ch === "_") || (ch === "\\") ||
+        (ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z");
+    }
+
+    if (char !== "." && !isDecimalDigit(char)) {
+      return null;
+    }
+
+    if (char !== ".") {
+      value = this.peek(index);
+      index += 1;
+      char = this.peek(index);
+
+      if (value === "0") {
+        if (char === "x" || char === "X") {
+          isAllowedDigit = isHexDigit;
+          base = 16;
+
+          index += 1;
+          value += char;
+        }
+        if (char === "o" || char === "O") {
+          isAllowedDigit = isOctalDigit;
+          base = 8;
+
+          if (!state.inES6(true)) {
+            this.trigger("warning", {
+              code: "W119",
+              line: this.line,
+              character: this.char,
+              data: [ "Octal integer literal", "6" ]
+            });
+          }
+
+          index += 1;
+          value += char;
+        }
+        if (char === "b" || char === "B") {
+          isAllowedDigit = isBinaryDigit;
+          base = 2;
+
+          if (!state.inES6(true)) {
+            this.trigger("warning", {
+              code: "W119",
+              line: this.line,
+              character: this.char,
+              data: [ "Binary integer literal", "6" ]
+            });
+          }
+
+          index += 1;
+          value += char;
+        }
+        if (isOctalDigit(char)) {
+          isAllowedDigit = isOctalDigit;
+          base = 8;
+          isLegacy = true;
+          bad = false;
+
+          index += 1;
+          value += char;
+        }
+
+        if (!isOctalDigit(char) && isDecimalDigit(char)) {
+          index += 1;
+          value += char;
+        }
+      }
+
+      while (index < length) {
+        char = this.peek(index);
+
+        if (isLegacy && isDecimalDigit(char)) {
+          bad = true;
+        } else if (!isAllowedDigit(char)) {
+          break;
+        }
+        value += char;
+        index += 1;
+      }
+
+      if (isAllowedDigit !== isDecimalDigit) {
+        if (!isLegacy && value.length <= 2) { // 0x
+          return {
+            type: Token.NumericLiteral,
+            value: value,
+            isMalformed: true
+          };
+        }
+
+        if (index < length) {
+          char = this.peek(index);
+          if (isIdentifierStart(char)) {
+            return null;
+          }
+        }
+
+        return {
+          type: Token.NumericLiteral,
+          value: value,
+          base: base,
+          isLegacy: isLegacy,
+          isMalformed: false
+        };
+      }
+    }
+
+    if (char === ".") {
+      value += char;
+      index += 1;
+
+      while (index < length) {
+        char = this.peek(index);
+        if (!isDecimalDigit(char)) {
+          break;
+        }
+        value += char;
+        index += 1;
+      }
+    }
+
+    if (char === "e" || char === "E") {
+      value += char;
+      index += 1;
+      char = this.peek(index);
+
+      if (char === "+" || char === "-") {
+        value += this.peek(index);
+        index += 1;
+      }
+
+      char = this.peek(index);
+      if (isDecimalDigit(char)) {
+        value += char;
+        index += 1;
+
+        while (index < length) {
+          char = this.peek(index);
+          if (!isDecimalDigit(char)) {
+            break;
+          }
+          value += char;
+          index += 1;
+        }
+      } else {
+        return null;
+      }
+    }
+
+    if (index < length) {
+      char = this.peek(index);
+      if (isIdentifierStart(char)) {
+        return null;
+      }
+    }
+
+    return {
+      type: Token.NumericLiteral,
+      value: value,
+      base: base,
+      isMalformed: !isFinite(value)
+    };
+  },
+  scanEscapeSequence: function(checks) {
+    var allowNewLine = false;
+    var jump = 1;
+    this.skip();
+    var char = this.peek();
+
+    switch (char) {
+    case "'":
+      this.triggerAsync("warning", {
+        code: "W114",
+        line: this.line,
+        character: this.char,
+        data: [ "\\'" ]
+      }, checks, function() {return state.jsonMode; });
+      break;
+    case "b":
+      char = "\\b";
+      break;
+    case "f":
+      char = "\\f";
+      break;
+    case "n":
+      char = "\\n";
+      break;
+    case "r":
+      char = "\\r";
+      break;
+    case "t":
+      char = "\\t";
+      break;
+    case "0":
+      char = "\\0";
+      var n = parseInt(this.peek(1), 10);
+      this.triggerAsync("warning", {
+        code: "W115",
+        line: this.line,
+        character: this.char
+      }, checks,
+      function() { return n >= 0 && n <= 7 && state.isStrict(); });
+      break;
+    case "u":
+      var hexCode = this.input.substr(1, 4);
+      var code = parseInt(hexCode, 16);
+      if (isNaN(code)) {
+        this.trigger("warning", {
+          code: "W052",
+          line: this.line,
+          character: this.char,
+          data: [ "u" + hexCode ]
+        });
+      }
+      char = String.fromCharCode(code);
+      jump = 5;
+      break;
+    case "v":
+      this.triggerAsync("warning", {
+        code: "W114",
+        line: this.line,
+        character: this.char,
+        data: [ "\\v" ]
+      }, checks, function() { return state.jsonMode; });
+
+      char = "\v";
+      break;
+    case "x":
+      var  x = parseInt(this.input.substr(1, 2), 16);
+
+      this.triggerAsync("warning", {
+        code: "W114",
+        line: this.line,
+        character: this.char,
+        data: [ "\\x-" ]
+      }, checks, function() { return state.jsonMode; });
+
+      char = String.fromCharCode(x);
+      jump = 3;
+      break;
+    case "\\":
+      char = "\\\\";
+      break;
+    case "\"":
+      char = "\\\"";
+      break;
+    case "/":
+      break;
+    case "":
+      allowNewLine = true;
+      char = "";
+      break;
+    }
+
+    return { char: char, jump: jump, allowNewLine: allowNewLine };
+  },
+  scanTemplateLiteral: function(checks) {
+    var tokenType;
+    var value = "";
+    var ch;
+    var startLine = this.line;
+    var startChar = this.char;
+    var depth = this.templateStarts.length;
+
+    if (!state.inES6(true)) {
+      return null;
+    } else if (this.peek() === "`") {
+      tokenType = Token.TemplateHead;
+      this.templateStarts.push({ line: this.line, char: this.char });
+      depth = this.templateStarts.length;
+      this.skip(1);
+      this.pushContext(Context.Template);
+    } else if (this.inContext(Context.Template) && this.peek() === "}") {
+      tokenType = Token.TemplateMiddle;
+    } else {
+      return null;
+    }
+
+    while (this.peek() !== "`") {
+      while ((ch = this.peek()) === "") {
+        value += "\n";
+        if (!this.nextLine()) {
+          var startPos = this.templateStarts.pop();
+          this.trigger("error", {
+            code: "E052",
+            line: startPos.line,
+            character: startPos.char
+          });
+          return {
+            type: tokenType,
+            value: value,
+            startLine: startLine,
+            startChar: startChar,
+            isUnclosed: true,
+            depth: depth,
+            context: this.popContext()
+          };
+        }
+      }
+
+      if (ch === '$' && this.peek(1) === '{') {
+        value += '${';
+        this.skip(2);
+        return {
+          type: tokenType,
+          value: value,
+          startLine: startLine,
+          startChar: startChar,
+          isUnclosed: false,
+          depth: depth,
+          context: this.currentContext()
+        };
+      } else if (ch === '\\') {
+        var escape = this.scanEscapeSequence(checks);
+        value += escape.char;
+        this.skip(escape.jump);
+      } else if (ch !== '`') {
+        value += ch;
+        this.skip(1);
+      }
+    }
+    tokenType = tokenType === Token.TemplateHead ? Token.NoSubstTemplate : Token.TemplateTail;
+    this.skip(1);
+    this.templateStarts.pop();
+
+    return {
+      type: tokenType,
+      value: value,
+      startLine: startLine,
+      startChar: startChar,
+      isUnclosed: false,
+      depth: depth,
+      context: this.popContext()
+    };
+  },
+  scanStringLiteral: function(checks) {
+    var quote = this.peek();
+    if (quote !== "\"" && quote !== "'") {
+      return null;
+    }
+    this.triggerAsync("warning", {
+      code: "W108",
+      line: this.line,
+      character: this.char // +1?
+    }, checks, function() { return state.jsonMode && quote !== "\""; });
+
+    var value = "";
+    var startLine = this.line;
+    var startChar = this.char;
+    var allowNewLine = false;
+
+    this.skip();
+
+    while (this.peek() !== quote) {
+      if (this.peek() === "") { // End Of Line
+
+        if (!allowNewLine) {
+          this.trigger("warning", {
+            code: "W112",
+            line: this.line,
+            character: this.char
+          });
+        } else {
+          allowNewLine = false;
+
+          this.triggerAsync("warning", {
+            code: "W043",
+            line: this.line,
+            character: this.char
+          }, checks, function() { return !state.option.multistr; });
+
+          this.triggerAsync("warning", {
+            code: "W042",
+            line: this.line,
+            character: this.char
+          }, checks, function() { return state.jsonMode && state.option.multistr; });
+        }
+
+        if (!this.nextLine()) {
+          this.trigger("error", {
+            code: "E029",
+            line: startLine,
+            character: startChar
+          });
+
+          return {
+            type: Token.StringLiteral,
+            value: value,
+            startLine: startLine,
+            startChar: startChar,
+            isUnclosed: true,
+            quote: quote
+          };
+        }
+
+      } else { // Any character other than End Of Line
+
+        allowNewLine = false;
+        var char = this.peek();
+        var jump = 1; // A length of a jump, after we're done
+
+        if (char < " ") {
+          this.trigger("warning", {
+            code: "W113",
+            line: this.line,
+            character: this.char,
+            data: [ "<non-printable>" ]
+          });
+        }
+        if (char === "\\") {
+          var parsed = this.scanEscapeSequence(checks);
+          char = parsed.char;
+          jump = parsed.jump;
+          allowNewLine = parsed.allowNewLine;
+        }
+
+        value += char;
+        this.skip(jump);
+      }
+    }
+
+    this.skip();
+    return {
+      type: Token.StringLiteral,
+      value: value,
+      startLine: startLine,
+      startChar: startChar,
+      isUnclosed: false,
+      quote: quote
+    };
+  },
+  scanRegExp: function() {
+    var index = 0;
+    var length = this.input.length;
+    var char = this.peek();
+    var value = char;
+    var body = "";
+    var flags = [];
+    var malformed = false;
+    var isCharSet = false;
+    var terminated;
+
+    var scanUnexpectedChars = function() {
+      if (char < " ") {
+        malformed = true;
+        this.trigger("warning", {
+          code: "W048",
+          line: this.line,
+          character: this.char
+        });
+      }
+      if (char === "<") {
+        malformed = true;
+        this.trigger("warning", {
+          code: "W049",
+          line: this.line,
+          character: this.char,
+          data: [ char ]
+        });
+      }
+    }.bind(this);
+    if (!this.prereg || char !== "/") {
+      return null;
+    }
+
+    index += 1;
+    terminated = false;
+
+    while (index < length) {
+      char = this.peek(index);
+      value += char;
+      body += char;
+
+      if (isCharSet) {
+        if (char === "]") {
+          if (this.peek(index - 1) !== "\\" || this.peek(index - 2) === "\\") {
+            isCharSet = false;
+          }
+        }
+
+        if (char === "\\") {
+          index += 1;
+          char = this.peek(index);
+          body += char;
+          value += char;
+
+          scanUnexpectedChars();
+        }
+
+        index += 1;
+        continue;
+      }
+
+      if (char === "\\") {
+        index += 1;
+        char = this.peek(index);
+        body += char;
+        value += char;
+
+        scanUnexpectedChars();
+
+        if (char === "/") {
+          index += 1;
+          continue;
+        }
+
+        if (char === "[") {
+          index += 1;
+          continue;
+        }
+      }
+
+      if (char === "[") {
+        isCharSet = true;
+        index += 1;
+        continue;
+      }
+
+      if (char === "/") {
+        body = body.substr(0, body.length - 1);
+        terminated = true;
+        index += 1;
+        break;
+      }
+
+      index += 1;
+    }
+
+    if (!terminated) {
+      this.trigger("error", {
+        code: "E015",
+        line: this.line,
+        character: this.from
+      });
+
+      return void this.trigger("fatal", {
+        line: this.line,
+        from: this.from
+      });
+    }
+
+    while (index < length) {
+      char = this.peek(index);
+      if (!/[gim]/.test(char)) {
+        break;
+      }
+      flags.push(char);
+      value += char;
+      index += 1;
+    }
+
+    try {
+      new RegExp(body, flags.join(""));
+    } catch (err) {
+      malformed = true;
+      this.trigger("error", {
+        code: "E016",
+        line: this.line,
+        character: this.char,
+        data: [ err.message ] // Platform dependent!
+      });
+    }
+
+    return {
+      type: Token.RegExp,
+      value: value,
+      flags: flags,
+      isMalformed: malformed
+    };
+  },
+  scanNonBreakingSpaces: function() {
+    return state.option.nonbsp ?
+      this.input.search(/(\u00A0)/) : -1;
+  },
+  scanUnsafeChars: function() {
+    return this.input.search(reg.unsafeChars);
+  },
+  next: function(checks) {
+    this.from = this.char;
+    var start;
+    if (/\s/.test(this.peek())) {
+      start = this.char;
+
+      while (/\s/.test(this.peek())) {
+        this.from += 1;
+        this.skip();
+      }
+    }
+
+    var match = this.scanComments() ||
+      this.scanStringLiteral(checks) ||
+      this.scanTemplateLiteral(checks);
+
+    if (match) {
+      return match;
+    }
+
+    match =
+      this.scanRegExp() ||
+      this.scanPunctuator() ||
+      this.scanKeyword() ||
+      this.scanIdentifier() ||
+      this.scanNumericLiteral();
+
+    if (match) {
+      this.skip(match.tokenLength || match.value.length);
+      return match;
+    }
+
+    return null;
+  },
+  nextLine: function() {
+    var char;
+
+    if (this.line >= this.getLines().length) {
+      return false;
+    }
+
+    this.input = this.getLines()[this.line];
+    this.line += 1;
+    this.char = 1;
+    this.from = 1;
+
+    var inputTrimmed = this.input.trim();
+
+    var startsWith = function() {
+      return _.some(arguments, function(prefix) {
+        return inputTrimmed.indexOf(prefix) === 0;
+      });
+    };
+
+    var endsWith = function() {
+      return _.some(arguments, function(suffix) {
+        return inputTrimmed.indexOf(suffix, inputTrimmed.length - suffix.length) !== -1;
+      });
+    };
+    if (this.ignoringLinterErrors === true) {
+      if (!startsWith("/*", "//") && !(this.inComment && endsWith("*/"))) {
+        this.input = "";
+      }
+    }
+
+    char = this.scanNonBreakingSpaces();
+    if (char >= 0) {
+      this.trigger("warning", { code: "W125", line: this.line, character: char + 1 });
+    }
+
+    this.input = this.input.replace(/\t/g, state.tab);
+    char = this.scanUnsafeChars();
+
+    if (char >= 0) {
+      this.trigger("warning", { code: "W100", line: this.line, character: char });
+    }
+
+    if (!this.ignoringLinterErrors && state.option.maxlen &&
+      state.option.maxlen < this.input.length) {
+      var inComment = this.inComment ||
+        startsWith.call(inputTrimmed, "//") ||
+        startsWith.call(inputTrimmed, "/*");
+
+      var shouldTriggerError = !inComment || !reg.maxlenException.test(inputTrimmed);
+
+      if (shouldTriggerError) {
+        this.trigger("warning", { code: "W101", line: this.line, character: this.input.length });
+      }
+    }
+
+    return true;
+  },
+  start: function() {
+    this.nextLine();
+  },
+  token: function() {
+    var checks = asyncTrigger();
+    var token;
+
+
+    function isReserved(token, isProperty) {
+      if (!token.reserved) {
+        return false;
+      }
+      var meta = token.meta;
+
+      if (meta && meta.isFutureReservedWord && state.inES5()) {
+        if (!meta.es5) {
+          return false;
+        }
+        if (meta.strictOnly) {
+          if (!state.option.strict && !state.isStrict()) {
+            return false;
+          }
+        }
+
+        if (isProperty) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+    var create = function(type, value, isProperty, token) {
+      var obj;
+
+      if (type !== "(endline)" && type !== "(end)") {
+        this.prereg = false;
+      }
+
+      if (type === "(punctuator)") {
+        switch (value) {
+        case ".":
+        case ")":
+        case "~":
+        case "#":
+        case "]":
+        case "++":
+        case "--":
+          this.prereg = false;
+          break;
+        default:
+          this.prereg = true;
+        }
+
+        obj = Object.create(state.syntax[value] || state.syntax["(error)"]);
+      }
+
+      if (type === "(identifier)") {
+        if (value === "return" || value === "case" || value === "typeof") {
+          this.prereg = true;
+        }
+
+        if (_.has(state.syntax, value)) {
+          obj = Object.create(state.syntax[value] || state.syntax["(error)"]);
+          if (!isReserved(obj, isProperty && type === "(identifier)")) {
+            obj = null;
+          }
+        }
+      }
+
+      if (!obj) {
+        obj = Object.create(state.syntax[type]);
+      }
+
+      obj.identifier = (type === "(identifier)");
+      obj.type = obj.type || type;
+      obj.value = value;
+      obj.line = this.line;
+      obj.character = this.char;
+      obj.from = this.from;
+      if (obj.identifier && token) obj.raw_text = token.text || token.value;
+      if (token && token.startLine && token.startLine !== this.line) {
+        obj.startLine = token.startLine;
+      }
+      if (token && token.context) {
+        obj.context = token.context;
+      }
+      if (token && token.depth) {
+        obj.depth = token.depth;
+      }
+      if (token && token.isUnclosed) {
+        obj.isUnclosed = token.isUnclosed;
+      }
+
+      if (isProperty && obj.identifier) {
+        obj.isProperty = isProperty;
+      }
+
+      obj.check = checks.check;
+
+      return obj;
+    }.bind(this);
+
+    for (;;) {
+      if (!this.input.length) {
+        if (this.nextLine()) {
+          return create("(endline)", "");
+        }
+
+        if (this.exhausted) {
+          return null;
+        }
+
+        this.exhausted = true;
+        return create("(end)", "");
+      }
+
+      token = this.next(checks);
+
+      if (!token) {
+        if (this.input.length) {
+          this.trigger("error", {
+            code: "E024",
+            line: this.line,
+            character: this.char,
+            data: [ this.peek() ]
+          });
+
+          this.input = "";
+        }
+
+        continue;
+      }
+
+      switch (token.type) {
+      case Token.StringLiteral:
+        this.triggerAsync("String", {
+          line: this.line,
+          char: this.char,
+          from: this.from,
+          startLine: token.startLine,
+          startChar: token.startChar,
+          value: token.value,
+          quote: token.quote
+        }, checks, function() { return true; });
+
+        return create("(string)", token.value, null, token);
+
+      case Token.TemplateHead:
+        this.trigger("TemplateHead", {
+          line: this.line,
+          char: this.char,
+          from: this.from,
+          startLine: token.startLine,
+          startChar: token.startChar,
+          value: token.value
+        });
+        return create("(template)", token.value, null, token);
+
+      case Token.TemplateMiddle:
+        this.trigger("TemplateMiddle", {
+          line: this.line,
+          char: this.char,
+          from: this.from,
+          startLine: token.startLine,
+          startChar: token.startChar,
+          value: token.value
+        });
+        return create("(template middle)", token.value, null, token);
+
+      case Token.TemplateTail:
+        this.trigger("TemplateTail", {
+          line: this.line,
+          char: this.char,
+          from: this.from,
+          startLine: token.startLine,
+          startChar: token.startChar,
+          value: token.value
+        });
+        return create("(template tail)", token.value, null, token);
+
+      case Token.NoSubstTemplate:
+        this.trigger("NoSubstTemplate", {
+          line: this.line,
+          char: this.char,
+          from: this.from,
+          startLine: token.startLine,
+          startChar: token.startChar,
+          value: token.value
+        });
+        return create("(no subst template)", token.value, null, token);
+
+      case Token.Identifier:
+        this.triggerAsync("Identifier", {
+          line: this.line,
+          char: this.char,
+          from: this.form,
+          name: token.value,
+          raw_name: token.text,
+          isProperty: state.tokens.curr.id === "."
+        }, checks, function() { return true; });
+      case Token.Keyword:
+      case Token.NullLiteral:
+      case Token.BooleanLiteral:
+        return create("(identifier)", token.value, state.tokens.curr.id === ".", token);
+
+      case Token.NumericLiteral:
+        if (token.isMalformed) {
+          this.trigger("warning", {
+            code: "W045",
+            line: this.line,
+            character: this.char,
+            data: [ token.value ]
+          });
+        }
+
+        this.triggerAsync("warning", {
+          code: "W114",
+          line: this.line,
+          character: this.char,
+          data: [ "0x-" ]
+        }, checks, function() { return token.base === 16 && state.jsonMode; });
+
+        this.triggerAsync("warning", {
+          code: "W115",
+          line: this.line,
+          character: this.char
+        }, checks, function() {
+          return state.isStrict() && token.base === 8 && token.isLegacy;
+        });
+
+        this.trigger("Number", {
+          line: this.line,
+          char: this.char,
+          from: this.from,
+          value: token.value,
+          base: token.base,
+          isMalformed: token.malformed
+        });
+
+        return create("(number)", token.value);
+
+      case Token.RegExp:
+        return create("(regexp)", token.value);
+
+      case Token.Comment:
+        state.tokens.curr.comment = true;
+
+        if (token.isSpecial) {
+          return {
+            id: '(comment)',
+            value: token.value,
+            body: token.body,
+            type: token.commentType,
+            isSpecial: token.isSpecial,
+            line: this.line,
+            character: this.char,
+            from: this.from
+          };
+        }
+
+        break;
+
+      case "":
+        break;
+
+      default:
+        return create("(punctuator)", token.value);
+      }
+    }
+  }
+};
+
+exports.Lexer = Lexer;
+exports.Context = Context;
+
+},{"../data/ascii-identifier-data.js":"/node_modules/jshint/data/ascii-identifier-data.js","../lodash":"/node_modules/jshint/lodash.js","./reg.js":"/node_modules/jshint/src/reg.js","./state.js":"/node_modules/jshint/src/state.js","events":"/node_modules/browserify/node_modules/events/events.js"}],"/node_modules/jshint/src/messages.js":[function(_dereq_,module,exports){
+"use strict";
+
+var _ = _dereq_("../lodash");
+
+var errors = {
+  E001: "Bad option: '{a}'.",
+  E002: "Bad option value.",
+  E003: "Expected a JSON value.",
+  E004: "Input is neither a string nor an array of strings.",
+  E005: "Input is empty.",
+  E006: "Unexpected early end of program.",
+  E007: "Missing \"use strict\" statement.",
+  E008: "Strict violation.",
+  E009: "Option 'validthis' can't be used in a global scope.",
+  E010: "'with' is not allowed in strict mode.",
+  E011: "'{a}' has already been declared.",
+  E012: "const '{a}' is initialized to 'undefined'.",
+  E013: "Attempting to override '{a}' which is a constant.",
+  E014: "A regular expression literal can be confused with '/='.",
+  E015: "Unclosed regular expression.",
+  E016: "Invalid regular expression.",
+  E017: "Unclosed comment.",
+  E018: "Unbegun comment.",
+  E019: "Unmatched '{a}'.",
+  E020: "Expected '{a}' to match '{b}' from line {c} and instead saw '{d}'.",
+  E021: "Expected '{a}' and instead saw '{b}'.",
+  E022: "Line breaking error '{a}'.",
+  E023: "Missing '{a}'.",
+  E024: "Unexpected '{a}'.",
+  E025: "Missing ':' on a case clause.",
+  E026: "Missing '}' to match '{' from line {a}.",
+  E027: "Missing ']' to match '[' from line {a}.",
+  E028: "Illegal comma.",
+  E029: "Unclosed string.",
+  E030: "Expected an identifier and instead saw '{a}'.",
+  E031: "Bad assignment.", // FIXME: Rephrase
+  E032: "Expected a small integer or 'false' and instead saw '{a}'.",
+  E033: "Expected an operator and instead saw '{a}'.",
+  E034: "get/set are ES5 features.",
+  E035: "Missing property name.",
+  E036: "Expected to see a statement and instead saw a block.",
+  E037: null,
+  E038: null,
+  E039: "Function declarations are not invocable. Wrap the whole function invocation in parens.",
+  E040: "Each value should have its own case label.",
+  E041: "Unrecoverable syntax error.",
+  E042: "Stopping.",
+  E043: "Too many errors.",
+  E044: null,
+  E045: "Invalid for each loop.",
+  E046: "A yield statement shall be within a generator function (with syntax: `function*`)",
+  E047: null,
+  E048: "{a} declaration not directly within block.",
+  E049: "A {a} cannot be named '{b}'.",
+  E050: "Mozilla requires the yield expression to be parenthesized here.",
+  E051: null,
+  E052: "Unclosed template literal.",
+  E053: "Export declaration must be in global scope.",
+  E054: "Class properties must be methods. Expected '(' but instead saw '{a}'.",
+  E055: "The '{a}' option cannot be set after any executable code.",
+  E056: "'{a}' was used before it was declared, which is illegal for '{b}' variables.",
+  E057: "Invalid meta property: '{a}.{b}'.",
+  E058: "Missing semicolon."
+};
+
+var warnings = {
+  W001: "'hasOwnProperty' is a really bad name.",
+  W002: "Value of '{a}' may be overwritten in IE 8 and earlier.",
+  W003: "'{a}' was used before it was defined.",
+  W004: "'{a}' is already defined.",
+  W005: "A dot following a number can be confused with a decimal point.",
+  W006: "Confusing minuses.",
+  W007: "Confusing plusses.",
+  W008: "A leading decimal point can be confused with a dot: '{a}'.",
+  W009: "The array literal notation [] is preferable.",
+  W010: "The object literal notation {} is preferable.",
+  W011: null,
+  W012: null,
+  W013: null,
+  W014: "Bad line breaking before '{a}'.",
+  W015: null,
+  W016: "Unexpected use of '{a}'.",
+  W017: "Bad operand.",
+  W018: "Confusing use of '{a}'.",
+  W019: "Use the isNaN function to compare with NaN.",
+  W020: "Read only.",
+  W021: "Reassignment of '{a}', which is is a {b}. " +
+    "Use 'var' or 'let' to declare bindings that may change.",
+  W022: "Do not assign to the exception parameter.",
+  W023: "Expected an identifier in an assignment and instead saw a function invocation.",
+  W024: "Expected an identifier and instead saw '{a}' (a reserved word).",
+  W025: "Missing name in function declaration.",
+  W026: "Inner functions should be listed at the top of the outer function.",
+  W027: "Unreachable '{a}' after '{b}'.",
+  W028: "Label '{a}' on {b} statement.",
+  W030: "Expected an assignment or function call and instead saw an expression.",
+  W031: "Do not use 'new' for side effects.",
+  W032: "Unnecessary semicolon.",
+  W033: "Missing semicolon.",
+  W034: "Unnecessary directive \"{a}\".",
+  W035: "Empty block.",
+  W036: "Unexpected /*member '{a}'.",
+  W037: "'{a}' is a statement label.",
+  W038: "'{a}' used out of scope.",
+  W039: "'{a}' is not allowed.",
+  W040: "Possible strict violation.",
+  W041: "Use '{a}' to compare with '{b}'.",
+  W042: "Avoid EOL escaping.",
+  W043: "Bad escaping of EOL. Use option multistr if needed.",
+  W044: "Bad or unnecessary escaping.", /* TODO(caitp): remove W044 */
+  W045: "Bad number '{a}'.",
+  W046: "Don't use extra leading zeros '{a}'.",
+  W047: "A trailing decimal point can be confused with a dot: '{a}'.",
+  W048: "Unexpected control character in regular expression.",
+  W049: "Unexpected escaped character '{a}' in regular expression.",
+  W050: "JavaScript URL.",
+  W051: "Variables should not be deleted.",
+  W052: "Unexpected '{a}'.",
+  W053: "Do not use {a} as a constructor.",
+  W054: "The Function constructor is a form of eval.",
+  W055: "A constructor name should start with an uppercase letter.",
+  W056: "Bad constructor.",
+  W057: "Weird construction. Is 'new' necessary?",
+  W058: "Missing '()' invoking a constructor.",
+  W059: "Avoid arguments.{a}.",
+  W060: "document.write can be a form of eval.",
+  W061: "eval can be harmful.",
+  W062: "Wrap an immediate function invocation in parens " +
+    "to assist the reader in understanding that the expression " +
+    "is the result of a function, and not the function itself.",
+  W063: "Math is not a function.",
+  W064: "Missing 'new' prefix when invoking a constructor.",
+  W065: "Missing radix parameter.",
+  W066: "Implied eval. Consider passing a function instead of a string.",
+  W067: "Bad invocation.",
+  W068: "Wrapping non-IIFE function literals in parens is unnecessary.",
+  W069: "['{a}'] is better written in dot notation.",
+  W070: "Extra comma. (it breaks older versions of IE)",
+  W071: "This function has too many statements. ({a})",
+  W072: "This function has too many parameters. ({a})",
+  W073: "Blocks are nested too deeply. ({a})",
+  W074: "This function's cyclomatic complexity is too high. ({a})",
+  W075: "Duplicate {a} '{b}'.",
+  W076: "Unexpected parameter '{a}' in get {b} function.",
+  W077: "Expected a single parameter in set {a} function.",
+  W078: "Setter is defined without getter.",
+  W079: "Redefinition of '{a}'.",
+  W080: "It's not necessary to initialize '{a}' to 'undefined'.",
+  W081: null,
+  W082: "Function declarations should not be placed in blocks. " +
+    "Use a function expression or move the statement to the top of " +
+    "the outer function.",
+  W083: "Don't make functions within a loop.",
+  W084: "Assignment in conditional expression",
+  W085: "Don't use 'with'.",
+  W086: "Expected a 'break' statement before '{a}'.",
+  W087: "Forgotten 'debugger' statement?",
+  W088: "Creating global 'for' variable. Should be 'for (var {a} ...'.",
+  W089: "The body of a for in should be wrapped in an if statement to filter " +
+    "unwanted properties from the prototype.",
+  W090: "'{a}' is not a statement label.",
+  W091: null,
+  W093: "Did you mean to return a conditional instead of an assignment?",
+  W094: "Unexpected comma.",
+  W095: "Expected a string and instead saw {a}.",
+  W096: "The '{a}' key may produce unexpected results.",
+  W097: "Use the function form of \"use strict\".",
+  W098: "'{a}' is defined but never used.",
+  W099: null,
+  W100: "This character may get silently deleted by one or more browsers.",
+  W101: "Line is too long.",
+  W102: null,
+  W103: "The '{a}' property is deprecated.",
+  W104: "'{a}' is available in ES{b} (use 'esversion: {b}') or Mozilla JS extensions (use moz).",
+  W105: "Unexpected {a} in '{b}'.",
+  W106: "Identifier '{a}' is not in camel case.",
+  W107: "Script URL.",
+  W108: "Strings must use doublequote.",
+  W109: "Strings must use singlequote.",
+  W110: "Mixed double and single quotes.",
+  W112: "Unclosed string.",
+  W113: "Control character in string: {a}.",
+  W114: "Avoid {a}.",
+  W115: "Octal literals are not allowed in strict mode.",
+  W116: "Expected '{a}' and instead saw '{b}'.",
+  W117: "'{a}' is not defined.",
+  W118: "'{a}' is only available in Mozilla JavaScript extensions (use moz option).",
+  W119: "'{a}' is only available in ES{b} (use 'esversion: {b}').",
+  W120: "You might be leaking a variable ({a}) here.",
+  W121: "Extending prototype of native object: '{a}'.",
+  W122: "Invalid typeof value '{a}'",
+  W123: "'{a}' is already defined in outer scope.",
+  W124: "A generator function shall contain a yield statement.",
+  W125: "This line contains non-breaking spaces: http://jshint.com/doc/options/#nonbsp",
+  W126: "Unnecessary grouping operator.",
+  W127: "Unexpected use of a comma operator.",
+  W128: "Empty array elements require elision=true.",
+  W129: "'{a}' is defined in a future version of JavaScript. Use a " +
+    "different variable name to avoid migration issues.",
+  W130: "Invalid element after rest element.",
+  W131: "Invalid parameter after rest parameter.",
+  W132: "`var` declarations are forbidden. Use `let` or `const` instead.",
+  W133: "Invalid for-{a} loop left-hand-side: {b}.",
+  W134: "The '{a}' option is only available when linting ECMAScript {b} code.",
+  W135: "{a} may not be supported by non-browser environments.",
+  W136: "'{a}' must be in function scope.",
+  W137: "Empty destructuring.",
+  W138: "Regular parameters should not come after default parameters."
+};
+
+var info = {
+  I001: "Comma warnings can be turned off with 'laxcomma'.",
+  I002: null,
+  I003: "ES5 option is now set per default"
+};
+
+exports.errors = {};
+exports.warnings = {};
+exports.info = {};
+
+_.each(errors, function(desc, code) {
+  exports.errors[code] = { code: code, desc: desc };
+});
+
+_.each(warnings, function(desc, code) {
+  exports.warnings[code] = { code: code, desc: desc };
+});
+
+_.each(info, function(desc, code) {
+  exports.info[code] = { code: code, desc: desc };
+});
+
+},{"../lodash":"/node_modules/jshint/lodash.js"}],"/node_modules/jshint/src/name-stack.js":[function(_dereq_,module,exports){
+"use strict";
+
+function NameStack() {
+  this._stack = [];
+}
+
+Object.defineProperty(NameStack.prototype, "length", {
+  get: function() {
+    return this._stack.length;
+  }
+});
+NameStack.prototype.push = function() {
+  this._stack.push(null);
+};
+NameStack.prototype.pop = function() {
+  this._stack.pop();
+};
+NameStack.prototype.set = function(token) {
+  this._stack[this.length - 1] = token;
+};
+NameStack.prototype.infer = function() {
+  var nameToken = this._stack[this.length - 1];
+  var prefix = "";
+  var type;
+  if (!nameToken || nameToken.type === "class") {
+    nameToken = this._stack[this.length - 2];
+  }
+
+  if (!nameToken) {
+    return "(empty)";
+  }
+
+  type = nameToken.type;
+
+  if (type !== "(string)" && type !== "(number)" && type !== "(identifier)" && type !== "default") {
+    return "(expression)";
+  }
+
+  if (nameToken.accessorType) {
+    prefix = nameToken.accessorType + " ";
+  }
+
+  return prefix + nameToken.value;
+};
+
+module.exports = NameStack;
+
+},{}],"/node_modules/jshint/src/options.js":[function(_dereq_,module,exports){
+"use strict";
+exports.bool = {
+  enforcing: {
+    bitwise     : true,
+    freeze      : true,
+    camelcase   : true,
+    curly       : true,
+    eqeqeq      : true,
+    futurehostile: true,
+    notypeof    : true,
+    es3         : true,
+    es5         : true,
+    forin       : true,
+    funcscope   : true,
+    immed       : true,
+    iterator    : true,
+    newcap      : true,
+    noarg       : true,
+    nocomma     : true,
+    noempty     : true,
+    nonbsp      : true,
+    nonew       : true,
+    undef       : true,
+    singleGroups: false,
+    varstmt: false,
+    enforceall : false
+  },
+  relaxing: {
+    asi         : true,
+    multistr    : true,
+    debug       : true,
+    boss        : true,
+    evil        : true,
+    globalstrict: true,
+    plusplus    : true,
+    proto       : true,
+    scripturl   : true,
+    sub         : true,
+    supernew    : true,
+    laxbreak    : true,
+    laxcomma    : true,
+    validthis   : true,
+    withstmt    : true,
+    moz         : true,
+    noyield     : true,
+    eqnull      : true,
+    lastsemic   : true,
+    loopfunc    : true,
+    expr        : true,
+    esnext      : true,
+    elision     : true,
+  },
+  environments: {
+    mootools    : true,
+    couch       : true,
+    jasmine     : true,
+    jquery      : true,
+    node        : true,
+    qunit       : true,
+    rhino       : true,
+    shelljs     : true,
+    prototypejs : true,
+    yui         : true,
+    mocha       : true,
+    module      : true,
+    wsh         : true,
+    worker      : true,
+    nonstandard : true,
+    browser     : true,
+    browserify  : true,
+    devel       : true,
+    dojo        : true,
+    typed       : true,
+    phantom     : true
+  },
+  obsolete: {
+    onecase     : true, // if one case switch statements should be allowed
+    regexp      : true, // if the . should not be allowed in regexp literals
+    regexdash   : true  // if unescaped first/last dash (-) inside brackets
+  }
+};
+exports.val = {
+  maxlen       : false,
+  indent       : false,
+  maxerr       : false,
+  predef       : false,
+  globals      : false,
+  quotmark     : false,
+
+  scope        : false,
+  maxstatements: false,
+  maxdepth     : false,
+  maxparams    : false,
+  maxcomplexity: false,
+  shadow       : false,
+  strict      : true,
+  unused       : true,
+  latedef      : false,
+
+  ignore       : false, // start/end ignoring lines of code, bypassing the lexer
+
+  ignoreDelimiters: false, // array of start/end delimiters used to ignore
+  esversion: 5
+};
+exports.inverted = {
+  bitwise : true,
+  forin   : true,
+  newcap  : true,
+  plusplus: true,
+  regexp  : true,
+  undef   : true,
+  eqeqeq  : true,
+  strict  : true
+};
+
+exports.validNames = Object.keys(exports.val)
+  .concat(Object.keys(exports.bool.relaxing))
+  .concat(Object.keys(exports.bool.enforcing))
+  .concat(Object.keys(exports.bool.obsolete))
+  .concat(Object.keys(exports.bool.environments));
+exports.renamed = {
+  eqeq   : "eqeqeq",
+  windows: "wsh",
+  sloppy : "strict"
+};
+
+exports.removed = {
+  nomen: true,
+  onevar: true,
+  passfail: true,
+  white: true,
+  gcl: true,
+  smarttabs: true,
+  trailing: true
+};
+exports.noenforceall = {
+  varstmt: true,
+  strict: true
+};
+
+},{}],"/node_modules/jshint/src/reg.js":[function(_dereq_,module,exports){
+
+"use strict";
+exports.unsafeString =
+  /@cc|<\/?|script|\]\s*\]|<\s*!|&lt/i;
+exports.unsafeChars =
+  /[\u0000-\u001f\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/;
+exports.needEsc =
+  /[\u0000-\u001f&<"\/\\\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/;
+
+exports.needEscGlobal =
+  /[\u0000-\u001f&<"\/\\\u007f-\u009f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+exports.starSlash = /\*\//;
+exports.identifier = /^([a-zA-Z_$][a-zA-Z0-9_$]*)$/;
+exports.javascriptURL = /^(?:javascript|jscript|ecmascript|vbscript|livescript)\s*:/i;
+exports.fallsThrough = /^\s*falls?\sthrough\s*$/;
+exports.maxlenException = /^(?:(?:\/\/|\/\*|\*) ?)?[^ ]+$/;
+
+},{}],"/node_modules/jshint/src/scope-manager.js":[function(_dereq_,module,exports){
+"use strict";
+
+var _      = _dereq_("../lodash");
+var events = _dereq_("events");
+var marker = {};
+var scopeManager = function(state, predefined, exported, declared) {
+
+  var _current;
+  var _scopeStack = [];
+
+  function _newScope(type) {
+    _current = {
+      "(labels)": Object.create(null),
+      "(usages)": Object.create(null),
+      "(breakLabels)": Object.create(null),
+      "(parent)": _current,
+      "(type)": type,
+      "(params)": (type === "functionparams" || type === "catchparams") ? [] : null
+    };
+    _scopeStack.push(_current);
+  }
+
+  _newScope("global");
+  _current["(predefined)"] = predefined;
+
+  var _currentFunctBody = _current; // this is the block after the params = function
+
+  var usedPredefinedAndGlobals = Object.create(null);
+  var impliedGlobals = Object.create(null);
+  var unuseds = [];
+  var emitter = new events.EventEmitter();
+
+  function warning(code, token) {
+    emitter.emit("warning", {
+      code: code,
+      token: token,
+      data: _.slice(arguments, 2)
+    });
+  }
+
+  function error(code, token) {
+    emitter.emit("warning", {
+      code: code,
+      token: token,
+      data: _.slice(arguments, 2)
+    });
+  }
+
+  function _setupUsages(labelName) {
+    if (!_current["(usages)"][labelName]) {
+      _current["(usages)"][labelName] = {
+        "(modified)": [],
+        "(reassigned)": [],
+        "(tokens)": []
+      };
+    }
+  }
+
+  var _getUnusedOption = function(unused_opt) {
+    if (unused_opt === undefined) {
+      unused_opt = state.option.unused;
+    }
+
+    if (unused_opt === true) {
+      unused_opt = "last-param";
+    }
+
+    return unused_opt;
+  };
+
+  var _warnUnused = function(name, tkn, type, unused_opt) {
+    var line = tkn.line;
+    var chr  = tkn.from;
+    var raw_name = tkn.raw_text || name;
+
+    unused_opt = _getUnusedOption(unused_opt);
+
+    var warnable_types = {
+      "vars": ["var"],
+      "last-param": ["var", "param"],
+      "strict": ["var", "param", "last-param"]
+    };
+
+    if (unused_opt) {
+      if (warnable_types[unused_opt] && warnable_types[unused_opt].indexOf(type) !== -1) {
+        warning("W098", { line: line, from: chr }, raw_name);
+      }
+    }
+    if (unused_opt || type === "var") {
+      unuseds.push({
+        name: name,
+        line: line,
+        character: chr
+      });
+    }
+  };
+  function _checkForUnused() {
+    if (_current["(type)"] === "functionparams") {
+      _checkParams();
+      return;
+    }
+    var curentLabels = _current["(labels)"];
+    for (var labelName in curentLabels) {
+      if (curentLabels[labelName]) {
+        if (curentLabels[labelName]["(type)"] !== "exception" &&
+          curentLabels[labelName]["(unused)"]) {
+          _warnUnused(labelName, curentLabels[labelName]["(token)"], "var");
+        }
+      }
+    }
+  }
+  function _checkParams() {
+    var params = _current["(params)"];
+
+    if (!params) {
+      return;
+    }
+
+    var param = params.pop();
+    var unused_opt;
+
+    while (param) {
+      var label = _current["(labels)"][param];
+
+      unused_opt = _getUnusedOption(state.funct["(unusedOption)"]);
+      if (param === "undefined")
+        return;
+
+      if (label["(unused)"]) {
+        _warnUnused(param, label["(token)"], "param", state.funct["(unusedOption)"]);
+      } else if (unused_opt === "last-param") {
+        return;
+      }
+
+      param = params.pop();
+    }
+  }
+  function _getLabel(labelName) {
+    for (var i = _scopeStack.length - 1 ; i >= 0; --i) {
+      var scopeLabels = _scopeStack[i]["(labels)"];
+      if (scopeLabels[labelName]) {
+        return scopeLabels;
+      }
+    }
+  }
+
+  function usedSoFarInCurrentFunction(labelName) {
+    for (var i = _scopeStack.length - 1; i >= 0; i--) {
+      var current = _scopeStack[i];
+      if (current["(usages)"][labelName]) {
+        return current["(usages)"][labelName];
+      }
+      if (current === _currentFunctBody) {
+        break;
+      }
+    }
+    return false;
+  }
+
+  function _checkOuterShadow(labelName, token) {
+    if (state.option.shadow !== "outer") {
+      return;
+    }
+
+    var isGlobal = _currentFunctBody["(type)"] === "global",
+      isNewFunction = _current["(type)"] === "functionparams";
+
+    var outsideCurrentFunction = !isGlobal;
+    for (var i = 0; i < _scopeStack.length; i++) {
+      var stackItem = _scopeStack[i];
+
+      if (!isNewFunction && _scopeStack[i + 1] === _currentFunctBody) {
+        outsideCurrentFunction = false;
+      }
+      if (outsideCurrentFunction && stackItem["(labels)"][labelName]) {
+        warning("W123", token, labelName);
+      }
+      if (stackItem["(breakLabels)"][labelName]) {
+        warning("W123", token, labelName);
+      }
+    }
+  }
+
+  function _latedefWarning(type, labelName, token) {
+    if (state.option.latedef) {
+      if ((state.option.latedef === true && type === "function") ||
+        type !== "function") {
+        warning("W003", token, labelName);
+      }
+    }
+  }
+
+  var scopeManagerInst = {
+
+    on: function(names, listener) {
+      names.split(" ").forEach(function(name) {
+        emitter.on(name, listener);
+      });
+    },
+
+    isPredefined: function(labelName) {
+      return !this.has(labelName) && _.has(_scopeStack[0]["(predefined)"], labelName);
+    },
+    stack: function(type) {
+      var previousScope = _current;
+      _newScope(type);
+
+      if (!type && previousScope["(type)"] === "functionparams") {
+
+        _current["(isFuncBody)"] = true;
+        _current["(context)"] = _currentFunctBody;
+        _currentFunctBody = _current;
+      }
+    },
+
+    unstack: function() {
+      var subScope = _scopeStack.length > 1 ? _scopeStack[_scopeStack.length - 2] : null;
+      var isUnstackingFunctionBody = _current === _currentFunctBody,
+        isUnstackingFunctionParams = _current["(type)"] === "functionparams",
+        isUnstackingFunctionOuter = _current["(type)"] === "functionouter";
+
+      var i, j;
+      var currentUsages = _current["(usages)"];
+      var currentLabels = _current["(labels)"];
+      var usedLabelNameList = Object.keys(currentUsages);
+
+      if (currentUsages.__proto__ && usedLabelNameList.indexOf("__proto__") === -1) {
+        usedLabelNameList.push("__proto__");
+      }
+
+      for (i = 0; i < usedLabelNameList.length; i++) {
+        var usedLabelName = usedLabelNameList[i];
+
+        var usage = currentUsages[usedLabelName];
+        var usedLabel = currentLabels[usedLabelName];
+        if (usedLabel) {
+          var usedLabelType = usedLabel["(type)"];
+
+          if (usedLabel["(useOutsideOfScope)"] && !state.option.funcscope) {
+            var usedTokens = usage["(tokens)"];
+            if (usedTokens) {
+              for (j = 0; j < usedTokens.length; j++) {
+                if (usedLabel["(function)"] === usedTokens[j]["(function)"]) {
+                  error("W038", usedTokens[j], usedLabelName);
+                }
+              }
+            }
+          }
+          _current["(labels)"][usedLabelName]["(unused)"] = false;
+          if (usedLabelType === "const" && usage["(modified)"]) {
+            for (j = 0; j < usage["(modified)"].length; j++) {
+              error("E013", usage["(modified)"][j], usedLabelName);
+            }
+          }
+          if ((usedLabelType === "function" || usedLabelType === "class") &&
+              usage["(reassigned)"]) {
+            for (j = 0; j < usage["(reassigned)"].length; j++) {
+              error("W021", usage["(reassigned)"][j], usedLabelName, usedLabelType);
+            }
+          }
+          continue;
+        }
+
+        if (isUnstackingFunctionOuter) {
+          state.funct["(isCapturing)"] = true;
+        }
+
+        if (subScope) {
+          if (!subScope["(usages)"][usedLabelName]) {
+            subScope["(usages)"][usedLabelName] = usage;
+            if (isUnstackingFunctionBody) {
+              subScope["(usages)"][usedLabelName]["(onlyUsedSubFunction)"] = true;
+            }
+          } else {
+            var subScopeUsage = subScope["(usages)"][usedLabelName];
+            subScopeUsage["(modified)"] = subScopeUsage["(modified)"].concat(usage["(modified)"]);
+            subScopeUsage["(tokens)"] = subScopeUsage["(tokens)"].concat(usage["(tokens)"]);
+            subScopeUsage["(reassigned)"] =
+              subScopeUsage["(reassigned)"].concat(usage["(reassigned)"]);
+            subScopeUsage["(onlyUsedSubFunction)"] = false;
+          }
+        } else {
+          if (typeof _current["(predefined)"][usedLabelName] === "boolean") {
+            delete declared[usedLabelName];
+            usedPredefinedAndGlobals[usedLabelName] = marker;
+            if (_current["(predefined)"][usedLabelName] === false && usage["(reassigned)"]) {
+              for (j = 0; j < usage["(reassigned)"].length; j++) {
+                warning("W020", usage["(reassigned)"][j]);
+              }
+            }
+          }
+          else {
+            if (usage["(tokens)"]) {
+              for (j = 0; j < usage["(tokens)"].length; j++) {
+                var undefinedToken = usage["(tokens)"][j];
+                if (!undefinedToken.forgiveUndef) {
+                  if (state.option.undef && !undefinedToken.ignoreUndef) {
+                    warning("W117", undefinedToken, usedLabelName);
+                  }
+                  if (impliedGlobals[usedLabelName]) {
+                    impliedGlobals[usedLabelName].line.push(undefinedToken.line);
+                  } else {
+                    impliedGlobals[usedLabelName] = {
+                      name: usedLabelName,
+                      line: [undefinedToken.line]
+                    };
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      if (!subScope) {
+        Object.keys(declared)
+          .forEach(function(labelNotUsed) {
+            _warnUnused(labelNotUsed, declared[labelNotUsed], "var");
+          });
+      }
+      if (subScope && !isUnstackingFunctionBody &&
+        !isUnstackingFunctionParams && !isUnstackingFunctionOuter) {
+        var labelNames = Object.keys(currentLabels);
+        for (i = 0; i < labelNames.length; i++) {
+
+          var defLabelName = labelNames[i];
+          if (!currentLabels[defLabelName]["(blockscoped)"] &&
+            currentLabels[defLabelName]["(type)"] !== "exception" &&
+            !this.funct.has(defLabelName, { excludeCurrent: true })) {
+            subScope["(labels)"][defLabelName] = currentLabels[defLabelName];
+            if (_currentFunctBody["(type)"] !== "global") {
+              subScope["(labels)"][defLabelName]["(useOutsideOfScope)"] = true;
+            }
+            delete currentLabels[defLabelName];
+          }
+        }
+      }
+
+      _checkForUnused();
+
+      _scopeStack.pop();
+      if (isUnstackingFunctionBody) {
+        _currentFunctBody = _scopeStack[_.findLastIndex(_scopeStack, function(scope) {
+          return scope["(isFuncBody)"] || scope["(type)"] === "global";
+        })];
+      }
+
+      _current = subScope;
+    },
+    addParam: function(labelName, token, type) {
+      type = type || "param";
+
+      if (type === "exception") {
+        var previouslyDefinedLabelType = this.funct.labeltype(labelName);
+        if (previouslyDefinedLabelType && previouslyDefinedLabelType !== "exception") {
+          if (!state.option.node) {
+            warning("W002", state.tokens.next, labelName);
+          }
+        }
+      }
+      if (_.has(_current["(labels)"], labelName)) {
+        _current["(labels)"][labelName].duplicated = true;
+      } else {
+        _checkOuterShadow(labelName, token, type);
+
+        _current["(labels)"][labelName] = {
+          "(type)" : type,
+          "(token)": token,
+          "(unused)": true };
+
+        _current["(params)"].push(labelName);
+      }
+
+      if (_.has(_current["(usages)"], labelName)) {
+        var usage = _current["(usages)"][labelName];
+        if (usage["(onlyUsedSubFunction)"]) {
+          _latedefWarning(type, labelName, token);
+        } else {
+          warning("E056", token, labelName, type);
+        }
+      }
+    },
+
+    validateParams: function() {
+      if (_currentFunctBody["(type)"] === "global") {
+        return;
+      }
+
+      var isStrict = state.isStrict();
+      var currentFunctParamScope = _currentFunctBody["(parent)"];
+
+      if (!currentFunctParamScope["(params)"]) {
+        return;
+      }
+
+      currentFunctParamScope["(params)"].forEach(function(labelName) {
+        var label = currentFunctParamScope["(labels)"][labelName];
+
+        if (label && label.duplicated) {
+          if (isStrict) {
+            warning("E011", label["(token)"], labelName);
+          } else if (state.option.shadow !== true) {
+            warning("W004", label["(token)"], labelName);
+          }
+        }
+      });
+    },
+
+    getUsedOrDefinedGlobals: function() {
+      var list = Object.keys(usedPredefinedAndGlobals);
+      if (usedPredefinedAndGlobals.__proto__ === marker &&
+        list.indexOf("__proto__") === -1) {
+        list.push("__proto__");
+      }
+
+      return list;
+    },
+    getImpliedGlobals: function() {
+      var values = _.values(impliedGlobals);
+      var hasProto = false;
+      if (impliedGlobals.__proto__) {
+        hasProto = values.some(function(value) {
+          return value.name === "__proto__";
+        });
+
+        if (!hasProto) {
+          values.push(impliedGlobals.__proto__);
+        }
+      }
+
+      return values;
+    },
+    getUnuseds: function() {
+      return unuseds;
+    },
+
+    has: function(labelName) {
+      return Boolean(_getLabel(labelName));
+    },
+
+    labeltype: function(labelName) {
+      var scopeLabels = _getLabel(labelName);
+      if (scopeLabels) {
+        return scopeLabels[labelName]["(type)"];
+      }
+      return null;
+    },
+    addExported: function(labelName) {
+      var globalLabels = _scopeStack[0]["(labels)"];
+      if (_.has(declared, labelName)) {
+        delete declared[labelName];
+      } else if (_.has(globalLabels, labelName)) {
+        globalLabels[labelName]["(unused)"] = false;
+      } else {
+        for (var i = 1; i < _scopeStack.length; i++) {
+          var scope = _scopeStack[i];
+          if (!scope["(type)"]) {
+            if (_.has(scope["(labels)"], labelName) &&
+                !scope["(labels)"][labelName]["(blockscoped)"]) {
+              scope["(labels)"][labelName]["(unused)"] = false;
+              return;
+            }
+          } else {
+            break;
+          }
+        }
+        exported[labelName] = true;
+      }
+    },
+    setExported: function(labelName, token) {
+      this.block.use(labelName, token);
+    },
+    addlabel: function(labelName, opts) {
+
+      var type  = opts.type;
+      var token = opts.token;
+      var isblockscoped = type === "let" || type === "const" || type === "class";
+      var isexported    = (isblockscoped ? _current : _currentFunctBody)["(type)"] === "global" &&
+                          _.has(exported, labelName);
+      _checkOuterShadow(labelName, token, type);
+      if (isblockscoped) {
+
+        var declaredInCurrentScope = _current["(labels)"][labelName];
+        if (!declaredInCurrentScope && _current === _currentFunctBody &&
+          _current["(type)"] !== "global") {
+          declaredInCurrentScope = !!_currentFunctBody["(parent)"]["(labels)"][labelName];
+        }
+        if (!declaredInCurrentScope && _current["(usages)"][labelName]) {
+          var usage = _current["(usages)"][labelName];
+          if (usage["(onlyUsedSubFunction)"]) {
+            _latedefWarning(type, labelName, token);
+          } else {
+            warning("E056", token, labelName, type);
+          }
+        }
+        if (declaredInCurrentScope) {
+          warning("E011", token, labelName);
+        }
+        else if (state.option.shadow === "outer") {
+          if (scopeManagerInst.funct.has(labelName)) {
+            warning("W004", token, labelName);
+          }
+        }
+
+        scopeManagerInst.block.add(labelName, type, token, !isexported);
+
+      } else {
+
+        var declaredInCurrentFunctionScope = scopeManagerInst.funct.has(labelName);
+        if (!declaredInCurrentFunctionScope && usedSoFarInCurrentFunction(labelName)) {
+          _latedefWarning(type, labelName, token);
+        }
+        if (scopeManagerInst.funct.has(labelName, { onlyBlockscoped: true })) {
+          warning("E011", token, labelName);
+        } else if (state.option.shadow !== true) {
+          if (declaredInCurrentFunctionScope && labelName !== "__proto__") {
+            if (_currentFunctBody["(type)"] !== "global") {
+              warning("W004", token, labelName);
+            }
+          }
+        }
+
+        scopeManagerInst.funct.add(labelName, type, token, !isexported);
+
+        if (_currentFunctBody["(type)"] === "global") {
+          usedPredefinedAndGlobals[labelName] = marker;
+        }
+      }
+    },
+
+    funct: {
+      labeltype: function(labelName, options) {
+        var onlyBlockscoped = options && options.onlyBlockscoped;
+        var excludeParams = options && options.excludeParams;
+        var currentScopeIndex = _scopeStack.length - (options && options.excludeCurrent ? 2 : 1);
+        for (var i = currentScopeIndex; i >= 0; i--) {
+          var current = _scopeStack[i];
+          if (current["(labels)"][labelName] &&
+            (!onlyBlockscoped || current["(labels)"][labelName]["(blockscoped)"])) {
+            return current["(labels)"][labelName]["(type)"];
+          }
+          var scopeCheck = excludeParams ? _scopeStack[ i - 1 ] : current;
+          if (scopeCheck && scopeCheck["(type)"] === "functionparams") {
+            return null;
+          }
+        }
+        return null;
+      },
+      hasBreakLabel: function(labelName) {
+        for (var i = _scopeStack.length - 1; i >= 0; i--) {
+          var current = _scopeStack[i];
+
+          if (current["(breakLabels)"][labelName]) {
+            return true;
+          }
+          if (current["(type)"] === "functionparams") {
+            return false;
+          }
+        }
+        return false;
+      },
+      has: function(labelName, options) {
+        return Boolean(this.labeltype(labelName, options));
+      },
+      add: function(labelName, type, tok, unused) {
+        _current["(labels)"][labelName] = {
+          "(type)" : type,
+          "(token)": tok,
+          "(blockscoped)": false,
+          "(function)": _currentFunctBody,
+          "(unused)": unused };
+      }
+    },
+
+    block: {
+      isGlobal: function() {
+        return _current["(type)"] === "global";
+      },
+
+      use: function(labelName, token) {
+        var paramScope = _currentFunctBody["(parent)"];
+        if (paramScope && paramScope["(labels)"][labelName] &&
+          paramScope["(labels)"][labelName]["(type)"] === "param") {
+          if (!scopeManagerInst.funct.has(labelName,
+                { excludeParams: true, onlyBlockscoped: true })) {
+            paramScope["(labels)"][labelName]["(unused)"] = false;
+          }
+        }
+
+        if (token && (state.ignored.W117 || state.option.undef === false)) {
+          token.ignoreUndef = true;
+        }
+
+        _setupUsages(labelName);
+
+        if (token) {
+          token["(function)"] = _currentFunctBody;
+          _current["(usages)"][labelName]["(tokens)"].push(token);
+        }
+      },
+
+      reassign: function(labelName, token) {
+
+        this.modify(labelName, token);
+
+        _current["(usages)"][labelName]["(reassigned)"].push(token);
+      },
+
+      modify: function(labelName, token) {
+
+        _setupUsages(labelName);
+
+        _current["(usages)"][labelName]["(modified)"].push(token);
+      },
+      add: function(labelName, type, tok, unused) {
+        _current["(labels)"][labelName] = {
+          "(type)" : type,
+          "(token)": tok,
+          "(blockscoped)": true,
+          "(unused)": unused };
+      },
+
+      addBreakLabel: function(labelName, opts) {
+        var token = opts.token;
+        if (scopeManagerInst.funct.hasBreakLabel(labelName)) {
+          warning("E011", token, labelName);
+        }
+        else if (state.option.shadow === "outer") {
+          if (scopeManagerInst.funct.has(labelName)) {
+            warning("W004", token, labelName);
+          } else {
+            _checkOuterShadow(labelName, token);
+          }
+        }
+        _current["(breakLabels)"][labelName] = token;
+      }
+    }
+  };
+  return scopeManagerInst;
+};
+
+module.exports = scopeManager;
+
+},{"../lodash":"/node_modules/jshint/lodash.js","events":"/node_modules/browserify/node_modules/events/events.js"}],"/node_modules/jshint/src/state.js":[function(_dereq_,module,exports){
+"use strict";
+var NameStack = _dereq_("./name-stack.js");
+
+var state = {
+  syntax: {},
+  isStrict: function() {
+    return this.directive["use strict"] || this.inClassBody ||
+      this.option.module || this.option.strict === "implied";
+  },
+
+  inMoz: function() {
+    return this.option.moz;
+  },
+  inES6: function() {
+    return this.option.moz || this.option.esversion >= 6;
+  },
+  inES5: function(strict) {
+    if (strict) {
+      return (!this.option.esversion || this.option.esversion === 5) && !this.option.moz;
+    }
+    return !this.option.esversion || this.option.esversion >= 5 || this.option.moz;
+  },
+
+
+  reset: function() {
+    this.tokens = {
+      prev: null,
+      next: null,
+      curr: null
+    };
+
+    this.option = {};
+    this.funct = null;
+    this.ignored = {};
+    this.directive = {};
+    this.jsonMode = false;
+    this.jsonWarnings = [];
+    this.lines = [];
+    this.tab = "";
+    this.cache = {}; // Node.JS doesn't have Map. Sniff.
+    this.ignoredLines = {};
+    this.forinifcheckneeded = false;
+    this.nameStack = new NameStack();
+    this.inClassBody = false;
+  }
+};
+
+exports.state = state;
+
+},{"./name-stack.js":"/node_modules/jshint/src/name-stack.js"}],"/node_modules/jshint/src/style.js":[function(_dereq_,module,exports){
+"use strict";
+
+exports.register = function(linter) {
+
+  linter.on("Identifier", function style_scanProto(data) {
+    if (linter.getOption("proto")) {
+      return;
+    }
+
+    if (data.name === "__proto__") {
+      linter.warn("W103", {
+        line: data.line,
+        char: data.char,
+        data: [ data.name, "6" ]
+      });
+    }
+  });
+
+  linter.on("Identifier", function style_scanIterator(data) {
+    if (linter.getOption("iterator")) {
+      return;
+    }
+
+    if (data.name === "__iterator__") {
+      linter.warn("W103", {
+        line: data.line,
+        char: data.char,
+        data: [ data.name ]
+      });
+    }
+  });
+
+  linter.on("Identifier", function style_scanCamelCase(data) {
+    if (!linter.getOption("camelcase")) {
+      return;
+    }
+
+    if (data.name.replace(/^_+|_+$/g, "").indexOf("_") > -1 && !data.name.match(/^[A-Z0-9_]*$/)) {
+      linter.warn("W106", {
+        line: data.line,
+        char: data.from,
+        data: [ data.name ]
+      });
+    }
+  });
+
+  linter.on("String", function style_scanQuotes(data) {
+    var quotmark = linter.getOption("quotmark");
+    var code;
+
+    if (!quotmark) {
+      return;
+    }
+
+    if (quotmark === "single" && data.quote !== "'") {
+      code = "W109";
+    }
+
+    if (quotmark === "double" && data.quote !== "\"") {
+      code = "W108";
+    }
+
+    if (quotmark === true) {
+      if (!linter.getCache("quotmark")) {
+        linter.setCache("quotmark", data.quote);
+      }
+
+      if (linter.getCache("quotmark") !== data.quote) {
+        code = "W110";
+      }
+    }
+
+    if (code) {
+      linter.warn(code, {
+        line: data.line,
+        char: data.char,
+      });
+    }
+  });
+
+  linter.on("Number", function style_scanNumbers(data) {
+    if (data.value.charAt(0) === ".") {
+      linter.warn("W008", {
+        line: data.line,
+        char: data.char,
+        data: [ data.value ]
+      });
+    }
+
+    if (data.value.substr(data.value.length - 1) === ".") {
+      linter.warn("W047", {
+        line: data.line,
+        char: data.char,
+        data: [ data.value ]
+      });
+    }
+
+    if (/^00+/.test(data.value)) {
+      linter.warn("W046", {
+        line: data.line,
+        char: data.char,
+        data: [ data.value ]
+      });
+    }
+  });
+
+  linter.on("String", function style_scanJavaScriptURLs(data) {
+    var re = /^(?:javascript|jscript|ecmascript|vbscript|livescript)\s*:/i;
+
+    if (linter.getOption("scripturl")) {
+      return;
+    }
+
+    if (re.test(data.value)) {
+      linter.warn("W107", {
+        line: data.line,
+        char: data.char
+      });
+    }
+  });
+};
+
+},{}],"/node_modules/jshint/src/vars.js":[function(_dereq_,module,exports){
+
+"use strict";
+
+exports.reservedVars = {
+  arguments : false,
+  NaN       : false
+};
+
+exports.ecmaIdentifiers = {
+  3: {
+    Array              : false,
+    Boolean            : false,
+    Date               : false,
+    decodeURI          : false,
+    decodeURIComponent : false,
+    encodeURI          : false,
+    encodeURIComponent : false,
+    Error              : false,
+    "eval"             : false,
+    EvalError          : false,
+    Function           : false,
+    hasOwnProperty     : false,
+    isFinite           : false,
+    isNaN              : false,
+    Math               : false,
+    Number             : false,
+    Object             : false,
+    parseInt           : false,
+    parseFloat         : false,
+    RangeError         : false,
+    ReferenceError     : false,
+    RegExp             : false,
+    String             : false,
+    SyntaxError        : false,
+    TypeError          : false,
+    URIError           : false
+  },
+  5: {
+    JSON               : false
+  },
+  6: {
+    Map                : false,
+    Promise            : false,
+    Proxy              : false,
+    Reflect            : false,
+    Set                : false,
+    Symbol             : false,
+    WeakMap            : false,
+    WeakSet            : false
+  }
+};
+
+exports.browser = {
+  Audio                : false,
+  Blob                 : false,
+  addEventListener     : false,
+  applicationCache     : false,
+  atob                 : false,
+  blur                 : false,
+  btoa                 : false,
+  cancelAnimationFrame : false,
+  CanvasGradient       : false,
+  CanvasPattern        : false,
+  CanvasRenderingContext2D: false,
+  CSS                  : false,
+  clearInterval        : false,
+  clearTimeout         : false,
+  close                : false,
+  closed               : false,
+  Comment              : false,
+  CustomEvent          : false,
+  DOMParser            : false,
+  defaultStatus        : false,
+  Document             : false,
+  document             : false,
+  DocumentFragment     : false,
+  Element              : false,
+  ElementTimeControl   : false,
+  Event                : false,
+  event                : false,
+  fetch                : false,
+  FileReader           : false,
+  FormData             : false,
+  focus                : false,
+  frames               : false,
+  getComputedStyle     : false,
+  HTMLElement          : false,
+  HTMLAnchorElement    : false,
+  HTMLBaseElement      : false,
+  HTMLBlockquoteElement: false,
+  HTMLBodyElement      : false,
+  HTMLBRElement        : false,
+  HTMLButtonElement    : false,
+  HTMLCanvasElement    : false,
+  HTMLCollection       : false,
+  HTMLDirectoryElement : false,
+  HTMLDivElement       : false,
+  HTMLDListElement     : false,
+  HTMLFieldSetElement  : false,
+  HTMLFontElement      : false,
+  HTMLFormElement      : false,
+  HTMLFrameElement     : false,
+  HTMLFrameSetElement  : false,
+  HTMLHeadElement      : false,
+  HTMLHeadingElement   : false,
+  HTMLHRElement        : false,
+  HTMLHtmlElement      : false,
+  HTMLIFrameElement    : false,
+  HTMLImageElement     : false,
+  HTMLInputElement     : false,
+  HTMLIsIndexElement   : false,
+  HTMLLabelElement     : false,
+  HTMLLayerElement     : false,
+  HTMLLegendElement    : false,
+  HTMLLIElement        : false,
+  HTMLLinkElement      : false,
+  HTMLMapElement       : false,
+  HTMLMenuElement      : false,
+  HTMLMetaElement      : false,
+  HTMLModElement       : false,
+  HTMLObjectElement    : false,
+  HTMLOListElement     : false,
+  HTMLOptGroupElement  : false,
+  HTMLOptionElement    : false,
+  HTMLParagraphElement : false,
+  HTMLParamElement     : false,
+  HTMLPreElement       : false,
+  HTMLQuoteElement     : false,
+  HTMLScriptElement    : false,
+  HTMLSelectElement    : false,
+  HTMLStyleElement     : false,
+  HTMLTableCaptionElement: false,
+  HTMLTableCellElement : false,
+  HTMLTableColElement  : false,
+  HTMLTableElement     : false,
+  HTMLTableRowElement  : false,
+  HTMLTableSectionElement: false,
+  HTMLTemplateElement  : false,
+  HTMLTextAreaElement  : false,
+  HTMLTitleElement     : false,
+  HTMLUListElement     : false,
+  HTMLVideoElement     : false,
+  history              : false,
+  Image                : false,
+  Intl                 : false,
+  length               : false,
+  localStorage         : false,
+  location             : false,
+  matchMedia           : false,
+  MessageChannel       : false,
+  MessageEvent         : false,
+  MessagePort          : false,
+  MouseEvent           : false,
+  moveBy               : false,
+  moveTo               : false,
+  MutationObserver     : false,
+  name                 : false,
+  Node                 : false,
+  NodeFilter           : false,
+  NodeList             : false,
+  Notification         : false,
+  navigator            : false,
+  onbeforeunload       : true,
+  onblur               : true,
+  onerror              : true,
+  onfocus              : true,
+  onload               : true,
+  onresize             : true,
+  onunload             : true,
+  open                 : false,
+  openDatabase         : false,
+  opener               : false,
+  Option               : false,
+  parent               : false,
+  performance          : false,
+  print                : false,
+  Range                : false,
+  requestAnimationFrame : false,
+  removeEventListener  : false,
+  resizeBy             : false,
+  resizeTo             : false,
+  screen               : false,
+  scroll               : false,
+  scrollBy             : false,
+  scrollTo             : false,
+  sessionStorage       : false,
+  setInterval          : false,
+  setTimeout           : false,
+  SharedWorker         : false,
+  status               : false,
+  SVGAElement          : false,
+  SVGAltGlyphDefElement: false,
+  SVGAltGlyphElement   : false,
+  SVGAltGlyphItemElement: false,
+  SVGAngle             : false,
+  SVGAnimateColorElement: false,
+  SVGAnimateElement    : false,
+  SVGAnimateMotionElement: false,
+  SVGAnimateTransformElement: false,
+  SVGAnimatedAngle     : false,
+  SVGAnimatedBoolean   : false,
+  SVGAnimatedEnumeration: false,
+  SVGAnimatedInteger   : false,
+  SVGAnimatedLength    : false,
+  SVGAnimatedLengthList: false,
+  SVGAnimatedNumber    : false,
+  SVGAnimatedNumberList: false,
+  SVGAnimatedPathData  : false,
+  SVGAnimatedPoints    : false,
+  SVGAnimatedPreserveAspectRatio: false,
+  SVGAnimatedRect      : false,
+  SVGAnimatedString    : false,
+  SVGAnimatedTransformList: false,
+  SVGAnimationElement  : false,
+  SVGCSSRule           : false,
+  SVGCircleElement     : false,
+  SVGClipPathElement   : false,
+  SVGColor             : false,
+  SVGColorProfileElement: false,
+  SVGColorProfileRule  : false,
+  SVGComponentTransferFunctionElement: false,
+  SVGCursorElement     : false,
+  SVGDefsElement       : false,
+  SVGDescElement       : false,
+  SVGDocument          : false,
+  SVGElement           : false,
+  SVGElementInstance   : false,
+  SVGElementInstanceList: false,
+  SVGEllipseElement    : false,
+  SVGExternalResourcesRequired: false,
+  SVGFEBlendElement    : false,
+  SVGFEColorMatrixElement: false,
+  SVGFEComponentTransferElement: false,
+  SVGFECompositeElement: false,
+  SVGFEConvolveMatrixElement: false,
+  SVGFEDiffuseLightingElement: false,
+  SVGFEDisplacementMapElement: false,
+  SVGFEDistantLightElement: false,
+  SVGFEFloodElement    : false,
+  SVGFEFuncAElement    : false,
+  SVGFEFuncBElement    : false,
+  SVGFEFuncGElement    : false,
+  SVGFEFuncRElement    : false,
+  SVGFEGaussianBlurElement: false,
+  SVGFEImageElement    : false,
+  SVGFEMergeElement    : false,
+  SVGFEMergeNodeElement: false,
+  SVGFEMorphologyElement: false,
+  SVGFEOffsetElement   : false,
+  SVGFEPointLightElement: false,
+  SVGFESpecularLightingElement: false,
+  SVGFESpotLightElement: false,
+  SVGFETileElement     : false,
+  SVGFETurbulenceElement: false,
+  SVGFilterElement     : false,
+  SVGFilterPrimitiveStandardAttributes: false,
+  SVGFitToViewBox      : false,
+  SVGFontElement       : false,
+  SVGFontFaceElement   : false,
+  SVGFontFaceFormatElement: false,
+  SVGFontFaceNameElement: false,
+  SVGFontFaceSrcElement: false,
+  SVGFontFaceUriElement: false,
+  SVGForeignObjectElement: false,
+  SVGGElement          : false,
+  SVGGlyphElement      : false,
+  SVGGlyphRefElement   : false,
+  SVGGradientElement   : false,
+  SVGHKernElement      : false,
+  SVGICCColor          : false,
+  SVGImageElement      : false,
+  SVGLangSpace         : false,
+  SVGLength            : false,
+  SVGLengthList        : false,
+  SVGLineElement       : false,
+  SVGLinearGradientElement: false,
+  SVGLocatable         : false,
+  SVGMPathElement      : false,
+  SVGMarkerElement     : false,
+  SVGMaskElement       : false,
+  SVGMatrix            : false,
+  SVGMetadataElement   : false,
+  SVGMissingGlyphElement: false,
+  SVGNumber            : false,
+  SVGNumberList        : false,
+  SVGPaint             : false,
+  SVGPathElement       : false,
+  SVGPathSeg           : false,
+  SVGPathSegArcAbs     : false,
+  SVGPathSegArcRel     : false,
+  SVGPathSegClosePath  : false,
+  SVGPathSegCurvetoCubicAbs: false,
+  SVGPathSegCurvetoCubicRel: false,
+  SVGPathSegCurvetoCubicSmoothAbs: false,
+  SVGPathSegCurvetoCubicSmoothRel: false,
+  SVGPathSegCurvetoQuadraticAbs: false,
+  SVGPathSegCurvetoQuadraticRel: false,
+  SVGPathSegCurvetoQuadraticSmoothAbs: false,
+  SVGPathSegCurvetoQuadraticSmoothRel: false,
+  SVGPathSegLinetoAbs  : false,
+  SVGPathSegLinetoHorizontalAbs: false,
+  SVGPathSegLinetoHorizontalRel: false,
+  SVGPathSegLinetoRel  : false,
+  SVGPathSegLinetoVerticalAbs: false,
+  SVGPathSegLinetoVerticalRel: false,
+  SVGPathSegList       : false,
+  SVGPathSegMovetoAbs  : false,
+  SVGPathSegMovetoRel  : false,
+  SVGPatternElement    : false,
+  SVGPoint             : false,
+  SVGPointList         : false,
+  SVGPolygonElement    : false,
+  SVGPolylineElement   : false,
+  SVGPreserveAspectRatio: false,
+  SVGRadialGradientElement: false,
+  SVGRect              : false,
+  SVGRectElement       : false,
+  SVGRenderingIntent   : false,
+  SVGSVGElement        : false,
+  SVGScriptElement     : false,
+  SVGSetElement        : false,
+  SVGStopElement       : false,
+  SVGStringList        : false,
+  SVGStylable          : false,
+  SVGStyleElement      : false,
+  SVGSwitchElement     : false,
+  SVGSymbolElement     : false,
+  SVGTRefElement       : false,
+  SVGTSpanElement      : false,
+  SVGTests             : false,
+  SVGTextContentElement: false,
+  SVGTextElement       : false,
+  SVGTextPathElement   : false,
+  SVGTextPositioningElement: false,
+  SVGTitleElement      : false,
+  SVGTransform         : false,
+  SVGTransformList     : false,
+  SVGTransformable     : false,
+  SVGURIReference      : false,
+  SVGUnitTypes         : false,
+  SVGUseElement        : false,
+  SVGVKernElement      : false,
+  SVGViewElement       : false,
+  SVGViewSpec          : false,
+  SVGZoomAndPan        : false,
+  Text                 : false,
+  TextDecoder          : false,
+  TextEncoder          : false,
+  TimeEvent            : false,
+  top                  : false,
+  URL                  : false,
+  WebGLActiveInfo      : false,
+  WebGLBuffer          : false,
+  WebGLContextEvent    : false,
+  WebGLFramebuffer     : false,
+  WebGLProgram         : false,
+  WebGLRenderbuffer    : false,
+  WebGLRenderingContext: false,
+  WebGLShader          : false,
+  WebGLShaderPrecisionFormat: false,
+  WebGLTexture         : false,
+  WebGLUniformLocation : false,
+  WebSocket            : false,
+  window               : false,
+  Window               : false,
+  Worker               : false,
+  XDomainRequest       : false,
+  XMLHttpRequest       : false,
+  XMLSerializer        : false,
+  XPathEvaluator       : false,
+  XPathException       : false,
+  XPathExpression      : false,
+  XPathNamespace       : false,
+  XPathNSResolver      : false,
+  XPathResult          : false
+};
+
+exports.devel = {
+  alert  : false,
+  confirm: false,
+  console: false,
+  Debug  : false,
+  opera  : false,
+  prompt : false
+};
+
+exports.worker = {
+  importScripts  : true,
+  postMessage    : true,
+  self           : true,
+  FileReaderSync : true
+};
+exports.nonstandard = {
+  escape  : false,
+  unescape: false
+};
+
+exports.couch = {
+  "require" : false,
+  respond   : false,
+  getRow    : false,
+  emit      : false,
+  send      : false,
+  start     : false,
+  sum       : false,
+  log       : false,
+  exports   : false,
+  module    : false,
+  provides  : false
+};
+
+exports.node = {
+  __filename    : false,
+  __dirname     : false,
+  GLOBAL        : false,
+  global        : false,
+  module        : false,
+  require       : false,
+
+  Buffer        : true,
+  console       : true,
+  exports       : true,
+  process       : true,
+  setTimeout    : true,
+  clearTimeout  : true,
+  setInterval   : true,
+  clearInterval : true,
+  setImmediate  : true, // v0.9.1+
+  clearImmediate: true  // v0.9.1+
+};
+
+exports.browserify = {
+  __filename    : false,
+  __dirname     : false,
+  global        : false,
+  module        : false,
+  require       : false,
+  Buffer        : true,
+  exports       : true,
+  process       : true
+};
+
+exports.phantom = {
+  phantom      : true,
+  require      : true,
+  WebPage      : true,
+  console      : true, // in examples, but undocumented
+  exports      : true  // v1.7+
+};
+
+exports.qunit = {
+  asyncTest      : false,
+  deepEqual      : false,
+  equal          : false,
+  expect         : false,
+  module         : false,
+  notDeepEqual   : false,
+  notEqual       : false,
+  notPropEqual   : false,
+  notStrictEqual : false,
+  ok             : false,
+  propEqual      : false,
+  QUnit          : false,
+  raises         : false,
+  start          : false,
+  stop           : false,
+  strictEqual    : false,
+  test           : false,
+  "throws"       : false
+};
+
+exports.rhino = {
+  defineClass  : false,
+  deserialize  : false,
+  gc           : false,
+  help         : false,
+  importClass  : false,
+  importPackage: false,
+  "java"       : false,
+  load         : false,
+  loadClass    : false,
+  Packages     : false,
+  print        : false,
+  quit         : false,
+  readFile     : false,
+  readUrl      : false,
+  runCommand   : false,
+  seal         : false,
+  serialize    : false,
+  spawn        : false,
+  sync         : false,
+  toint32      : false,
+  version      : false
+};
+
+exports.shelljs = {
+  target       : false,
+  echo         : false,
+  exit         : false,
+  cd           : false,
+  pwd          : false,
+  ls           : false,
+  find         : false,
+  cp           : false,
+  rm           : false,
+  mv           : false,
+  mkdir        : false,
+  test         : false,
+  cat          : false,
+  sed          : false,
+  grep         : false,
+  which        : false,
+  dirs         : false,
+  pushd        : false,
+  popd         : false,
+  env          : false,
+  exec         : false,
+  chmod        : false,
+  config       : false,
+  error        : false,
+  tempdir      : false
+};
+
+exports.typed = {
+  ArrayBuffer         : false,
+  ArrayBufferView     : false,
+  DataView            : false,
+  Float32Array        : false,
+  Float64Array        : false,
+  Int16Array          : false,
+  Int32Array          : false,
+  Int8Array           : false,
+  Uint16Array         : false,
+  Uint32Array         : false,
+  Uint8Array          : false,
+  Uint8ClampedArray   : false
+};
+
+exports.wsh = {
+  ActiveXObject            : true,
+  Enumerator               : true,
+  GetObject                : true,
+  ScriptEngine             : true,
+  ScriptEngineBuildVersion : true,
+  ScriptEngineMajorVersion : true,
+  ScriptEngineMinorVersion : true,
+  VBArray                  : true,
+  WSH                      : true,
+  WScript                  : true,
+  XDomainRequest           : true
+};
+
+exports.dojo = {
+  dojo     : false,
+  dijit    : false,
+  dojox    : false,
+  define   : false,
+  "require": false
+};
+
+exports.jquery = {
+  "$"    : false,
+  jQuery : false
+};
+
+exports.mootools = {
+  "$"           : false,
+  "$$"          : false,
+  Asset         : false,
+  Browser       : false,
+  Chain         : false,
+  Class         : false,
+  Color         : false,
+  Cookie        : false,
+  Core          : false,
+  Document      : false,
+  DomReady      : false,
+  DOMEvent      : false,
+  DOMReady      : false,
+  Drag          : false,
+  Element       : false,
+  Elements      : false,
+  Event         : false,
+  Events        : false,
+  Fx            : false,
+  Group         : false,
+  Hash          : false,
+  HtmlTable     : false,
+  IFrame        : false,
+  IframeShim    : false,
+  InputValidator: false,
+  instanceOf    : false,
+  Keyboard      : false,
+  Locale        : false,
+  Mask          : false,
+  MooTools      : false,
+  Native        : false,
+  Options       : false,
+  OverText      : false,
+  Request       : false,
+  Scroller      : false,
+  Slick         : false,
+  Slider        : false,
+  Sortables     : false,
+  Spinner       : false,
+  Swiff         : false,
+  Tips          : false,
+  Type          : false,
+  typeOf        : false,
+  URI           : false,
+  Window        : false
+};
+
+exports.prototypejs = {
+  "$"               : false,
+  "$$"              : false,
+  "$A"              : false,
+  "$F"              : false,
+  "$H"              : false,
+  "$R"              : false,
+  "$break"          : false,
+  "$continue"       : false,
+  "$w"              : false,
+  Abstract          : false,
+  Ajax              : false,
+  Class             : false,
+  Enumerable        : false,
+  Element           : false,
+  Event             : false,
+  Field             : false,
+  Form              : false,
+  Hash              : false,
+  Insertion         : false,
+  ObjectRange       : false,
+  PeriodicalExecuter: false,
+  Position          : false,
+  Prototype         : false,
+  Selector          : false,
+  Template          : false,
+  Toggle            : false,
+  Try               : false,
+  Autocompleter     : false,
+  Builder           : false,
+  Control           : false,
+  Draggable         : false,
+  Draggables        : false,
+  Droppables        : false,
+  Effect            : false,
+  Sortable          : false,
+  SortableObserver  : false,
+  Sound             : false,
+  Scriptaculous     : false
+};
+
+exports.yui = {
+  YUI       : false,
+  Y         : false,
+  YUI_config: false
+};
+
+exports.mocha = {
+  mocha       : false,
+  describe    : false,
+  xdescribe   : false,
+  it          : false,
+  xit         : false,
+  context     : false,
+  xcontext    : false,
+  before      : false,
+  after       : false,
+  beforeEach  : false,
+  afterEach   : false,
+  suite         : false,
+  test          : false,
+  setup         : false,
+  teardown      : false,
+  suiteSetup    : false,
+  suiteTeardown : false
+};
+
+exports.jasmine = {
+  jasmine     : false,
+  describe    : false,
+  xdescribe   : false,
+  it          : false,
+  xit         : false,
+  beforeEach  : false,
+  afterEach   : false,
+  setFixtures : false,
+  loadFixtures: false,
+  spyOn       : false,
+  expect      : false,
+  runs        : false,
+  waitsFor    : false,
+  waits       : false,
+  beforeAll   : false,
+  afterAll    : false,
+  fail        : false,
+  fdescribe   : false,
+  fit         : false,
+  pending     : false
+};
+
+},{}]},{},["/node_modules/jshint/src/jshint.js"]);
+
+});
+
+define("ace/mode/javascript_worker",[], function(require, exports, module) {
+"use strict";
+
+var oop = require("../lib/oop");
+var Mirror = require("../worker/mirror").Mirror;
+var lint = require("./javascript/jshint").JSHINT;
+
+function startRegex(arr) {
+    return RegExp("^(" + arr.join("|") + ")");
+}
+
+var disabledWarningsRe = startRegex([
+    "Bad for in variable '(.+)'.",
+    'Missing "use strict"'
+]);
+var errorsRe = startRegex([
+    "Unexpected",
+    "Expected ",
+    "Confusing (plus|minus)",
+    "\\{a\\} unterminated regular expression",
+    "Unclosed ",
+    "Unmatched ",
+    "Unbegun comment",
+    "Bad invocation",
+    "Missing space after",
+    "Missing operator at"
+]);
+var infoRe = startRegex([
+    "Expected an assignment",
+    "Bad escapement of EOL",
+    "Unexpected comma",
+    "Unexpected space",
+    "Missing radix parameter.",
+    "A leading decimal point can",
+    "\\['{a}'\\] is better written in dot notation.",
+    "'{a}' used out of scope"
+]);
+
+var JavaScriptWorker = exports.JavaScriptWorker = function(sender) {
+    Mirror.call(this, sender);
+    this.setTimeout(500);
+    this.setOptions();
+};
+
+oop.inherits(JavaScriptWorker, Mirror);
+
+(function() {
+    this.setOptions = function(options) {
+        this.options = options || {
+            esnext: true,
+            moz: true,
+            devel: true,
+            browser: true,
+            node: true,
+            laxcomma: true,
+            laxbreak: true,
+            lastsemic: true,
+            onevar: false,
+            passfail: false,
+            maxerr: 100,
+            expr: true,
+            multistr: true,
+            globalstrict: true
+        };
+        this.doc.getValue() && this.deferredUpdate.schedule(100);
+    };
+
+    this.changeOptions = function(newOptions) {
+        oop.mixin(this.options, newOptions);
+        this.doc.getValue() && this.deferredUpdate.schedule(100);
+    };
+
+    this.isValidJS = function(str) {
+        try {
+            eval("throw 0;" + str);
+        } catch(e) {
+            if (e === 0)
+                return true;
+        }
+        return false;
+    };
+
+    this.onUpdate = function() {
+        var value = this.doc.getValue();
+        value = value.replace(/^#!.*\n/, "\n");
+        if (!value)
+            return this.sender.emit("annotate", []);
+
+        var errors = [];
+        var maxErrorLevel = this.isValidJS(value) ? "warning" : "error";
+        lint(value, this.options, this.options.globals);
+        var results = lint.errors;
+
+        var errorAdded = false;
+        for (var i = 0; i < results.length; i++) {
+            var error = results[i];
+            if (!error)
+                continue;
+            var raw = error.raw;
+            var type = "warning";
+
+            if (raw == "Missing semicolon.") {
+                var str = error.evidence.substr(error.character);
+                str = str.charAt(str.search(/\S/));
+                if (maxErrorLevel == "error" && str && /[\w\d{(['"]/.test(str)) {
+                    error.reason = 'Missing ";" before statement';
+                    type = "error";
+                } else {
+                    type = "info";
+                }
+            }
+            else if (disabledWarningsRe.test(raw)) {
+                continue;
+            }
+            else if (infoRe.test(raw)) {
+                type = "info";
+            }
+            else if (errorsRe.test(raw)) {
+                errorAdded  = true;
+                type = maxErrorLevel;
+            }
+            else if (raw == "'{a}' is not defined.") {
+                type = "warning";
+            }
+            else if (raw == "'{a}' is defined but never used.") {
+                type = "info";
+            }
+
+            errors.push({
+                row: error.line-1,
+                column: error.character-1,
+                text: error.reason,
+                type: type,
+                raw: raw
+            });
+
+            if (errorAdded) {
+            }
+        }
+
+        this.sender.emit("annotate", errors);
+    };
+
+}).call(JavaScriptWorker.prototype);
+
+});
+
+define("ace/lib/es5-shim",[], function(require, exports, module) {
+
+function Empty() {}
+
+if (!Function.prototype.bind) {
+    Function.prototype.bind = function bind(that) { // .length is 1
+        var target = this;
+        if (typeof target != "function") {
+            throw new TypeError("Function.prototype.bind called on incompatible " + target);
+        }
+        var args = slice.call(arguments, 1); // for normal call
+        var bound = function () {
+
+            if (this instanceof bound) {
+
+                var result = target.apply(
+                    this,
+                    args.concat(slice.call(arguments))
+                );
+                if (Object(result) === result) {
+                    return result;
+                }
+                return this;
+
+            } else {
+                return target.apply(
+                    that,
+                    args.concat(slice.call(arguments))
+                );
+
+            }
+
+        };
+        if(target.prototype) {
+            Empty.prototype = target.prototype;
+            bound.prototype = new Empty();
+            Empty.prototype = null;
+        }
+        return bound;
+    };
+}
+var call = Function.prototype.call;
+var prototypeOfArray = Array.prototype;
+var prototypeOfObject = Object.prototype;
+var slice = prototypeOfArray.slice;
+var _toString = call.bind(prototypeOfObject.toString);
+var owns = call.bind(prototypeOfObject.hasOwnProperty);
+var defineGetter;
+var defineSetter;
+var lookupGetter;
+var lookupSetter;
+var supportsAccessors;
+if ((supportsAccessors = owns(prototypeOfObject, "__defineGetter__"))) {
+    defineGetter = call.bind(prototypeOfObject.__defineGetter__);
+    defineSetter = call.bind(prototypeOfObject.__defineSetter__);
+    lookupGetter = call.bind(prototypeOfObject.__lookupGetter__);
+    lookupSetter = call.bind(prototypeOfObject.__lookupSetter__);
+}
+if ([1,2].splice(0).length != 2) {
+    if(function() { // test IE < 9 to splice bug - see issue #138
+        function makeArray(l) {
+            var a = new Array(l+2);
+            a[0] = a[1] = 0;
+            return a;
+        }
+        var array = [], lengthBefore;
+        
+        array.splice.apply(array, makeArray(20));
+        array.splice.apply(array, makeArray(26));
+
+        lengthBefore = array.length; //46
+        array.splice(5, 0, "XXX"); // add one element
+
+        lengthBefore + 1 == array.length
+
+        if (lengthBefore + 1 == array.length) {
+            return true;// has right splice implementation without bugs
+        }
+    }()) {//IE 6/7
+        var array_splice = Array.prototype.splice;
+        Array.prototype.splice = function(start, deleteCount) {
+            if (!arguments.length) {
+                return [];
+            } else {
+                return array_splice.apply(this, [
+                    start === void 0 ? 0 : start,
+                    deleteCount === void 0 ? (this.length - start) : deleteCount
+                ].concat(slice.call(arguments, 2)))
+            }
+        };
+    } else {//IE8
+        Array.prototype.splice = function(pos, removeCount){
+            var length = this.length;
+            if (pos > 0) {
+                if (pos > length)
+                    pos = length;
+            } else if (pos == void 0) {
+                pos = 0;
+            } else if (pos < 0) {
+                pos = Math.max(length + pos, 0);
+            }
+
+            if (!(pos+removeCount < length))
+                removeCount = length - pos;
+
+            var removed = this.slice(pos, pos+removeCount);
+            var insert = slice.call(arguments, 2);
+            var add = insert.length;            
+            if (pos === length) {
+                if (add) {
+                    this.push.apply(this, insert);
+                }
+            } else {
+                var remove = Math.min(removeCount, length - pos);
+                var tailOldPos = pos + remove;
+                var tailNewPos = tailOldPos + add - remove;
+                var tailCount = length - tailOldPos;
+                var lengthAfterRemove = length - remove;
+
+                if (tailNewPos < tailOldPos) { // case A
+                    for (var i = 0; i < tailCount; ++i) {
+                        this[tailNewPos+i] = this[tailOldPos+i];
+                    }
+                } else if (tailNewPos > tailOldPos) { // case B
+                    for (i = tailCount; i--; ) {
+                        this[tailNewPos+i] = this[tailOldPos+i];
+                    }
+                } // else, add == remove (nothing to do)
+
+                if (add && pos === lengthAfterRemove) {
+                    this.length = lengthAfterRemove; // truncate array
+                    this.push.apply(this, insert);
+                } else {
+                    this.length = lengthAfterRemove + add; // reserves space
+                    for (i = 0; i < add; ++i) {
+                        this[pos+i] = insert[i];
+                    }
+                }
+            }
+            return removed;
+        };
+    }
+}
+if (!Array.isArray) {
+    Array.isArray = function isArray(obj) {
+        return _toString(obj) == "[object Array]";
+    };
+}
+var boxedString = Object("a"),
+    splitString = boxedString[0] != "a" || !(0 in boxedString);
+
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function forEach(fun /*, thisp*/) {
+        var object = toObject(this),
+            self = splitString && _toString(this) == "[object String]" ?
+                this.split("") :
+                object,
+            thisp = arguments[1],
+            i = -1,
+            length = self.length >>> 0;
+        if (_toString(fun) != "[object Function]") {
+            throw new TypeError(); // TODO message
+        }
+
+        while (++i < length) {
+            if (i in self) {
+                fun.call(thisp, self[i], i, object);
+            }
+        }
+    };
+}
+if (!Array.prototype.map) {
+    Array.prototype.map = function map(fun /*, thisp*/) {
+        var object = toObject(this),
+            self = splitString && _toString(this) == "[object String]" ?
+                this.split("") :
+                object,
+            length = self.length >>> 0,
+            result = Array(length),
+            thisp = arguments[1];
+        if (_toString(fun) != "[object Function]") {
+            throw new TypeError(fun + " is not a function");
+        }
+
+        for (var i = 0; i < length; i++) {
+            if (i in self)
+                result[i] = fun.call(thisp, self[i], i, object);
+        }
+        return result;
+    };
+}
+if (!Array.prototype.filter) {
+    Array.prototype.filter = function filter(fun /*, thisp */) {
+        var object = toObject(this),
+            self = splitString && _toString(this) == "[object String]" ?
+                this.split("") :
+                    object,
+            length = self.length >>> 0,
+            result = [],
+            value,
+            thisp = arguments[1];
+        if (_toString(fun) != "[object Function]") {
+            throw new TypeError(fun + " is not a function");
+        }
+
+        for (var i = 0; i < length; i++) {
+            if (i in self) {
+                value = self[i];
+                if (fun.call(thisp, value, i, object)) {
+                    result.push(value);
+                }
+            }
+        }
+        return result;
+    };
+}
+if (!Array.prototype.every) {
+    Array.prototype.every = function every(fun /*, thisp */) {
+        var object = toObject(this),
+            self = splitString && _toString(this) == "[object String]" ?
+                this.split("") :
+                object,
+            length = self.length >>> 0,
+            thisp = arguments[1];
+        if (_toString(fun) != "[object Function]") {
+            throw new TypeError(fun + " is not a function");
+        }
+
+        for (var i = 0; i < length; i++) {
+            if (i in self && !fun.call(thisp, self[i], i, object)) {
+                return false;
+            }
+        }
+        return true;
+    };
+}
+if (!Array.prototype.some) {
+    Array.prototype.some = function some(fun /*, thisp */) {
+        var object = toObject(this),
+            self = splitString && _toString(this) == "[object String]" ?
+                this.split("") :
+                object,
+            length = self.length >>> 0,
+            thisp = arguments[1];
+        if (_toString(fun) != "[object Function]") {
+            throw new TypeError(fun + " is not a function");
+        }
+
+        for (var i = 0; i < length; i++) {
+            if (i in self && fun.call(thisp, self[i], i, object)) {
+                return true;
+            }
+        }
+        return false;
+    };
+}
+if (!Array.prototype.reduce) {
+    Array.prototype.reduce = function reduce(fun /*, initial*/) {
+        var object = toObject(this),
+            self = splitString && _toString(this) == "[object String]" ?
+                this.split("") :
+                object,
+            length = self.length >>> 0;
+        if (_toString(fun) != "[object Function]") {
+            throw new TypeError(fun + " is not a function");
+        }
+        if (!length && arguments.length == 1) {
+            throw new TypeError("reduce of empty array with no initial value");
+        }
+
+        var i = 0;
+        var result;
+        if (arguments.length >= 2) {
+            result = arguments[1];
+        } else {
+            do {
+                if (i in self) {
+                    result = self[i++];
+                    break;
+                }
+                if (++i >= length) {
+                    throw new TypeError("reduce of empty array with no initial value");
+                }
+            } while (true);
+        }
+
+        for (; i < length; i++) {
+            if (i in self) {
+                result = fun.call(void 0, result, self[i], i, object);
+            }
+        }
+
+        return result;
+    };
+}
+if (!Array.prototype.reduceRight) {
+    Array.prototype.reduceRight = function reduceRight(fun /*, initial*/) {
+        var object = toObject(this),
+            self = splitString && _toString(this) == "[object String]" ?
+                this.split("") :
+                object,
+            length = self.length >>> 0;
+        if (_toString(fun) != "[object Function]") {
+            throw new TypeError(fun + " is not a function");
+        }
+        if (!length && arguments.length == 1) {
+            throw new TypeError("reduceRight of empty array with no initial value");
+        }
+
+        var result, i = length - 1;
+        if (arguments.length >= 2) {
+            result = arguments[1];
+        } else {
+            do {
+                if (i in self) {
+                    result = self[i--];
+                    break;
+                }
+                if (--i < 0) {
+                    throw new TypeError("reduceRight of empty array with no initial value");
+                }
+            } while (true);
+        }
+
+        do {
+            if (i in this) {
+                result = fun.call(void 0, result, self[i], i, object);
+            }
+        } while (i--);
+
+        return result;
+    };
+}
+if (!Array.prototype.indexOf || ([0, 1].indexOf(1, 2) != -1)) {
+    Array.prototype.indexOf = function indexOf(sought /*, fromIndex */ ) {
+        var self = splitString && _toString(this) == "[object String]" ?
+                this.split("") :
+                toObject(this),
+            length = self.length >>> 0;
+
+        if (!length) {
+            return -1;
+        }
+
+        var i = 0;
+        if (arguments.length > 1) {
+            i = toInteger(arguments[1]);
+        }
+        i = i >= 0 ? i : Math.max(0, length + i);
+        for (; i < length; i++) {
+            if (i in self && self[i] === sought) {
+                return i;
+            }
+        }
+        return -1;
+    };
+}
+if (!Array.prototype.lastIndexOf || ([0, 1].lastIndexOf(0, -3) != -1)) {
+    Array.prototype.lastIndexOf = function lastIndexOf(sought /*, fromIndex */) {
+        var self = splitString && _toString(this) == "[object String]" ?
+                this.split("") :
+                toObject(this),
+            length = self.length >>> 0;
+
+        if (!length) {
+            return -1;
+        }
+        var i = length - 1;
+        if (arguments.length > 1) {
+            i = Math.min(i, toInteger(arguments[1]));
+        }
+        i = i >= 0 ? i : length - Math.abs(i);
+        for (; i >= 0; i--) {
+            if (i in self && sought === self[i]) {
+                return i;
+            }
+        }
+        return -1;
+    };
+}
+if (!Object.getPrototypeOf) {
+    Object.getPrototypeOf = function getPrototypeOf(object) {
+        return object.__proto__ || (
+            object.constructor ?
+            object.constructor.prototype :
+            prototypeOfObject
+        );
+    };
+}
+if (!Object.getOwnPropertyDescriptor) {
+    var ERR_NON_OBJECT = "Object.getOwnPropertyDescriptor called on a " +
+                         "non-object: ";
+    Object.getOwnPropertyDescriptor = function getOwnPropertyDescriptor(object, property) {
+        if ((typeof object != "object" && typeof object != "function") || object === null)
+            throw new TypeError(ERR_NON_OBJECT + object);
+        if (!owns(object, property))
+            return;
+
+        var descriptor, getter, setter;
+        descriptor =  { enumerable: true, configurable: true };
+        if (supportsAccessors) {
+            var prototype = object.__proto__;
+            object.__proto__ = prototypeOfObject;
+
+            var getter = lookupGetter(object, property);
+            var setter = lookupSetter(object, property);
+            object.__proto__ = prototype;
+
+            if (getter || setter) {
+                if (getter) descriptor.get = getter;
+                if (setter) descriptor.set = setter;
+                return descriptor;
+            }
+        }
+        descriptor.value = object[property];
+        return descriptor;
+    };
+}
+if (!Object.getOwnPropertyNames) {
+    Object.getOwnPropertyNames = function getOwnPropertyNames(object) {
+        return Object.keys(object);
+    };
+}
+if (!Object.create) {
+    var createEmpty;
+    if (Object.prototype.__proto__ === null) {
+        createEmpty = function () {
+            return { "__proto__": null };
+        };
+    } else {
+        createEmpty = function () {
+            var empty = {};
+            for (var i in empty)
+                empty[i] = null;
+            empty.constructor =
+            empty.hasOwnProperty =
+            empty.propertyIsEnumerable =
+            empty.isPrototypeOf =
+            empty.toLocaleString =
+            empty.toString =
+            empty.valueOf =
+            empty.__proto__ = null;
+            return empty;
+        }
+    }
+
+    Object.create = function create(prototype, properties) {
+        var object;
+        if (prototype === null) {
+            object = createEmpty();
+        } else {
+            if (typeof prototype != "object")
+                throw new TypeError("typeof prototype["+(typeof prototype)+"] != 'object'");
+            var Type = function () {};
+            Type.prototype = prototype;
+            object = new Type();
+            object.__proto__ = prototype;
+        }
+        if (properties !== void 0)
+            Object.defineProperties(object, properties);
+        return object;
+    };
+}
+
+function doesDefinePropertyWork(object) {
+    try {
+        Object.defineProperty(object, "sentinel", {});
+        return "sentinel" in object;
+    } catch (exception) {
+    }
+}
+if (Object.defineProperty) {
+    var definePropertyWorksOnObject = doesDefinePropertyWork({});
+    var definePropertyWorksOnDom = typeof document == "undefined" ||
+        doesDefinePropertyWork(document.createElement("div"));
+    if (!definePropertyWorksOnObject || !definePropertyWorksOnDom) {
+        var definePropertyFallback = Object.defineProperty;
+    }
+}
+
+if (!Object.defineProperty || definePropertyFallback) {
+    var ERR_NON_OBJECT_DESCRIPTOR = "Property description must be an object: ";
+    var ERR_NON_OBJECT_TARGET = "Object.defineProperty called on non-object: "
+    var ERR_ACCESSORS_NOT_SUPPORTED = "getters & setters can not be defined " +
+                                      "on this javascript engine";
+
+    Object.defineProperty = function defineProperty(object, property, descriptor) {
+        if ((typeof object != "object" && typeof object != "function") || object === null)
+            throw new TypeError(ERR_NON_OBJECT_TARGET + object);
+        if ((typeof descriptor != "object" && typeof descriptor != "function") || descriptor === null)
+            throw new TypeError(ERR_NON_OBJECT_DESCRIPTOR + descriptor);
+        if (definePropertyFallback) {
+            try {
+                return definePropertyFallback.call(Object, object, property, descriptor);
+            } catch (exception) {
+            }
+        }
+        if (owns(descriptor, "value")) {
+
+            if (supportsAccessors && (lookupGetter(object, property) ||
+                                      lookupSetter(object, property)))
+            {
+                var prototype = object.__proto__;
+                object.__proto__ = prototypeOfObject;
+                delete object[property];
+                object[property] = descriptor.value;
+                object.__proto__ = prototype;
+            } else {
+                object[property] = descriptor.value;
+            }
+        } else {
+            if (!supportsAccessors)
+                throw new TypeError(ERR_ACCESSORS_NOT_SUPPORTED);
+            if (owns(descriptor, "get"))
+                defineGetter(object, property, descriptor.get);
+            if (owns(descriptor, "set"))
+                defineSetter(object, property, descriptor.set);
+        }
+
+        return object;
+    };
+}
+if (!Object.defineProperties) {
+    Object.defineProperties = function defineProperties(object, properties) {
+        for (var property in properties) {
+            if (owns(properties, property))
+                Object.defineProperty(object, property, properties[property]);
+        }
+        return object;
+    };
+}
+if (!Object.seal) {
+    Object.seal = function seal(object) {
+        return object;
+    };
+}
+if (!Object.freeze) {
+    Object.freeze = function freeze(object) {
+        return object;
+    };
+}
+try {
+    Object.freeze(function () {});
+} catch (exception) {
+    Object.freeze = (function freeze(freezeObject) {
+        return function freeze(object) {
+            if (typeof object == "function") {
+                return object;
+            } else {
+                return freezeObject(object);
+            }
+        };
+    })(Object.freeze);
+}
+if (!Object.preventExtensions) {
+    Object.preventExtensions = function preventExtensions(object) {
+        return object;
+    };
+}
+if (!Object.isSealed) {
+    Object.isSealed = function isSealed(object) {
+        return false;
+    };
+}
+if (!Object.isFrozen) {
+    Object.isFrozen = function isFrozen(object) {
+        return false;
+    };
+}
+if (!Object.isExtensible) {
+    Object.isExtensible = function isExtensible(object) {
+        if (Object(object) === object) {
+            throw new TypeError(); // TODO message
+        }
+        var name = '';
+        while (owns(object, name)) {
+            name += '?';
+        }
+        object[name] = true;
+        var returnValue = owns(object, name);
+        delete object[name];
+        return returnValue;
+    };
+}
+if (!Object.keys) {
+    var hasDontEnumBug = true,
+        dontEnums = [
+            "toString",
+            "toLocaleString",
+            "valueOf",
+            "hasOwnProperty",
+            "isPrototypeOf",
+            "propertyIsEnumerable",
+            "constructor"
+        ],
+        dontEnumsLength = dontEnums.length;
+
+    for (var key in {"toString": null}) {
+        hasDontEnumBug = false;
+    }
+
+    Object.keys = function keys(object) {
+
+        if (
+            (typeof object != "object" && typeof object != "function") ||
+            object === null
+        ) {
+            throw new TypeError("Object.keys called on a non-object");
+        }
+
+        var keys = [];
+        for (var name in object) {
+            if (owns(object, name)) {
+                keys.push(name);
+            }
+        }
+
+        if (hasDontEnumBug) {
+            for (var i = 0, ii = dontEnumsLength; i < ii; i++) {
+                var dontEnum = dontEnums[i];
+                if (owns(object, dontEnum)) {
+                    keys.push(dontEnum);
+                }
+            }
+        }
+        return keys;
+    };
+
+}
+if (!Date.now) {
+    Date.now = function now() {
+        return new Date().getTime();
+    };
+}
+var ws = "\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u2003" +
+    "\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028" +
+    "\u2029\uFEFF";
+if (!String.prototype.trim || ws.trim()) {
+    ws = "[" + ws + "]";
+    var trimBeginRegexp = new RegExp("^" + ws + ws + "*"),
+        trimEndRegexp = new RegExp(ws + ws + "*$");
+    String.prototype.trim = function trim() {
+        return String(this).replace(trimBeginRegexp, "").replace(trimEndRegexp, "");
+    };
+}
+
+function toInteger(n) {
+    n = +n;
+    if (n !== n) { // isNaN
+        n = 0;
+    } else if (n !== 0 && n !== (1/0) && n !== -(1/0)) {
+        n = (n > 0 || -1) * Math.floor(Math.abs(n));
+    }
+    return n;
+}
+
+function isPrimitive(input) {
+    var type = typeof input;
+    return (
+        input === null ||
+        type === "undefined" ||
+        type === "boolean" ||
+        type === "number" ||
+        type === "string"
+    );
+}
+
+function toPrimitive(input) {
+    var val, valueOf, toString;
+    if (isPrimitive(input)) {
+        return input;
+    }
+    valueOf = input.valueOf;
+    if (typeof valueOf === "function") {
+        val = valueOf.call(input);
+        if (isPrimitive(val)) {
+            return val;
+        }
+    }
+    toString = input.toString;
+    if (typeof toString === "function") {
+        val = toString.call(input);
+        if (isPrimitive(val)) {
+            return val;
+        }
+    }
+    throw new TypeError();
+}
+var toObject = function (o) {
+    if (o == null) { // this matches both null and undefined
+        throw new TypeError("can't convert "+o+" to object");
+    }
+    return Object(o);
+};
+
+});
