@@ -1184,4 +1184,580 @@ var Document = function(textOrLines) {
             column: (lines.length == 1 ? start.column : 0) + lines[lines.length - 1].length
         };
         
-        t
+        this.applyDelta({
+            start: start,
+            end: end,
+            action: "insert",
+            lines: lines
+        });
+        
+        return this.clonePos(end);
+    };
+    this.remove = function(range) {
+        var start = this.clippedPos(range.start.row, range.start.column);
+        var end = this.clippedPos(range.end.row, range.end.column);
+        this.applyDelta({
+            start: start,
+            end: end,
+            action: "remove",
+            lines: this.getLinesForRange({start: start, end: end})
+        });
+        return this.clonePos(start);
+    };
+    this.removeInLine = function(row, startColumn, endColumn) {
+        var start = this.clippedPos(row, startColumn);
+        var end = this.clippedPos(row, endColumn);
+        
+        this.applyDelta({
+            start: start,
+            end: end,
+            action: "remove",
+            lines: this.getLinesForRange({start: start, end: end})
+        }, true);
+        
+        return this.clonePos(start);
+    };
+    this.removeFullLines = function(firstRow, lastRow) {
+        firstRow = Math.min(Math.max(0, firstRow), this.getLength() - 1);
+        lastRow  = Math.min(Math.max(0, lastRow ), this.getLength() - 1);
+        var deleteFirstNewLine = lastRow == this.getLength() - 1 && firstRow > 0;
+        var deleteLastNewLine  = lastRow  < this.getLength() - 1;
+        var startRow = ( deleteFirstNewLine ? firstRow - 1                  : firstRow                    );
+        var startCol = ( deleteFirstNewLine ? this.getLine(startRow).length : 0                           );
+        var endRow   = ( deleteLastNewLine  ? lastRow + 1                   : lastRow                     );
+        var endCol   = ( deleteLastNewLine  ? 0                             : this.getLine(endRow).length ); 
+        var range = new Range(startRow, startCol, endRow, endCol);
+        var deletedLines = this.$lines.slice(firstRow, lastRow + 1);
+        
+        this.applyDelta({
+            start: range.start,
+            end: range.end,
+            action: "remove",
+            lines: this.getLinesForRange(range)
+        });
+        return deletedLines;
+    };
+    this.removeNewLine = function(row) {
+        if (row < this.getLength() - 1 && row >= 0) {
+            this.applyDelta({
+                start: this.pos(row, this.getLine(row).length),
+                end: this.pos(row + 1, 0),
+                action: "remove",
+                lines: ["", ""]
+            });
+        }
+    };
+    this.replace = function(range, text) {
+        if (!(range instanceof Range))
+            range = Range.fromPoints(range.start, range.end);
+        if (text.length === 0 && range.isEmpty())
+            return range.start;
+        if (text == this.getTextRange(range))
+            return range.end;
+
+        this.remove(range);
+        var end;
+        if (text) {
+            end = this.insert(range.start, text);
+        }
+        else {
+            end = range.start;
+        }
+        
+        return end;
+    };
+    this.applyDeltas = function(deltas) {
+        for (var i=0; i<deltas.length; i++) {
+            this.applyDelta(deltas[i]);
+        }
+    };
+    this.revertDeltas = function(deltas) {
+        for (var i=deltas.length-1; i>=0; i--) {
+            this.revertDelta(deltas[i]);
+        }
+    };
+    this.applyDelta = function(delta, doNotValidate) {
+        var isInsert = delta.action == "insert";
+        if (isInsert ? delta.lines.length <= 1 && !delta.lines[0]
+            : !Range.comparePoints(delta.start, delta.end)) {
+            return;
+        }
+        
+        if (isInsert && delta.lines.length > 20000) {
+            this.$splitAndapplyLargeDelta(delta, 20000);
+        }
+        else {
+            applyDelta(this.$lines, delta, doNotValidate);
+            this._signal("change", delta);
+        }
+    };
+    
+    this.$splitAndapplyLargeDelta = function(delta, MAX) {
+        var lines = delta.lines;
+        var l = lines.length - MAX + 1;
+        var row = delta.start.row; 
+        var column = delta.start.column;
+        for (var from = 0, to = 0; from < l; from = to) {
+            to += MAX - 1;
+            var chunk = lines.slice(from, to);
+            chunk.push("");
+            this.applyDelta({
+                start: this.pos(row + from, column),
+                end: this.pos(row + to, column = 0),
+                action: delta.action,
+                lines: chunk
+            }, true);
+        }
+        delta.lines = lines.slice(from);
+        delta.start.row = row + from;
+        delta.start.column = column;
+        this.applyDelta(delta, true);
+    };
+    this.revertDelta = function(delta) {
+        this.applyDelta({
+            start: this.clonePos(delta.start),
+            end: this.clonePos(delta.end),
+            action: (delta.action == "insert" ? "remove" : "insert"),
+            lines: delta.lines.slice()
+        });
+    };
+    this.indexToPosition = function(index, startRow) {
+        var lines = this.$lines || this.getAllLines();
+        var newlineLength = this.getNewLineCharacter().length;
+        for (var i = startRow || 0, l = lines.length; i < l; i++) {
+            index -= lines[i].length + newlineLength;
+            if (index < 0)
+                return {row: i, column: index + lines[i].length + newlineLength};
+        }
+        return {row: l-1, column: index + lines[l-1].length + newlineLength};
+    };
+    this.positionToIndex = function(pos, startRow) {
+        var lines = this.$lines || this.getAllLines();
+        var newlineLength = this.getNewLineCharacter().length;
+        var index = 0;
+        var row = Math.min(pos.row, lines.length);
+        for (var i = startRow || 0; i < row; ++i)
+            index += lines[i].length + newlineLength;
+
+        return index + pos.column;
+    };
+
+}).call(Document.prototype);
+
+exports.Document = Document;
+});
+
+define("ace/worker/mirror",[], function(require, exports, module) {
+"use strict";
+
+var Range = require("../range").Range;
+var Document = require("../document").Document;
+var lang = require("../lib/lang");
+    
+var Mirror = exports.Mirror = function(sender) {
+    this.sender = sender;
+    var doc = this.doc = new Document("");
+    
+    var deferredUpdate = this.deferredUpdate = lang.delayedCall(this.onUpdate.bind(this));
+    
+    var _self = this;
+    sender.on("change", function(e) {
+        var data = e.data;
+        if (data[0].start) {
+            doc.applyDeltas(data);
+        } else {
+            for (var i = 0; i < data.length; i += 2) {
+                if (Array.isArray(data[i+1])) {
+                    var d = {action: "insert", start: data[i], lines: data[i+1]};
+                } else {
+                    var d = {action: "remove", start: data[i], end: data[i+1]};
+                }
+                doc.applyDelta(d, true);
+            }
+        }
+        if (_self.$timeout)
+            return deferredUpdate.schedule(_self.$timeout);
+        _self.onUpdate();
+    });
+};
+
+(function() {
+    
+    this.$timeout = 500;
+    
+    this.setTimeout = function(timeout) {
+        this.$timeout = timeout;
+    };
+    
+    this.setValue = function(value) {
+        this.doc.setValue(value);
+        this.deferredUpdate.schedule(this.$timeout);
+    };
+    
+    this.getValue = function(callbackId) {
+        this.sender.callback(this.doc.getValue(), callbackId);
+    };
+    
+    this.onUpdate = function() {
+    };
+    
+    this.isPending = function() {
+        return this.deferredUpdate.isPending();
+    };
+    
+}).call(Mirror.prototype);
+
+});
+
+define("ace/mode/xml/sax",[], function(require, exports, module) {
+var nameStartChar = /[A-Z_a-z\xC0-\xD6\xD8-\xF6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]///\u10000-\uEFFFF
+var nameChar = new RegExp("[\\-\\.0-9"+nameStartChar.source.slice(1,-1)+"\u00B7\u0300-\u036F\\ux203F-\u2040]");
+var tagNamePattern = new RegExp('^'+nameStartChar.source+nameChar.source+'*(?:\:'+nameStartChar.source+nameChar.source+'*)?$');
+var S_TAG = 0;//tag name offerring
+var S_ATTR = 1;//attr name offerring 
+var S_ATTR_S=2;//attr name end and space offer
+var S_EQ = 3;//=space?
+var S_V = 4;//attr value(no quot value only)
+var S_E = 5;//attr value end and no space(quot end)
+var S_S = 6;//(attr value end || tag end ) && (space offer)
+var S_C = 7;//closed el<el />
+
+function XMLReader(){
+	
+}
+
+XMLReader.prototype = {
+	parse:function(source,defaultNSMap,entityMap){
+		var domBuilder = this.domBuilder;
+		domBuilder.startDocument();
+		_copy(defaultNSMap ,defaultNSMap = {})
+		parse(source,defaultNSMap,entityMap,
+				domBuilder,this.errorHandler);
+		domBuilder.endDocument();
+	}
+}
+function parse(source,defaultNSMapCopy,entityMap,domBuilder,errorHandler){
+  function fixedFromCharCode(code) {
+		if (code > 0xffff) {
+			code -= 0x10000;
+			var surrogate1 = 0xd800 + (code >> 10)
+				, surrogate2 = 0xdc00 + (code & 0x3ff);
+
+			return String.fromCharCode(surrogate1, surrogate2);
+		} else {
+			return String.fromCharCode(code);
+		}
+	}
+	function entityReplacer(a){
+		var k = a.slice(1,-1);
+		if(k in entityMap){
+			return entityMap[k]; 
+		}else if(k.charAt(0) === '#'){
+			return fixedFromCharCode(parseInt(k.substr(1).replace('x','0x')))
+		}else{
+			errorHandler.error('entity not found:'+a);
+			return a;
+		}
+	}
+	function appendText(end){//has some bugs
+		var xt = source.substring(start,end).replace(/&#?\w+;/g,entityReplacer);
+		locator&&position(start);
+		domBuilder.characters(xt,0,end-start);
+		start = end
+	}
+	function position(start,m){
+		while(start>=endPos && (m = linePattern.exec(source))){
+			startPos = m.index;
+			endPos = startPos + m[0].length;
+			locator.lineNumber++;
+		}
+		locator.columnNumber = start-startPos+1;
+	}
+	var startPos = 0;
+	var endPos = 0;
+	var linePattern = /.+(?:\r\n?|\n)|.*$/g
+	var locator = domBuilder.locator;
+	
+	var parseStack = [{currentNSMap:defaultNSMapCopy}]
+	var closeMap = {};
+	var start = 0;
+	while(true){
+		var i = source.indexOf('<',start);
+		if(i<0){
+			if(!source.substr(start).match(/^\s*$/)){
+				var doc = domBuilder.document;
+    			var text = doc.createTextNode(source.substr(start));
+    			doc.appendChild(text);
+    			domBuilder.currentElement = text;
+			}
+			return;
+		}
+		if(i>start){
+			appendText(i);
+		}
+		switch(source.charAt(i+1)){
+		case '/':
+			var end = source.indexOf('>',i+3);
+			var tagName = source.substring(i+2,end);
+			var config;
+			if (parseStack.length > 1) {
+				config = parseStack.pop();
+			} else {
+				errorHandler.fatalError("end tag name not found for: "+tagName);
+				break;
+			}
+			var localNSMap = config.localNSMap;
+			
+	        if(config.tagName != tagName){
+	            errorHandler.fatalError("end tag name: " + tagName + " does not match the current start tagName: "+config.tagName );
+	        }
+			domBuilder.endElement(config.uri,config.localName,tagName);
+			if(localNSMap){
+				for(var prefix in localNSMap){
+					domBuilder.endPrefixMapping(prefix) ;
+				}
+			}
+			end++;
+			break;
+		case '?':// <?...?>
+			locator&&position(i);
+			end = parseInstruction(source,i,domBuilder);
+			break;
+		case '!':// <!doctype,<![CDATA,<!--
+			locator&&position(i);
+			end = parseDCC(source,i,domBuilder,errorHandler);
+			break;
+		default:
+			try{
+				locator&&position(i);
+				
+				var el = new ElementAttributes();
+				var end = parseElementStartPart(source,i,el,entityReplacer,errorHandler);
+				var len = el.length;
+				if(len && locator){
+					var backup = copyLocator(locator,{});
+					for(var i = 0;i<len;i++){
+						var a = el[i];
+						position(a.offset);
+						a.offset = copyLocator(locator,{});
+					}
+					copyLocator(backup,locator);
+				}
+				if(!el.closed && fixSelfClosed(source,end,el.tagName,closeMap)){
+					el.closed = true;
+					if(!entityMap.nbsp){
+						errorHandler.warning('unclosed xml attribute');
+					}
+				}
+				appendElement(el,domBuilder,parseStack);
+				
+				
+				if(el.uri === 'http://www.w3.org/1999/xhtml' && !el.closed){
+					end = parseHtmlSpecialContent(source,end,el.tagName,entityReplacer,domBuilder)
+				}else{
+					end++;
+				}
+			}catch(e){
+				errorHandler.error('element parse error: '+e);
+				end = -1;
+			}
+
+		}
+		if(end<0){
+			appendText(i+1);
+		}else{
+			start = end;
+		}
+	}
+}
+function copyLocator(f,t){
+	t.lineNumber = f.lineNumber;
+	t.columnNumber = f.columnNumber;
+	return t;
+	
+}
+function parseElementStartPart(source,start,el,entityReplacer,errorHandler){
+	var attrName;
+	var value;
+	var p = ++start;
+	var s = S_TAG;//status
+	while(true){
+		var c = source.charAt(p);
+		switch(c){
+		case '=':
+			if(s === S_ATTR){//attrName
+				attrName = source.slice(start,p);
+				s = S_EQ;
+			}else if(s === S_ATTR_S){
+				s = S_EQ;
+			}else{
+				throw new Error('attribute equal must after attrName');
+			}
+			break;
+		case '\'':
+		case '"':
+			if(s === S_EQ){//equal
+				start = p+1;
+				p = source.indexOf(c,start)
+				if(p>0){
+					value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
+					el.add(attrName,value,start-1);
+					s = S_E;
+				}else{
+					throw new Error('attribute value no end \''+c+'\' match');
+				}
+			}else if(s == S_V){
+				value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
+				el.add(attrName,value,start);
+				errorHandler.warning('attribute "'+attrName+'" missed start quot('+c+')!!');
+				start = p+1;
+				s = S_E
+			}else{
+				throw new Error('attribute value must after "="');
+			}
+			break;
+		case '/':
+			switch(s){
+			case S_TAG:
+				el.setTagName(source.slice(start,p));
+			case S_E:
+			case S_S:
+			case S_C:
+				s = S_C;
+				el.closed = true;
+			case S_V:
+			case S_ATTR:
+			case S_ATTR_S:
+				break;
+			default:
+				throw new Error("attribute invalid close char('/')")
+			}
+			break;
+		case ''://end document
+			errorHandler.error('unexpected end of input');
+		case '>':
+			switch(s){
+			case S_TAG:
+				el.setTagName(source.slice(start,p));
+			case S_E:
+			case S_S:
+			case S_C:
+				break;//normal
+			case S_V://Compatible state
+			case S_ATTR:
+				value = source.slice(start,p);
+				if(value.slice(-1) === '/'){
+					el.closed  = true;
+					value = value.slice(0,-1)
+				}
+			case S_ATTR_S:
+				if(s === S_ATTR_S){
+					value = attrName;
+				}
+				if(s == S_V){
+					errorHandler.warning('attribute "'+value+'" missed quot(")!!');
+					el.add(attrName,value.replace(/&#?\w+;/g,entityReplacer),start)
+				}else{
+					errorHandler.warning('attribute "'+value+'" missed value!! "'+value+'" instead!!')
+					el.add(value,value,start)
+				}
+				break;
+			case S_EQ:
+				throw new Error('attribute value missed!!');
+			}
+			return p;
+		case '\u0080':
+			c = ' ';
+		default:
+			if(c<= ' '){//space
+				switch(s){
+				case S_TAG:
+					el.setTagName(source.slice(start,p));//tagName
+					s = S_S;
+					break;
+				case S_ATTR:
+					attrName = source.slice(start,p)
+					s = S_ATTR_S;
+					break;
+				case S_V:
+					var value = source.slice(start,p).replace(/&#?\w+;/g,entityReplacer);
+					errorHandler.warning('attribute "'+value+'" missed quot(")!!');
+					el.add(attrName,value,start)
+				case S_E:
+					s = S_S;
+					break;
+				}
+			}else{//not space
+				switch(s){
+				case S_ATTR_S:
+					errorHandler.warning('attribute "'+attrName+'" missed value!! "'+attrName+'" instead!!')
+					el.add(attrName,attrName,start);
+					start = p;
+					s = S_ATTR;
+					break;
+				case S_E:
+					errorHandler.warning('attribute space is required"'+attrName+'"!!')
+				case S_S:
+					s = S_ATTR;
+					start = p;
+					break;
+				case S_EQ:
+					s = S_V;
+					start = p;
+					break;
+				case S_C:
+					throw new Error("elements closed character '/' and '>' must be connected to");
+				}
+			}
+		}
+		p++;
+	}
+}
+function appendElement(el,domBuilder,parseStack){
+	var tagName = el.tagName;
+	var localNSMap = null;
+	var currentNSMap = parseStack[parseStack.length-1].currentNSMap;
+	var i = el.length;
+	while(i--){
+		var a = el[i];
+		var qName = a.qName;
+		var value = a.value;
+		var nsp = qName.indexOf(':');
+		if(nsp>0){
+			var prefix = a.prefix = qName.slice(0,nsp);
+			var localName = qName.slice(nsp+1);
+			var nsPrefix = prefix === 'xmlns' && localName
+		}else{
+			localName = qName;
+			prefix = null
+			nsPrefix = qName === 'xmlns' && ''
+		}
+		a.localName = localName ;
+		if(nsPrefix !== false){//hack!!
+			if(localNSMap == null){
+				localNSMap = {}
+				_copy(currentNSMap,currentNSMap={})
+			}
+			currentNSMap[nsPrefix] = localNSMap[nsPrefix] = value;
+			a.uri = 'http://www.w3.org/2000/xmlns/'
+			domBuilder.startPrefixMapping(nsPrefix, value) 
+		}
+	}
+	var i = el.length;
+	while(i--){
+		a = el[i];
+		var prefix = a.prefix;
+		if(prefix){//no prefix attribute has no namespace
+			if(prefix === 'xml'){
+				a.uri = 'http://www.w3.org/XML/1998/namespace';
+			}if(prefix !== 'xmlns'){
+				a.uri = currentNSMap[prefix]
+			}
+		}
+	}
+	var nsp = tagName.indexOf(':');
+	if(nsp>0){
+		prefix = el.prefix = tagName.slice(0,nsp);
+		localName = el.localName = tagName.slice(nsp+1);
+	}else{
+		prefix = null;//imp
