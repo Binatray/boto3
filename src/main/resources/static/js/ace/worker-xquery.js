@@ -2098,4 +2098,503 @@ exports.StaticContext = function (parent, pos) {
             var arity = params.length;
             if(
                 this.moduleNamespace !== '' &&
-                !(this.modu
+                !(this.moduleNamespace === qname.uri || (qname.uri === '' && this.defaultFunctionNamespace === this.moduleNamespace))
+            ) {
+                throw new StaticError('XQST0048', '"' + qname.prefix + ':' + qname.name + '": Qname not library namespace', pos);
+            }
+            var key = getFnKey(qname, arity);
+            if(this.functions[key]) {
+                throw new StaticError('XQST0034', '"' + qname.name + '": duplicate function declaration', pos);
+            }
+            this.functions[key] = {
+                pos: pos,
+                params: params
+            };
+            return this;
+        }
+        
+    };
+    s.root = parent ? parent.root : s;
+    return s;
+};
+
+},{"../tree_ops":"/node_modules/xqlint/lib/tree_ops.js","./errors":"/node_modules/xqlint/lib/compiler/errors.js","./schema_built-in_types":"/node_modules/xqlint/lib/compiler/schema_built-in_types.js"}],"/node_modules/xqlint/lib/compiler/translator.js":[function(_dereq_,module,exports){
+exports.Translator = function(rootStcx, ast){
+    'use strict';
+
+    var Errors = _dereq_('./errors');
+    var StaticError = Errors.StaticError;
+    var StaticWarning = Errors.StaticWarning;
+    
+    var TreeOps = _dereq_('../tree_ops').TreeOps;
+    var StaticContext = _dereq_('./static_context').StaticContext;
+    var Handlers = _dereq_('./handlers');
+    
+    var get = function(node, path){
+        var result = [];
+        if(path.length === 0){
+            return node;
+        }
+        node.children.forEach(function(child){
+            if(child.name === path[0] && path.length > 1) {
+                result = get(child, path.slice(1));
+            } else if(child.name === path[0]) {
+                result.push(child);
+            }
+        });
+        return result;
+    };
+    
+    var markers = [];
+    this.apply = function(fn) {
+        try {
+            fn();
+        } catch(e) {
+            if(e instanceof StaticError) {
+                addStaticError(e);
+            } else if(e instanceof StaticWarning) {
+                addWarning(e.getCode(), e.getMessage(), e.getPos());
+            } else {
+                throw e;
+            }
+        }
+    };
+
+    var addStaticError = function(e){
+        markers.push({
+            pos: e.getPos(),
+            type: 'error',
+            level: 'error',
+            message: '[' + e.getCode() + '] ' + e.getMessage()
+        });
+    };
+    
+    var addWarning = function(code, message, pos) {
+        markers.push({
+            pos: pos,
+            type: 'warning',
+            level: 'warning',
+            message: '[' + code + '] ' + message
+        });
+    };
+    
+    this.getMarkers = function(){
+        return markers;
+    };
+
+    var translator = this;
+
+    rootStcx.pos = ast.pos;
+    var sctx = rootStcx;
+    var pushSctx = function(pos){
+        sctx = new StaticContext(sctx, pos);
+        sctx.parent.children.push(sctx);
+    };
+    
+    var popSctx = function(pos){
+        if (pos !== undefined) {
+            sctx.pos.el = pos.el;
+            sctx.pos.ec = pos.ec;
+        }
+
+        Object.keys(sctx.varRefs).forEach(function(key){
+            if(!sctx.variables[key]) {
+                sctx.parent.varRefs[key] = true;
+            }
+        });
+        Object.keys(sctx.variables).forEach(function(key){
+            if(!sctx.varRefs[key] && sctx.variables[key].type !== 'GroupingVariable' && sctx.variables[key].type !== 'CatchVar') {
+                addWarning('W03', 'Unused variable "$' + sctx.variables[key].qname.name + '"', sctx.variables[key].pos);
+            }
+        });
+        
+        sctx = sctx.parent;
+    };
+    
+    this.visitOnly = function(node, names) {
+        node.children.forEach(function(child){
+            if (names.indexOf(child.name) !== -1){
+                translator.visit(child);
+            }
+        });
+    };
+    
+    this.getFirstChild = function(node, name) {
+        var result;
+        node.children.forEach(function(child){
+            if(child.name === name && result === undefined){
+                result = child;
+            }
+        });
+        return result;
+    };
+
+    this.XQuery = function(node) {
+        rootStcx.description = node.comment ? node.comment.description : undefined;
+    };
+    
+    this.ModuleDecl = function(node){
+        this.visitChildren(node, Handlers.ModuleDecl(translator, rootStcx, node));
+        return true;
+    };
+    
+    this.Prolog = function(node){
+        this.visitOnly(node, ['DefaultNamespaceDecl', 'Setter', 'NamespaceDecl', 'Import']);
+        ast.index.forEach(function(node){
+            if(node.name === 'VarDecl') {
+                node.children.forEach(function(child){
+                    if(child.name === 'VarName') {
+                        translator.apply(function(){
+                            var value = TreeOps.flatten(child);
+                            var qname = rootStcx.resolveQName(value, child.pos);
+                            rootStcx.addVariable(qname, node.name, child.pos);
+                        });
+                    }
+                });
+            } else if(node.name === 'FunctionDecl') {
+                var qname, pos, params = [];
+                node.children.forEach(function(child){
+                    if(child.name === 'EQName') {
+                        qname = child;
+                        pos = child.pos;
+                    } else if(child.name === 'ParamList'){
+                        child.children.forEach(function(c){
+                            if(c.name === 'Param') {
+                                params.push(TreeOps.flatten(c));
+                            }
+                        });
+                    }
+                });
+                translator.apply(function(){
+                    qname = TreeOps.flatten(qname);
+                    qname = rootStcx.resolveQName(qname, pos);
+                    rootStcx.addFunction(qname, pos, params);
+                });
+            }
+        });
+        this.visitOnly(node, ['ContextItemDecl', 'AnnotatedDecl', 'OptionDecl']);
+        return true;
+    };
+    
+    this.ModuleImport = function (node) {
+        this.visitChildren(node, Handlers.ModuleImport(translator, rootStcx, node));
+        return true;
+    };
+    
+    this.SchemaImport = function (node) {
+        this.visitChildren(node, Handlers.SchemaImport(translator, rootStcx, node));
+        return true;
+    };
+    
+    this.DefaultNamespaceDecl = function(node){
+        this.visitChildren(node, Handlers.DefaultNamespaceDecl(translator, rootStcx, node));
+        return true;
+    };
+    
+    this.NamespaceDecl = function (node) {
+        this.visitChildren(node, Handlers.NamespaceDecl(translator, rootStcx, node));
+        return true;
+    };
+    
+    var annotations = {};
+    this.AnnotatedDecl = function(node) {
+        annotations = {};
+        this.visitChildren(node, Handlers.NamespaceDecl(translator, rootStcx, node));
+        return true;
+    };
+    
+    this.CompatibilityAnnotation = function(){
+        annotations['http://www.w3.org/2012/xquery#updating'] = [];
+        return true;
+    };
+    
+    this.Annotation = function(node){
+        this.visitChildren(node, {
+            EQName: function(eqname){
+                var value = TreeOps.flatten(eqname);
+                translator.apply(function(){
+                    var qname = sctx.resolveQName(value, eqname.pos);
+                    annotations[qname.uri + '#' + qname.name] = [];
+                });
+            }
+        });
+        return true;
+    };
+    
+    this.VarDecl = function(node){
+        try {
+            var varname = translator.getFirstChild(node, 'VarName');
+            var value = TreeOps.flatten(varname);
+            var qname = sctx.resolveQName(value, varname.pos);
+            var variable = rootStcx.getVariable(qname);
+            if(variable) {
+                variable.annotations = annotations;
+                variable.description = node.getParent.comment ? node.getParent.comment.description : undefined;
+                variable.type = TreeOps.flatten(get(node, ['TypeDeclaration'])[0]).substring(2).trim();
+                var last = variable.type.substring(variable.type.length - 1);
+                if(last === '?') {
+                    variable.occurrence = 0;
+                    variable.type = variable.type.substring(0, variable.type.length - 1);
+                } else if(last === '*') {
+                    variable.occurrence = -1;
+                    variable.type = variable.type.substring(0, variable.type.length - 1);
+                } else if(last === '+') {
+                    variable.occurrence = 2;
+                    variable.type = variable.type.substring(0, variable.type.length - 1);
+                } else {
+                    variable.occurrence = 1;
+                }
+            }
+        } catch(e) {
+        }
+        this.visitOnly(node, ['ExprSingle', 'VarValue', 'VarDefaultValue']);
+        return true;
+    };
+    
+    this.FunctionDecl = function(node) {
+        var isUpdating = annotations['http://www.w3.org/2012/xquery#updating'] !== undefined;
+        var typeDecl = get(node, ['ReturnType'])[0];
+        var name = get(node, ['EQName'])[0];
+        if(!typeDecl && !isUpdating){
+            addWarning('W05', 'Untyped return value', name.pos);
+        }
+        var isExternal = false;
+        node.children.forEach(function(child){
+            if(child.name === 'TOKEN' && child.value === 'external') {
+                isExternal = true;
+                return false;
+            }
+        });
+        if(!isExternal) {
+            pushSctx(node.pos);
+            this.visitChildren(node);
+            popSctx();
+        }
+        return true;
+    };
+    
+    this.VarRef = function(node) {
+        this.visitChildren(node, Handlers.VarRefHandler(translator, sctx, node));
+        return true;
+    };
+    
+    this.Param = function(node){
+        var typeDecl = get(node, ['TypeDeclaration'])[0];
+        if(!typeDecl){
+            addWarning('W05', 'Untyped function parameter', node.pos);
+        }
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+    
+    this.InlineFunctionExpr	= function(node) {
+        pushSctx(node.pos);
+        this.visitChildren(node);
+        popSctx();
+        return true;
+    };
+    var statementCount = [];
+    var handleStatements = function(node) {
+        pushSctx(node.pos);
+        statementCount.push(0);
+        translator.visitChildren(node);
+        for (var i = 1; i <= statementCount[statementCount.length - 1]; i++) {
+            popSctx(node.pos);
+        }
+        statementCount.pop();
+        popSctx();
+    };
+
+    this.StatementsAndOptionalExpr = function (node) {
+        handleStatements(node);
+        return true;
+    };
+
+    this.StatementsAndExpr = function (node) {
+        handleStatements(node);
+        return true;
+    };
+
+    this.BlockStatement = function (node) {
+        handleStatements(node);
+        return true;
+    };
+    
+    this.VarDeclStatement = function(node){
+        pushSctx(node.pos);
+        statementCount[statementCount.length - 1]++;
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+    };
+    var clauses = [];
+    this.FLWORExpr = this.FLWORStatement = function (node) {
+        pushSctx(node.pos);
+        clauses.push(0);
+        this.visitChildren(node);
+        for(var i=1; i <= clauses[clauses.length - 1]; i++) {
+            popSctx(node.pos);
+        }
+        clauses.pop();
+        popSctx();
+        return true;
+    };
+    
+    this.ForBinding = function (node) {
+        this.visitOnly(node, ['ExprSingle', 'VarValue', 'VarDefaultValue']);
+        pushSctx(node.pos);
+        clauses[clauses.length - 1]++;
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+    
+    this.LetBinding = function(node){
+        this.visitOnly(node, ['ExprSingle', 'VarValue', 'VarDefaultValue']);
+        pushSctx(node.pos);
+        clauses[clauses.length - 1]++;
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+
+    this.GroupingSpec = function(node){
+        var isVarDecl = false;
+        node.children.forEach(function(child){
+            if(child.value === ':=') {
+                isVarDecl = true;
+                return false;
+            }
+        });
+        if(isVarDecl) {
+            var groupingVariable = node.children[0];
+            this.visitOnly(node, ['ExprSingle', 'VarValue', 'VarDefaultValue']);
+            pushSctx(node.pos);
+            clauses[clauses.length - 1]++;
+            this.visitChildren(groupingVariable, Handlers.VarHandler(translator, sctx, groupingVariable));
+            return true;
+        } else {
+            
+        }
+    };
+    
+    this.TumblingWindowClause = function (node) {
+        this.visitOnly(node, ['ExprSingle']);
+        pushSctx(node.pos);
+        clauses[clauses.length - 1]++;
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        this.visitOnly(node, ['WindowStartCondition', 'WindowEndCondition']);
+        return true;
+    };
+
+    this.WindowVars = function (node) {
+        pushSctx(node.pos);
+        clauses[clauses.length - 1]++;
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+
+    this.SlidingWindowClause = function (node) {
+        this.visitOnly(node, ['ExprSingle', 'VarValue', 'VarDefaultValue']);
+        pushSctx(node.pos);
+        clauses[clauses.length - 1]++;
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        this.visitOnly(node, ['WindowStartCondition', 'WindowEndCondition']);
+        return true;
+    };
+
+    this.PositionalVar = function (node) {
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+
+    this.PositionalVar = function (node) {
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+
+    this.CurrentItem = function (node) {
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+
+    this.PreviousItem = function (node) {
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+
+    this.NextItem = function (node) {
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+
+    this.CountClause = function (node) {
+        pushSctx(node.pos);
+        clauses[clauses.length - 1]++;
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+
+    this.CaseClause = function(node) {
+        pushSctx(node.pos);
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        this.visitOnly(node, ['ExprSingle']);
+        popSctx();
+        return true;
+    };
+    var copies = [];
+    this.TransformExpr = function (node) {
+        pushSctx(node.pos);
+        copies.push(0);
+        this.visitChildren(node);
+        for(var i=1; i <= copies[copies.length - 1]; i++) {
+            popSctx(node.pos);
+        }
+        copies.pop();
+        popSctx();
+        return true;
+    };
+    
+    this.TransformSpec = function(node) {
+        this.visitOnly(node, ['ExprSingle']);
+        pushSctx(node.pos);
+        copies[copies.length-1] += 1;
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+    var quantifiedDecls = [];
+    this.QuantifiedExpr = function (node) {
+        pushSctx(node.pos);
+        quantifiedDecls.push(0);
+        this.visitChildren(node);
+        for(var i=1; i <= quantifiedDecls[quantifiedDecls.length - 1]; i++) {
+            popSctx(node.pos);
+        }
+        quantifiedDecls.pop();
+        popSctx();
+        return true;
+    };
+    
+    this.QuantifiedVarDecl = function(node) {
+        this.visitOnly(node, ['ExprSingle']);
+        pushSctx(node.pos);
+        quantifiedDecls[quantifiedDecls.length - 1]++;
+        this.visitChildren(node, Handlers.VarHandler(translator, sctx, node));
+        return true;
+    };
+    
+    this.FunctionCall = function(node){
+        this.visitOnly(node, ['ArgumentList']);
+        var name = translator.getFirstChild(node, 'EQName');
+        var eqname = TreeOps.flatten(name);
+        var arity = get(node, ['ArgumentList', 'Argument']).length;
+        translator.apply(function(){
+            var qname = sctx.resolveQName(eqname, node.pos);
+            try {
+                if(qname.uri !== '') {
+                    sctx.root.namespaces[qname.uri].used = true;
+                }
+            } catch(e){
+            }
+            sctx.addFunctionCall(qname, arity, name.pos);
+        });
+        return true;
+    };
+    
+    this
