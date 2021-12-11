@@ -2597,4 +2597,482 @@ exports.Translator = function(rootStcx, ast){
         return true;
     };
     
-    this
+    this.TryClause = function(node){
+        pushSctx(node.pos);
+        this.visitChildren(node);
+        popSctx();
+        return true;
+    };
+    
+    this.CatchClause = function(node){
+        pushSctx(node.pos);
+        var prefix = 'err';
+        var uri = 'http://www.w3.org/2005/xqt-errors';
+        var emptyPos = { sl: 0, sc: 0, el: 0, ec: 0 };
+        sctx.addVariable({ prefix: prefix, uri: uri, name: 'code' }, 'CatchVar', emptyPos);
+        sctx.addVariable({ prefix: prefix, uri: uri, name: 'description' }, 'CatchVar', emptyPos);
+        sctx.addVariable({ prefix: prefix, uri: uri, name: 'value' }, 'CatchVar', emptyPos);
+        sctx.addVariable({ prefix: prefix, uri: uri, name: 'module' }, 'CatchVar', emptyPos);
+        sctx.addVariable({ prefix: prefix, uri: uri, name: 'line-number' }, 'CatchVar', emptyPos);
+        sctx.addVariable({ prefix: prefix, uri: uri, name: 'column-number' }, 'CatchVar', emptyPos);
+        sctx.addVariable({ prefix: prefix, uri: uri, name: 'additional' }, 'CatchVar', emptyPos);
+        this.visitChildren(node);
+        popSctx();
+        return true;
+    };
+
+    this.Pragma = function(node){
+        var qname = TreeOps.flatten(get(node, ['EQName'])[0]);
+        qname = rootStcx.resolveQName(qname, node);
+        var value = TreeOps.flatten(get(node, ['PragmaContents'])[0]);
+        if (qname.name === 'xqlint' && qname.uri === 'http://xqlint.io') {
+            pushSctx(node.pos);
+            var commands = value.match(/[a-zA-Z]+\(([^)]+)\)/g);
+            commands.forEach(function (command) {
+                var name = command.substring(0, command.indexOf('('));
+                var args = command.substring(0, command.length - 1).substring(command.indexOf('(') + 1).split(',').map(function (val) {
+                    return val.trim();
+                });
+                if (name === 'varrefs') {
+                    args.forEach(function (arg) {
+                        var qname = sctx.resolveQName(arg.substring(1), node.pos);
+                        if (qname.uri !== '') {
+                            sctx.root.namespaces[qname.uri].used = true;
+                        }
+                        sctx.addVarRef(qname, node.pos);
+                    });
+                }
+            });
+            this.visitChildren(node);
+            popSctx();
+            return true;
+        }
+    };
+
+    this.visit = function (node) {
+        var name = node.name;
+        var skip = false;
+
+        if (typeof this[name] === 'function') {
+            skip = this[name](node) === true;
+        }
+
+        if (!skip) {
+            this.visitChildren(node);
+        }
+    };
+
+    this.visitChildren = function (node, handler) {
+        for (var i = 0; i < node.children.length; i++) {
+            var child = node.children[i];
+            if (handler !== undefined && typeof handler[child.name] === 'function') {
+                handler[child.name](child);
+            } else {
+                this.visit(child);
+            }
+        }
+    };
+
+    this.visit(ast);
+    Object.keys(rootStcx.variables).forEach(function(key){
+        if(!rootStcx.varRefs[key] && (rootStcx.variables[key].annotations['http://www.w3.org/2005/xpath-functions#private'] || rootStcx.moduleNamespace === '') && rootStcx.variables[key].pos) {
+            addWarning('W03', 'Unused variable "' + rootStcx.variables[key].qname.name + '"', rootStcx.variables[key].pos);
+        }
+    });
+    Object.keys(rootStcx.namespaces).forEach(function(uri){
+        var namespace = rootStcx.namespaces[uri];
+        if(namespace.used === undefined && !namespace.override && namespace.type === 'module') {
+            addWarning('W04', 'Unused module "' + uri + '"', namespace.pos);
+        }
+    });
+};
+
+},{"../tree_ops":"/node_modules/xqlint/lib/tree_ops.js","./errors":"/node_modules/xqlint/lib/compiler/errors.js","./handlers":"/node_modules/xqlint/lib/compiler/handlers.js","./static_context":"/node_modules/xqlint/lib/compiler/static_context.js"}],"/node_modules/xqlint/lib/completion/completer.js":[function(_dereq_,module,exports){
+'use strict';
+
+var TreeOps = _dereq_('../tree_ops').TreeOps;
+
+var ID_REGEX = /[a-zA-Z_0-9\$]/;
+
+function retrievePrecedingIdentifier(text, pos, regex) {
+    regex = regex || ID_REGEX;
+    var buf = [];
+    for (var i = pos-1; i >= 0; i--) {
+        if (regex.test(text[i])) {
+            buf.push(text[i]);
+        } else {
+            break;
+        }
+    }
+    return buf.reverse().join('');
+}
+
+function prefixBinarySearch(items, prefix) {
+    var startIndex = 0;
+    var stopIndex = items.length - 1;
+    var middle = Math.floor((stopIndex + startIndex) / 2);
+    
+    while (stopIndex > startIndex && middle >= 0 && items[middle].indexOf(prefix) !== 0) {
+        if (prefix < items[middle]) {
+            stopIndex = middle - 1;
+        } else if (prefix > items[middle]) {
+            startIndex = middle + 1;
+        }
+        middle = Math.floor((stopIndex + startIndex) / 2);
+    }
+    while (middle > 0 && items[middle-1].indexOf(prefix) === 0) {
+        middle--;
+    }
+    return middle >= 0 ? middle : 0; // ensure we're not returning a negative index
+}
+
+var uriRegex = /[a-zA-Z_0-9\/\.:\-#]/;
+var char = '-._A-Za-z0-9:\u00B7\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02ff\u0300-\u037D\u037F-\u1FFF\u200C\u200D\u203f\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD';
+var nameChar = '[' + char + ']';
+var varChar = '[' + char + '\\$]';
+var nameCharRegExp = new RegExp(nameChar);
+var varCharRegExp = new RegExp(varChar);
+
+var varDeclLabels = {
+    'LetBinding': 'Let binding',
+    'Param': 'Function parameter',
+    'QuantifiedExpr': 'Quantified expression binding',
+    'VarDeclStatement': 'Local variable',
+    'ForBinding': 'For binding',
+    'TumblingWindowClause': 'Tumbling window binding',
+    'WindowVars': 'Window variable',
+    'SlidingWindowClause': 'Sliding window binding',
+    'PositionalVar': 'Positional variable',
+    'CurrentItem': 'Current item',
+    'PreviousItem': 'Previous item',
+    'NextItem': 'Next item',
+    'CountClause': 'Count binding',
+    'GroupingVariable': 'Grouping variable',
+    'VarDecl': 'Module variable'
+};
+
+var findCompletions = function(prefix, allIdentifiers) {
+    allIdentifiers.sort();
+    var startIdx = prefixBinarySearch(allIdentifiers, prefix);
+    var matches = [];
+    for (var i = startIdx; i < allIdentifiers.length && allIdentifiers[i].indexOf(prefix) === 0; i++) {
+        matches.push(allIdentifiers[i]);
+    }
+    return matches;
+};
+
+
+var completePrefix = function(identifier, pos, sctx){
+    var idx = identifier.indexOf(':');
+    if(idx === -1) {
+        var prefixes = [];
+        var namespaces = sctx.getNamespaces();
+        Object.keys(namespaces).forEach(function(key){
+            if(namespaces[key].type === 'module' || key === 'http://www.w3.org/2005/xquery-local-functions') {
+                prefixes.push(namespaces[key].prefixes[0]);
+            }
+        });
+        var matches = findCompletions(identifier, prefixes);
+        var match = function(name) {
+            return {
+                name: name + ':',
+                value: name + ':',
+                meta: 'prefix'
+            };
+        };
+        return matches.map(match);
+    } else {
+        return [];
+    }
+};
+
+var completeFunction = function(identifier, pos, sctx){
+    var names = [];
+    var snippets = {};
+    var functions = sctx.getFunctions();
+    var uri = '';
+    var prefix = '';
+    var name = identifier;
+    var idx = identifier.indexOf(':');
+    var defaultNamespace = false;
+    if(idx !== -1){
+        prefix = identifier.substring(0, idx);
+        name = identifier.substring(idx + 1);
+        var ns = sctx.getNamespaceByPrefix(prefix);
+        if(ns){
+            uri = sctx.getNamespaceByPrefix(prefix).uri;
+        }
+    } else {
+        defaultNamespace = true;
+        uri = sctx.root.defaultFunctionNamespace;
+    }
+    Object.keys(functions).forEach(function(key){
+        var fn = functions[key];
+        var ns = key.substring(0, key.indexOf('#'));
+        var name = key.substring(key.indexOf('#') + 1);
+        name = name.substring(0, name.indexOf('#'));
+        if(ns !== uri) {
+            return;
+        }
+        if(!defaultNamespace){
+            name = sctx.getNamespaces()[ns].prefixes[0] + ':' + name;
+        }
+        name += '(';
+        var snippet = name;
+        snippet += fn.params.map(function(param, index){
+            return '${' + (index + 1) + ':\\' + param.split(' ')[0] + '}';
+        }).join(', ');
+        name += fn.params.join(', ');
+        name += ')';
+        snippet += ')';
+        names.push(name);
+        snippets[name] = snippet;
+    });
+    var matches = findCompletions(identifier, names);
+    var match = function(name) {
+        return {
+            name: name,
+            value: name,
+            meta: 'function',
+            priority: 4,
+            identifierRegex: nameCharRegExp,
+            snippet: snippets[name]
+        };
+    };
+    return matches.map(match);
+};
+
+var completeVariable = function(identifier, pos, sctx){
+    var uri = '';
+    var prefix = '';
+    var idx = identifier.indexOf(':');
+    if(idx !== -1){
+        prefix = identifier.substring(0, idx);
+        uri = sctx.getNamespaceByPrefix(prefix).uri;
+    }
+    var decls = sctx.getVariables();
+    var names = [];
+    var types = {};
+    Object.keys(decls).forEach(function(key){
+        var i = key.indexOf('#');
+        var ns = key.substring(0, i);
+        var name = key.substring(i+1);
+        if(ns !== ''){
+            names.push(sctx.getPrefixesByNamespace(ns)[0] + ':' + name);
+            types[sctx.getPrefixesByNamespace(ns)[0] + ':' + name] = decls[key].type;
+        } else {
+            names.push(name);
+            types[name] = decls[key].type;
+        }
+    });
+    
+    var matches = findCompletions(identifier, names);
+    var match = function(name) {
+        return {
+            name: '$' + name,
+            value: '$' + name,
+            meta: varDeclLabels[types[name]],
+            priority: 4,
+            identifierRegex: varCharRegExp
+        };
+    };
+    return matches.map(match);
+};
+
+var completeExpr = function(line, pos, sctx){
+    var identifier = retrievePrecedingIdentifier(line, pos.col, nameCharRegExp);
+    var before = line.substring(0, pos.col - (identifier.length === 0 ? 0 : identifier.length));
+    var isVar = before[before.length - 1] === '$';
+    if(isVar) {
+        return completeVariable(identifier, pos, sctx);
+    } else if(identifier !== '') {
+        return completeFunction(identifier, pos, sctx).concat(completePrefix(identifier, pos, sctx));
+    } else {
+        return completeVariable(identifier, pos, sctx).concat(completeFunction(identifier, pos, sctx)).concat(completePrefix(identifier, pos, sctx));
+    }
+};
+
+var completeModuleUri = function(line, pos, sctx){
+    var identifier = retrievePrecedingIdentifier(line, pos.col, uriRegex);
+    var matches = findCompletions(identifier, sctx.getAvailableModuleNamespaces());
+    var match = function(uri) {
+        return {
+            name: uri,
+            value: uri,
+            meta: 'module',
+            priority: 4,
+            identifierRegex: uriRegex
+        };
+    };
+    return matches.map(match);
+};
+
+exports.complete = function(source, ast, rootSctx, pos){
+    var line = source.split('\n')[pos.line];
+    var node = TreeOps.findNode(ast, pos);
+    var sctx = TreeOps.findNode(rootSctx, pos);
+    sctx = sctx ? sctx : rootSctx;
+    if(node && node.name === 'URILiteral' && node.getParent && node.getParent.name === 'ModuleImport'){
+        return completeModuleUri(line, pos, sctx);
+    } else {
+        return completeExpr(line, pos, sctx);
+    }
+};
+
+},{"../tree_ops":"/node_modules/xqlint/lib/tree_ops.js"}],"/node_modules/xqlint/lib/formatter/style_checker.js":[function(_dereq_,module,exports){
+exports.StyleChecker = function (ast, source) {
+    'use strict';
+
+    var tab = '    ';
+    var markers = [];
+    
+    this.getMarkers = function(){
+        return markers;
+    };
+
+    this.WS = function(node) {
+        var lines = node.value.split('\n');
+        lines.forEach(function(line, index){
+            var isFirst = index === 0;
+            var isLast  = index === (lines.length - 1);
+
+            if(/\r$/.test(line)) {
+                markers.push({
+                    pos: {
+                        sl: node.pos.sl + index,
+                        el: node.pos.sl + index,
+                        sc: line.length - 1,
+                        ec: line.length
+                    },
+                    type: 'warning',
+                    level: 'warning',
+                    message: '[SW01] Detected CRLF'
+                });
+            }
+            
+            var match = line.match(/\t+/);
+            if(match !== null){
+                markers.push({
+                    pos: {
+                        sl: node.pos.sl + index,
+                        el: node.pos.sl + index,
+                        sc: match.index,
+                        ec: match.index + match[0].length
+                    },
+                    type: 'warning',
+                    level: 'warning',
+                    message: '[SW02] Tabs detected'
+                });
+            }
+
+            if((!isFirst) && isLast){
+                match = line.match(/^\ +/);
+                if(match !== null) {
+                    var mod = match[0].length % tab.length;
+                    if(mod !== 0) {
+                        markers.push({
+                            pos: {
+                                sl: node.pos.sl + index,
+                                el: node.pos.sl + index,
+                                sc: match.index,
+                                ec: match.index + match[0].length
+                            },
+                            type: 'warning',
+                            level: 'warning',
+                            message: '[SW03] Unexcepted indentation of ' + match[0].length
+                        });
+                    }
+                }
+            }
+        });
+        return true;
+    };
+    
+    this.visit = function (node, index) {
+        var name = node.name;
+        var skip = false;
+
+        if (typeof this[name] === 'function') {
+            skip = this[name](node, index) === true;
+        }
+
+        if (!skip) {
+            this.visitChildren(node);
+        }
+    };
+
+    this.visitChildren = function (node, handler) {
+        for (var i = 0; i < node.children.length; i++) {
+            var child = node.children[i];
+            if (handler !== undefined && typeof handler[child.name] === 'function') {
+                handler[child.name](child);
+            } else {
+                this.visit(child);
+            }
+        }
+    };
+
+    source.split('\n').forEach(function(line, index){
+        var match = line.match(/\ +$/);
+        if(match){
+            markers.push({
+                pos: {
+                    sl: index,
+                    el: index,
+                    sc: match.index,
+                    ec: match.index + match[0].length
+                },
+                type: 'warning',
+                level: 'warning',
+                message: '[SW04] Trailing whitespace'
+            });
+        }
+    });
+    this.visit(ast);
+};
+},{}],"/node_modules/xqlint/lib/lexers/JSONiqTokenizer.js":[function(_dereq_,module,exports){
+                                                            var JSONiqTokenizer = exports.JSONiqTokenizer = function JSONiqTokenizer(string, parsingEventHandler)
+                                                            {
+                                                              init(string, parsingEventHandler);
+  var self = this;
+
+  this.ParseException = function(b, e, s, o, x)
+  {
+    var
+      begin = b,
+      end = e,
+      state = s,
+      offending = o,
+      expected = x;
+
+    this.getBegin = function() {return begin;};
+    this.getEnd = function() {return end;};
+    this.getState = function() {return state;};
+    this.getExpected = function() {return expected;};
+    this.getOffending = function() {return offending;};
+
+    this.getMessage = function()
+    {
+      return offending < 0 ? "lexical analysis failed" : "syntax error";
+    };
+  };
+
+  function init(string, parsingEventHandler)
+  {
+    eventHandler = parsingEventHandler;
+    input = string;
+    size = string.length;
+    reset(0, 0, 0);
+  }
+
+  this.getInput = function()
+  {
+    return input;
+  };
+
+  function reset(l, b, e)
+  {
+            b0 = b; e0 = b;
+    l1 = l; b1 = b; e1 = e;
+    end = e;
+    eventHan
