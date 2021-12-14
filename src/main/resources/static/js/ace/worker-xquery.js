@@ -3589,4 +3589,470 @@ exports.StyleChecker = function (ast, source) {
       shift(122);                   // 'empty-sequence'
       break;
     case 143:                       // 'function'
-      shift(143);                   // 'f
+      shift(143);                   // 'function'
+      break;
+    case 150:                       // 'if'
+      shift(150);                   // 'if'
+      break;
+    case 163:                       // 'item'
+      shift(163);                   // 'item'
+      break;
+    case 183:                       // 'namespace-node'
+      shift(183);                   // 'namespace-node'
+      break;
+    case 189:                       // 'node'
+      shift(189);                   // 'node'
+      break;
+    case 214:                       // 'processing-instruction'
+      shift(214);                   // 'processing-instruction'
+      break;
+    case 224:                       // 'schema-attribute'
+      shift(224);                   // 'schema-attribute'
+      break;
+    case 225:                       // 'schema-element'
+      shift(225);                   // 'schema-element'
+      break;
+    case 241:                       // 'switch'
+      shift(241);                   // 'switch'
+      break;
+    case 242:                       // 'text'
+      shift(242);                   // 'text'
+      break;
+    case 251:                       // 'typeswitch'
+      shift(251);                   // 'typeswitch'
+      break;
+    default:
+      parse_FunctionName();
+    }
+    eventHandler.endNonterminal("EQName", e0);
+  }
+
+  function parse_FunctionName()
+  {
+    eventHandler.startNonterminal("FunctionName", e0);
+    switch (l1)
+    {
+    case 17:                        // EQName^Token
+      shift(17);                    // EQName^Token
+      break;
+    case 68:                        // 'after'
+      shift(68);                    // 'after'
+      break;
+    case 71:                        // 'ancestor'
+      shift(71);                    // 'ancestor'
+      break;
+    case 72:                        // 'ancestor-or-self'
+      shift(72);                    // 'ancestor-or-self'
+      break;
+    case 73:                        // 'and'
+      shift(73);                    // 'and'
+      break;
+    case 77:                        // 'as'
+      shift(77);                    // 'as'
+      break;
+    case 78:                        // 'ascending'
+      shift(78);                    // 'ascending'
+      break;
+    case 82:                        // 'before'
+      shift(82);                    // 'before'
+      break;
+    case 86:                        // 'case'
+      shift(86);                    // 'case'
+      break;
+    case 87:                        // 'cast'
+      shift(87);                    // 'cast'
+      break;
+    case 88:                        // 'castable'
+      shift(88);                    // 'castable'
+      break;
+    case 91:                        // 'child'
+      shift(91);                    // 'child'
+      break;
+    case 92:                        // 'collation'
+      shift(92);                    // 'collation'
+      break;
+    case 101:                       // 'copy'
+      shift(101);                   // 'copy'
+      break;
+    case 103:                       // 'count'
+      shift(103);                   // 'count'
+      break;
+    case 106:                       // 'declare'
+      shift(106);                   // 'declare'
+      break;
+    case 107:                       // 'default'
+      shift(107);                   // 'default'
+      break;
+    case 108:                       // 'delete'
+      shift(108);                   // 'delete'
+      break;
+    case 109:                       // 'descendant'
+      shift(109);                   // 'descendant'
+      break;
+    case 110:                       // 'descendant-or-self'
+      shift(110);                   // 'descendant-or-self'
+      break;
+    case 111:                       // 'descending'
+      shift(111);                   // 'descending'
+      break;
+    case 116:                       // 'div'
+      shift(116);                   // 'div'
+      break;
+    case 117:                       // 'document'
+      shift(117);                   // 'document'
+      break;
+    case 120:                       // 'else'
+      shift(120);                   // 'else'
+      break;
+    case 121:                       // 'empty'
+      shift(121);                   // 'empty'
+      break;
+    case 124:                       // 'end'
+      shift(124);                   // 'end'
+      break;
+    case 126:                       // 'eq'
+      shift(126);                   // 'eq'
+      break;
+    case 127:                       // 'every'
+      shift(127);                   // 'every'
+      break;
+    case 129:                       // 'except'
+      shift(129);                   // 'except'
+      break;
+    case 132:                       // 'first'
+      shift(132);                   // 'first'
+      break;
+    case 133:                       // 'following'
+      shift(133);                   // 'following'
+      break;
+    case 134:                       // 'following-sibling'
+      shift(134);                   // 'following-sibling'
+      break;
+    case 135:                       // 'for'
+      shift(135);                   // 'for'
+      break;
+    case 144:                       // 'ge'
+      shift(144);                   // 'ge'
+      break;
+    case 146:                       // 'group'
+      shift(146);                   // 'group'
+      break;
+    case 148:                       // 'gt'
+      shift(148);                   // 'gt'
+      break;
+    case 149:                       // 'idiv'
+      shift(149);                   // 'idiv'
+      break;
+    case 151:                       // 'import'
+      shift(151);                   // 'import'
+      break;
+    case 157:                       // 'insert'
+      shift(157);                   // 'insert'
+      break;
+    case 158:                       // 'instance'
+      shift(158);                   // 'instance'
+      break;
+    case 160:                       // 'intersect'
+      shift(160);                   // 'intersect'
+      break;
+    case 161:                       // 'into'
+      shift(161);                   // 'into'
+      break;
+    case 162:                       // 'is'
+      shift(162);                   // 'is'
+      break;
+    case 168:                       // 'last'
+      shift(168);                   // 'last'
+      break;
+    case 170:                       // 'le'
+      shift(170);                   // 'le'
+      break;
+    case 172:                       // 'let'
+      shift(172);                   // 'let'
+      break;
+    case 176:                       // 'lt'
+      shift(176);                   // 'lt'
+      break;
+    case 178:                       // 'mod'
+      shift(178);                   // 'mod'
+      break;
+    case 179:                       // 'modify'
+      shift(179);                   // 'modify'
+      break;
+    case 180:                       // 'module'
+      shift(180);                   // 'module'
+      break;
+    case 182:                       // 'namespace'
+      shift(182);                   // 'namespace'
+      break;
+    case 184:                       // 'ne'
+      shift(184);                   // 'ne'
+      break;
+    case 196:                       // 'only'
+      shift(196);                   // 'only'
+      break;
+    case 198:                       // 'or'
+      shift(198);                   // 'or'
+      break;
+    case 199:                       // 'order'
+      shift(199);                   // 'order'
+      break;
+    case 200:                       // 'ordered'
+      shift(200);                   // 'ordered'
+      break;
+    case 204:                       // 'parent'
+      shift(204);                   // 'parent'
+      break;
+    case 210:                       // 'preceding'
+      shift(210);                   // 'preceding'
+      break;
+    case 211:                       // 'preceding-sibling'
+      shift(211);                   // 'preceding-sibling'
+      break;
+    case 216:                       // 'rename'
+      shift(216);                   // 'rename'
+      break;
+    case 217:                       // 'replace'
+      shift(217);                   // 'replace'
+      break;
+    case 218:                       // 'return'
+      shift(218);                   // 'return'
+      break;
+    case 222:                       // 'satisfies'
+      shift(222);                   // 'satisfies'
+      break;
+    case 227:                       // 'self'
+      shift(227);                   // 'self'
+      break;
+    case 233:                       // 'some'
+      shift(233);                   // 'some'
+      break;
+    case 234:                       // 'stable'
+      shift(234);                   // 'stable'
+      break;
+    case 235:                       // 'start'
+      shift(235);                   // 'start'
+      break;
+    case 246:                       // 'to'
+      shift(246);                   // 'to'
+      break;
+    case 247:                       // 'treat'
+      shift(247);                   // 'treat'
+      break;
+    case 248:                       // 'try'
+      shift(248);                   // 'try'
+      break;
+    case 252:                       // 'union'
+      shift(252);                   // 'union'
+      break;
+    case 254:                       // 'unordered'
+      shift(254);                   // 'unordered'
+      break;
+    case 258:                       // 'validate'
+      shift(258);                   // 'validate'
+      break;
+    case 264:                       // 'where'
+      shift(264);                   // 'where'
+      break;
+    case 268:                       // 'with'
+      shift(268);                   // 'with'
+      break;
+    case 272:                       // 'xquery'
+      shift(272);                   // 'xquery'
+      break;
+    case 70:                        // 'allowing'
+      shift(70);                    // 'allowing'
+      break;
+    case 79:                        // 'at'
+      shift(79);                    // 'at'
+      break;
+    case 81:                        // 'base-uri'
+      shift(81);                    // 'base-uri'
+      break;
+    case 83:                        // 'boundary-space'
+      shift(83);                    // 'boundary-space'
+      break;
+    case 84:                        // 'break'
+      shift(84);                    // 'break'
+      break;
+    case 89:                        // 'catch'
+      shift(89);                    // 'catch'
+      break;
+    case 96:                        // 'construction'
+      shift(96);                    // 'construction'
+      break;
+    case 99:                        // 'context'
+      shift(99);                    // 'context'
+      break;
+    case 100:                       // 'continue'
+      shift(100);                   // 'continue'
+      break;
+    case 102:                       // 'copy-namespaces'
+      shift(102);                   // 'copy-namespaces'
+      break;
+    case 104:                       // 'decimal-format'
+      shift(104);                   // 'decimal-format'
+      break;
+    case 123:                       // 'encoding'
+      shift(123);                   // 'encoding'
+      break;
+    case 130:                       // 'exit'
+      shift(130);                   // 'exit'
+      break;
+    case 131:                       // 'external'
+      shift(131);                   // 'external'
+      break;
+    case 139:                       // 'ft-option'
+      shift(139);                   // 'ft-option'
+      break;
+    case 152:                       // 'in'
+      shift(152);                   // 'in'
+      break;
+    case 153:                       // 'index'
+      shift(153);                   // 'index'
+      break;
+    case 159:                       // 'integrity'
+      shift(159);                   // 'integrity'
+      break;
+    case 169:                       // 'lax'
+      shift(169);                   // 'lax'
+      break;
+    case 190:                       // 'nodes'
+      shift(190);                   // 'nodes'
+      break;
+    case 197:                       // 'option'
+      shift(197);                   // 'option'
+      break;
+    case 201:                       // 'ordering'
+      shift(201);                   // 'ordering'
+      break;
+    case 220:                       // 'revalidation'
+      shift(220);                   // 'revalidation'
+      break;
+    case 223:                       // 'schema'
+      shift(223);                   // 'schema'
+      break;
+    case 226:                       // 'score'
+      shift(226);                   // 'score'
+      break;
+    case 232:                       // 'sliding'
+      shift(232);                   // 'sliding'
+      break;
+    case 238:                       // 'strict'
+      shift(238);                   // 'strict'
+      break;
+    case 249:                       // 'tumbling'
+      shift(249);                   // 'tumbling'
+      break;
+    case 250:                       // 'type'
+      shift(250);                   // 'type'
+      break;
+    case 255:                       // 'updating'
+      shift(255);                   // 'updating'
+      break;
+    case 259:                       // 'value'
+      shift(259);                   // 'value'
+      break;
+    case 260:                       // 'variable'
+      shift(260);                   // 'variable'
+      break;
+    case 261:                       // 'version'
+      shift(261);                   // 'version'
+      break;
+    case 265:                       // 'while'
+      shift(265);                   // 'while'
+      break;
+    case 95:                        // 'constraint'
+      shift(95);                    // 'constraint'
+      break;
+    case 174:                       // 'loop'
+      shift(174);                   // 'loop'
+      break;
+    default:
+      shift(219);                   // 'returning'
+    }
+    eventHandler.endNonterminal("FunctionName", e0);
+  }
+
+  function parse_NCName()
+  {
+    eventHandler.startNonterminal("NCName", e0);
+    switch (l1)
+    {
+    case 28:                        // NCName^Token
+      shift(28);                    // NCName^Token
+      break;
+    case 68:                        // 'after'
+      shift(68);                    // 'after'
+      break;
+    case 73:                        // 'and'
+      shift(73);                    // 'and'
+      break;
+    case 77:                        // 'as'
+      shift(77);                    // 'as'
+      break;
+    case 78:                        // 'ascending'
+      shift(78);                    // 'ascending'
+      break;
+    case 82:                        // 'before'
+      shift(82);                    // 'before'
+      break;
+    case 86:                        // 'case'
+      shift(86);                    // 'case'
+      break;
+    case 87:                        // 'cast'
+      shift(87);                    // 'cast'
+      break;
+    case 88:                        // 'castable'
+      shift(88);                    // 'castable'
+      break;
+    case 92:                        // 'collation'
+      shift(92);                    // 'collation'
+      break;
+    case 103:                       // 'count'
+      shift(103);                   // 'count'
+      break;
+    case 107:                       // 'default'
+      shift(107);                   // 'default'
+      break;
+    case 111:                       // 'descending'
+      shift(111);                   // 'descending'
+      break;
+    case 116:                       // 'div'
+      shift(116);                   // 'div'
+      break;
+    case 120:                       // 'else'
+      shift(120);                   // 'else'
+      break;
+    case 121:                       // 'empty'
+      shift(121);                   // 'empty'
+      break;
+    case 124:                       // 'end'
+      shift(124);                   // 'end'
+      break;
+    case 126:                       // 'eq'
+      shift(126);                   // 'eq'
+      break;
+    case 129:                       // 'except'
+      shift(129);                   // 'except'
+      break;
+    case 135:                       // 'for'
+      shift(135);                   // 'for'
+      break;
+    case 144:                       // 'ge'
+      shift(144);                   // 'ge'
+      break;
+    case 146:                       // 'group'
+      shift(146);                   // 'group'
+      break;
+    case 148:                       // 'gt'
+      shift(148);                   // 'gt'
+      break;
+    case 149:                       // 'idiv'
+      shift(149);                   // 'idiv'
+      break;
+    case 158:                       // 'instance'
+      shift(158);                   // 'instance'
+      break;
+    case 160:                       // 'intersect'
+    
