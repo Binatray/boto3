@@ -4055,4 +4055,500 @@ exports.StyleChecker = function (ast, source) {
       shift(158);                   // 'instance'
       break;
     case 160:                       // 'intersect'
-    
+      shift(160);                   // 'intersect'
+      break;
+    case 161:                       // 'into'
+      shift(161);                   // 'into'
+      break;
+    case 162:                       // 'is'
+      shift(162);                   // 'is'
+      break;
+    case 170:                       // 'le'
+      shift(170);                   // 'le'
+      break;
+    case 172:                       // 'let'
+      shift(172);                   // 'let'
+      break;
+    case 176:                       // 'lt'
+      shift(176);                   // 'lt'
+      break;
+    case 178:                       // 'mod'
+      shift(178);                   // 'mod'
+      break;
+    case 179:                       // 'modify'
+      shift(179);                   // 'modify'
+      break;
+    case 184:                       // 'ne'
+      shift(184);                   // 'ne'
+      break;
+    case 196:                       // 'only'
+      shift(196);                   // 'only'
+      break;
+    case 198:                       // 'or'
+      shift(198);                   // 'or'
+      break;
+    case 199:                       // 'order'
+      shift(199);                   // 'order'
+      break;
+    case 218:                       // 'return'
+      shift(218);                   // 'return'
+      break;
+    case 222:                       // 'satisfies'
+      shift(222);                   // 'satisfies'
+      break;
+    case 234:                       // 'stable'
+      shift(234);                   // 'stable'
+      break;
+    case 235:                       // 'start'
+      shift(235);                   // 'start'
+      break;
+    case 246:                       // 'to'
+      shift(246);                   // 'to'
+      break;
+    case 247:                       // 'treat'
+      shift(247);                   // 'treat'
+      break;
+    case 252:                       // 'union'
+      shift(252);                   // 'union'
+      break;
+    case 264:                       // 'where'
+      shift(264);                   // 'where'
+      break;
+    case 268:                       // 'with'
+      shift(268);                   // 'with'
+      break;
+    case 71:                        // 'ancestor'
+      shift(71);                    // 'ancestor'
+      break;
+    case 72:                        // 'ancestor-or-self'
+      shift(72);                    // 'ancestor-or-self'
+      break;
+    case 80:                        // 'attribute'
+      shift(80);                    // 'attribute'
+      break;
+    case 91:                        // 'child'
+      shift(91);                    // 'child'
+      break;
+    case 94:                        // 'comment'
+      shift(94);                    // 'comment'
+      break;
+    case 101:                       // 'copy'
+      shift(101);                   // 'copy'
+      break;
+    case 106:                       // 'declare'
+      shift(106);                   // 'declare'
+      break;
+    case 108:                       // 'delete'
+      shift(108);                   // 'delete'
+      break;
+    case 109:                       // 'descendant'
+      shift(109);                   // 'descendant'
+      break;
+    case 110:                       // 'descendant-or-self'
+      shift(110);                   // 'descendant-or-self'
+      break;
+    case 117:                       // 'document'
+      shift(117);                   // 'document'
+      break;
+    case 118:                       // 'document-node'
+      shift(118);                   // 'document-node'
+      break;
+    case 119:                       // 'element'
+      shift(119);                   // 'element'
+      break;
+    case 122:                       // 'empty-sequence'
+      shift(122);                   // 'empty-sequence'
+      break;
+    case 127:                       // 'every'
+      shift(127);                   // 'every'
+      break;
+    case 132:                       // 'first'
+      shift(132);                   // 'first'
+      break;
+    case 133:                       // 'following'
+      shift(133);                   // 'following'
+      break;
+    case 134:                       // 'following-sibling'
+      shift(134);                   // 'following-sibling'
+      break;
+    case 143:                       // 'function'
+      shift(143);                   // 'function'
+      break;
+    case 150:                       // 'if'
+      shift(150);                   // 'if'
+      break;
+    case 151:                       // 'import'
+      shift(151);                   // 'import'
+      break;
+    case 157:                       // 'insert'
+      shift(157);                   // 'insert'
+      break;
+    case 163:                       // 'item'
+      shift(163);                   // 'item'
+      break;
+    case 168:                       // 'last'
+      shift(168);                   // 'last'
+      break;
+    case 180:                       // 'module'
+      shift(180);                   // 'module'
+      break;
+    case 182:                       // 'namespace'
+      shift(182);                   // 'namespace'
+      break;
+    case 183:                       // 'namespace-node'
+      shift(183);                   // 'namespace-node'
+      break;
+    case 189:                       // 'node'
+      shift(189);                   // 'node'
+      break;
+    case 200:                       // 'ordered'
+      shift(200);                   // 'ordered'
+      break;
+    case 204:                       // 'parent'
+      shift(204);                   // 'parent'
+      break;
+    case 210:                       // 'preceding'
+      shift(210);                   // 'preceding'
+      break;
+    case 211:                       // 'preceding-sibling'
+      shift(211);                   // 'preceding-sibling'
+      break;
+    case 214:                       // 'processing-instruction'
+      shift(214);                   // 'processing-instruction'
+      break;
+    case 216:                       // 'rename'
+      shift(216);                   // 'rename'
+      break;
+    case 217:                       // 'replace'
+      shift(217);                   // 'replace'
+      break;
+    case 224:                       // 'schema-attribute'
+      shift(224);                   // 'schema-attribute'
+      break;
+    case 225:                       // 'schema-element'
+      shift(225);                   // 'schema-element'
+      break;
+    case 227:                       // 'self'
+      shift(227);                   // 'self'
+      break;
+    case 233:                       // 'some'
+      shift(233);                   // 'some'
+      break;
+    case 241:                       // 'switch'
+      shift(241);                   // 'switch'
+      break;
+    case 242:                       // 'text'
+      shift(242);                   // 'text'
+      break;
+    case 248:                       // 'try'
+      shift(248);                   // 'try'
+      break;
+    case 251:                       // 'typeswitch'
+      shift(251);                   // 'typeswitch'
+      break;
+    case 254:                       // 'unordered'
+      shift(254);                   // 'unordered'
+      break;
+    case 258:                       // 'validate'
+      shift(258);                   // 'validate'
+      break;
+    case 260:                       // 'variable'
+      shift(260);                   // 'variable'
+      break;
+    case 272:                       // 'xquery'
+      shift(272);                   // 'xquery'
+      break;
+    case 70:                        // 'allowing'
+      shift(70);                    // 'allowing'
+      break;
+    case 79:                        // 'at'
+      shift(79);                    // 'at'
+      break;
+    case 81:                        // 'base-uri'
+      shift(81);                    // 'base-uri'
+      break;
+    case 83:                        // 'boundary-space'
+      shift(83);                    // 'boundary-space'
+      break;
+    case 84:                        // 'break'
+      shift(84);                    // 'break'
+      break;
+    case 89:                        // 'catch'
+      shift(89);                    // 'catch'
+      break;
+    case 96:                        // 'construction'
+      shift(96);                    // 'construction'
+      break;
+    case 99:                        // 'context'
+      shift(99);                    // 'context'
+      break;
+    case 100:                       // 'continue'
+      shift(100);                   // 'continue'
+      break;
+    case 102:                       // 'copy-namespaces'
+      shift(102);                   // 'copy-namespaces'
+      break;
+    case 104:                       // 'decimal-format'
+      shift(104);                   // 'decimal-format'
+      break;
+    case 123:                       // 'encoding'
+      shift(123);                   // 'encoding'
+      break;
+    case 130:                       // 'exit'
+      shift(130);                   // 'exit'
+      break;
+    case 131:                       // 'external'
+      shift(131);                   // 'external'
+      break;
+    case 139:                       // 'ft-option'
+      shift(139);                   // 'ft-option'
+      break;
+    case 152:                       // 'in'
+      shift(152);                   // 'in'
+      break;
+    case 153:                       // 'index'
+      shift(153);                   // 'index'
+      break;
+    case 159:                       // 'integrity'
+      shift(159);                   // 'integrity'
+      break;
+    case 169:                       // 'lax'
+      shift(169);                   // 'lax'
+      break;
+    case 190:                       // 'nodes'
+      shift(190);                   // 'nodes'
+      break;
+    case 197:                       // 'option'
+      shift(197);                   // 'option'
+      break;
+    case 201:                       // 'ordering'
+      shift(201);                   // 'ordering'
+      break;
+    case 220:                       // 'revalidation'
+      shift(220);                   // 'revalidation'
+      break;
+    case 223:                       // 'schema'
+      shift(223);                   // 'schema'
+      break;
+    case 226:                       // 'score'
+      shift(226);                   // 'score'
+      break;
+    case 232:                       // 'sliding'
+      shift(232);                   // 'sliding'
+      break;
+    case 238:                       // 'strict'
+      shift(238);                   // 'strict'
+      break;
+    case 249:                       // 'tumbling'
+      shift(249);                   // 'tumbling'
+      break;
+    case 250:                       // 'type'
+      shift(250);                   // 'type'
+      break;
+    case 255:                       // 'updating'
+      shift(255);                   // 'updating'
+      break;
+    case 259:                       // 'value'
+      shift(259);                   // 'value'
+      break;
+    case 261:                       // 'version'
+      shift(261);                   // 'version'
+      break;
+    case 265:                       // 'while'
+      shift(265);                   // 'while'
+      break;
+    case 95:                        // 'constraint'
+      shift(95);                    // 'constraint'
+      break;
+    case 174:                       // 'loop'
+      shift(174);                   // 'loop'
+      break;
+    default:
+      shift(219);                   // 'returning'
+    }
+    eventHandler.endNonterminal("NCName", e0);
+  }
+
+  function shift(t)
+  {
+    if (l1 == t)
+    {
+      whitespace();
+      eventHandler.terminal(JSONiqTokenizer.TOKEN[l1], b1, e1 > size ? size : e1);
+      b0 = b1; e0 = e1; l1 = 0;
+    }
+    else
+    {
+      error(b1, e1, 0, l1, t);
+    }
+  }
+
+  function whitespace()
+  {
+    if (e0 != b1)
+    {
+      b0 = e0;
+      e0 = b1;
+      eventHandler.whitespace(b0, e0);
+    }
+  }
+
+  function matchW(set)
+  {
+    var code;
+    for (;;)
+    {
+      code = match(set);
+      if (code != 30)               // S^WS
+      {
+        break;
+      }
+    }
+    return code;
+  }
+
+  function lookahead1W(set)
+  {
+    if (l1 == 0)
+    {
+      l1 = matchW(set);
+      b1 = begin;
+      e1 = end;
+    }
+  }
+
+  function lookahead1(set)
+  {
+    if (l1 == 0)
+    {
+      l1 = match(set);
+      b1 = begin;
+      e1 = end;
+    }
+  }
+
+  function error(b, e, s, l, t)
+  {
+    throw new self.ParseException(b, e, s, l, t);
+  }
+
+  var lk, b0, e0;
+  var l1, b1, e1;
+  var eventHandler;
+
+  var input;
+  var size;
+  var begin;
+  var end;
+
+  function match(tokenSetId)
+  {
+    var nonbmp = false;
+    begin = end;
+    var current = end;
+    var result = JSONiqTokenizer.INITIAL[tokenSetId];
+    var state = 0;
+
+    for (var code = result & 4095; code != 0; )
+    {
+      var charclass;
+      var c0 = current < size ? input.charCodeAt(current) : 0;
+      ++current;
+      if (c0 < 0x80)
+      {
+        charclass = JSONiqTokenizer.MAP0[c0];
+      }
+      else if (c0 < 0xd800)
+      {
+        var c1 = c0 >> 4;
+        charclass = JSONiqTokenizer.MAP1[(c0 & 15) + JSONiqTokenizer.MAP1[(c1 & 31) + JSONiqTokenizer.MAP1[c1 >> 5]]];
+      }
+      else
+      {
+        if (c0 < 0xdc00)
+        {
+          var c1 = current < size ? input.charCodeAt(current) : 0;
+          if (c1 >= 0xdc00 && c1 < 0xe000)
+          {
+            ++current;
+            c0 = ((c0 & 0x3ff) << 10) + (c1 & 0x3ff) + 0x10000;
+            nonbmp = true;
+          }
+        }
+        var lo = 0, hi = 5;
+        for (var m = 3; ; m = (hi + lo) >> 1)
+        {
+          if (JSONiqTokenizer.MAP2[m] > c0) hi = m - 1;
+          else if (JSONiqTokenizer.MAP2[6 + m] < c0) lo = m + 1;
+          else {charclass = JSONiqTokenizer.MAP2[12 + m]; break;}
+          if (lo > hi) {charclass = 0; break;}
+        }
+      }
+
+      state = code;
+      var i0 = (charclass << 12) + code - 1;
+      code = JSONiqTokenizer.TRANSITION[(i0 & 15) + JSONiqTokenizer.TRANSITION[i0 >> 4]];
+
+      if (code > 4095)
+      {
+        result = code;
+        code &= 4095;
+        end = current;
+      }
+    }
+
+    result >>= 12;
+    if (result == 0)
+    {
+      end = current - 1;
+      var c1 = end < size ? input.charCodeAt(end) : 0;
+      if (c1 >= 0xdc00 && c1 < 0xe000) --end;
+      return error(begin, end, state, -1, -1);
+    }
+
+    if (nonbmp)
+    {
+      for (var i = result >> 9; i > 0; --i)
+      {
+        --end;
+        var c1 = end < size ? input.charCodeAt(end) : 0;
+        if (c1 >= 0xdc00 && c1 < 0xe000) --end;
+      }
+    }
+    else
+    {
+      end -= result >> 9;
+    }
+
+    return (result & 511) - 1;
+  }
+}
+
+JSONiqTokenizer.getTokenSet = function(tokenSetId)
+{
+  var set = [];
+  var s = tokenSetId < 0 ? - tokenSetId : INITIAL[tokenSetId] & 4095;
+  for (var i = 0; i < 279; i += 32)
+  {
+    var j = i;
+    var i0 = (i >> 5) * 2066 + s - 1;
+    var i1 = i0 >> 2;
+    var i2 = i1 >> 2;
+    var f = JSONiqTokenizer.EXPECTED[(i0 & 3) + JSONiqTokenizer.EXPECTED[(i1 & 3) + JSONiqTokenizer.EXPECTED[(i2 & 3) + JSONiqTokenizer.EXPECTED[i2 >> 2]]]];
+    for ( ; f != 0; f >>>= 1, ++j)
+    {
+      if ((f & 1) != 0)
+      {
+        set.push(JSONiqTokenizer.TOKEN[j]);
+      }
+    }
+  }
+  return set;
+};
+
+JSONiqTokenizer.MAP0 =
+[ 67, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 27, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 32, 31, 31, 33, 31, 31, 31, 31, 31, 31, 34, 35, 36, 37, 31, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 31, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 31, 62, 63, 64, 65, 37
+];
+
+JSONiqTokenizer.MAP1 =
+[ 108, 124, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 156, 181, 181, 181, 181, 181, 214, 215, 213, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 247, 261, 277, 293, 309, 347, 363, 379, 416, 416, 416, 408, 331, 323, 331, 323, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 433, 433, 433, 433, 433, 433, 433, 316, 331, 331, 331, 331, 331, 331, 331, 331, 394, 416, 416, 417, 415, 416, 416, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 416, 330, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331, 331
