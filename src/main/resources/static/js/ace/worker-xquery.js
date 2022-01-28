@@ -5085,4 +5085,507 @@ JSONiqTokenizer.TOKEN =
   this.parse_TagContent = function()
   {
     eventHandler.startNonterminal("TagContent", e0);
-    lookahead1(11);                 // Tag | EndTag | PredefinedEnt
+    lookahead1(11);                 // Tag | EndTag | PredefinedEntityRef | ElementContentChar | CharRef | EOF |
+    switch (l1)
+    {
+    case 23:                        // ElementContentChar
+      shift(23);                    // ElementContentChar
+      break;
+    case 6:                         // Tag
+      shift(6);                     // Tag
+      break;
+    case 7:                         // EndTag
+      shift(7);                     // EndTag
+      break;
+    case 55:                        // '<![CDATA['
+      shift(55);                    // '<![CDATA['
+      break;
+    case 54:                        // '<!--'
+      shift(54);                    // '<!--'
+      break;
+    case 18:                        // PredefinedEntityRef
+      shift(18);                    // PredefinedEntityRef
+      break;
+    case 29:                        // CharRef
+      shift(29);                    // CharRef
+      break;
+    case 272:                       // '{{'
+      shift(272);                   // '{{'
+      break;
+    case 275:                       // '}}'
+      shift(275);                   // '}}'
+      break;
+    case 271:                       // '{'
+      shift(271);                   // '{'
+      break;
+    default:
+      shift(33);                    // EOF
+    }
+    eventHandler.endNonterminal("TagContent", e0);
+  };
+
+  this.parse_AposAttr = function()
+  {
+    eventHandler.startNonterminal("AposAttr", e0);
+    lookahead1(10);                 // PredefinedEntityRef | EscapeApos | AposAttrContentChar | CharRef | EOF | "'" |
+    switch (l1)
+    {
+    case 20:                        // EscapeApos
+      shift(20);                    // EscapeApos
+      break;
+    case 25:                        // AposAttrContentChar
+      shift(25);                    // AposAttrContentChar
+      break;
+    case 18:                        // PredefinedEntityRef
+      shift(18);                    // PredefinedEntityRef
+      break;
+    case 29:                        // CharRef
+      shift(29);                    // CharRef
+      break;
+    case 272:                       // '{{'
+      shift(272);                   // '{{'
+      break;
+    case 275:                       // '}}'
+      shift(275);                   // '}}'
+      break;
+    case 271:                       // '{'
+      shift(271);                   // '{'
+      break;
+    case 38:                        // "'"
+      shift(38);                    // "'"
+      break;
+    default:
+      shift(33);                    // EOF
+    }
+    eventHandler.endNonterminal("AposAttr", e0);
+  };
+
+  this.parse_QuotAttr = function()
+  {
+    eventHandler.startNonterminal("QuotAttr", e0);
+    lookahead1(9);                  // PredefinedEntityRef | EscapeQuot | QuotAttrContentChar | CharRef | EOF | '"' |
+    switch (l1)
+    {
+    case 19:                        // EscapeQuot
+      shift(19);                    // EscapeQuot
+      break;
+    case 24:                        // QuotAttrContentChar
+      shift(24);                    // QuotAttrContentChar
+      break;
+    case 18:                        // PredefinedEntityRef
+      shift(18);                    // PredefinedEntityRef
+      break;
+    case 29:                        // CharRef
+      shift(29);                    // CharRef
+      break;
+    case 272:                       // '{{'
+      shift(272);                   // '{{'
+      break;
+    case 275:                       // '}}'
+      shift(275);                   // '}}'
+      break;
+    case 271:                       // '{'
+      shift(271);                   // '{'
+      break;
+    case 35:                        // '"'
+      shift(35);                    // '"'
+      break;
+    default:
+      shift(33);                    // EOF
+    }
+    eventHandler.endNonterminal("QuotAttr", e0);
+  };
+
+  this.parse_CData = function()
+  {
+    eventHandler.startNonterminal("CData", e0);
+    lookahead1(1);                  // CDataSectionContents | EOF | ']]>'
+    switch (l1)
+    {
+    case 11:                        // CDataSectionContents
+      shift(11);                    // CDataSectionContents
+      break;
+    case 64:                        // ']]>'
+      shift(64);                    // ']]>'
+      break;
+    default:
+      shift(33);                    // EOF
+    }
+    eventHandler.endNonterminal("CData", e0);
+  };
+
+  this.parse_XMLComment = function()
+  {
+    eventHandler.startNonterminal("XMLComment", e0);
+    lookahead1(0);                  // DirCommentContents | EOF | '-->'
+    switch (l1)
+    {
+    case 9:                         // DirCommentContents
+      shift(9);                     // DirCommentContents
+      break;
+    case 47:                        // '-->'
+      shift(47);                    // '-->'
+      break;
+    default:
+      shift(33);                    // EOF
+    }
+    eventHandler.endNonterminal("XMLComment", e0);
+  };
+
+  this.parse_PI = function()
+  {
+    eventHandler.startNonterminal("PI", e0);
+    lookahead1(3);                  // DirPIContents | EOF | '?' | '?>'
+    switch (l1)
+    {
+    case 10:                        // DirPIContents
+      shift(10);                    // DirPIContents
+      break;
+    case 59:                        // '?'
+      shift(59);                    // '?'
+      break;
+    case 60:                        // '?>'
+      shift(60);                    // '?>'
+      break;
+    default:
+      shift(33);                    // EOF
+    }
+    eventHandler.endNonterminal("PI", e0);
+  };
+
+  this.parse_Pragma = function()
+  {
+    eventHandler.startNonterminal("Pragma", e0);
+    lookahead1(2);                  // PragmaContents | EOF | '#' | '#)'
+    switch (l1)
+    {
+    case 8:                         // PragmaContents
+      shift(8);                     // PragmaContents
+      break;
+    case 36:                        // '#'
+      shift(36);                    // '#'
+      break;
+    case 37:                        // '#)'
+      shift(37);                    // '#)'
+      break;
+    default:
+      shift(33);                    // EOF
+    }
+    eventHandler.endNonterminal("Pragma", e0);
+  };
+
+  this.parse_Comment = function()
+  {
+    eventHandler.startNonterminal("Comment", e0);
+    lookahead1(4);                  // CommentContents | EOF | '(:' | ':)'
+    switch (l1)
+    {
+    case 52:                        // ':)'
+      shift(52);                    // ':)'
+      break;
+    case 41:                        // '(:'
+      shift(41);                    // '(:'
+      break;
+    case 30:                        // CommentContents
+      shift(30);                    // CommentContents
+      break;
+    default:
+      shift(33);                    // EOF
+    }
+    eventHandler.endNonterminal("Comment", e0);
+  };
+
+  this.parse_CommentDoc = function()
+  {
+    eventHandler.startNonterminal("CommentDoc", e0);
+    lookahead1(5);                  // DocTag | DocCommentContents | EOF | '(:' | ':)'
+    switch (l1)
+    {
+    case 31:                        // DocTag
+      shift(31);                    // DocTag
+      break;
+    case 32:                        // DocCommentContents
+      shift(32);                    // DocCommentContents
+      break;
+    case 52:                        // ':)'
+      shift(52);                    // ':)'
+      break;
+    case 41:                        // '(:'
+      shift(41);                    // '(:'
+      break;
+    default:
+      shift(33);                    // EOF
+    }
+    eventHandler.endNonterminal("CommentDoc", e0);
+  };
+
+  this.parse_QuotString = function()
+  {
+    eventHandler.startNonterminal("QuotString", e0);
+    lookahead1(6);                  // PredefinedEntityRef | EscapeQuot | QuotChar | CharRef | EOF | '"'
+    switch (l1)
+    {
+    case 18:                        // PredefinedEntityRef
+      shift(18);                    // PredefinedEntityRef
+      break;
+    case 29:                        // CharRef
+      shift(29);                    // CharRef
+      break;
+    case 19:                        // EscapeQuot
+      shift(19);                    // EscapeQuot
+      break;
+    case 21:                        // QuotChar
+      shift(21);                    // QuotChar
+      break;
+    case 35:                        // '"'
+      shift(35);                    // '"'
+      break;
+    default:
+      shift(33);                    // EOF
+    }
+    eventHandler.endNonterminal("QuotString", e0);
+  };
+
+  this.parse_AposString = function()
+  {
+    eventHandler.startNonterminal("AposString", e0);
+    lookahead1(7);                  // PredefinedEntityRef | EscapeApos | AposChar | CharRef | EOF | "'"
+    switch (l1)
+    {
+    case 18:                        // PredefinedEntityRef
+      shift(18);                    // PredefinedEntityRef
+      break;
+    case 29:                        // CharRef
+      shift(29);                    // CharRef
+      break;
+    case 20:                        // EscapeApos
+      shift(20);                    // EscapeApos
+      break;
+    case 22:                        // AposChar
+      shift(22);                    // AposChar
+      break;
+    case 38:                        // "'"
+      shift(38);                    // "'"
+      break;
+    default:
+      shift(33);                    // EOF
+    }
+    eventHandler.endNonterminal("AposString", e0);
+  };
+
+  this.parse_Prefix = function()
+  {
+    eventHandler.startNonterminal("Prefix", e0);
+    lookahead1W(13);                // NCName^Token | S^WS | 'after' | 'allowing' | 'ancestor' | 'ancestor-or-self' |
+    whitespace();
+    parse_NCName();
+    eventHandler.endNonterminal("Prefix", e0);
+  };
+
+  this.parse__EQName = function()
+  {
+    eventHandler.startNonterminal("_EQName", e0);
+    lookahead1W(12);                // EQName^Token | S^WS | 'after' | 'allowing' | 'ancestor' | 'ancestor-or-self' |
+    whitespace();
+    parse_EQName();
+    eventHandler.endNonterminal("_EQName", e0);
+  };
+
+  function parse_EQName()
+  {
+    eventHandler.startNonterminal("EQName", e0);
+    switch (l1)
+    {
+    case 77:                        // 'attribute'
+      shift(77);                    // 'attribute'
+      break;
+    case 91:                        // 'comment'
+      shift(91);                    // 'comment'
+      break;
+    case 115:                       // 'document-node'
+      shift(115);                   // 'document-node'
+      break;
+    case 116:                       // 'element'
+      shift(116);                   // 'element'
+      break;
+    case 119:                       // 'empty-sequence'
+      shift(119);                   // 'empty-sequence'
+      break;
+    case 140:                       // 'function'
+      shift(140);                   // 'function'
+      break;
+    case 147:                       // 'if'
+      shift(147);                   // 'if'
+      break;
+    case 160:                       // 'item'
+      shift(160);                   // 'item'
+      break;
+    case 180:                       // 'namespace-node'
+      shift(180);                   // 'namespace-node'
+      break;
+    case 186:                       // 'node'
+      shift(186);                   // 'node'
+      break;
+    case 211:                       // 'processing-instruction'
+      shift(211);                   // 'processing-instruction'
+      break;
+    case 221:                       // 'schema-attribute'
+      shift(221);                   // 'schema-attribute'
+      break;
+    case 222:                       // 'schema-element'
+      shift(222);                   // 'schema-element'
+      break;
+    case 238:                       // 'switch'
+      shift(238);                   // 'switch'
+      break;
+    case 239:                       // 'text'
+      shift(239);                   // 'text'
+      break;
+    case 248:                       // 'typeswitch'
+      shift(248);                   // 'typeswitch'
+      break;
+    default:
+      parse_FunctionName();
+    }
+    eventHandler.endNonterminal("EQName", e0);
+  }
+
+  function parse_FunctionName()
+  {
+    eventHandler.startNonterminal("FunctionName", e0);
+    switch (l1)
+    {
+    case 14:                        // EQName^Token
+      shift(14);                    // EQName^Token
+      break;
+    case 65:                        // 'after'
+      shift(65);                    // 'after'
+      break;
+    case 68:                        // 'ancestor'
+      shift(68);                    // 'ancestor'
+      break;
+    case 69:                        // 'ancestor-or-self'
+      shift(69);                    // 'ancestor-or-self'
+      break;
+    case 70:                        // 'and'
+      shift(70);                    // 'and'
+      break;
+    case 74:                        // 'as'
+      shift(74);                    // 'as'
+      break;
+    case 75:                        // 'ascending'
+      shift(75);                    // 'ascending'
+      break;
+    case 79:                        // 'before'
+      shift(79);                    // 'before'
+      break;
+    case 83:                        // 'case'
+      shift(83);                    // 'case'
+      break;
+    case 84:                        // 'cast'
+      shift(84);                    // 'cast'
+      break;
+    case 85:                        // 'castable'
+      shift(85);                    // 'castable'
+      break;
+    case 88:                        // 'child'
+      shift(88);                    // 'child'
+      break;
+    case 89:                        // 'collation'
+      shift(89);                    // 'collation'
+      break;
+    case 98:                        // 'copy'
+      shift(98);                    // 'copy'
+      break;
+    case 100:                       // 'count'
+      shift(100);                   // 'count'
+      break;
+    case 103:                       // 'declare'
+      shift(103);                   // 'declare'
+      break;
+    case 104:                       // 'default'
+      shift(104);                   // 'default'
+      break;
+    case 105:                       // 'delete'
+      shift(105);                   // 'delete'
+      break;
+    case 106:                       // 'descendant'
+      shift(106);                   // 'descendant'
+      break;
+    case 107:                       // 'descendant-or-self'
+      shift(107);                   // 'descendant-or-self'
+      break;
+    case 108:                       // 'descending'
+      shift(108);                   // 'descending'
+      break;
+    case 113:                       // 'div'
+      shift(113);                   // 'div'
+      break;
+    case 114:                       // 'document'
+      shift(114);                   // 'document'
+      break;
+    case 117:                       // 'else'
+      shift(117);                   // 'else'
+      break;
+    case 118:                       // 'empty'
+      shift(118);                   // 'empty'
+      break;
+    case 121:                       // 'end'
+      shift(121);                   // 'end'
+      break;
+    case 123:                       // 'eq'
+      shift(123);                   // 'eq'
+      break;
+    case 124:                       // 'every'
+      shift(124);                   // 'every'
+      break;
+    case 126:                       // 'except'
+      shift(126);                   // 'except'
+      break;
+    case 129:                       // 'first'
+      shift(129);                   // 'first'
+      break;
+    case 130:                       // 'following'
+      shift(130);                   // 'following'
+      break;
+    case 131:                       // 'following-sibling'
+      shift(131);                   // 'following-sibling'
+      break;
+    case 132:                       // 'for'
+      shift(132);                   // 'for'
+      break;
+    case 141:                       // 'ge'
+      shift(141);                   // 'ge'
+      break;
+    case 143:                       // 'group'
+      shift(143);                   // 'group'
+      break;
+    case 145:                       // 'gt'
+      shift(145);                   // 'gt'
+      break;
+    case 146:                       // 'idiv'
+      shift(146);                   // 'idiv'
+      break;
+    case 148:                       // 'import'
+      shift(148);                   // 'import'
+      break;
+    case 154:                       // 'insert'
+      shift(154);                   // 'insert'
+      break;
+    case 155:                       // 'instance'
+      shift(155);                   // 'instance'
+      break;
+    case 157:                       // 'intersect'
+      shift(157);                   // 'intersect'
+      break;
+    case 158:                       // 'into'
+      shift(158);                   // 'into'
+      break;
+    case 159:                       // 'is'
+      shift(159);                   // 'is'
+      break;
+    case 165:                       // 'last'
+      shift(165);                   // 'last'
+      break;
+    case 167:                       // 'le'
+      shif
