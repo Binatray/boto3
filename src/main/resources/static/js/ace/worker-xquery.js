@@ -9108,4 +9108,390 @@ exports.JSONParseTreeHandler = function (code) {
   function try_CountClause()
   {
     shiftT(106);                    // 'count'
-    lookahead1W(21)
+    lookahead1W(21);                // S^WS | '$' | '(:'
+    shiftT(31);                     // '$'
+    lookahead1W(245);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    try_VarName();
+  }
+
+  function parse_WhereClause()
+  {
+    eventHandler.startNonterminal("WhereClause", e0);
+    shift(272);                     // 'where'
+    lookahead1W(266);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    whitespace();
+    parse_ExprSingle();
+    eventHandler.endNonterminal("WhereClause", e0);
+  }
+
+  function try_WhereClause()
+  {
+    shiftT(272);                    // 'where'
+    lookahead1W(266);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    try_ExprSingle();
+  }
+
+  function parse_GroupByClause()
+  {
+    eventHandler.startNonterminal("GroupByClause", e0);
+    shift(150);                     // 'group'
+    lookahead1W(37);                // S^WS | '(:' | 'by'
+    shift(88);                      // 'by'
+    lookahead1W(266);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    whitespace();
+    parse_GroupingSpecList();
+    eventHandler.endNonterminal("GroupByClause", e0);
+  }
+
+  function try_GroupByClause()
+  {
+    shiftT(150);                    // 'group'
+    lookahead1W(37);                // S^WS | '(:' | 'by'
+    shiftT(88);                     // 'by'
+    lookahead1W(266);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    try_GroupingSpecList();
+  }
+
+  function parse_GroupingSpecList()
+  {
+    eventHandler.startNonterminal("GroupingSpecList", e0);
+    parse_GroupingSpec();
+    for (;;)
+    {
+      lookahead1W(198);             // S^WS | '(:' | ',' | 'count' | 'for' | 'group' | 'let' | 'order' | 'return' |
+      if (l1 != 42)                 // ','
+      {
+        break;
+      }
+      shift(42);                    // ','
+      lookahead1W(266);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      whitespace();
+      parse_GroupingSpec();
+    }
+    eventHandler.endNonterminal("GroupingSpecList", e0);
+  }
+
+  function try_GroupingSpecList()
+  {
+    try_GroupingSpec();
+    for (;;)
+    {
+      lookahead1W(198);             // S^WS | '(:' | ',' | 'count' | 'for' | 'group' | 'let' | 'order' | 'return' |
+      if (l1 != 42)                 // ','
+      {
+        break;
+      }
+      shiftT(42);                   // ','
+      lookahead1W(266);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      try_GroupingSpec();
+    }
+  }
+
+  function parse_GroupingSpec()
+  {
+    eventHandler.startNonterminal("GroupingSpec", e0);
+    switch (l1)
+    {
+    case 31:                        // '$'
+      lookahead2W(245);             // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 3103                  // '$' EQName^Token
+     || lk == 36383                 // '$' 'after'
+     || lk == 37407                 // '$' 'allowing'
+     || lk == 37919                 // '$' 'ancestor'
+     || lk == 38431                 // '$' 'ancestor-or-self'
+     || lk == 38943                 // '$' 'and'
+     || lk == 39967                 // '$' 'append'
+     || lk == 40479                 // '$' 'array'
+     || lk == 40991                 // '$' 'as'
+     || lk == 41503                 // '$' 'ascending'
+     || lk == 42015                 // '$' 'at'
+     || lk == 42527                 // '$' 'attribute'
+     || lk == 43039                 // '$' 'base-uri'
+     || lk == 43551                 // '$' 'before'
+     || lk == 44063                 // '$' 'boundary-space'
+     || lk == 44575                 // '$' 'break'
+     || lk == 45599                 // '$' 'case'
+     || lk == 46111                 // '$' 'cast'
+     || lk == 46623                 // '$' 'castable'
+     || lk == 47135                 // '$' 'catch'
+     || lk == 48159                 // '$' 'child'
+     || lk == 48671                 // '$' 'collation'
+     || lk == 49695                 // '$' 'comment'
+     || lk == 50207                 // '$' 'constraint'
+     || lk == 50719                 // '$' 'construction'
+     || lk == 52255                 // '$' 'context'
+     || lk == 52767                 // '$' 'continue'
+     || lk == 53279                 // '$' 'copy'
+     || lk == 53791                 // '$' 'copy-namespaces'
+     || lk == 54303                 // '$' 'count'
+     || lk == 54815                 // '$' 'decimal-format'
+     || lk == 55839                 // '$' 'declare'
+     || lk == 56351                 // '$' 'default'
+     || lk == 56863                 // '$' 'delete'
+     || lk == 57375                 // '$' 'descendant'
+     || lk == 57887                 // '$' 'descendant-or-self'
+     || lk == 58399                 // '$' 'descending'
+     || lk == 60959                 // '$' 'div'
+     || lk == 61471                 // '$' 'document'
+     || lk == 61983                 // '$' 'document-node'
+     || lk == 62495                 // '$' 'element'
+     || lk == 63007                 // '$' 'else'
+     || lk == 63519                 // '$' 'empty'
+     || lk == 64031                 // '$' 'empty-sequence'
+     || lk == 64543                 // '$' 'encoding'
+     || lk == 65055                 // '$' 'end'
+     || lk == 66079                 // '$' 'eq'
+     || lk == 66591                 // '$' 'every'
+     || lk == 67615                 // '$' 'except'
+     || lk == 68127                 // '$' 'exit'
+     || lk == 68639                 // '$' 'external'
+     || lk == 69151                 // '$' 'false'
+     || lk == 69663                 // '$' 'first'
+     || lk == 70175                 // '$' 'following'
+     || lk == 70687                 // '$' 'following-sibling'
+     || lk == 71199                 // '$' 'for'
+     || lk == 72735                 // '$' 'from'
+     || lk == 73247                 // '$' 'ft-option'
+     || lk == 75295                 // '$' 'function'
+     || lk == 75807                 // '$' 'ge'
+     || lk == 76831                 // '$' 'group'
+     || lk == 77855                 // '$' 'gt'
+     || lk == 78367                 // '$' 'idiv'
+     || lk == 78879                 // '$' 'if'
+     || lk == 79391                 // '$' 'import'
+     || lk == 79903                 // '$' 'in'
+     || lk == 80415                 // '$' 'index'
+     || lk == 82463                 // '$' 'insert'
+     || lk == 82975                 // '$' 'instance'
+     || lk == 83487                 // '$' 'integrity'
+     || lk == 83999                 // '$' 'intersect'
+     || lk == 84511                 // '$' 'into'
+     || lk == 85023                 // '$' 'is'
+     || lk == 85535                 // '$' 'item'
+     || lk == 86047                 // '$' 'json'
+     || lk == 86559                 // '$' 'json-item'
+     || lk == 87071                 // '$' 'jsoniq'
+     || lk == 88607                 // '$' 'last'
+     || lk == 89119                 // '$' 'lax'
+     || lk == 89631                 // '$' 'le'
+     || lk == 90655                 // '$' 'let'
+     || lk == 91679                 // '$' 'loop'
+     || lk == 92703                 // '$' 'lt'
+     || lk == 93727                 // '$' 'mod'
+     || lk == 94239                 // '$' 'modify'
+     || lk == 94751                 // '$' 'module'
+     || lk == 95775                 // '$' 'namespace'
+     || lk == 96287                 // '$' 'namespace-node'
+     || lk == 96799                 // '$' 'ne'
+     || lk == 99359                 // '$' 'node'
+     || lk == 99871                 // '$' 'nodes'
+     || lk == 100895                // '$' 'null'
+     || lk == 101407                // '$' 'object'
+     || lk == 103455                // '$' 'only'
+     || lk == 103967                // '$' 'option'
+     || lk == 104479                // '$' 'or'
+     || lk == 104991                // '$' 'order'
+     || lk == 105503                // '$' 'ordered'
+     || lk == 106015                // '$' 'ordering'
+     || lk == 107551                // '$' 'parent'
+     || lk == 110623                // '$' 'preceding'
+     || lk == 111135                // '$' 'preceding-sibling'
+     || lk == 112671                // '$' 'processing-instruction'
+     || lk == 113695                // '$' 'rename'
+     || lk == 114207                // '$' 'replace'
+     || lk == 114719                // '$' 'return'
+     || lk == 115231                // '$' 'returning'
+     || lk == 115743                // '$' 'revalidation'
+     || lk == 116767                // '$' 'satisfies'
+     || lk == 117279                // '$' 'schema'
+     || lk == 117791                // '$' 'schema-attribute'
+     || lk == 118303                // '$' 'schema-element'
+     || lk == 118815                // '$' 'score'
+     || lk == 119327                // '$' 'select'
+     || lk == 119839                // '$' 'self'
+     || lk == 122399                // '$' 'sliding'
+     || lk == 122911                // '$' 'some'
+     || lk == 123423                // '$' 'stable'
+     || lk == 123935                // '$' 'start'
+     || lk == 125471                // '$' 'strict'
+     || lk == 126495                // '$' 'structured-item'
+     || lk == 127007                // '$' 'switch'
+     || lk == 127519                // '$' 'text'
+     || lk == 129567                // '$' 'to'
+     || lk == 130079                // '$' 'treat'
+     || lk == 130591                // '$' 'true'
+     || lk == 131103                // '$' 'try'
+     || lk == 131615                // '$' 'tumbling'
+     || lk == 132127                // '$' 'type'
+     || lk == 132639                // '$' 'typeswitch'
+     || lk == 133151                // '$' 'union'
+     || lk == 134175                // '$' 'unordered'
+     || lk == 134687                // '$' 'updating'
+     || lk == 136223                // '$' 'validate'
+     || lk == 136735                // '$' 'value'
+     || lk == 137247                // '$' 'variable'
+     || lk == 137759                // '$' 'version'
+     || lk == 139295                // '$' 'where'
+     || lk == 139807                // '$' 'while'
+     || lk == 141343)               // '$' 'with'
+    {
+      lk = memoized(2, e0);
+      if (lk == 0)
+      {
+        var b0A = b0; var e0A = e0; var l1A = l1;
+        var b1A = b1; var e1A = e1; var l2A = l2;
+        var b2A = b2; var e2A = e2;
+        try
+        {
+          try_GroupingVariable();
+          lookahead1W(205);         // S^WS | '(:' | ',' | ':=' | 'as' | 'collation' | 'count' | 'for' | 'group' |
+          if (l1 == 53              // ':='
+           || l1 == 80)             // 'as'
+          {
+            if (l1 == 80)           // 'as'
+            {
+              try_TypeDeclaration();
+            }
+            lookahead1W(28);        // S^WS | '(:' | ':='
+            shiftT(53);             // ':='
+            lookahead1W(266);       // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+            try_ExprSingle();
+          }
+          if (l1 == 95)             // 'collation'
+          {
+            shiftT(95);             // 'collation'
+            lookahead1W(15);        // URILiteral | S^WS | '(:'
+            shiftT(7);              // URILiteral
+          }
+          lk = -1;
+        }
+        catch (p1A)
+        {
+          lk = -2;
+        }
+        b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+        b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+        b2 = b2A; e2 = e2A; end = e2A; }}
+        memoize(2, e0, lk);
+      }
+    }
+    switch (lk)
+    {
+    case -1:
+      parse_GroupingVariable();
+      lookahead1W(205);             // S^WS | '(:' | ',' | ':=' | 'as' | 'collation' | 'count' | 'for' | 'group' |
+      if (l1 == 53                  // ':='
+       || l1 == 80)                 // 'as'
+      {
+        if (l1 == 80)               // 'as'
+        {
+          whitespace();
+          parse_TypeDeclaration();
+        }
+        lookahead1W(28);            // S^WS | '(:' | ':='
+        shift(53);                  // ':='
+        lookahead1W(266);           // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+        whitespace();
+        parse_ExprSingle();
+      }
+      if (l1 == 95)                 // 'collation'
+      {
+        shift(95);                  // 'collation'
+        lookahead1W(15);            // URILiteral | S^WS | '(:'
+        shift(7);                   // URILiteral
+      }
+      break;
+    default:
+      parse_ExprSingle();
+    }
+    eventHandler.endNonterminal("GroupingSpec", e0);
+  }
+
+  function try_GroupingSpec()
+  {
+    switch (l1)
+    {
+    case 31:                        // '$'
+      lookahead2W(245);             // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 3103                  // '$' EQName^Token
+     || lk == 36383                 // '$' 'after'
+     || lk == 37407                 // '$' 'allowing'
+     || lk == 37919                 // '$' 'ancestor'
+     || lk == 38431                 // '$' 'ancestor-or-self'
+     || lk == 38943                 // '$' 'and'
+     || lk == 39967                 // '$' 'append'
+     || lk == 40479                 // '$' 'array'
+     || lk == 40991                 // '$' 'as'
+     || lk == 41503                 // '$' 'ascending'
+     || lk == 42015                 // '$' 'at'
+     || lk == 42527                 // '$' 'attribute'
+     || lk == 43039                 // '$' 'base-uri'
+     || lk == 43551                 // '$' 'before'
+     || lk == 44063                 // '$' 'boundary-space'
+     || lk == 44575                 // '$' 'break'
+     || lk == 45599                 // '$' 'case'
+     || lk == 46111                 // '$' 'cast'
+     || lk == 46623                 // '$' 'castable'
+     || lk == 47135                 // '$' 'catch'
+     || lk == 48159                 // '$' 'child'
+     || lk == 48671                 // '$' 'collation'
+     || lk == 49695                 // '$' 'comment'
+     || lk == 50207                 // '$' 'constraint'
+     || lk == 50719                 // '$' 'construction'
+     || lk == 52255                 // '$' 'context'
+     || lk == 52767                 // '$' 'continue'
+     || lk == 53279                 // '$' 'copy'
+     || lk == 53791                 // '$' 'copy-namespaces'
+     || lk == 54303                 // '$' 'count'
+     || lk == 54815                 // '$' 'decimal-format'
+     || lk == 55839                 // '$' 'declare'
+     || lk == 56351                 // '$' 'default'
+     || lk == 56863                 // '$' 'delete'
+     || lk == 57375                 // '$' 'descendant'
+     || lk == 57887                 // '$' 'descendant-or-self'
+     || lk == 58399                 // '$' 'descending'
+     || lk == 60959                 // '$' 'div'
+     || lk == 61471                 // '$' 'document'
+     || lk == 61983                 // '$' 'document-node'
+     || lk == 62495                 // '$' 'element'
+     || lk == 63007                 // '$' 'else'
+     || lk == 63519                 // '$' 'empty'
+     || lk == 64031                 // '$' 'empty-sequence'
+     || lk == 64543                 // '$' 'encoding'
+     || lk == 65055                 // '$' 'end'
+     || lk == 66079                 // '$' 'eq'
+     || lk == 66591                 // '$' 'every'
+     || lk == 67615                 // '$' 'except'
+     || lk == 68127                 // '$' 'exit'
+     || lk == 68639                 // '$' 'external'
+     || lk == 69151                 // '$' 'false'
+     || lk == 69663                 // '$' 'first'
+     || lk == 70175                 // '$' 'following'
+     || lk == 70687                 // '$' 'following-sibling'
+     || lk == 71199                 // '$' 'for'
+     || lk == 72735                 // '$' 'from'
+     || lk == 73247                 // '$' 'ft-option'
+     || lk == 75295                 // '$' 'function'
+     || lk == 75807                 // '$' 'ge'
+     || lk == 76831                 // '$' 'group'
+     || lk == 77855                 // '$' 'gt'
+     || lk == 78367                 // '$' 'idiv'
+     || lk == 78879                 // '$' 'if'
+     || lk == 79391                 // '$' 'import'
+     || lk == 79903                 // '$' 'in'
+     || lk == 80415                 // '$' 'index'
+     || lk == 82463                 // '$' 'insert'
+     || lk == 82975                 // '$' 'instance'
+     || lk == 83487                 // '$' 'integrity'
+     || lk == 83999                 // '$' 'intersect'
+     || lk == 84511                 // '$' 'into'
+     || lk == 85023                 // '$' 'is'
+     || lk == 85535
