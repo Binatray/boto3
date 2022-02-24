@@ -11563,4 +11563,402 @@ exports.JSONParseTreeHandler = function (code) {
        && lk != 164                 // 'intersect'
        && lk != 165                 // 'into'
        && lk != 166                 // 'is'
-      
+       && lk != 175                 // 'le'
+       && lk != 177                 // 'let'
+       && lk != 181                 // 'lt'
+       && lk != 183                 // 'mod'
+       && lk != 184                 // 'modify'
+       && lk != 189                 // 'ne'
+       && lk != 202                 // 'only'
+       && lk != 204                 // 'or'
+       && lk != 205                 // 'order'
+       && lk != 209                 // 'paragraphs'
+       && lk != 224                 // 'return'
+       && lk != 228                 // 'satisfies'
+       && lk != 237                 // 'sentences'
+       && lk != 241                 // 'stable'
+       && lk != 242                 // 'start'
+       && lk != 252                 // 'times'
+       && lk != 253                 // 'to'
+       && lk != 254                 // 'treat'
+       && lk != 260                 // 'union'
+       && lk != 272                 // 'where'
+       && lk != 276                 // 'with'
+       && lk != 279                 // 'words'
+       && lk != 284                 // '|'
+       && lk != 285                 // '||'
+       && lk != 286                 // '|}'
+       && lk != 287                 // '}'
+       && lk != 2586                // '!' Wildcard
+       && lk != 23578               // '!' '..'
+       && lk != 24090               // '!' '/'
+       && lk != 24602               // '!' '//'
+       && lk != 34330)              // '!' '@'
+      {
+        lk = memoized(3, e0);
+        if (lk == 0)
+        {
+          var b0A = b0; var e0A = e0; var l1A = l1;
+          var b1A = b1; var e1A = e1; var l2A = l2;
+          var b2A = b2; var e2A = e2;
+          try
+          {
+            switch (l1)
+            {
+            case 47:                // '/'
+              shiftT(47);           // '/'
+              break;
+            case 48:                // '//'
+              shiftT(48);           // '//'
+              break;
+            default:
+              shiftT(26);           // '!'
+            }
+            lookahead1W(263);       // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+            try_StepExpr();
+            lk = -1;
+          }
+          catch (p1A)
+          {
+            lk = -2;
+          }
+          b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+          b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+          b2 = b2A; e2 = e2A; end = e2A; }}
+          memoize(3, e0, lk);
+        }
+      }
+      if (lk != -1
+       && lk != 47                  // '/'
+       && lk != 48                  // '//'
+       && lk != 2586                // '!' Wildcard
+       && lk != 23578               // '!' '..'
+       && lk != 34330)              // '!' '@'
+      {
+        break;
+      }
+      switch (l1)
+      {
+      case 47:                      // '/'
+        shift(47);                  // '/'
+        break;
+      case 48:                      // '//'
+        shift(48);                  // '//'
+        break;
+      default:
+        shift(26);                  // '!'
+      }
+      lookahead1W(263);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      whitespace();
+      parse_StepExpr();
+    }
+    eventHandler.endNonterminal("RelativePathExpr", e0);
+  }
+
+  function try_RelativePathExpr()
+  {
+    try_PostfixExpr();
+    for (;;)
+    {
+      switch (l1)
+      {
+      case 26:                      // '!'
+        lookahead2W(264);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        break;
+      default:
+        lk = l1;
+      }
+      if (lk != 25                  // EOF
+       && lk != 27                  // '!='
+       && lk != 38                  // ')'
+       && lk != 39                  // '*'
+       && lk != 41                  // '+'
+       && lk != 42                  // ','
+       && lk != 43                  // '-'
+       && lk != 47                  // '/'
+       && lk != 48                  // '//'
+       && lk != 50                  // ':'
+       && lk != 54                  // ';'
+       && lk != 55                  // '<'
+       && lk != 58                  // '<<'
+       && lk != 59                  // '<='
+       && lk != 61                  // '='
+       && lk != 62                  // '>'
+       && lk != 63                  // '>='
+       && lk != 64                  // '>>'
+       && lk != 70                  // ']'
+       && lk != 71                  // 'after'
+       && lk != 76                  // 'and'
+       && lk != 80                  // 'as'
+       && lk != 81                  // 'ascending'
+       && lk != 82                  // 'at'
+       && lk != 85                  // 'before'
+       && lk != 88                  // 'by'
+       && lk != 89                  // 'case'
+       && lk != 90                  // 'cast'
+       && lk != 91                  // 'castable'
+       && lk != 95                  // 'collation'
+       && lk != 100                 // 'contains'
+       && lk != 106                 // 'count'
+       && lk != 110                 // 'default'
+       && lk != 114                 // 'descending'
+       && lk != 119                 // 'div'
+       && lk != 123                 // 'else'
+       && lk != 124                 // 'empty'
+       && lk != 127                 // 'end'
+       && lk != 129                 // 'eq'
+       && lk != 132                 // 'except'
+       && lk != 139                 // 'for'
+       && lk != 148                 // 'ge'
+       && lk != 150                 // 'group'
+       && lk != 152                 // 'gt'
+       && lk != 153                 // 'idiv'
+       && lk != 162                 // 'instance'
+       && lk != 164                 // 'intersect'
+       && lk != 165                 // 'into'
+       && lk != 166                 // 'is'
+       && lk != 175                 // 'le'
+       && lk != 177                 // 'let'
+       && lk != 181                 // 'lt'
+       && lk != 183                 // 'mod'
+       && lk != 184                 // 'modify'
+       && lk != 189                 // 'ne'
+       && lk != 202                 // 'only'
+       && lk != 204                 // 'or'
+       && lk != 205                 // 'order'
+       && lk != 209                 // 'paragraphs'
+       && lk != 224                 // 'return'
+       && lk != 228                 // 'satisfies'
+       && lk != 237                 // 'sentences'
+       && lk != 241                 // 'stable'
+       && lk != 242                 // 'start'
+       && lk != 252                 // 'times'
+       && lk != 253                 // 'to'
+       && lk != 254                 // 'treat'
+       && lk != 260                 // 'union'
+       && lk != 272                 // 'where'
+       && lk != 276                 // 'with'
+       && lk != 279                 // 'words'
+       && lk != 284                 // '|'
+       && lk != 285                 // '||'
+       && lk != 286                 // '|}'
+       && lk != 287                 // '}'
+       && lk != 2586                // '!' Wildcard
+       && lk != 23578               // '!' '..'
+       && lk != 24090               // '!' '/'
+       && lk != 24602               // '!' '//'
+       && lk != 34330)              // '!' '@'
+      {
+        lk = memoized(3, e0);
+        if (lk == 0)
+        {
+          var b0A = b0; var e0A = e0; var l1A = l1;
+          var b1A = b1; var e1A = e1; var l2A = l2;
+          var b2A = b2; var e2A = e2;
+          try
+          {
+            switch (l1)
+            {
+            case 47:                // '/'
+              shiftT(47);           // '/'
+              break;
+            case 48:                // '//'
+              shiftT(48);           // '//'
+              break;
+            default:
+              shiftT(26);           // '!'
+            }
+            lookahead1W(263);       // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+            try_StepExpr();
+            memoize(3, e0A, -1);
+            continue;
+          }
+          catch (p1A)
+          {
+            b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+            b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+            b2 = b2A; e2 = e2A; end = e2A; }}
+            memoize(3, e0A, -2);
+            break;
+          }
+        }
+      }
+      if (lk != -1
+       && lk != 47                  // '/'
+       && lk != 48                  // '//'
+       && lk != 2586                // '!' Wildcard
+       && lk != 23578               // '!' '..'
+       && lk != 34330)              // '!' '@'
+      {
+        break;
+      }
+      switch (l1)
+      {
+      case 47:                      // '/'
+        shiftT(47);                 // '/'
+        break;
+      case 48:                      // '//'
+        shiftT(48);                 // '//'
+        break;
+      default:
+        shiftT(26);                 // '!'
+      }
+      lookahead1W(263);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      try_StepExpr();
+    }
+  }
+
+  function parse_StepExpr()
+  {
+    eventHandler.startNonterminal("StepExpr", e0);
+    switch (l1)
+    {
+    case 83:                        // 'attribute'
+      lookahead2W(287);             // EQName^Token | S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | ')' | '*' | '+' |
+      break;
+    case 122:                       // 'element'
+      lookahead2W(286);             // EQName^Token | S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | ')' | '*' | '+' |
+      break;
+    case 187:                       // 'namespace'
+    case 220:                       // 'processing-instruction'
+      lookahead2W(284);             // NCName^Token | S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | ')' | '*' | '+' |
+      break;
+    case 135:                       // 'false'
+    case 197:                       // 'null'
+    case 255:                       // 'true'
+      lookahead2W(236);             // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '.' |
+      break;
+    case 97:                        // 'comment'
+    case 120:                       // 'document'
+    case 206:                       // 'ordered'
+    case 249:                       // 'text'
+    case 262:                       // 'unordered'
+      lookahead2W(238);             // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' |
+      break;
+    case 79:                        // 'array'
+    case 125:                       // 'empty-sequence'
+    case 154:                       // 'if'
+    case 167:                       // 'item'
+    case 169:                       // 'json-item'
+    case 247:                       // 'structured-item'
+    case 248:                       // 'switch'
+    case 259:                       // 'typeswitch'
+      lookahead2W(229);             // S^WS | EOF | '!' | '!=' | '#' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' |
+      break;
+    case 74:                        // 'ancestor'
+    case 75:                        // 'ancestor-or-self'
+    case 94:                        // 'child'
+    case 112:                       // 'descendant'
+    case 113:                       // 'descendant-or-self'
+    case 137:                       // 'following'
+    case 138:                       // 'following-sibling'
+    case 210:                       // 'parent'
+    case 216:                       // 'preceding'
+    case 217:                       // 'preceding-sibling'
+    case 234:                       // 'self'
+      lookahead2W(237);             // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' |
+      break;
+    case 6:                         // EQName^Token
+    case 71:                        // 'after'
+    case 73:                        // 'allowing'
+    case 76:                        // 'and'
+    case 78:                        // 'append'
+    case 80:                        // 'as'
+    case 81:                        // 'ascending'
+    case 82:                        // 'at'
+    case 84:                        // 'base-uri'
+    case 85:                        // 'before'
+    case 86:                        // 'boundary-space'
+    case 87:                        // 'break'
+    case 89:                        // 'case'
+    case 90:                        // 'cast'
+    case 91:                        // 'castable'
+    case 92:                        // 'catch'
+    case 95:                        // 'collation'
+    case 98:                        // 'constraint'
+    case 99:                        // 'construction'
+    case 102:                       // 'context'
+    case 103:                       // 'continue'
+    case 104:                       // 'copy'
+    case 105:                       // 'copy-namespaces'
+    case 106:                       // 'count'
+    case 107:                       // 'decimal-format'
+    case 109:                       // 'declare'
+    case 110:                       // 'default'
+    case 111:                       // 'delete'
+    case 114:                       // 'descending'
+    case 119:                       // 'div'
+    case 121:                       // 'document-node'
+    case 123:                       // 'else'
+    case 124:                       // 'empty'
+    case 126:                       // 'encoding'
+    case 127:                       // 'end'
+    case 129:                       // 'eq'
+    case 130:                       // 'every'
+    case 132:                       // 'except'
+    case 133:                       // 'exit'
+    case 134:                       // 'external'
+    case 136:                       // 'first'
+    case 139:                       // 'for'
+    case 142:                       // 'from'
+    case 143:                       // 'ft-option'
+    case 147:                       // 'function'
+    case 148:                       // 'ge'
+    case 150:                       // 'group'
+    case 152:                       // 'gt'
+    case 153:                       // 'idiv'
+    case 155:                       // 'import'
+    case 156:                       // 'in'
+    case 157:                       // 'index'
+    case 161:                       // 'insert'
+    case 162:                       // 'instance'
+    case 163:                       // 'integrity'
+    case 164:                       // 'intersect'
+    case 165:                       // 'into'
+    case 166:                       // 'is'
+    case 168:                       // 'json'
+    case 170:                       // 'jsoniq'
+    case 173:                       // 'last'
+    case 174:                       // 'lax'
+    case 175:                       // 'le'
+    case 177:                       // 'let'
+    case 179:                       // 'loop'
+    case 181:                       // 'lt'
+    case 183:                       // 'mod'
+    case 184:                       // 'modify'
+    case 185:                       // 'module'
+    case 188:                       // 'namespace-node'
+    case 189:                       // 'ne'
+    case 194:                       // 'node'
+    case 195:                       // 'nodes'
+    case 198:                       // 'object'
+    case 202:                       // 'only'
+    case 203:                       // 'option'
+    case 204:                       // 'or'
+    case 205:                       // 'order'
+    case 207:                       // 'ordering'
+    case 222:                       // 'rename'
+    case 223:                       // 'replace'
+    case 224:                       // 'return'
+    case 225:                       // 'returning'
+    case 226:                       // 'revalidation'
+    case 228:                       // 'satisfies'
+    case 229:                       // 'schema'
+    case 230:                       // 'schema-attribute'
+    case 231:                       // 'schema-element'
+    case 232:                       // 'score'
+    case 233:                       // 'select'
+    case 239:                       // 'sliding'
+    case 240:                       // 'some'
+    case 241:                       // 'stable'
+    case 242:                       // 'start'
+    case 245:                       // 'strict'
+    case 253:                       // 'to'
+    case 254:                       // 'treat'
+    case 256:                       // 'try'
+    case 257:                       // 'tumbling'
+    case 258:                       // 'type'
+    case 260:                       // 'union'
+    case 263:                       // 'updating'
+    case 266:                       // 'validate'
+   
