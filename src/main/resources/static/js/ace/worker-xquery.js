@@ -14335,4 +14335,485 @@ exports.JSONParseTreeHandler = function (code) {
     case 143969:                    // 'comment' '{'
     case 143992:                    // 'document' '{'
     case 143994:                    // 'element' '{'
-    c
+    case 144059:                    // 'namespace' '{'
+    case 144078:                    // 'ordered' '{'
+    case 144092:                    // 'processing-instruction' '{'
+    case 144121:                    // 'text' '{'
+    case 144134:                    // 'unordered' '{'
+      try_PostfixExpr();
+      break;
+    case -3:
+      break;
+    default:
+      try_AxisStep();
+    }
+  }
+
+  function parse_AxisStep()
+  {
+    eventHandler.startNonterminal("AxisStep", e0);
+    switch (l1)
+    {
+    case 74:                        // 'ancestor'
+    case 75:                        // 'ancestor-or-self'
+    case 210:                       // 'parent'
+    case 216:                       // 'preceding'
+    case 217:                       // 'preceding-sibling'
+      lookahead2W(231);             // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 46:                        // '..'
+    case 26698:                     // 'ancestor' '::'
+    case 26699:                     // 'ancestor-or-self' '::'
+    case 26834:                     // 'parent' '::'
+    case 26840:                     // 'preceding' '::'
+    case 26841:                     // 'preceding-sibling' '::'
+      parse_ReverseStep();
+      break;
+    default:
+      parse_ForwardStep();
+    }
+    lookahead1W(227);               // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+    whitespace();
+    parse_PredicateList();
+    eventHandler.endNonterminal("AxisStep", e0);
+  }
+
+  function try_AxisStep()
+  {
+    switch (l1)
+    {
+    case 74:                        // 'ancestor'
+    case 75:                        // 'ancestor-or-self'
+    case 210:                       // 'parent'
+    case 216:                       // 'preceding'
+    case 217:                       // 'preceding-sibling'
+      lookahead2W(231);             // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 46:                        // '..'
+    case 26698:                     // 'ancestor' '::'
+    case 26699:                     // 'ancestor-or-self' '::'
+    case 26834:                     // 'parent' '::'
+    case 26840:                     // 'preceding' '::'
+    case 26841:                     // 'preceding-sibling' '::'
+      try_ReverseStep();
+      break;
+    default:
+      try_ForwardStep();
+    }
+    lookahead1W(227);               // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+    try_PredicateList();
+  }
+
+  function parse_ForwardStep()
+  {
+    eventHandler.startNonterminal("ForwardStep", e0);
+    switch (l1)
+    {
+    case 83:                        // 'attribute'
+      lookahead2W(235);             // S^WS | EOF | '!' | '!=' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' |
+      break;
+    case 94:                        // 'child'
+    case 112:                       // 'descendant'
+    case 113:                       // 'descendant-or-self'
+    case 137:                       // 'following'
+    case 138:                       // 'following-sibling'
+    case 234:                       // 'self'
+      lookahead2W(231);             // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 26707:                     // 'attribute' '::'
+    case 26718:                     // 'child' '::'
+    case 26736:                     // 'descendant' '::'
+    case 26737:                     // 'descendant-or-self' '::'
+    case 26761:                     // 'following' '::'
+    case 26762:                     // 'following-sibling' '::'
+    case 26858:                     // 'self' '::'
+      parse_ForwardAxis();
+      lookahead1W(248);             // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_NodeTest();
+      break;
+    default:
+      parse_AbbrevForwardStep();
+    }
+    eventHandler.endNonterminal("ForwardStep", e0);
+  }
+
+  function try_ForwardStep()
+  {
+    switch (l1)
+    {
+    case 83:                        // 'attribute'
+      lookahead2W(235);             // S^WS | EOF | '!' | '!=' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' |
+      break;
+    case 94:                        // 'child'
+    case 112:                       // 'descendant'
+    case 113:                       // 'descendant-or-self'
+    case 137:                       // 'following'
+    case 138:                       // 'following-sibling'
+    case 234:                       // 'self'
+      lookahead2W(231);             // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 26707:                     // 'attribute' '::'
+    case 26718:                     // 'child' '::'
+    case 26736:                     // 'descendant' '::'
+    case 26737:                     // 'descendant-or-self' '::'
+    case 26761:                     // 'following' '::'
+    case 26762:                     // 'following-sibling' '::'
+    case 26858:                     // 'self' '::'
+      try_ForwardAxis();
+      lookahead1W(248);             // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      try_NodeTest();
+      break;
+    default:
+      try_AbbrevForwardStep();
+    }
+  }
+
+  function parse_ForwardAxis()
+  {
+    eventHandler.startNonterminal("ForwardAxis", e0);
+    switch (l1)
+    {
+    case 94:                        // 'child'
+      shift(94);                    // 'child'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+      break;
+    case 112:                       // 'descendant'
+      shift(112);                   // 'descendant'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+      break;
+    case 83:                        // 'attribute'
+      shift(83);                    // 'attribute'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+      break;
+    case 234:                       // 'self'
+      shift(234);                   // 'self'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+      break;
+    case 113:                       // 'descendant-or-self'
+      shift(113);                   // 'descendant-or-self'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+      break;
+    case 138:                       // 'following-sibling'
+      shift(138);                   // 'following-sibling'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+      break;
+    default:
+      shift(137);                   // 'following'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+    }
+    eventHandler.endNonterminal("ForwardAxis", e0);
+  }
+
+  function try_ForwardAxis()
+  {
+    switch (l1)
+    {
+    case 94:                        // 'child'
+      shiftT(94);                   // 'child'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+      break;
+    case 112:                       // 'descendant'
+      shiftT(112);                  // 'descendant'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+      break;
+    case 83:                        // 'attribute'
+      shiftT(83);                   // 'attribute'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+      break;
+    case 234:                       // 'self'
+      shiftT(234);                  // 'self'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+      break;
+    case 113:                       // 'descendant-or-self'
+      shiftT(113);                  // 'descendant-or-self'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+      break;
+    case 138:                       // 'following-sibling'
+      shiftT(138);                  // 'following-sibling'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+      break;
+    default:
+      shiftT(137);                  // 'following'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+    }
+  }
+
+  function parse_AbbrevForwardStep()
+  {
+    eventHandler.startNonterminal("AbbrevForwardStep", e0);
+    if (l1 == 67)                   // '@'
+    {
+      shift(67);                    // '@'
+    }
+    lookahead1W(248);               // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_NodeTest();
+    eventHandler.endNonterminal("AbbrevForwardStep", e0);
+  }
+
+  function try_AbbrevForwardStep()
+  {
+    if (l1 == 67)                   // '@'
+    {
+      shiftT(67);                   // '@'
+    }
+    lookahead1W(248);               // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    try_NodeTest();
+  }
+
+  function parse_ReverseStep()
+  {
+    eventHandler.startNonterminal("ReverseStep", e0);
+    switch (l1)
+    {
+    case 46:                        // '..'
+      parse_AbbrevReverseStep();
+      break;
+    default:
+      parse_ReverseAxis();
+      lookahead1W(248);             // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_NodeTest();
+    }
+    eventHandler.endNonterminal("ReverseStep", e0);
+  }
+
+  function try_ReverseStep()
+  {
+    switch (l1)
+    {
+    case 46:                        // '..'
+      try_AbbrevReverseStep();
+      break;
+    default:
+      try_ReverseAxis();
+      lookahead1W(248);             // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      try_NodeTest();
+    }
+  }
+
+  function parse_ReverseAxis()
+  {
+    eventHandler.startNonterminal("ReverseAxis", e0);
+    switch (l1)
+    {
+    case 210:                       // 'parent'
+      shift(210);                   // 'parent'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+      break;
+    case 74:                        // 'ancestor'
+      shift(74);                    // 'ancestor'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+      break;
+    case 217:                       // 'preceding-sibling'
+      shift(217);                   // 'preceding-sibling'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+      break;
+    case 216:                       // 'preceding'
+      shift(216);                   // 'preceding'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+      break;
+    default:
+      shift(75);                    // 'ancestor-or-self'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shift(52);                    // '::'
+    }
+    eventHandler.endNonterminal("ReverseAxis", e0);
+  }
+
+  function try_ReverseAxis()
+  {
+    switch (l1)
+    {
+    case 210:                       // 'parent'
+      shiftT(210);                  // 'parent'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+      break;
+    case 74:                        // 'ancestor'
+      shiftT(74);                   // 'ancestor'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+      break;
+    case 217:                       // 'preceding-sibling'
+      shiftT(217);                  // 'preceding-sibling'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+      break;
+    case 216:                       // 'preceding'
+      shiftT(216);                  // 'preceding'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+      break;
+    default:
+      shiftT(75);                   // 'ancestor-or-self'
+      lookahead1W(27);              // S^WS | '(:' | '::'
+      shiftT(52);                   // '::'
+    }
+  }
+
+  function parse_AbbrevReverseStep()
+  {
+    eventHandler.startNonterminal("AbbrevReverseStep", e0);
+    shift(46);                      // '..'
+    eventHandler.endNonterminal("AbbrevReverseStep", e0);
+  }
+
+  function try_AbbrevReverseStep()
+  {
+    shiftT(46);                     // '..'
+  }
+
+  function parse_NodeTest()
+  {
+    eventHandler.startNonterminal("NodeTest", e0);
+    switch (l1)
+    {
+    case 83:                        // 'attribute'
+    case 97:                        // 'comment'
+    case 121:                       // 'document-node'
+    case 122:                       // 'element'
+    case 188:                       // 'namespace-node'
+    case 194:                       // 'node'
+    case 220:                       // 'processing-instruction'
+    case 230:                       // 'schema-attribute'
+    case 231:                       // 'schema-element'
+    case 249:                       // 'text'
+      lookahead2W(230);             // S^WS | EOF | '!' | '!=' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 18003:                     // 'attribute' '('
+    case 18017:                     // 'comment' '('
+    case 18041:                     // 'document-node' '('
+    case 18042:                     // 'element' '('
+    case 18108:                     // 'namespace-node' '('
+    case 18114:                     // 'node' '('
+    case 18140:                     // 'processing-instruction' '('
+    case 18150:                     // 'schema-attribute' '('
+    case 18151:                     // 'schema-element' '('
+    case 18169:                     // 'text' '('
+      parse_KindTest();
+      break;
+    default:
+      parse_NameTest();
+    }
+    eventHandler.endNonterminal("NodeTest", e0);
+  }
+
+  function try_NodeTest()
+  {
+    switch (l1)
+    {
+    case 83:                        // 'attribute'
+    case 97:                        // 'comment'
+    case 121:                       // 'document-node'
+    case 122:                       // 'element'
+    case 188:                       // 'namespace-node'
+    case 194:                       // 'node'
+    case 220:                       // 'processing-instruction'
+    case 230:                       // 'schema-attribute'
+    case 231:                       // 'schema-element'
+    case 249:                       // 'text'
+      lookahead2W(230);             // S^WS | EOF | '!' | '!=' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 18003:                     // 'attribute' '('
+    case 18017:                     // 'comment' '('
+    case 18041:                     // 'document-node' '('
+    case 18042:                     // 'element' '('
+    case 18108:                     // 'namespace-node' '('
+    case 18114:                     // 'node' '('
+    case 18140:                     // 'processing-instruction' '('
+    case 18150:                     // 'schema-attribute' '('
+    case 18151:                     // 'schema-element' '('
+    case 18169:                     // 'text' '('
+      try_KindTest();
+      break;
+    default:
+      try_NameTest();
+    }
+  }
+
+  function parse_NameTest()
+  {
+    eventHandler.startNonterminal("NameTest", e0);
+    switch (l1)
+    {
+    case 5:                         // Wildcard
+      shift(5);                     // Wildcard
+      break;
+    default:
+      parse_EQName();
+    }
+    eventHandler.endNonterminal("NameTest", e0);
+  }
+
+  function try_NameTest()
+  {
+    switch (l1)
+    {
+    case 5:                         // Wildcard
+      shiftT(5);                    // Wildcard
+      break;
+    default:
+      try_EQName();
+    }
+  }
+
+  function parse_PostfixExpr()
+  {
+    eventHandler.startNonterminal("PostfixExpr", e0);
+    parse_PrimaryExpr();
+    for (;;)
+    {
+      lookahead1W(234);             // S^WS | EOF | '!' | '!=' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '.' | '/' |
+      if (l1 != 35                  // '('
+       && l1 != 45                  // '.'
+       &&
