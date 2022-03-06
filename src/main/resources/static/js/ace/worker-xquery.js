@@ -15993,4 +15993,475 @@ exports.JSONParseTreeHandler = function (code) {
 
   function try_CompNamespaceConstructor()
   {
-    shiftT(187);  
+    shiftT(187);                    // 'namespace'
+    lookahead1W(241);               // NCName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    switch (l1)
+    {
+    case 281:                       // '{'
+      shiftT(281);                  // '{'
+      lookahead1W(266);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      try_PrefixExpr();
+      shiftT(287);                  // '}'
+      break;
+    default:
+      try_Prefix();
+    }
+    lookahead1W(90);                // S^WS | '(:' | '{'
+    shiftT(281);                    // '{'
+    lookahead1W(266);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    try_URIExpr();
+    shiftT(287);                    // '}'
+  }
+
+  function parse_Prefix()
+  {
+    eventHandler.startNonterminal("Prefix", e0);
+    parse_NCName();
+    eventHandler.endNonterminal("Prefix", e0);
+  }
+
+  function try_Prefix()
+  {
+    try_NCName();
+  }
+
+  function parse_PrefixExpr()
+  {
+    eventHandler.startNonterminal("PrefixExpr", e0);
+    parse_Expr();
+    eventHandler.endNonterminal("PrefixExpr", e0);
+  }
+
+  function try_PrefixExpr()
+  {
+    try_Expr();
+  }
+
+  function parse_URIExpr()
+  {
+    eventHandler.startNonterminal("URIExpr", e0);
+    parse_Expr();
+    eventHandler.endNonterminal("URIExpr", e0);
+  }
+
+  function try_URIExpr()
+  {
+    try_Expr();
+  }
+
+  function parse_FunctionItemExpr()
+  {
+    eventHandler.startNonterminal("FunctionItemExpr", e0);
+    switch (l1)
+    {
+    case 147:                       // 'function'
+      lookahead2W(95);              // S^WS | '#' | '(' | '(:'
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 33:                        // '%'
+    case 18067:                     // 'function' '('
+      parse_InlineFunctionExpr();
+      break;
+    default:
+      parse_NamedFunctionRef();
+    }
+    eventHandler.endNonterminal("FunctionItemExpr", e0);
+  }
+
+  function try_FunctionItemExpr()
+  {
+    switch (l1)
+    {
+    case 147:                       // 'function'
+      lookahead2W(95);              // S^WS | '#' | '(' | '(:'
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 33:                        // '%'
+    case 18067:                     // 'function' '('
+      try_InlineFunctionExpr();
+      break;
+    default:
+      try_NamedFunctionRef();
+    }
+  }
+
+  function parse_NamedFunctionRef()
+  {
+    eventHandler.startNonterminal("NamedFunctionRef", e0);
+    parse_EQName();
+    lookahead1W(20);                // S^WS | '#' | '(:'
+    shift(29);                      // '#'
+    lookahead1W(16);                // IntegerLiteral | S^WS | '(:'
+    shift(8);                       // IntegerLiteral
+    eventHandler.endNonterminal("NamedFunctionRef", e0);
+  }
+
+  function try_NamedFunctionRef()
+  {
+    try_EQName();
+    lookahead1W(20);                // S^WS | '#' | '(:'
+    shiftT(29);                     // '#'
+    lookahead1W(16);                // IntegerLiteral | S^WS | '(:'
+    shiftT(8);                      // IntegerLiteral
+  }
+
+  function parse_InlineFunctionExpr()
+  {
+    eventHandler.startNonterminal("InlineFunctionExpr", e0);
+    for (;;)
+    {
+      lookahead1W(101);             // S^WS | '%' | '(:' | 'function'
+      if (l1 != 33)                 // '%'
+      {
+        break;
+      }
+      whitespace();
+      parse_Annotation();
+    }
+    shift(147);                     // 'function'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shift(35);                      // '('
+    lookahead1W(98);                // S^WS | '$' | '(:' | ')'
+    if (l1 == 31)                   // '$'
+    {
+      whitespace();
+      parse_ParamList();
+    }
+    shift(38);                      // ')'
+    lookahead1W(115);               // S^WS | '(:' | 'as' | '{'
+    if (l1 == 80)                   // 'as'
+    {
+      shift(80);                    // 'as'
+      lookahead1W(253);             // EQName^Token | S^WS | '%' | '(' | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_SequenceType();
+    }
+    lookahead1W(90);                // S^WS | '(:' | '{'
+    whitespace();
+    parse_FunctionBody();
+    eventHandler.endNonterminal("InlineFunctionExpr", e0);
+  }
+
+  function try_InlineFunctionExpr()
+  {
+    for (;;)
+    {
+      lookahead1W(101);             // S^WS | '%' | '(:' | 'function'
+      if (l1 != 33)                 // '%'
+      {
+        break;
+      }
+      try_Annotation();
+    }
+    shiftT(147);                    // 'function'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shiftT(35);                     // '('
+    lookahead1W(98);                // S^WS | '$' | '(:' | ')'
+    if (l1 == 31)                   // '$'
+    {
+      try_ParamList();
+    }
+    shiftT(38);                     // ')'
+    lookahead1W(115);               // S^WS | '(:' | 'as' | '{'
+    if (l1 == 80)                   // 'as'
+    {
+      shiftT(80);                   // 'as'
+      lookahead1W(253);             // EQName^Token | S^WS | '%' | '(' | '(:' | 'after' | 'allowing' | 'ancestor' |
+      try_SequenceType();
+    }
+    lookahead1W(90);                // S^WS | '(:' | '{'
+    try_FunctionBody();
+  }
+
+  function parse_SingleType()
+  {
+    eventHandler.startNonterminal("SingleType", e0);
+    parse_SimpleTypeName();
+    lookahead1W(225);               // S^WS | EOF | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | ':' | ';' | '<' | '<<' |
+    if (l1 == 65)                   // '?'
+    {
+      shift(65);                    // '?'
+    }
+    eventHandler.endNonterminal("SingleType", e0);
+  }
+
+  function try_SingleType()
+  {
+    try_SimpleTypeName();
+    lookahead1W(225);               // S^WS | EOF | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | ':' | ';' | '<' | '<<' |
+    if (l1 == 65)                   // '?'
+    {
+      shiftT(65);                   // '?'
+    }
+  }
+
+  function parse_TypeDeclaration()
+  {
+    eventHandler.startNonterminal("TypeDeclaration", e0);
+    shift(80);                      // 'as'
+    lookahead1W(253);               // EQName^Token | S^WS | '%' | '(' | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_SequenceType();
+    eventHandler.endNonterminal("TypeDeclaration", e0);
+  }
+
+  function try_TypeDeclaration()
+  {
+    shiftT(80);                     // 'as'
+    lookahead1W(253);               // EQName^Token | S^WS | '%' | '(' | '(:' | 'after' | 'allowing' | 'ancestor' |
+    try_SequenceType();
+  }
+
+  function parse_SequenceType()
+  {
+    eventHandler.startNonterminal("SequenceType", e0);
+    switch (l1)
+    {
+    case 35:                        // '('
+      lookahead2W(258);             // EQName^Token | S^WS | '%' | '(' | '(:' | ')' | 'after' | 'allowing' |
+      break;
+    case 125:                       // 'empty-sequence'
+      lookahead2W(232);             // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 18045:                     // 'empty-sequence' '('
+    case 19491:                     // '(' ')'
+      if (l1 == 125)                // 'empty-sequence'
+      {
+        shift(125);                 // 'empty-sequence'
+      }
+      lookahead1W(22);              // S^WS | '(' | '(:'
+      shift(35);                    // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shift(38);                    // ')'
+      break;
+    default:
+      parse_ItemType();
+      lookahead1W(228);             // S^WS | EOF | '!=' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' | ';' |
+      switch (l1)
+      {
+      case 40:                      // '*'
+      case 41:                      // '+'
+      case 65:                      // '?'
+        whitespace();
+        parse_OccurrenceIndicator();
+        break;
+      default:
+        break;
+      }
+    }
+    eventHandler.endNonterminal("SequenceType", e0);
+  }
+
+  function try_SequenceType()
+  {
+    switch (l1)
+    {
+    case 35:                        // '('
+      lookahead2W(258);             // EQName^Token | S^WS | '%' | '(' | '(:' | ')' | 'after' | 'allowing' |
+      break;
+    case 125:                       // 'empty-sequence'
+      lookahead2W(232);             // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 18045:                     // 'empty-sequence' '('
+    case 19491:                     // '(' ')'
+      if (l1 == 125)                // 'empty-sequence'
+      {
+        shiftT(125);                // 'empty-sequence'
+      }
+      lookahead1W(22);              // S^WS | '(' | '(:'
+      shiftT(35);                   // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shiftT(38);                   // ')'
+      break;
+    default:
+      try_ItemType();
+      lookahead1W(228);             // S^WS | EOF | '!=' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' | ';' |
+      switch (l1)
+      {
+      case 40:                      // '*'
+      case 41:                      // '+'
+      case 65:                      // '?'
+        try_OccurrenceIndicator();
+        break;
+      default:
+        break;
+      }
+    }
+  }
+
+  function parse_OccurrenceIndicator()
+  {
+    eventHandler.startNonterminal("OccurrenceIndicator", e0);
+    switch (l1)
+    {
+    case 65:                        // '?'
+      shift(65);                    // '?'
+      break;
+    case 40:                        // '*'
+      shift(40);                    // '*'
+      break;
+    default:
+      shift(41);                    // '+'
+    }
+    eventHandler.endNonterminal("OccurrenceIndicator", e0);
+  }
+
+  function try_OccurrenceIndicator()
+  {
+    switch (l1)
+    {
+    case 65:                        // '?'
+      shiftT(65);                   // '?'
+      break;
+    case 40:                        // '*'
+      shiftT(40);                   // '*'
+      break;
+    default:
+      shiftT(41);                   // '+'
+    }
+  }
+
+  function parse_ItemType()
+  {
+    eventHandler.startNonterminal("ItemType", e0);
+    switch (l1)
+    {
+    case 79:                        // 'array'
+    case 83:                        // 'attribute'
+    case 97:                        // 'comment'
+    case 121:                       // 'document-node'
+    case 122:                       // 'element'
+    case 147:                       // 'function'
+    case 167:                       // 'item'
+    case 169:                       // 'json-item'
+    case 188:                       // 'namespace-node'
+    case 194:                       // 'node'
+    case 198:                       // 'object'
+    case 220:                       // 'processing-instruction'
+    case 230:                       // 'schema-attribute'
+    case 231:                       // 'schema-element'
+    case 247:                       // 'structured-item'
+    case 249:                       // 'text'
+      lookahead2W(232);             // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 12879                 // 'array' EOF
+     || lk == 12969                 // 'json-item' EOF
+     || lk == 12998                 // 'object' EOF
+     || lk == 13047                 // 'structured-item' EOF
+     || lk == 13903                 // 'array' '!='
+     || lk == 13993                 // 'json-item' '!='
+     || lk == 14022                 // 'object' '!='
+     || lk == 14071                 // 'structured-item' '!='
+     || lk == 19535                 // 'array' ')'
+     || lk == 19625                 // 'json-item' ')'
+     || lk == 19654                 // 'object' ')'
+     || lk == 19703                 // 'structured-item' ')'
+     || lk == 20047                 // 'array' '*'
+     || lk == 20137                 // 'json-item' '*'
+     || lk == 20166                 // 'object' '*'
+     || lk == 20215                 // 'structured-item' '*'
+     || lk == 20559                 // 'array' '*'
+     || lk == 20649                 // 'json-item' '*'
+     || lk == 20678                 // 'object' '*'
+     || lk == 20727                 // 'structured-item' '*'
+     || lk == 21071                 // 'array' '+'
+     || lk == 21161                 // 'json-item' '+'
+     || lk == 21190                 // 'object' '+'
+     || lk == 21239                 // 'structured-item' '+'
+     || lk == 21583                 // 'array' ','
+     || lk == 21673                 // 'json-item' ','
+     || lk == 21702                 // 'object' ','
+     || lk == 21751                 // 'structured-item' ','
+     || lk == 22095                 // 'array' '-'
+     || lk == 22185                 // 'json-item' '-'
+     || lk == 22214                 // 'object' '-'
+     || lk == 22263                 // 'structured-item' '-'
+     || lk == 25679                 // 'array' ':'
+     || lk == 25769                 // 'json-item' ':'
+     || lk == 25798                 // 'object' ':'
+     || lk == 25847                 // 'structured-item' ':'
+     || lk == 27215                 // 'array' ':='
+     || lk == 27305                 // 'json-item' ':='
+     || lk == 27334                 // 'object' ':='
+     || lk == 27383                 // 'structured-item' ':='
+     || lk == 27727                 // 'array' ';'
+     || lk == 27817                 // 'json-item' ';'
+     || lk == 27846                 // 'object' ';'
+     || lk == 27895                 // 'structured-item' ';'
+     || lk == 28239                 // 'array' '<'
+     || lk == 28329                 // 'json-item' '<'
+     || lk == 28358                 // 'object' '<'
+     || lk == 28407                 // 'structured-item' '<'
+     || lk == 29775                 // 'array' '<<'
+     || lk == 29865                 // 'json-item' '<<'
+     || lk == 29894                 // 'object' '<<'
+     || lk == 29943                 // 'structured-item' '<<'
+     || lk == 30287                 // 'array' '<='
+     || lk == 30377                 // 'json-item' '<='
+     || lk == 30406                 // 'object' '<='
+     || lk == 30455                 // 'structured-item' '<='
+     || lk == 31311                 // 'array' '='
+     || lk == 31401                 // 'json-item' '='
+     || lk == 31430                 // 'object' '='
+     || lk == 31479                 // 'structured-item' '='
+     || lk == 31823                 // 'array' '>'
+     || lk == 31913                 // 'json-item' '>'
+     || lk == 31942                 // 'object' '>'
+     || lk == 31991                 // 'structured-item' '>'
+     || lk == 32335                 // 'array' '>='
+     || lk == 32425                 // 'json-item' '>='
+     || lk == 32454                 // 'object' '>='
+     || lk == 32503                 // 'structured-item' '>='
+     || lk == 32847                 // 'array' '>>'
+     || lk == 32937                 // 'json-item' '>>'
+     || lk == 32966                 // 'object' '>>'
+     || lk == 33015                 // 'structured-item' '>>'
+     || lk == 33359                 // 'array' '?'
+     || lk == 33449                 // 'json-item' '?'
+     || lk == 33478                 // 'object' '?'
+     || lk == 33527                 // 'structured-item' '?'
+     || lk == 35919                 // 'array' ']'
+     || lk == 36009                 // 'json-item' ']'
+     || lk == 36038                 // 'object' ']'
+     || lk == 36087                 // 'structured-item' ']'
+     || lk == 36431                 // 'array' 'after'
+     || lk == 36521                 // 'json-item' 'after'
+     || lk == 36550                 // 'object' 'after'
+     || lk == 36599                 // 'structured-item' 'after'
+     || lk == 37455                 // 'array' 'allowing'
+     || lk == 37545                 // 'json-item' 'allowing'
+     || lk == 37574                 // 'object' 'allowing'
+     || lk == 37623                 // 'structured-item' 'allowing'
+     || lk == 38991                 // 'array' 'and'
+     || lk == 39081                 // 'json-item' 'and'
+     || lk == 39110                 // 'object' 'and'
+     || lk == 39159                 // 'structured-item' 'and'
+     || lk == 41039                 // 'array' 'as'
+     || lk == 41129                 // 'json-item' 'as'
+     || lk == 41158                 // 'object' 'as'
+     || lk == 41207                 // 'structured-item' 'as'
+     || lk == 41551                 // 'array' 'ascending'
+     || lk == 41641                 // 'json-item' 'ascending'
+     || lk == 41670                 // 'object' 'ascending'
+     || lk == 41719                 // '
