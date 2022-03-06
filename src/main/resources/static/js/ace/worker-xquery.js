@@ -16464,4 +16464,331 @@ exports.JSONParseTreeHandler = function (code) {
      || lk == 41551                 // 'array' 'ascending'
      || lk == 41641                 // 'json-item' 'ascending'
      || lk == 41670                 // 'object' 'ascending'
-     || lk == 41719                 // '
+     || lk == 41719                 // 'structured-item' 'ascending'
+     || lk == 42063                 // 'array' 'at'
+     || lk == 42153                 // 'json-item' 'at'
+     || lk == 42182                 // 'object' 'at'
+     || lk == 42231                 // 'structured-item' 'at'
+     || lk == 43599                 // 'array' 'before'
+     || lk == 43689                 // 'json-item' 'before'
+     || lk == 43718                 // 'object' 'before'
+     || lk == 43767                 // 'structured-item' 'before'
+     || lk == 45647                 // 'array' 'case'
+     || lk == 45737                 // 'json-item' 'case'
+     || lk == 45766                 // 'object' 'case'
+     || lk == 45815                 // 'structured-item' 'case'
+     || lk == 48719                 // 'array' 'collation'
+     || lk == 48809                 // 'json-item' 'collation'
+     || lk == 48838                 // 'object' 'collation'
+     || lk == 48887                 // 'structured-item' 'collation'
+     || lk == 51279                 // 'array' 'contains'
+     || lk == 51369                 // 'json-item' 'contains'
+     || lk == 51398                 // 'object' 'contains'
+     || lk == 51447                 // 'structured-item' 'contains'
+     || lk == 54351                 // 'array' 'count'
+     || lk == 54441                 // 'json-item' 'count'
+     || lk == 54470                 // 'object' 'count'
+     || lk == 54519                 // 'structured-item' 'count'
+     || lk == 56399                 // 'array' 'default'
+     || lk == 56489                 // 'json-item' 'default'
+     || lk == 56518                 // 'object' 'default'
+     || lk == 56567                 // 'structured-item' 'default'
+     || lk == 58447                 // 'array' 'descending'
+     || lk == 58537                 // 'json-item' 'descending'
+     || lk == 58566                 // 'object' 'descending'
+     || lk == 58615                 // 'structured-item' 'descending'
+     || lk == 61007                 // 'array' 'div'
+     || lk == 61097                 // 'json-item' 'div'
+     || lk == 61126                 // 'object' 'div'
+     || lk == 61175                 // 'structured-item' 'div'
+     || lk == 63055                 // 'array' 'else'
+     || lk == 63145                 // 'json-item' 'else'
+     || lk == 63174                 // 'object' 'else'
+     || lk == 63223                 // 'structured-item' 'else'
+     || lk == 63567                 // 'array' 'empty'
+     || lk == 63657                 // 'json-item' 'empty'
+     || lk == 63686                 // 'object' 'empty'
+     || lk == 63735                 // 'structured-item' 'empty'
+     || lk == 65103                 // 'array' 'end'
+     || lk == 65193                 // 'json-item' 'end'
+     || lk == 65222                 // 'object' 'end'
+     || lk == 65271                 // 'structured-item' 'end'
+     || lk == 66127                 // 'array' 'eq'
+     || lk == 66217                 // 'json-item' 'eq'
+     || lk == 66246                 // 'object' 'eq'
+     || lk == 66295                 // 'structured-item' 'eq'
+     || lk == 67663                 // 'array' 'except'
+     || lk == 67753                 // 'json-item' 'except'
+     || lk == 67782                 // 'object' 'except'
+     || lk == 67831                 // 'structured-item' 'except'
+     || lk == 68687                 // 'array' 'external'
+     || lk == 68777                 // 'json-item' 'external'
+     || lk == 68806                 // 'object' 'external'
+     || lk == 68855                 // 'structured-item' 'external'
+     || lk == 71247                 // 'array' 'for'
+     || lk == 71337                 // 'json-item' 'for'
+     || lk == 71366                 // 'object' 'for'
+     || lk == 71415                 // 'structured-item' 'for'
+     || lk == 75855                 // 'array' 'ge'
+     || lk == 75945                 // 'json-item' 'ge'
+     || lk == 75974                 // 'object' 'ge'
+     || lk == 76023                 // 'structured-item' 'ge'
+     || lk == 76879                 // 'array' 'group'
+     || lk == 76969                 // 'json-item' 'group'
+     || lk == 76998                 // 'object' 'group'
+     || lk == 77047                 // 'structured-item' 'group'
+     || lk == 77903                 // 'array' 'gt'
+     || lk == 77993                 // 'json-item' 'gt'
+     || lk == 78022                 // 'object' 'gt'
+     || lk == 78071                 // 'structured-item' 'gt'
+     || lk == 78415                 // 'array' 'idiv'
+     || lk == 78505                 // 'json-item' 'idiv'
+     || lk == 78534                 // 'object' 'idiv'
+     || lk == 78583                 // 'structured-item' 'idiv'
+     || lk == 79951                 // 'array' 'in'
+     || lk == 80041                 // 'json-item' 'in'
+     || lk == 80070                 // 'object' 'in'
+     || lk == 80119                 // 'structured-item' 'in'
+     || lk == 83023                 // 'array' 'instance'
+     || lk == 83113                 // 'json-item' 'instance'
+     || lk == 83142                 // 'object' 'instance'
+     || lk == 83191                 // 'structured-item' 'instance'
+     || lk == 84047                 // 'array' 'intersect'
+     || lk == 84137                 // 'json-item' 'intersect'
+     || lk == 84166                 // 'object' 'intersect'
+     || lk == 84215                 // 'structured-item' 'intersect'
+     || lk == 84559                 // 'array' 'into'
+     || lk == 84649                 // 'json-item' 'into'
+     || lk == 84678                 // 'object' 'into'
+     || lk == 84727                 // 'structured-item' 'into'
+     || lk == 85071                 // 'array' 'is'
+     || lk == 85161                 // 'json-item' 'is'
+     || lk == 85190                 // 'object' 'is'
+     || lk == 85239                 // 'structured-item' 'is'
+     || lk == 89679                 // 'array' 'le'
+     || lk == 89769                 // 'json-item' 'le'
+     || lk == 89798                 // 'object' 'le'
+     || lk == 89847                 // 'structured-item' 'le'
+     || lk == 90703                 // 'array' 'let'
+     || lk == 90793                 // 'json-item' 'let'
+     || lk == 90822                 // 'object' 'let'
+     || lk == 90871                 // 'structured-item' 'let'
+     || lk == 92751                 // 'array' 'lt'
+     || lk == 92841                 // 'json-item' 'lt'
+     || lk == 92870                 // 'object' 'lt'
+     || lk == 92919                 // 'structured-item' 'lt'
+     || lk == 93775                 // 'array' 'mod'
+     || lk == 93865                 // 'json-item' 'mod'
+     || lk == 93894                 // 'object' 'mod'
+     || lk == 93943                 // 'structured-item' 'mod'
+     || lk == 94287                 // 'array' 'modify'
+     || lk == 94377                 // 'json-item' 'modify'
+     || lk == 94406                 // 'object' 'modify'
+     || lk == 94455                 // 'structured-item' 'modify'
+     || lk == 96847                 // 'array' 'ne'
+     || lk == 96937                 // 'json-item' 'ne'
+     || lk == 96966                 // 'object' 'ne'
+     || lk == 97015                 // 'structured-item' 'ne'
+     || lk == 103503                // 'array' 'only'
+     || lk == 103593                // 'json-item' 'only'
+     || lk == 103622                // 'object' 'only'
+     || lk == 103671                // 'structured-item' 'only'
+     || lk == 104527                // 'array' 'or'
+     || lk == 104617                // 'json-item' 'or'
+     || lk == 104646                // 'object' 'or'
+     || lk == 104695                // 'structured-item' 'or'
+     || lk == 105039                // 'array' 'order'
+     || lk == 105129                // 'json-item' 'order'
+     || lk == 105158                // 'object' 'order'
+     || lk == 105207                // 'structured-item' 'order'
+     || lk == 107087                // 'array' 'paragraphs'
+     || lk == 107177                // 'json-item' 'paragraphs'
+     || lk == 107206                // 'object' 'paragraphs'
+     || lk == 107255                // 'structured-item' 'paragraphs'
+     || lk == 114767                // 'array' 'return'
+     || lk == 114857                // 'json-item' 'return'
+     || lk == 114886                // 'object' 'return'
+     || lk == 114935                // 'structured-item' 'return'
+     || lk == 116815                // 'array' 'satisfies'
+     || lk == 116905                // 'json-item' 'satisfies'
+     || lk == 116934                // 'object' 'satisfies'
+     || lk == 116983                // 'structured-item' 'satisfies'
+     || lk == 118863                // 'array' 'score'
+     || lk == 118953                // 'json-item' 'score'
+     || lk == 118982                // 'object' 'score'
+     || lk == 119031                // 'structured-item' 'score'
+     || lk == 121423                // 'array' 'sentences'
+     || lk == 121513                // 'json-item' 'sentences'
+     || lk == 121542                // 'object' 'sentences'
+     || lk == 121591                // 'structured-item' 'sentences'
+     || lk == 123471                // 'array' 'stable'
+     || lk == 123561                // 'json-item' 'stable'
+     || lk == 123590                // 'object' 'stable'
+     || lk == 123639                // 'structured-item' 'stable'
+     || lk == 123983                // 'array' 'start'
+     || lk == 124073                // 'json-item' 'start'
+     || lk == 124102                // 'object' 'start'
+     || lk == 124151                // 'structured-item' 'start'
+     || lk == 129103                // 'array' 'times'
+     || lk == 129193                // 'json-item' 'times'
+     || lk == 129222                // 'object' 'times'
+     || lk == 129271                // 'structured-item' 'times'
+     || lk == 129615                // 'array' 'to'
+     || lk == 129705                // 'json-item' 'to'
+     || lk == 129734                // 'object' 'to'
+     || lk == 129783                // 'structured-item' 'to'
+     || lk == 133199                // 'array' 'union'
+     || lk == 133289                // 'json-item' 'union'
+     || lk == 133318                // 'object' 'union'
+     || lk == 133367                // 'structured-item' 'union'
+     || lk == 139343                // 'array' 'where'
+     || lk == 139433                // 'json-item' 'where'
+     || lk == 139462                // 'object' 'where'
+     || lk == 139511                // 'structured-item' 'where'
+     || lk == 141391                // 'array' 'with'
+     || lk == 141481                // 'json-item' 'with'
+     || lk == 141510                // 'object' 'with'
+     || lk == 141559                // 'structured-item' 'with'
+     || lk == 142927                // 'array' 'words'
+     || lk == 143017                // 'json-item' 'words'
+     || lk == 143046                // 'object' 'words'
+     || lk == 143095                // 'structured-item' 'words'
+     || lk == 143951                // 'array' '{'
+     || lk == 144041                // 'json-item' '{'
+     || lk == 144070                // 'object' '{'
+     || lk == 144119                // 'structured-item' '{'
+     || lk == 145487                // 'array' '|'
+     || lk == 145577                // 'json-item' '|'
+     || lk == 145606                // 'object' '|'
+     || lk == 145655                // 'structured-item' '|'
+     || lk == 145999                // 'array' '||'
+     || lk == 146089                // 'json-item' '||'
+     || lk == 146118                // 'object' '||'
+     || lk == 146167                // 'structured-item' '||'
+     || lk == 146511                // 'array' '|}'
+     || lk == 146601                // 'json-item' '|}'
+     || lk == 146630                // 'object' '|}'
+     || lk == 146679                // 'structured-item' '|}'
+     || lk == 147023                // 'array' '}'
+     || lk == 147113                // 'json-item' '}'
+     || lk == 147142                // 'object' '}'
+     || lk == 147191)               // 'structured-item' '}'
+    {
+      lk = memoized(6, e0);
+      if (lk == 0)
+      {
+        var b0A = b0; var e0A = e0; var l1A = l1;
+        var b1A = b1; var e1A = e1; var l2A = l2;
+        var b2A = b2; var e2A = e2;
+        try
+        {
+          try_AtomicOrUnionType();
+          lk = -4;
+        }
+        catch (p4A)
+        {
+          try
+          {
+            b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+            b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+            b2 = b2A; e2 = e2A; end = e2A; }}
+            try_JSONTest();
+            lk = -6;
+          }
+          catch (p6A)
+          {
+            lk = -7;
+          }
+        }
+        b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+        b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+        b2 = b2A; e2 = e2A; end = e2A; }}
+        memoize(6, e0, lk);
+      }
+    }
+    switch (lk)
+    {
+    case 18003:                     // 'attribute' '('
+    case 18017:                     // 'comment' '('
+    case 18041:                     // 'document-node' '('
+    case 18042:                     // 'element' '('
+    case 18108:                     // 'namespace-node' '('
+    case 18114:                     // 'node' '('
+    case 18140:                     // 'processing-instruction' '('
+    case 18150:                     // 'schema-attribute' '('
+    case 18151:                     // 'schema-element' '('
+    case 18169:                     // 'text' '('
+      parse_KindTest();
+      break;
+    case 18087:                     // 'item' '('
+      shift(167);                   // 'item'
+      lookahead1W(22);              // S^WS | '(' | '(:'
+      shift(35);                    // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shift(38);                    // ')'
+      break;
+    case 33:                        // '%'
+    case 18067:                     // 'function' '('
+      parse_FunctionTest();
+      break;
+    case 35:                        // '('
+      parse_ParenthesizedItemType();
+      break;
+    case -6:
+    case 17999:                     // 'array' '('
+    case 18089:                     // 'json-item' '('
+    case 18118:                     // 'object' '('
+      parse_JSONTest();
+      break;
+    case -7:
+    case 18167:                     // 'structured-item' '('
+      parse_StructuredItemTest();
+      break;
+    default:
+      parse_AtomicOrUnionType();
+    }
+    eventHandler.endNonterminal("ItemType", e0);
+  }
+
+  function try_ItemType()
+  {
+    switch (l1)
+    {
+    case 79:                        // 'array'
+    case 83:                        // 'attribute'
+    case 97:                        // 'comment'
+    case 121:                       // 'document-node'
+    case 122:                       // 'element'
+    case 147:                       // 'function'
+    case 167:                       // 'item'
+    case 169:                       // 'json-item'
+    case 188:                       // 'namespace-node'
+    case 194:                       // 'node'
+    case 198:                       // 'object'
+    case 220:                       // 'processing-instruction'
+    case 230:                       // 'schema-attribute'
+    case 231:                       // 'schema-element'
+    case 247:                       // 'structured-item'
+    case 249:                       // 'text'
+      lookahead2W(232);             // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 12879                 // 'array' EOF
+     || lk == 12969                 // 'json-item' EOF
+     || lk == 12998                 // 'object' EOF
+     || lk == 13047                 // 'structured-item' EOF
+     || lk == 13903                 // 'array' '!='
+     || lk == 13993                 // 'json-item' '!='
+     || lk == 14022                 // 'object' '!='
+     || lk == 14071                 // 'structured-item' '!='
+     || lk == 19535                 // 'array' ')'
+     || lk == 19625                 // 'json-item' ')'
+     || lk == 19654                 // 'object' ')'
+     || lk == 19703                 // 'structured-item' ')'
+     || lk == 20047                 // 'array' '*'
+     || lk == 20137                 // 'json-item' '*'
+     || lk == 20166                 // 'object' '*'
+     || lk == 20215                 // 'structured-item' '*'
+     || lk == 20559         
