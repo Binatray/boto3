@@ -17082,4 +17082,535 @@ exports.JSONParseTreeHandler = function (code) {
      || lk == 147023                // 'array' '}'
      || lk == 147113                // 'json-item' '}'
      || lk == 147142                // 'object' '}'
-     || lk 
+     || lk == 147191)               // 'structured-item' '}'
+    {
+      lk = memoized(6, e0);
+      if (lk == 0)
+      {
+        var b0A = b0; var e0A = e0; var l1A = l1;
+        var b1A = b1; var e1A = e1; var l2A = l2;
+        var b2A = b2; var e2A = e2;
+        try
+        {
+          try_AtomicOrUnionType();
+          memoize(6, e0A, -4);
+          lk = -8;
+        }
+        catch (p4A)
+        {
+          try
+          {
+            b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+            b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+            b2 = b2A; e2 = e2A; end = e2A; }}
+            try_JSONTest();
+            memoize(6, e0A, -6);
+            lk = -8;
+          }
+          catch (p6A)
+          {
+            lk = -7;
+            b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+            b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+            b2 = b2A; e2 = e2A; end = e2A; }}
+            memoize(6, e0A, -7);
+          }
+        }
+      }
+    }
+    switch (lk)
+    {
+    case 18003:                     // 'attribute' '('
+    case 18017:                     // 'comment' '('
+    case 18041:                     // 'document-node' '('
+    case 18042:                     // 'element' '('
+    case 18108:                     // 'namespace-node' '('
+    case 18114:                     // 'node' '('
+    case 18140:                     // 'processing-instruction' '('
+    case 18150:                     // 'schema-attribute' '('
+    case 18151:                     // 'schema-element' '('
+    case 18169:                     // 'text' '('
+      try_KindTest();
+      break;
+    case 18087:                     // 'item' '('
+      shiftT(167);                  // 'item'
+      lookahead1W(22);              // S^WS | '(' | '(:'
+      shiftT(35);                   // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shiftT(38);                   // ')'
+      break;
+    case 33:                        // '%'
+    case 18067:                     // 'function' '('
+      try_FunctionTest();
+      break;
+    case 35:                        // '('
+      try_ParenthesizedItemType();
+      break;
+    case -6:
+    case 17999:                     // 'array' '('
+    case 18089:                     // 'json-item' '('
+    case 18118:                     // 'object' '('
+      try_JSONTest();
+      break;
+    case -7:
+    case 18167:                     // 'structured-item' '('
+      try_StructuredItemTest();
+      break;
+    case -8:
+      break;
+    default:
+      try_AtomicOrUnionType();
+    }
+  }
+
+  function parse_JSONTest()
+  {
+    eventHandler.startNonterminal("JSONTest", e0);
+    switch (l1)
+    {
+    case 169:                       // 'json-item'
+      parse_JSONItemTest();
+      break;
+    case 198:                       // 'object'
+      parse_JSONObjectTest();
+      break;
+    default:
+      parse_JSONArrayTest();
+    }
+    eventHandler.endNonterminal("JSONTest", e0);
+  }
+
+  function try_JSONTest()
+  {
+    switch (l1)
+    {
+    case 169:                       // 'json-item'
+      try_JSONItemTest();
+      break;
+    case 198:                       // 'object'
+      try_JSONObjectTest();
+      break;
+    default:
+      try_JSONArrayTest();
+    }
+  }
+
+  function parse_StructuredItemTest()
+  {
+    eventHandler.startNonterminal("StructuredItemTest", e0);
+    shift(247);                     // 'structured-item'
+    lookahead1W(232);               // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+    if (l1 == 35)                   // '('
+    {
+      shift(35);                    // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shift(38);                    // ')'
+    }
+    eventHandler.endNonterminal("StructuredItemTest", e0);
+  }
+
+  function try_StructuredItemTest()
+  {
+    shiftT(247);                    // 'structured-item'
+    lookahead1W(232);               // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+    if (l1 == 35)                   // '('
+    {
+      shiftT(35);                   // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shiftT(38);                   // ')'
+    }
+  }
+
+  function parse_JSONItemTest()
+  {
+    eventHandler.startNonterminal("JSONItemTest", e0);
+    shift(169);                     // 'json-item'
+    lookahead1W(232);               // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+    if (l1 == 35)                   // '('
+    {
+      shift(35);                    // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shift(38);                    // ')'
+    }
+    eventHandler.endNonterminal("JSONItemTest", e0);
+  }
+
+  function try_JSONItemTest()
+  {
+    shiftT(169);                    // 'json-item'
+    lookahead1W(232);               // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+    if (l1 == 35)                   // '('
+    {
+      shiftT(35);                   // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shiftT(38);                   // ')'
+    }
+  }
+
+  function parse_JSONObjectTest()
+  {
+    eventHandler.startNonterminal("JSONObjectTest", e0);
+    shift(198);                     // 'object'
+    lookahead1W(232);               // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+    if (l1 == 35)                   // '('
+    {
+      shift(35);                    // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shift(38);                    // ')'
+    }
+    eventHandler.endNonterminal("JSONObjectTest", e0);
+  }
+
+  function try_JSONObjectTest()
+  {
+    shiftT(198);                    // 'object'
+    lookahead1W(232);               // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+    if (l1 == 35)                   // '('
+    {
+      shiftT(35);                   // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shiftT(38);                   // ')'
+    }
+  }
+
+  function parse_JSONArrayTest()
+  {
+    eventHandler.startNonterminal("JSONArrayTest", e0);
+    shift(79);                      // 'array'
+    lookahead1W(232);               // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+    if (l1 == 35)                   // '('
+    {
+      shift(35);                    // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shift(38);                    // ')'
+    }
+    eventHandler.endNonterminal("JSONArrayTest", e0);
+  }
+
+  function try_JSONArrayTest()
+  {
+    shiftT(79);                     // 'array'
+    lookahead1W(232);               // S^WS | EOF | '!=' | '(' | '(:' | ')' | '*' | '*' | '+' | ',' | '-' | ':' | ':=' |
+    if (l1 == 35)                   // '('
+    {
+      shiftT(35);                   // '('
+      lookahead1W(23);              // S^WS | '(:' | ')'
+      shiftT(38);                   // ')'
+    }
+  }
+
+  function parse_AtomicOrUnionType()
+  {
+    eventHandler.startNonterminal("AtomicOrUnionType", e0);
+    parse_EQName();
+    eventHandler.endNonterminal("AtomicOrUnionType", e0);
+  }
+
+  function try_AtomicOrUnionType()
+  {
+    try_EQName();
+  }
+
+  function parse_KindTest()
+  {
+    eventHandler.startNonterminal("KindTest", e0);
+    switch (l1)
+    {
+    case 121:                       // 'document-node'
+      parse_DocumentTest();
+      break;
+    case 122:                       // 'element'
+      parse_ElementTest();
+      break;
+    case 83:                        // 'attribute'
+      parse_AttributeTest();
+      break;
+    case 231:                       // 'schema-element'
+      parse_SchemaElementTest();
+      break;
+    case 230:                       // 'schema-attribute'
+      parse_SchemaAttributeTest();
+      break;
+    case 220:                       // 'processing-instruction'
+      parse_PITest();
+      break;
+    case 97:                        // 'comment'
+      parse_CommentTest();
+      break;
+    case 249:                       // 'text'
+      parse_TextTest();
+      break;
+    case 188:                       // 'namespace-node'
+      parse_NamespaceNodeTest();
+      break;
+    default:
+      parse_AnyKindTest();
+    }
+    eventHandler.endNonterminal("KindTest", e0);
+  }
+
+  function try_KindTest()
+  {
+    switch (l1)
+    {
+    case 121:                       // 'document-node'
+      try_DocumentTest();
+      break;
+    case 122:                       // 'element'
+      try_ElementTest();
+      break;
+    case 83:                        // 'attribute'
+      try_AttributeTest();
+      break;
+    case 231:                       // 'schema-element'
+      try_SchemaElementTest();
+      break;
+    case 230:                       // 'schema-attribute'
+      try_SchemaAttributeTest();
+      break;
+    case 220:                       // 'processing-instruction'
+      try_PITest();
+      break;
+    case 97:                        // 'comment'
+      try_CommentTest();
+      break;
+    case 249:                       // 'text'
+      try_TextTest();
+      break;
+    case 188:                       // 'namespace-node'
+      try_NamespaceNodeTest();
+      break;
+    default:
+      try_AnyKindTest();
+    }
+  }
+
+  function parse_AnyKindTest()
+  {
+    eventHandler.startNonterminal("AnyKindTest", e0);
+    shift(194);                     // 'node'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shift(35);                      // '('
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shift(38);                      // ')'
+    eventHandler.endNonterminal("AnyKindTest", e0);
+  }
+
+  function try_AnyKindTest()
+  {
+    shiftT(194);                    // 'node'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shiftT(35);                     // '('
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shiftT(38);                     // ')'
+  }
+
+  function parse_DocumentTest()
+  {
+    eventHandler.startNonterminal("DocumentTest", e0);
+    shift(121);                     // 'document-node'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shift(35);                      // '('
+    lookahead1W(154);               // S^WS | '(:' | ')' | 'element' | 'schema-element'
+    if (l1 != 38)                   // ')'
+    {
+      switch (l1)
+      {
+      case 122:                     // 'element'
+        whitespace();
+        parse_ElementTest();
+        break;
+      default:
+        whitespace();
+        parse_SchemaElementTest();
+      }
+    }
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shift(38);                      // ')'
+    eventHandler.endNonterminal("DocumentTest", e0);
+  }
+
+  function try_DocumentTest()
+  {
+    shiftT(121);                    // 'document-node'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shiftT(35);                     // '('
+    lookahead1W(154);               // S^WS | '(:' | ')' | 'element' | 'schema-element'
+    if (l1 != 38)                   // ')'
+    {
+      switch (l1)
+      {
+      case 122:                     // 'element'
+        try_ElementTest();
+        break;
+      default:
+        try_SchemaElementTest();
+      }
+    }
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shiftT(38);                     // ')'
+  }
+
+  function parse_TextTest()
+  {
+    eventHandler.startNonterminal("TextTest", e0);
+    shift(249);                     // 'text'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shift(35);                      // '('
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shift(38);                      // ')'
+    eventHandler.endNonterminal("TextTest", e0);
+  }
+
+  function try_TextTest()
+  {
+    shiftT(249);                    // 'text'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shiftT(35);                     // '('
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shiftT(38);                     // ')'
+  }
+
+  function parse_CommentTest()
+  {
+    eventHandler.startNonterminal("CommentTest", e0);
+    shift(97);                      // 'comment'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shift(35);                      // '('
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shift(38);                      // ')'
+    eventHandler.endNonterminal("CommentTest", e0);
+  }
+
+  function try_CommentTest()
+  {
+    shiftT(97);                     // 'comment'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shiftT(35);                     // '('
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shiftT(38);                     // ')'
+  }
+
+  function parse_NamespaceNodeTest()
+  {
+    eventHandler.startNonterminal("NamespaceNodeTest", e0);
+    shift(188);                     // 'namespace-node'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shift(35);                      // '('
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shift(38);                      // ')'
+    eventHandler.endNonterminal("NamespaceNodeTest", e0);
+  }
+
+  function try_NamespaceNodeTest()
+  {
+    shiftT(188);                    // 'namespace-node'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shiftT(35);                     // '('
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shiftT(38);                     // ')'
+  }
+
+  function parse_PITest()
+  {
+    eventHandler.startNonterminal("PITest", e0);
+    shift(220);                     // 'processing-instruction'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shift(35);                      // '('
+    lookahead1W(243);               // StringLiteral | NCName^Token | S^WS | '(:' | ')' | 'after' | 'allowing' |
+    if (l1 != 38)                   // ')'
+    {
+      switch (l1)
+      {
+      case 11:                      // StringLiteral
+        shift(11);                  // StringLiteral
+        break;
+      default:
+        whitespace();
+        parse_NCName();
+      }
+    }
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shift(38);                      // ')'
+    eventHandler.endNonterminal("PITest", e0);
+  }
+
+  function try_PITest()
+  {
+    shiftT(220);                    // 'processing-instruction'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shiftT(35);                     // '('
+    lookahead1W(243);               // StringLiteral | NCName^Token | S^WS | '(:' | ')' | 'after' | 'allowing' |
+    if (l1 != 38)                   // ')'
+    {
+      switch (l1)
+      {
+      case 11:                      // StringLiteral
+        shiftT(11);                 // StringLiteral
+        break;
+      default:
+        try_NCName();
+      }
+    }
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shiftT(38);                     // ')'
+  }
+
+  function parse_AttributeTest()
+  {
+    eventHandler.startNonterminal("AttributeTest", e0);
+    shift(83);                      // 'attribute'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shift(35);                      // '('
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | ')' | '*' | 'after' | 'allowing' | 'ancestor' |
+    if (l1 != 38)                   // ')'
+    {
+      whitespace();
+      parse_AttribNameOrWildcard();
+      lookahead1W(105);             // S^WS | '(:' | ')' | ','
+      if (l1 == 42)                 // ','
+      {
+        shift(42);                  // ','
+        lookahead1W(245);           // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+        whitespace();
+        parse_TypeName();
+      }
+    }
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shift(38);                      // ')'
+    eventHandler.endNonterminal("AttributeTest", e0);
+  }
+
+  function try_AttributeTest()
+  {
+    shiftT(83);                     // 'attribute'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shiftT(35);                     // '('
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | ')' | '*' | 'after' | 'allowing' | 'ancestor' |
+    if (l1 != 38)                   // ')'
+    {
+      try_AttribNameOrWildcard();
+      lookahead1W(105);             // S^WS | '(:' | ')' | ','
+      if (l1 == 42)                 // ','
+      {
+        shiftT(42);                 // ','
+        lookahead1W(245);           // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+        try_TypeName();
+      }
+    }
+    lookahead1W(23);                // S^WS | '(:' | ')'
+    shiftT(38);                     // ')'
+  }
+
+  function parse_AttribNameOrWildcard()
+  {
+    eventHandler.startNonterminal("AttribNameOrWildcard", e0);
+    switch (l1)
+    {
+    case 39:                        // '*'
+      shift(39);                    // '*'
+      break;
+    default:
+      parse_AttributeName();
+    }
+    e
