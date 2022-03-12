@@ -22472,4 +22472,388 @@ exports.JSONParseTreeHandler = function (code) {
       case 170:                     // 'jsoniq'
       case 173:                     // 'last'
       case 174:                     // 'lax'
-      case 175:                     // 
+      case 175:                     // 'le'
+      case 179:                     // 'loop'
+      case 181:                     // 'lt'
+      case 183:                     // 'mod'
+      case 184:                     // 'modify'
+      case 185:                     // 'module'
+      case 189:                     // 'ne'
+      case 195:                     // 'nodes'
+      case 198:                     // 'object'
+      case 202:                     // 'only'
+      case 203:                     // 'option'
+      case 204:                     // 'or'
+      case 205:                     // 'order'
+      case 207:                     // 'ordering'
+      case 210:                     // 'parent'
+      case 216:                     // 'preceding'
+      case 217:                     // 'preceding-sibling'
+      case 224:                     // 'return'
+      case 225:                     // 'returning'
+      case 226:                     // 'revalidation'
+      case 228:                     // 'satisfies'
+      case 229:                     // 'schema'
+      case 232:                     // 'score'
+      case 233:                     // 'select'
+      case 234:                     // 'self'
+      case 239:                     // 'sliding'
+      case 241:                     // 'stable'
+      case 242:                     // 'start'
+      case 245:                     // 'strict'
+      case 248:                     // 'switch'
+      case 253:                     // 'to'
+      case 254:                     // 'treat'
+      case 257:                     // 'tumbling'
+      case 258:                     // 'type'
+      case 259:                     // 'typeswitch'
+      case 260:                     // 'union'
+      case 263:                     // 'updating'
+      case 267:                     // 'value'
+      case 269:                     // 'version'
+      case 272:                     // 'where'
+      case 273:                     // 'while'
+      case 276:                     // 'with'
+        lookahead2W(95);            // S^WS | '#' | '(' | '(:'
+        break;
+      default:
+        lk = l1;
+      }
+      if (lk != 25                  // EOF
+       && lk != 54                  // ';'
+       && lk != 287                 // '}'
+       && lk != 12808               // IntegerLiteral EOF
+       && lk != 12809               // DecimalLiteral EOF
+       && lk != 12810               // DoubleLiteral EOF
+       && lk != 12811               // StringLiteral EOF
+       && lk != 12832               // '$$' EOF
+       && lk != 12847               // '/' EOF
+       && lk != 12935               // 'false' EOF
+       && lk != 12997               // 'null' EOF
+       && lk != 13055               // 'true' EOF
+       && lk != 16140               // 'variable' '$'
+       && lk != 21512               // IntegerLiteral ','
+       && lk != 21513               // DecimalLiteral ','
+       && lk != 21514               // DoubleLiteral ','
+       && lk != 21515               // StringLiteral ','
+       && lk != 21536               // '$$' ','
+       && lk != 21551               // '/' ','
+       && lk != 21639               // 'false' ','
+       && lk != 21701               // 'null' ','
+       && lk != 21759               // 'true' ','
+       && lk != 27656               // IntegerLiteral ';'
+       && lk != 27657               // DecimalLiteral ';'
+       && lk != 27658               // DoubleLiteral ';'
+       && lk != 27659               // StringLiteral ';'
+       && lk != 27680               // '$$' ';'
+       && lk != 27695               // '/' ';'
+       && lk != 27783               // 'false' ';'
+       && lk != 27845               // 'null' ';'
+       && lk != 27903               // 'true' ';'
+       && lk != 91735               // 'break' 'loop'
+       && lk != 91751               // 'continue' 'loop'
+       && lk != 115333              // 'exit' 'returning'
+       && lk != 146952              // IntegerLiteral '}'
+       && lk != 146953              // DecimalLiteral '}'
+       && lk != 146954              // DoubleLiteral '}'
+       && lk != 146955              // StringLiteral '}'
+       && lk != 146976              // '$$' '}'
+       && lk != 146991              // '/' '}'
+       && lk != 147079              // 'false' '}'
+       && lk != 147141              // 'null' '}'
+       && lk != 147199)             // 'true' '}'
+      {
+        lk = memoized(8, e0);
+        if (lk == 0)
+        {
+          var b0A = b0; var e0A = e0; var l1A = l1;
+          var b1A = b1; var e1A = e1; var l2A = l2;
+          var b2A = b2; var e2A = e2;
+          try
+          {
+            try_Statement();
+            memoize(8, e0A, -1);
+            continue;
+          }
+          catch (p1A)
+          {
+            b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+            b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+            b2 = b2A; e2 = e2A; end = e2A; }}
+            memoize(8, e0A, -2);
+            break;
+          }
+        }
+      }
+      if (lk != -1
+       && lk != 54                  // ';'
+       && lk != 16140               // 'variable' '$'
+       && lk != 27656               // IntegerLiteral ';'
+       && lk != 27657               // DecimalLiteral ';'
+       && lk != 27658               // DoubleLiteral ';'
+       && lk != 27659               // StringLiteral ';'
+       && lk != 27680               // '$$' ';'
+       && lk != 27695               // '/' ';'
+       && lk != 27783               // 'false' ';'
+       && lk != 27845               // 'null' ';'
+       && lk != 27903               // 'true' ';'
+       && lk != 91735               // 'break' 'loop'
+       && lk != 91751               // 'continue' 'loop'
+       && lk != 115333)             // 'exit' 'returning'
+      {
+        break;
+      }
+      try_Statement();
+    }
+  }
+
+  function parse_StatementsAndExpr()
+  {
+    eventHandler.startNonterminal("StatementsAndExpr", e0);
+    parse_Statements();
+    whitespace();
+    parse_Expr();
+    eventHandler.endNonterminal("StatementsAndExpr", e0);
+  }
+
+  function try_StatementsAndExpr()
+  {
+    try_Statements();
+    try_Expr();
+  }
+
+  function parse_StatementsAndOptionalExpr()
+  {
+    eventHandler.startNonterminal("StatementsAndOptionalExpr", e0);
+    parse_Statements();
+    if (l1 != 25                    // EOF
+     && l1 != 287)                  // '}'
+    {
+      whitespace();
+      parse_Expr();
+    }
+    eventHandler.endNonterminal("StatementsAndOptionalExpr", e0);
+  }
+
+  function try_StatementsAndOptionalExpr()
+  {
+    try_Statements();
+    if (l1 != 25                    // EOF
+     && l1 != 287)                  // '}'
+    {
+      try_Expr();
+    }
+  }
+
+  function parse_Statement()
+  {
+    eventHandler.startNonterminal("Statement", e0);
+    switch (l1)
+    {
+    case 133:                       // 'exit'
+      lookahead2W(147);             // S^WS | '#' | '(' | '(:' | 'returning'
+      break;
+    case 139:                       // 'for'
+      lookahead2W(179);             // S^WS | '#' | '$' | '(' | '(:' | 'sliding' | 'tumbling'
+      break;
+    case 177:                       // 'let'
+      lookahead2W(166);             // S^WS | '#' | '$' | '(' | '(:' | 'score'
+      break;
+    case 256:                       // 'try'
+      lookahead2W(148);             // S^WS | '#' | '(' | '(:' | '{'
+      break;
+    case 268:                       // 'variable'
+      lookahead2W(143);             // S^WS | '#' | '$' | '(' | '(:'
+      break;
+    case 281:                       // '{'
+      lookahead2W(282);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    case 31:                        // '$'
+    case 33:                        // '%'
+      lookahead2W(245);             // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    case 87:                        // 'break'
+    case 103:                       // 'continue'
+      lookahead2W(145);             // S^WS | '#' | '(' | '(:' | 'loop'
+      break;
+    case 154:                       // 'if'
+    case 248:                       // 'switch'
+    case 259:                       // 'typeswitch'
+    case 273:                       // 'while'
+      lookahead2W(95);              // S^WS | '#' | '(' | '(:'
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk != 6                     // EQName^Token
+     && lk != 8                     // IntegerLiteral
+     && lk != 9                     // DecimalLiteral
+     && lk != 10                    // DoubleLiteral
+     && lk != 11                    // StringLiteral
+     && lk != 32                    // '$$'
+     && lk != 35                    // '('
+     && lk != 36                    // '(#'
+     && lk != 41                    // '+'
+     && lk != 43                    // '-'
+     && lk != 47                    // '/'
+     && lk != 48                    // '//'
+     && lk != 54                    // ';'
+     && lk != 55                    // '<'
+     && lk != 56                    // '<!--'
+     && lk != 60                    // '<?'
+     && lk != 69                    // '['
+     && lk != 71                    // 'after'
+     && lk != 73                    // 'allowing'
+     && lk != 74                    // 'ancestor'
+     && lk != 75                    // 'ancestor-or-self'
+     && lk != 76                    // 'and'
+     && lk != 78                    // 'append'
+     && lk != 79                    // 'array'
+     && lk != 80                    // 'as'
+     && lk != 81                    // 'ascending'
+     && lk != 82                    // 'at'
+     && lk != 83                    // 'attribute'
+     && lk != 84                    // 'base-uri'
+     && lk != 85                    // 'before'
+     && lk != 86                    // 'boundary-space'
+     && lk != 89                    // 'case'
+     && lk != 90                    // 'cast'
+     && lk != 91                    // 'castable'
+     && lk != 92                    // 'catch'
+     && lk != 94                    // 'child'
+     && lk != 95                    // 'collation'
+     && lk != 97                    // 'comment'
+     && lk != 98                    // 'constraint'
+     && lk != 99                    // 'construction'
+     && lk != 102                   // 'context'
+     && lk != 104                   // 'copy'
+     && lk != 105                   // 'copy-namespaces'
+     && lk != 106                   // 'count'
+     && lk != 107                   // 'decimal-format'
+     && lk != 109                   // 'declare'
+     && lk != 110                   // 'default'
+     && lk != 111                   // 'delete'
+     && lk != 112                   // 'descendant'
+     && lk != 113                   // 'descendant-or-self'
+     && lk != 114                   // 'descending'
+     && lk != 119                   // 'div'
+     && lk != 120                   // 'document'
+     && lk != 121                   // 'document-node'
+     && lk != 122                   // 'element'
+     && lk != 123                   // 'else'
+     && lk != 124                   // 'empty'
+     && lk != 125                   // 'empty-sequence'
+     && lk != 126                   // 'encoding'
+     && lk != 127                   // 'end'
+     && lk != 129                   // 'eq'
+     && lk != 130                   // 'every'
+     && lk != 132                   // 'except'
+     && lk != 134                   // 'external'
+     && lk != 135                   // 'false'
+     && lk != 136                   // 'first'
+     && lk != 137                   // 'following'
+     && lk != 138                   // 'following-sibling'
+     && lk != 142                   // 'from'
+     && lk != 143                   // 'ft-option'
+     && lk != 147                   // 'function'
+     && lk != 148                   // 'ge'
+     && lk != 150                   // 'group'
+     && lk != 152                   // 'gt'
+     && lk != 153                   // 'idiv'
+     && lk != 155                   // 'import'
+     && lk != 156                   // 'in'
+     && lk != 157                   // 'index'
+     && lk != 161                   // 'insert'
+     && lk != 162                   // 'instance'
+     && lk != 163                   // 'integrity'
+     && lk != 164                   // 'intersect'
+     && lk != 165                   // 'into'
+     && lk != 166                   // 'is'
+     && lk != 167                   // 'item'
+     && lk != 168                   // 'json'
+     && lk != 169                   // 'json-item'
+     && lk != 170                   // 'jsoniq'
+     && lk != 173                   // 'last'
+     && lk != 174                   // 'lax'
+     && lk != 175                   // 'le'
+     && lk != 179                   // 'loop'
+     && lk != 181                   // 'lt'
+     && lk != 183                   // 'mod'
+     && lk != 184                   // 'modify'
+     && lk != 185                   // 'module'
+     && lk != 187                   // 'namespace'
+     && lk != 188                   // 'namespace-node'
+     && lk != 189                   // 'ne'
+     && lk != 194                   // 'node'
+     && lk != 195                   // 'nodes'
+     && lk != 196                   // 'not'
+     && lk != 197                   // 'null'
+     && lk != 198                   // 'object'
+     && lk != 202                   // 'only'
+     && lk != 203                   // 'option'
+     && lk != 204                   // 'or'
+     && lk != 205                   // 'order'
+     && lk != 206                   // 'ordered'
+     && lk != 207                   // 'ordering'
+     && lk != 210                   // 'parent'
+     && lk != 216                   // 'preceding'
+     && lk != 217                   // 'preceding-sibling'
+     && lk != 220                   // 'processing-instruction'
+     && lk != 222                   // 'rename'
+     && lk != 223                   // 'replace'
+     && lk != 224                   // 'return'
+     && lk != 225                   // 'returning'
+     && lk != 226                   // 'revalidation'
+     && lk != 228                   // 'satisfies'
+     && lk != 229                   // 'schema'
+     && lk != 230                   // 'schema-attribute'
+     && lk != 231                   // 'schema-element'
+     && lk != 232                   // 'score'
+     && lk != 233                   // 'select'
+     && lk != 234                   // 'self'
+     && lk != 239                   // 'sliding'
+     && lk != 240                   // 'some'
+     && lk != 241                   // 'stable'
+     && lk != 242                   // 'start'
+     && lk != 245                   // 'strict'
+     && lk != 247                   // 'structured-item'
+     && lk != 249                   // 'text'
+     && lk != 253                   // 'to'
+     && lk != 254                   // 'treat'
+     && lk != 255                   // 'true'
+     && lk != 257                   // 'tumbling'
+     && lk != 258                   // 'type'
+     && lk != 260                   // 'union'
+     && lk != 262                   // 'unordered'
+     && lk != 263                   // 'updating'
+     && lk != 266                   // 'validate'
+     && lk != 267                   // 'value'
+     && lk != 269                   // 'version'
+     && lk != 272                   // 'where'
+     && lk != 276                   // 'with'
+     && lk != 283                   // '{|'
+     && lk != 10009                 // '{' NCName^Token
+     && lk != 14935                 // 'break' '#'
+     && lk != 14951                 // 'continue' '#'
+     && lk != 14981                 // 'exit' '#'
+     && lk != 14987                 // 'for' '#'
+     && lk != 15002                 // 'if' '#'
+     && lk != 15025                 // 'let' '#'
+     && lk != 15096                 // 'switch' '#'
+     && lk != 15104                 // 'try' '#'
+     && lk != 15107                 // 'typeswitch' '#'
+     && lk != 15116                 // 'variable' '#'
+     && lk != 15121                 // 'while' '#'
+     && lk != 16011                 // 'for' '$'
+     && lk != 16049                 // 'let' '$'
+     && lk != 16140                 // 'variable' '$'
+     && lk != 18007                 // 'break' '('
+     && lk != 18023                 // 'continue' '('
+     && lk != 18053                 // 'exit' '('
+     && lk != 18059                 // 'for' '('
+     && lk != 18074                 // 'if' '('
+     && lk != 18097                 // 'let' '('
+     && lk != 18168                 // 'switch' '('
+     && lk != 18176                 // 'try' '('
+     && lk != 18179                 // 'typeswitch' '('
+     && lk != 18188           
