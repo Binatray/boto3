@@ -23712,3 +23712,351 @@ exports.JSONParseTreeHandler = function (code) {
        && lk != 80476               // 'catch' 'index'
        && lk != 82524               // 'catch' 'insert'
        && lk != 83036               // 'catch' 'instance'
+       && lk != 83548               // 'catch' 'integrity'
+       && lk != 84060               // 'catch' 'intersect'
+       && lk != 84572               // 'catch' 'into'
+       && lk != 85084               // 'catch' 'is'
+       && lk != 85596               // 'catch' 'item'
+       && lk != 86108               // 'catch' 'json'
+       && lk != 86620               // 'catch' 'json-item'
+       && lk != 87132               // 'catch' 'jsoniq'
+       && lk != 88668               // 'catch' 'last'
+       && lk != 89180               // 'catch' 'lax'
+       && lk != 89692               // 'catch' 'le'
+       && lk != 90716               // 'catch' 'let'
+       && lk != 91740               // 'catch' 'loop'
+       && lk != 92764               // 'catch' 'lt'
+       && lk != 93788               // 'catch' 'mod'
+       && lk != 94300               // 'catch' 'modify'
+       && lk != 94812               // 'catch' 'module'
+       && lk != 95836               // 'catch' 'namespace'
+       && lk != 96348               // 'catch' 'namespace-node'
+       && lk != 96860               // 'catch' 'ne'
+       && lk != 99420               // 'catch' 'node'
+       && lk != 99932               // 'catch' 'nodes'
+       && lk != 100956              // 'catch' 'null'
+       && lk != 101468              // 'catch' 'object'
+       && lk != 103516              // 'catch' 'only'
+       && lk != 104028              // 'catch' 'option'
+       && lk != 104540              // 'catch' 'or'
+       && lk != 105052              // 'catch' 'order'
+       && lk != 105564              // 'catch' 'ordered'
+       && lk != 106076              // 'catch' 'ordering'
+       && lk != 107612              // 'catch' 'parent'
+       && lk != 110684              // 'catch' 'preceding'
+       && lk != 111196              // 'catch' 'preceding-sibling'
+       && lk != 112732              // 'catch' 'processing-instruction'
+       && lk != 113756              // 'catch' 'rename'
+       && lk != 114268              // 'catch' 'replace'
+       && lk != 114780              // 'catch' 'return'
+       && lk != 115292              // 'catch' 'returning'
+       && lk != 115804              // 'catch' 'revalidation'
+       && lk != 116828              // 'catch' 'satisfies'
+       && lk != 117340              // 'catch' 'schema'
+       && lk != 117852              // 'catch' 'schema-attribute'
+       && lk != 118364              // 'catch' 'schema-element'
+       && lk != 118876              // 'catch' 'score'
+       && lk != 119388              // 'catch' 'select'
+       && lk != 119900              // 'catch' 'self'
+       && lk != 122460              // 'catch' 'sliding'
+       && lk != 122972              // 'catch' 'some'
+       && lk != 123484              // 'catch' 'stable'
+       && lk != 123996              // 'catch' 'start'
+       && lk != 125532              // 'catch' 'strict'
+       && lk != 126556              // 'catch' 'structured-item'
+       && lk != 127068              // 'catch' 'switch'
+       && lk != 127580              // 'catch' 'text'
+       && lk != 129628              // 'catch' 'to'
+       && lk != 130140              // 'catch' 'treat'
+       && lk != 130652              // 'catch' 'true'
+       && lk != 131164              // 'catch' 'try'
+       && lk != 131676              // 'catch' 'tumbling'
+       && lk != 132188              // 'catch' 'type'
+       && lk != 132700              // 'catch' 'typeswitch'
+       && lk != 133212              // 'catch' 'union'
+       && lk != 134236              // 'catch' 'unordered'
+       && lk != 134748              // 'catch' 'updating'
+       && lk != 136284              // 'catch' 'validate'
+       && lk != 136796              // 'catch' 'value'
+       && lk != 137308              // 'catch' 'variable'
+       && lk != 137820              // 'catch' 'version'
+       && lk != 139356              // 'catch' 'where'
+       && lk != 139868              // 'catch' 'while'
+       && lk != 141404)             // 'catch' 'with'
+      {
+        break;
+      }
+    }
+    eventHandler.endNonterminal("TryCatchStatement", e0);
+  }
+
+  function try_TryCatchStatement()
+  {
+    shiftT(256);                    // 'try'
+    lookahead1W(90);                // S^WS | '(:' | '{'
+    try_BlockStatement();
+    for (;;)
+    {
+      lookahead1W(39);              // S^WS | '(:' | 'catch'
+      shiftT(92);                   // 'catch'
+      lookahead1W(248);             // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      try_CatchErrorList();
+      try_BlockStatement();
+      lookahead1W(283);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      switch (l1)
+      {
+      case 92:                      // 'catch'
+        lookahead2W(255);           // Wildcard | EQName^Token | S^WS | '#' | '(' | '(:' | 'after' | 'allowing' |
+        break;
+      default:
+        lk = l1;
+      }
+      if (lk != 2652                // 'catch' Wildcard
+       && lk != 3164                // 'catch' EQName^Token
+       && lk != 36444               // 'catch' 'after'
+       && lk != 37468               // 'catch' 'allowing'
+       && lk != 37980               // 'catch' 'ancestor'
+       && lk != 38492               // 'catch' 'ancestor-or-self'
+       && lk != 39004               // 'catch' 'and'
+       && lk != 40028               // 'catch' 'append'
+       && lk != 40540               // 'catch' 'array'
+       && lk != 41052               // 'catch' 'as'
+       && lk != 41564               // 'catch' 'ascending'
+       && lk != 42076               // 'catch' 'at'
+       && lk != 42588               // 'catch' 'attribute'
+       && lk != 43100               // 'catch' 'base-uri'
+       && lk != 43612               // 'catch' 'before'
+       && lk != 44124               // 'catch' 'boundary-space'
+       && lk != 44636               // 'catch' 'break'
+       && lk != 45660               // 'catch' 'case'
+       && lk != 46172               // 'catch' 'cast'
+       && lk != 46684               // 'catch' 'castable'
+       && lk != 47196               // 'catch' 'catch'
+       && lk != 48220               // 'catch' 'child'
+       && lk != 48732               // 'catch' 'collation'
+       && lk != 49756               // 'catch' 'comment'
+       && lk != 50268               // 'catch' 'constraint'
+       && lk != 50780               // 'catch' 'construction'
+       && lk != 52316               // 'catch' 'context'
+       && lk != 52828               // 'catch' 'continue'
+       && lk != 53340               // 'catch' 'copy'
+       && lk != 53852               // 'catch' 'copy-namespaces'
+       && lk != 54364               // 'catch' 'count'
+       && lk != 54876               // 'catch' 'decimal-format'
+       && lk != 55900               // 'catch' 'declare'
+       && lk != 56412               // 'catch' 'default'
+       && lk != 56924               // 'catch' 'delete'
+       && lk != 57436               // 'catch' 'descendant'
+       && lk != 57948               // 'catch' 'descendant-or-self'
+       && lk != 58460               // 'catch' 'descending'
+       && lk != 61020               // 'catch' 'div'
+       && lk != 61532               // 'catch' 'document'
+       && lk != 62044               // 'catch' 'document-node'
+       && lk != 62556               // 'catch' 'element'
+       && lk != 63068               // 'catch' 'else'
+       && lk != 63580               // 'catch' 'empty'
+       && lk != 64092               // 'catch' 'empty-sequence'
+       && lk != 64604               // 'catch' 'encoding'
+       && lk != 65116               // 'catch' 'end'
+       && lk != 66140               // 'catch' 'eq'
+       && lk != 66652               // 'catch' 'every'
+       && lk != 67676               // 'catch' 'except'
+       && lk != 68188               // 'catch' 'exit'
+       && lk != 68700               // 'catch' 'external'
+       && lk != 69212               // 'catch' 'false'
+       && lk != 69724               // 'catch' 'first'
+       && lk != 70236               // 'catch' 'following'
+       && lk != 70748               // 'catch' 'following-sibling'
+       && lk != 71260               // 'catch' 'for'
+       && lk != 72796               // 'catch' 'from'
+       && lk != 73308               // 'catch' 'ft-option'
+       && lk != 75356               // 'catch' 'function'
+       && lk != 75868               // 'catch' 'ge'
+       && lk != 76892               // 'catch' 'group'
+       && lk != 77916               // 'catch' 'gt'
+       && lk != 78428               // 'catch' 'idiv'
+       && lk != 78940               // 'catch' 'if'
+       && lk != 79452               // 'catch' 'import'
+       && lk != 79964               // 'catch' 'in'
+       && lk != 80476               // 'catch' 'index'
+       && lk != 82524               // 'catch' 'insert'
+       && lk != 83036               // 'catch' 'instance'
+       && lk != 83548               // 'catch' 'integrity'
+       && lk != 84060               // 'catch' 'intersect'
+       && lk != 84572               // 'catch' 'into'
+       && lk != 85084               // 'catch' 'is'
+       && lk != 85596               // 'catch' 'item'
+       && lk != 86108               // 'catch' 'json'
+       && lk != 86620               // 'catch' 'json-item'
+       && lk != 87132               // 'catch' 'jsoniq'
+       && lk != 88668               // 'catch' 'last'
+       && lk != 89180               // 'catch' 'lax'
+       && lk != 89692               // 'catch' 'le'
+       && lk != 90716               // 'catch' 'let'
+       && lk != 91740               // 'catch' 'loop'
+       && lk != 92764               // 'catch' 'lt'
+       && lk != 93788               // 'catch' 'mod'
+       && lk != 94300               // 'catch' 'modify'
+       && lk != 94812               // 'catch' 'module'
+       && lk != 95836               // 'catch' 'namespace'
+       && lk != 96348               // 'catch' 'namespace-node'
+       && lk != 96860               // 'catch' 'ne'
+       && lk != 99420               // 'catch' 'node'
+       && lk != 99932               // 'catch' 'nodes'
+       && lk != 100956              // 'catch' 'null'
+       && lk != 101468              // 'catch' 'object'
+       && lk != 103516              // 'catch' 'only'
+       && lk != 104028              // 'catch' 'option'
+       && lk != 104540              // 'catch' 'or'
+       && lk != 105052              // 'catch' 'order'
+       && lk != 105564              // 'catch' 'ordered'
+       && lk != 106076              // 'catch' 'ordering'
+       && lk != 107612              // 'catch' 'parent'
+       && lk != 110684              // 'catch' 'preceding'
+       && lk != 111196              // 'catch' 'preceding-sibling'
+       && lk != 112732              // 'catch' 'processing-instruction'
+       && lk != 113756              // 'catch' 'rename'
+       && lk != 114268              // 'catch' 'replace'
+       && lk != 114780              // 'catch' 'return'
+       && lk != 115292              // 'catch' 'returning'
+       && lk != 115804              // 'catch' 'revalidation'
+       && lk != 116828              // 'catch' 'satisfies'
+       && lk != 117340              // 'catch' 'schema'
+       && lk != 117852              // 'catch' 'schema-attribute'
+       && lk != 118364              // 'catch' 'schema-element'
+       && lk != 118876              // 'catch' 'score'
+       && lk != 119388              // 'catch' 'select'
+       && lk != 119900              // 'catch' 'self'
+       && lk != 122460              // 'catch' 'sliding'
+       && lk != 122972              // 'catch' 'some'
+       && lk != 123484              // 'catch' 'stable'
+       && lk != 123996              // 'catch' 'start'
+       && lk != 125532              // 'catch' 'strict'
+       && lk != 126556              // 'catch' 'structured-item'
+       && lk != 127068              // 'catch' 'switch'
+       && lk != 127580              // 'catch' 'text'
+       && lk != 129628              // 'catch' 'to'
+       && lk != 130140              // 'catch' 'treat'
+       && lk != 130652              // 'catch' 'true'
+       && lk != 131164              // 'catch' 'try'
+       && lk != 131676              // 'catch' 'tumbling'
+       && lk != 132188              // 'catch' 'type'
+       && lk != 132700              // 'catch' 'typeswitch'
+       && lk != 133212              // 'catch' 'union'
+       && lk != 134236              // 'catch' 'unordered'
+       && lk != 134748              // 'catch' 'updating'
+       && lk != 136284              // 'catch' 'validate'
+       && lk != 136796              // 'catch' 'value'
+       && lk != 137308              // 'catch' 'variable'
+       && lk != 137820              // 'catch' 'version'
+       && lk != 139356              // 'catch' 'where'
+       && lk != 139868              // 'catch' 'while'
+       && lk != 141404)             // 'catch' 'with'
+      {
+        break;
+      }
+    }
+  }
+
+  function parse_TypeswitchStatement()
+  {
+    eventHandler.startNonterminal("TypeswitchStatement", e0);
+    shift(259);                     // 'typeswitch'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shift(35);                      // '('
+    lookahead1W(266);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    whitespace();
+    parse_Expr();
+    shift(38);                      // ')'
+    for (;;)
+    {
+      lookahead1W(38);              // S^WS | '(:' | 'case'
+      whitespace();
+      parse_CaseStatement();
+      lookahead1W(117);             // S^WS | '(:' | 'case' | 'default'
+      if (l1 != 89)                 // 'case'
+      {
+        break;
+      }
+    }
+    shift(110);                     // 'default'
+    lookahead1W(99);                // S^WS | '$' | '(:' | 'return'
+    if (l1 == 31)                   // '$'
+    {
+      shift(31);                    // '$'
+      lookahead1W(245);             // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_VarName();
+    }
+    lookahead1W(73);                // S^WS | '(:' | 'return'
+    shift(224);                     // 'return'
+    lookahead1W(270);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    whitespace();
+    parse_Statement();
+    eventHandler.endNonterminal("TypeswitchStatement", e0);
+  }
+
+  function try_TypeswitchStatement()
+  {
+    shiftT(259);                    // 'typeswitch'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shiftT(35);                     // '('
+    lookahead1W(266);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    try_Expr();
+    shiftT(38);                     // ')'
+    for (;;)
+    {
+      lookahead1W(38);              // S^WS | '(:' | 'case'
+      try_CaseStatement();
+      lookahead1W(117);             // S^WS | '(:' | 'case' | 'default'
+      if (l1 != 89)                 // 'case'
+      {
+        break;
+      }
+    }
+    shiftT(110);                    // 'default'
+    lookahead1W(99);                // S^WS | '$' | '(:' | 'return'
+    if (l1 == 31)                   // '$'
+    {
+      shiftT(31);                   // '$'
+      lookahead1W(245);             // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      try_VarName();
+    }
+    lookahead1W(73);                // S^WS | '(:' | 'return'
+    shiftT(224);                    // 'return'
+    lookahead1W(270);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    try_Statement();
+  }
+
+  function parse_CaseStatement()
+  {
+    eventHandler.startNonterminal("CaseStatement", e0);
+    shift(89);                      // 'case'
+    lookahead1W(257);               // EQName^Token | S^WS | '$' | '%' | '(' | '(:' | 'after' | 'allowing' |
+    if (l1 == 31)                   // '$'
+    {
+      shift(31);                    // '$'
+      lookahead1W(245);             // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_VarName();
+      lookahead1W(33);              // S^WS | '(:' | 'as'
+      shift(80);                    // 'as'
+    }
+    lookahead1W(253);               // EQName^Token | S^WS | '%' | '(' | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_SequenceType();
+    lookahead1W(73);                // S^WS | '(:' | 'return'
+    shift(224);                     // 'return'
+    lookahead1W(270);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    whitespace();
+    parse_Statement();
+    eventHandler.endNonterminal("CaseStatement", e0);
+  }
+
+  function try_CaseStatement()
+  {
+    shiftT(89);                     // 'case'
+    lookahead1W(257);               // EQName^Token | S^WS | '$' | '%' | '(' | '(:' | 'after' | 'allowing' |
+    if (l1 == 31)                   // '$'
+    {
+      s
