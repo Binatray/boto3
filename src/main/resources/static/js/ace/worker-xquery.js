@@ -24059,4 +24059,469 @@ exports.JSONParseTreeHandler = function (code) {
     lookahead1W(257);               // EQName^Token | S^WS | '$' | '%' | '(' | '(:' | 'after' | 'allowing' |
     if (l1 == 31)                   // '$'
     {
-      s
+      shiftT(31);                   // '$'
+      lookahead1W(245);             // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      try_VarName();
+      lookahead1W(33);              // S^WS | '(:' | 'as'
+      shiftT(80);                   // 'as'
+    }
+    lookahead1W(253);               // EQName^Token | S^WS | '%' | '(' | '(:' | 'after' | 'allowing' | 'ancestor' |
+    try_SequenceType();
+    lookahead1W(73);                // S^WS | '(:' | 'return'
+    shiftT(224);                    // 'return'
+    lookahead1W(270);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    try_Statement();
+  }
+
+  function parse_VarDeclStatement()
+  {
+    eventHandler.startNonterminal("VarDeclStatement", e0);
+    for (;;)
+    {
+      lookahead1W(102);             // S^WS | '%' | '(:' | 'variable'
+      if (l1 != 33)                 // '%'
+      {
+        break;
+      }
+      whitespace();
+      parse_Annotation();
+    }
+    shift(268);                     // 'variable'
+    lookahead1W(21);                // S^WS | '$' | '(:'
+    shift(31);                      // '$'
+    lookahead1W(245);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_VarName();
+    lookahead1W(172);               // S^WS | '(:' | ',' | ':=' | ';' | 'as'
+    if (l1 == 80)                   // 'as'
+    {
+      whitespace();
+      parse_TypeDeclaration();
+    }
+    lookahead1W(155);               // S^WS | '(:' | ',' | ':=' | ';'
+    if (l1 == 53)                   // ':='
+    {
+      shift(53);                    // ':='
+      lookahead1W(266);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      whitespace();
+      parse_ExprSingle();
+    }
+    for (;;)
+    {
+      if (l1 != 42)                 // ','
+      {
+        break;
+      }
+      shift(42);                    // ','
+      lookahead1W(21);              // S^WS | '$' | '(:'
+      shift(31);                    // '$'
+      lookahead1W(245);             // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_VarName();
+      lookahead1W(172);             // S^WS | '(:' | ',' | ':=' | ';' | 'as'
+      if (l1 == 80)                 // 'as'
+      {
+        whitespace();
+        parse_TypeDeclaration();
+      }
+      lookahead1W(155);             // S^WS | '(:' | ',' | ':=' | ';'
+      if (l1 == 53)                 // ':='
+      {
+        shift(53);                  // ':='
+        lookahead1W(266);           // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+        whitespace();
+        parse_ExprSingle();
+      }
+    }
+    shift(54);                      // ';'
+    eventHandler.endNonterminal("VarDeclStatement", e0);
+  }
+
+  function try_VarDeclStatement()
+  {
+    for (;;)
+    {
+      lookahead1W(102);             // S^WS | '%' | '(:' | 'variable'
+      if (l1 != 33)                 // '%'
+      {
+        break;
+      }
+      try_Annotation();
+    }
+    shiftT(268);                    // 'variable'
+    lookahead1W(21);                // S^WS | '$' | '(:'
+    shiftT(31);                     // '$'
+    lookahead1W(245);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    try_VarName();
+    lookahead1W(172);               // S^WS | '(:' | ',' | ':=' | ';' | 'as'
+    if (l1 == 80)                   // 'as'
+    {
+      try_TypeDeclaration();
+    }
+    lookahead1W(155);               // S^WS | '(:' | ',' | ':=' | ';'
+    if (l1 == 53)                   // ':='
+    {
+      shiftT(53);                   // ':='
+      lookahead1W(266);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      try_ExprSingle();
+    }
+    for (;;)
+    {
+      if (l1 != 42)                 // ','
+      {
+        break;
+      }
+      shiftT(42);                   // ','
+      lookahead1W(21);              // S^WS | '$' | '(:'
+      shiftT(31);                   // '$'
+      lookahead1W(245);             // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      try_VarName();
+      lookahead1W(172);             // S^WS | '(:' | ',' | ':=' | ';' | 'as'
+      if (l1 == 80)                 // 'as'
+      {
+        try_TypeDeclaration();
+      }
+      lookahead1W(155);             // S^WS | '(:' | ',' | ':=' | ';'
+      if (l1 == 53)                 // ':='
+      {
+        shiftT(53);                 // ':='
+        lookahead1W(266);           // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+        try_ExprSingle();
+      }
+    }
+    shiftT(54);                     // ';'
+  }
+
+  function parse_WhileStatement()
+  {
+    eventHandler.startNonterminal("WhileStatement", e0);
+    shift(273);                     // 'while'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shift(35);                      // '('
+    lookahead1W(266);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    whitespace();
+    parse_Expr();
+    shift(38);                      // ')'
+    lookahead1W(270);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    whitespace();
+    parse_Statement();
+    eventHandler.endNonterminal("WhileStatement", e0);
+  }
+
+  function try_WhileStatement()
+  {
+    shiftT(273);                    // 'while'
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shiftT(35);                     // '('
+    lookahead1W(266);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    try_Expr();
+    shiftT(38);                     // ')'
+    lookahead1W(270);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    try_Statement();
+  }
+
+  function parse_VoidStatement()
+  {
+    eventHandler.startNonterminal("VoidStatement", e0);
+    shift(54);                      // ';'
+    eventHandler.endNonterminal("VoidStatement", e0);
+  }
+
+  function try_VoidStatement()
+  {
+    shiftT(54);                     // ';'
+  }
+
+  function parse_ExprSingle()
+  {
+    eventHandler.startNonterminal("ExprSingle", e0);
+    switch (l1)
+    {
+    case 139:                       // 'for'
+      lookahead2W(179);             // S^WS | '#' | '$' | '(' | '(:' | 'sliding' | 'tumbling'
+      break;
+    case 177:                       // 'let'
+      lookahead2W(166);             // S^WS | '#' | '$' | '(' | '(:' | 'score'
+      break;
+    case 256:                       // 'try'
+      lookahead2W(148);             // S^WS | '#' | '(' | '(:' | '{'
+      break;
+    case 154:                       // 'if'
+    case 248:                       // 'switch'
+    case 259:                       // 'typeswitch'
+      lookahead2W(95);              // S^WS | '#' | '(' | '(:'
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 16011:                     // 'for' '$'
+    case 16049:                     // 'let' '$'
+    case 118961:                    // 'let' 'score'
+    case 122507:                    // 'for' 'sliding'
+    case 131723:                    // 'for' 'tumbling'
+      parse_FLWORExpr();
+      break;
+    case 18074:                     // 'if' '('
+      parse_IfExpr();
+      break;
+    case 18168:                     // 'switch' '('
+      parse_SwitchExpr();
+      break;
+    case 144128:                    // 'try' '{'
+      parse_TryCatchExpr();
+      break;
+    case 18179:                     // 'typeswitch' '('
+      parse_TypeswitchExpr();
+      break;
+    default:
+      parse_ExprSimple();
+    }
+    eventHandler.endNonterminal("ExprSingle", e0);
+  }
+
+  function try_ExprSingle()
+  {
+    switch (l1)
+    {
+    case 139:                       // 'for'
+      lookahead2W(179);             // S^WS | '#' | '$' | '(' | '(:' | 'sliding' | 'tumbling'
+      break;
+    case 177:                       // 'let'
+      lookahead2W(166);             // S^WS | '#' | '$' | '(' | '(:' | 'score'
+      break;
+    case 256:                       // 'try'
+      lookahead2W(148);             // S^WS | '#' | '(' | '(:' | '{'
+      break;
+    case 154:                       // 'if'
+    case 248:                       // 'switch'
+    case 259:                       // 'typeswitch'
+      lookahead2W(95);              // S^WS | '#' | '(' | '(:'
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 16011:                     // 'for' '$'
+    case 16049:                     // 'let' '$'
+    case 118961:                    // 'let' 'score'
+    case 122507:                    // 'for' 'sliding'
+    case 131723:                    // 'for' 'tumbling'
+      try_FLWORExpr();
+      break;
+    case 18074:                     // 'if' '('
+      try_IfExpr();
+      break;
+    case 18168:                     // 'switch' '('
+      try_SwitchExpr();
+      break;
+    case 144128:                    // 'try' '{'
+      try_TryCatchExpr();
+      break;
+    case 18179:                     // 'typeswitch' '('
+      try_TypeswitchExpr();
+      break;
+    default:
+      try_ExprSimple();
+    }
+  }
+
+  function parse_ExprSimple()
+  {
+    eventHandler.startNonterminal("ExprSimple", e0);
+    switch (l1)
+    {
+    case 78:                        // 'append'
+      lookahead2W(268);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    case 161:                       // 'insert'
+      lookahead2W(275);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    case 223:                       // 'replace'
+      lookahead2W(170);             // S^WS | '#' | '(' | '(:' | 'node' | 'value'
+      break;
+    case 111:                       // 'delete'
+    case 222:                       // 'rename'
+      lookahead2W(260);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    case 104:                       // 'copy'
+    case 130:                       // 'every'
+    case 240:                       // 'some'
+      lookahead2W(143);             // S^WS | '#' | '$' | '(' | '(:'
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 17998                 // 'append' '('
+     || lk == 18031                 // 'delete' '('
+     || lk == 18081                 // 'insert' '('
+     || lk == 18142                 // 'rename' '('
+     || lk == 99439                 // 'delete' 'node'
+     || lk == 99489                 // 'insert' 'node'
+     || lk == 99550                 // 'rename' 'node'
+     || lk == 99951                 // 'delete' 'nodes'
+     || lk == 100001                // 'insert' 'nodes'
+     || lk == 136927)               // 'replace' 'value'
+    {
+      lk = memoized(10, e0);
+      if (lk == 0)
+      {
+        var b0A = b0; var e0A = e0; var l1A = l1;
+        var b1A = b1; var e1A = e1; var l2A = l2;
+        var b2A = b2; var e2A = e2;
+        try
+        {
+          try_OrExpr();
+          lk = -2;
+        }
+        catch (p2A)
+        {
+          try
+          {
+            b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+            b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+            b2 = b2A; e2 = e2A; end = e2A; }}
+            try_InsertExpr();
+            lk = -3;
+          }
+          catch (p3A)
+          {
+            try
+            {
+              b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+              b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+              b2 = b2A; e2 = e2A; end = e2A; }}
+              try_DeleteExpr();
+              lk = -4;
+            }
+            catch (p4A)
+            {
+              try
+              {
+                b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                b2 = b2A; e2 = e2A; end = e2A; }}
+                try_RenameExpr();
+                lk = -5;
+              }
+              catch (p5A)
+              {
+                try
+                {
+                  b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                  b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                  b2 = b2A; e2 = e2A; end = e2A; }}
+                  try_ReplaceExpr();
+                  lk = -6;
+                }
+                catch (p6A)
+                {
+                  try
+                  {
+                    b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                    b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                    b2 = b2A; e2 = e2A; end = e2A; }}
+                    try_JSONDeleteExpr();
+                    lk = -8;
+                  }
+                  catch (p8A)
+                  {
+                    try
+                    {
+                      b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                      b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                      b2 = b2A; e2 = e2A; end = e2A; }}
+                      try_JSONInsertExpr();
+                      lk = -9;
+                    }
+                    catch (p9A)
+                    {
+                      try
+                      {
+                        b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                        b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                        b2 = b2A; e2 = e2A; end = e2A; }}
+                        try_JSONRenameExpr();
+                        lk = -10;
+                      }
+                      catch (p10A)
+                      {
+                        try
+                        {
+                          b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                          b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                          b2 = b2A; e2 = e2A; end = e2A; }}
+                          try_JSONReplaceExpr();
+                          lk = -11;
+                        }
+                        catch (p11A)
+                        {
+                          lk = -12;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+        b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+        b2 = b2A; e2 = e2A; end = e2A; }}
+        memoize(10, e0, lk);
+      }
+    }
+    switch (lk)
+    {
+    case 16002:                     // 'every' '$'
+    case 16112:                     // 'some' '$'
+      parse_QuantifiedExpr();
+      break;
+    case -3:
+      parse_InsertExpr();
+      break;
+    case -4:
+      parse_DeleteExpr();
+      break;
+    case -5:
+      parse_RenameExpr();
+      break;
+    case -6:
+    case 99551:                     // 'replace' 'node'
+      parse_ReplaceExpr();
+      break;
+    case 15976:                     // 'copy' '$'
+      parse_TransformExpr();
+      break;
+    case -8:
+    case 3183:                      // 'delete' EQName^Token
+    case 4207:                      // 'delete' IntegerLiteral
+    case 4719:                      // 'delete' DecimalLiteral
+    case 5231:                      // 'delete' DoubleLiteral
+    case 5743:                      // 'delete' StringLiteral
+    case 15983:                     // 'delete' '$'
+    case 16495:                     // 'delete' '$$'
+    case 17007:                     // 'delete' '%'
+    case 28271:                     // 'delete' '<'
+    case 28783:                     // 'delete' '<!--'
+    case 30831:                     // 'delete' '<?'
+    case 35439:                     // 'delete' '['
+    case 36463:                     // 'delete' 'after'
+    case 37487:                     // 'delete' 'allowing'
+    case 37999:                     // 'delete' 'ancestor'
+    case 38511:                     // 'delete' 'ancestor-or-self'
+    case 39023:                     // 'delete' 'and'
+    case 40047:                     // 'delete' 'append'
+    case 40559:                     // 'delete' 'array'
+    case 41071:                     // 'delete' 'as'
+    case 41583:                     // 'delete' 'ascending'
+    case 42095:                     // 'delete' 'at'
+    case 42607:                     // 'delete' 'attribute'
+    case 43119:                     // 'delete' 'base-uri'
+    case 43631:                     // 'delete' 'before'
+    case 44143:                     // 'delete' 'boundary-space'
+    case 44655:                     // 'delete' 'break'
+    case 45679:             
