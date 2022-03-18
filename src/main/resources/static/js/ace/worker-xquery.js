@@ -25112,4 +25112,366 @@ exports.JSONParseTreeHandler = function (code) {
     case 127566:                    // 'append' 'text'
     case 129614:                    // 'append' 'to'
     case 130126:                    // 'append' 'treat'
-    case 130638:            
+    case 130638:                    // 'append' 'true'
+    case 131150:                    // 'append' 'try'
+    case 131662:                    // 'append' 'tumbling'
+    case 132174:                    // 'append' 'type'
+    case 132686:                    // 'append' 'typeswitch'
+    case 133198:                    // 'append' 'union'
+    case 134222:                    // 'append' 'unordered'
+    case 134734:                    // 'append' 'updating'
+    case 136270:                    // 'append' 'validate'
+    case 136782:                    // 'append' 'value'
+    case 137294:                    // 'append' 'variable'
+    case 137806:                    // 'append' 'version'
+    case 139342:                    // 'append' 'where'
+    case 139854:                    // 'append' 'while'
+    case 141390:                    // 'append' 'with'
+    case 143950:                    // 'append' '{'
+    case 144974:                    // 'append' '{|'
+      parse_JSONAppendExpr();
+      break;
+    default:
+      parse_OrExpr();
+    }
+    eventHandler.endNonterminal("ExprSimple", e0);
+  }
+
+  function try_ExprSimple()
+  {
+    switch (l1)
+    {
+    case 78:                        // 'append'
+      lookahead2W(268);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    case 161:                       // 'insert'
+      lookahead2W(275);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    case 223:                       // 'replace'
+      lookahead2W(170);             // S^WS | '#' | '(' | '(:' | 'node' | 'value'
+      break;
+    case 111:                       // 'delete'
+    case 222:                       // 'rename'
+      lookahead2W(260);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    case 104:                       // 'copy'
+    case 130:                       // 'every'
+    case 240:                       // 'some'
+      lookahead2W(143);             // S^WS | '#' | '$' | '(' | '(:'
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 17998                 // 'append' '('
+     || lk == 18031                 // 'delete' '('
+     || lk == 18081                 // 'insert' '('
+     || lk == 18142                 // 'rename' '('
+     || lk == 99439                 // 'delete' 'node'
+     || lk == 99489                 // 'insert' 'node'
+     || lk == 99550                 // 'rename' 'node'
+     || lk == 99951                 // 'delete' 'nodes'
+     || lk == 100001                // 'insert' 'nodes'
+     || lk == 136927)               // 'replace' 'value'
+    {
+      lk = memoized(10, e0);
+      if (lk == 0)
+      {
+        var b0A = b0; var e0A = e0; var l1A = l1;
+        var b1A = b1; var e1A = e1; var l2A = l2;
+        var b2A = b2; var e2A = e2;
+        try
+        {
+          try_OrExpr();
+          memoize(10, e0A, -2);
+          lk = -13;
+        }
+        catch (p2A)
+        {
+          try
+          {
+            b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+            b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+            b2 = b2A; e2 = e2A; end = e2A; }}
+            try_InsertExpr();
+            memoize(10, e0A, -3);
+            lk = -13;
+          }
+          catch (p3A)
+          {
+            try
+            {
+              b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+              b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+              b2 = b2A; e2 = e2A; end = e2A; }}
+              try_DeleteExpr();
+              memoize(10, e0A, -4);
+              lk = -13;
+            }
+            catch (p4A)
+            {
+              try
+              {
+                b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                b2 = b2A; e2 = e2A; end = e2A; }}
+                try_RenameExpr();
+                memoize(10, e0A, -5);
+                lk = -13;
+              }
+              catch (p5A)
+              {
+                try
+                {
+                  b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                  b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                  b2 = b2A; e2 = e2A; end = e2A; }}
+                  try_ReplaceExpr();
+                  memoize(10, e0A, -6);
+                  lk = -13;
+                }
+                catch (p6A)
+                {
+                  try
+                  {
+                    b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                    b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                    b2 = b2A; e2 = e2A; end = e2A; }}
+                    try_JSONDeleteExpr();
+                    memoize(10, e0A, -8);
+                    lk = -13;
+                  }
+                  catch (p8A)
+                  {
+                    try
+                    {
+                      b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                      b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                      b2 = b2A; e2 = e2A; end = e2A; }}
+                      try_JSONInsertExpr();
+                      memoize(10, e0A, -9);
+                      lk = -13;
+                    }
+                    catch (p9A)
+                    {
+                      try
+                      {
+                        b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                        b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                        b2 = b2A; e2 = e2A; end = e2A; }}
+                        try_JSONRenameExpr();
+                        memoize(10, e0A, -10);
+                        lk = -13;
+                      }
+                      catch (p10A)
+                      {
+                        try
+                        {
+                          b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                          b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                          b2 = b2A; e2 = e2A; end = e2A; }}
+                          try_JSONReplaceExpr();
+                          memoize(10, e0A, -11);
+                          lk = -13;
+                        }
+                        catch (p11A)
+                        {
+                          lk = -12;
+                          b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+                          b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+                          b2 = b2A; e2 = e2A; end = e2A; }}
+                          memoize(10, e0A, -12);
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    switch (lk)
+    {
+    case 16002:                     // 'every' '$'
+    case 16112:                     // 'some' '$'
+      try_QuantifiedExpr();
+      break;
+    case -3:
+      try_InsertExpr();
+      break;
+    case -4:
+      try_DeleteExpr();
+      break;
+    case -5:
+      try_RenameExpr();
+      break;
+    case -6:
+    case 99551:                     // 'replace' 'node'
+      try_ReplaceExpr();
+      break;
+    case 15976:                     // 'copy' '$'
+      try_TransformExpr();
+      break;
+    case -8:
+    case 3183:                      // 'delete' EQName^Token
+    case 4207:                      // 'delete' IntegerLiteral
+    case 4719:                      // 'delete' DecimalLiteral
+    case 5231:                      // 'delete' DoubleLiteral
+    case 5743:                      // 'delete' StringLiteral
+    case 15983:                     // 'delete' '$'
+    case 16495:                     // 'delete' '$$'
+    case 17007:                     // 'delete' '%'
+    case 28271:                     // 'delete' '<'
+    case 28783:                     // 'delete' '<!--'
+    case 30831:                     // 'delete' '<?'
+    case 35439:                     // 'delete' '['
+    case 36463:                     // 'delete' 'after'
+    case 37487:                     // 'delete' 'allowing'
+    case 37999:                     // 'delete' 'ancestor'
+    case 38511:                     // 'delete' 'ancestor-or-self'
+    case 39023:                     // 'delete' 'and'
+    case 40047:                     // 'delete' 'append'
+    case 40559:                     // 'delete' 'array'
+    case 41071:                     // 'delete' 'as'
+    case 41583:                     // 'delete' 'ascending'
+    case 42095:                     // 'delete' 'at'
+    case 42607:                     // 'delete' 'attribute'
+    case 43119:                     // 'delete' 'base-uri'
+    case 43631:                     // 'delete' 'before'
+    case 44143:                     // 'delete' 'boundary-space'
+    case 44655:                     // 'delete' 'break'
+    case 45679:                     // 'delete' 'case'
+    case 46191:                     // 'delete' 'cast'
+    case 46703:                     // 'delete' 'castable'
+    case 47215:                     // 'delete' 'catch'
+    case 48239:                     // 'delete' 'child'
+    case 48751:                     // 'delete' 'collation'
+    case 49775:                     // 'delete' 'comment'
+    case 50287:                     // 'delete' 'constraint'
+    case 50799:                     // 'delete' 'construction'
+    case 52335:                     // 'delete' 'context'
+    case 52847:                     // 'delete' 'continue'
+    case 53359:                     // 'delete' 'copy'
+    case 53871:                     // 'delete' 'copy-namespaces'
+    case 54383:                     // 'delete' 'count'
+    case 54895:                     // 'delete' 'decimal-format'
+    case 55919:                     // 'delete' 'declare'
+    case 56431:                     // 'delete' 'default'
+    case 56943:                     // 'delete' 'delete'
+    case 57455:                     // 'delete' 'descendant'
+    case 57967:                     // 'delete' 'descendant-or-self'
+    case 58479:                     // 'delete' 'descending'
+    case 61039:                     // 'delete' 'div'
+    case 61551:                     // 'delete' 'document'
+    case 62063:                     // 'delete' 'document-node'
+    case 62575:                     // 'delete' 'element'
+    case 63087:                     // 'delete' 'else'
+    case 63599:                     // 'delete' 'empty'
+    case 64111:                     // 'delete' 'empty-sequence'
+    case 64623:                     // 'delete' 'encoding'
+    case 65135:                     // 'delete' 'end'
+    case 66159:                     // 'delete' 'eq'
+    case 66671:                     // 'delete' 'every'
+    case 67695:                     // 'delete' 'except'
+    case 68207:                     // 'delete' 'exit'
+    case 68719:                     // 'delete' 'external'
+    case 69231:                     // 'delete' 'false'
+    case 69743:                     // 'delete' 'first'
+    case 70255:                     // 'delete' 'following'
+    case 70767:                     // 'delete' 'following-sibling'
+    case 71279:                     // 'delete' 'for'
+    case 72815:                     // 'delete' 'from'
+    case 73327:                     // 'delete' 'ft-option'
+    case 75375:                     // 'delete' 'function'
+    case 75887:                     // 'delete' 'ge'
+    case 76911:                     // 'delete' 'group'
+    case 77935:                     // 'delete' 'gt'
+    case 78447:                     // 'delete' 'idiv'
+    case 78959:                     // 'delete' 'if'
+    case 79471:                     // 'delete' 'import'
+    case 79983:                     // 'delete' 'in'
+    case 80495:                     // 'delete' 'index'
+    case 82543:                     // 'delete' 'insert'
+    case 83055:                     // 'delete' 'instance'
+    case 83567:                     // 'delete' 'integrity'
+    case 84079:                     // 'delete' 'intersect'
+    case 84591:                     // 'delete' 'into'
+    case 85103:                     // 'delete' 'is'
+    case 85615:                     // 'delete' 'item'
+    case 86127:                     // 'delete' 'json'
+    case 86639:                     // 'delete' 'json-item'
+    case 87151:                     // 'delete' 'jsoniq'
+    case 88687:                     // 'delete' 'last'
+    case 89199:                     // 'delete' 'lax'
+    case 89711:                     // 'delete' 'le'
+    case 90735:                     // 'delete' 'let'
+    case 91759:                     // 'delete' 'loop'
+    case 92783:                     // 'delete' 'lt'
+    case 93807:                     // 'delete' 'mod'
+    case 94319:                     // 'delete' 'modify'
+    case 94831:                     // 'delete' 'module'
+    case 95855:                     // 'delete' 'namespace'
+    case 96367:                     // 'delete' 'namespace-node'
+    case 96879:                     // 'delete' 'ne'
+    case 100975:                    // 'delete' 'null'
+    case 101487:                    // 'delete' 'object'
+    case 103535:                    // 'delete' 'only'
+    case 104047:                    // 'delete' 'option'
+    case 104559:                    // 'delete' 'or'
+    case 105071:                    // 'delete' 'order'
+    case 105583:                    // 'delete' 'ordered'
+    case 106095:                    // 'delete' 'ordering'
+    case 107631:                    // 'delete' 'parent'
+    case 110703:                    // 'delete' 'preceding'
+    case 111215:                    // 'delete' 'preceding-sibling'
+    case 112751:                    // 'delete' 'processing-instruction'
+    case 113775:                    // 'delete' 'rename'
+    case 114287:                    // 'delete' 'replace'
+    case 114799:                    // 'delete' 'return'
+    case 115311:                    // 'delete' 'returning'
+    case 115823:                    // 'delete' 'revalidation'
+    case 116847:                    // 'delete' 'satisfies'
+    case 117359:                    // 'delete' 'schema'
+    case 117871:                    // 'delete' 'schema-attribute'
+    case 118383:                    // 'delete' 'schema-element'
+    case 118895:                    // 'delete' 'score'
+    case 119407:                    // 'delete' 'select'
+    case 119919:                    // 'delete' 'self'
+    case 122479:                    // 'delete' 'sliding'
+    case 122991:                    // 'delete' 'some'
+    case 123503:                    // 'delete' 'stable'
+    case 124015:                    // 'delete' 'start'
+    case 125551:                    // 'delete' 'strict'
+    case 126575:                    // 'delete' 'structured-item'
+    case 127087:                    // 'delete' 'switch'
+    case 127599:                    // 'delete' 'text'
+    case 129647:                    // 'delete' 'to'
+    case 130159:                    // 'delete' 'treat'
+    case 130671:                    // 'delete' 'true'
+    case 131183:                    // 'delete' 'try'
+    case 131695:                    // 'delete' 'tumbling'
+    case 132207:                    // 'delete' 'type'
+    case 132719:                    // 'delete' 'typeswitch'
+    case 133231:                    // 'delete' 'union'
+    case 134255:                    // 'delete' 'unordered'
+    case 134767:                    // 'delete' 'updating'
+    case 136303:                    // 'delete' 'validate'
+    case 136815:                    // 'delete' 'value'
+    case 137327:                    // 'delete' 'variable'
+    case 137839:                    // 'delete' 'version'
+    case 139375:                    // 'delete' 'where'
+    case 139887:                    // 'delete' 'while'
+    case 141423:                    // 'delete' 'with'
+    case 143983:                    // 'delete' '{'
+    case 145007:                    // 'delete' '{|'
+      try_JSONDeleteExpr();
+      break;
+    case -9:
+    case 3233:                      // 'insert' EQName^Token
+    case 4257:                      // 'insert' IntegerLiteral
+    case 4769:                      // 'insert' DecimalLiteral
+    case 5281:                      // 'insert' DoubleLiteral
+    case 5793:                      // 'insert' StringLiteral
+    case 9889:                      // 'insert' NCName^Token
+    case 16033:      
