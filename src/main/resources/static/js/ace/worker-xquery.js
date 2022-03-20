@@ -27145,4 +27145,341 @@ exports.JSONParseTreeHandler = function (code) {
            || lk == 4264            // 'json' IntegerLiteral
            || lk == 4776            // 'json' DecimalLiteral
            || lk == 5288            // 'json' DoubleLiteral
-    
+           || lk == 5800            // 'json' StringLiteral
+           || lk == 16040           // 'json' '$'
+           || lk == 16552           // 'json' '$$'
+           || lk == 17064           // 'json' '%'
+           || lk == 18600           // 'json' '(#'
+           || lk == 21160           // 'json' '+'
+           || lk == 22184           // 'json' '-'
+           || lk == 24232           // 'json' '/'
+           || lk == 24744           // 'json' '//'
+           || lk == 28328           // 'json' '<'
+           || lk == 28840           // 'json' '<!--'
+           || lk == 30888           // 'json' '<?'
+           || lk == 35496           // 'json' '['
+           || lk == 36520           // 'json' 'after'
+           || lk == 37544           // 'json' 'allowing'
+           || lk == 38056           // 'json' 'ancestor'
+           || lk == 38568           // 'json' 'ancestor-or-self'
+           || lk == 39080           // 'json' 'and'
+           || lk == 40104           // 'json' 'append'
+           || lk == 40616           // 'json' 'array'
+           || lk == 41128           // 'json' 'as'
+           || lk == 41640           // 'json' 'ascending'
+           || lk == 42152           // 'json' 'at'
+           || lk == 42664           // 'json' 'attribute'
+           || lk == 43176           // 'json' 'base-uri'
+           || lk == 43688           // 'json' 'before'
+           || lk == 44200           // 'json' 'boundary-space'
+           || lk == 44712           // 'json' 'break'
+           || lk == 45736           // 'json' 'case'
+           || lk == 46248           // 'json' 'cast'
+           || lk == 46760           // 'json' 'castable'
+           || lk == 47272           // 'json' 'catch'
+           || lk == 48296           // 'json' 'child'
+           || lk == 48808           // 'json' 'collation'
+           || lk == 49832           // 'json' 'comment'
+           || lk == 50344           // 'json' 'constraint'
+           || lk == 50856           // 'json' 'construction'
+           || lk == 52392           // 'json' 'context'
+           || lk == 52904           // 'json' 'continue'
+           || lk == 53416           // 'json' 'copy'
+           || lk == 53928           // 'json' 'copy-namespaces'
+           || lk == 54440           // 'json' 'count'
+           || lk == 54952           // 'json' 'decimal-format'
+           || lk == 55976           // 'json' 'declare'
+           || lk == 56488           // 'json' 'default'
+           || lk == 57000           // 'json' 'delete'
+           || lk == 57512           // 'json' 'descendant'
+           || lk == 58024           // 'json' 'descendant-or-self'
+           || lk == 58536           // 'json' 'descending'
+           || lk == 61096           // 'json' 'div'
+           || lk == 61608           // 'json' 'document'
+           || lk == 62120           // 'json' 'document-node'
+           || lk == 62632           // 'json' 'element'
+           || lk == 63144           // 'json' 'else'
+           || lk == 63656           // 'json' 'empty'
+           || lk == 64168           // 'json' 'empty-sequence'
+           || lk == 64680           // 'json' 'encoding'
+           || lk == 65192           // 'json' 'end'
+           || lk == 66216           // 'json' 'eq'
+           || lk == 66728           // 'json' 'every'
+           || lk == 67752           // 'json' 'except'
+           || lk == 68264           // 'json' 'exit'
+           || lk == 68776           // 'json' 'external'
+           || lk == 69288           // 'json' 'false'
+           || lk == 69800           // 'json' 'first'
+           || lk == 70312           // 'json' 'following'
+           || lk == 70824           // 'json' 'following-sibling'
+           || lk == 71336           // 'json' 'for'
+           || lk == 72872           // 'json' 'from'
+           || lk == 73384           // 'json' 'ft-option'
+           || lk == 75432           // 'json' 'function'
+           || lk == 75944           // 'json' 'ge'
+           || lk == 76968           // 'json' 'group'
+           || lk == 77992           // 'json' 'gt'
+           || lk == 78504           // 'json' 'idiv'
+           || lk == 79016           // 'json' 'if'
+           || lk == 79528           // 'json' 'import'
+           || lk == 80040           // 'json' 'in'
+           || lk == 80552           // 'json' 'index'
+           || lk == 82600           // 'json' 'insert'
+           || lk == 83112           // 'json' 'instance'
+           || lk == 83624           // 'json' 'integrity'
+           || lk == 84136           // 'json' 'intersect'
+           || lk == 84648           // 'json' 'into'
+           || lk == 85160           // 'json' 'is'
+           || lk == 85672           // 'json' 'item'
+           || lk == 86184           // 'json' 'json'
+           || lk == 86696           // 'json' 'json-item'
+           || lk == 87208           // 'json' 'jsoniq'
+           || lk == 88744           // 'json' 'last'
+           || lk == 89256           // 'json' 'lax'
+           || lk == 89768           // 'json' 'le'
+           || lk == 90792           // 'json' 'let'
+           || lk == 91816           // 'json' 'loop'
+           || lk == 92840           // 'json' 'lt'
+           || lk == 93864           // 'json' 'mod'
+           || lk == 94376           // 'json' 'modify'
+           || lk == 94888           // 'json' 'module'
+           || lk == 95912           // 'json' 'namespace'
+           || lk == 96424           // 'json' 'namespace-node'
+           || lk == 96936           // 'json' 'ne'
+           || lk == 99496           // 'json' 'node'
+           || lk == 100008          // 'json' 'nodes'
+           || lk == 100520          // 'json' 'not'
+           || lk == 101032          // 'json' 'null'
+           || lk == 101544          // 'json' 'object'
+           || lk == 103592          // 'json' 'only'
+           || lk == 104104          // 'json' 'option'
+           || lk == 104616          // 'json' 'or'
+           || lk == 105128          // 'json' 'order'
+           || lk == 105640          // 'json' 'ordered'
+           || lk == 106152          // 'json' 'ordering'
+           || lk == 107688          // 'json' 'parent'
+           || lk == 110760          // 'json' 'preceding'
+           || lk == 111272          // 'json' 'preceding-sibling'
+           || lk == 112808          // 'json' 'processing-instruction'
+           || lk == 113832          // 'json' 'rename'
+           || lk == 114344          // 'json' 'replace'
+           || lk == 114856          // 'json' 'return'
+           || lk == 115368          // 'json' 'returning'
+           || lk == 115880          // 'json' 'revalidation'
+           || lk == 116904          // 'json' 'satisfies'
+           || lk == 117416          // 'json' 'schema'
+           || lk == 117928          // 'json' 'schema-attribute'
+           || lk == 118440          // 'json' 'schema-element'
+           || lk == 118952          // 'json' 'score'
+           || lk == 119464          // 'json' 'select'
+           || lk == 119976          // 'json' 'self'
+           || lk == 122536          // 'json' 'sliding'
+           || lk == 123048          // 'json' 'some'
+           || lk == 123560          // 'json' 'stable'
+           || lk == 124072          // 'json' 'start'
+           || lk == 125608          // 'json' 'strict'
+           || lk == 126632          // 'json' 'structured-item'
+           || lk == 127144          // 'json' 'switch'
+           || lk == 127656          // 'json' 'text'
+           || lk == 129704          // 'json' 'to'
+           || lk == 130216          // 'json' 'treat'
+           || lk == 130728          // 'json' 'true'
+           || lk == 131240          // 'json' 'try'
+           || lk == 131752          // 'json' 'tumbling'
+           || lk == 132264          // 'json' 'type'
+           || lk == 132776          // 'json' 'typeswitch'
+           || lk == 133288          // 'json' 'union'
+           || lk == 134312          // 'json' 'unordered'
+           || lk == 134824          // 'json' 'updating'
+           || lk == 136360          // 'json' 'validate'
+           || lk == 136872          // 'json' 'value'
+           || lk == 137384          // 'json' 'variable'
+           || lk == 137896          // 'json' 'version'
+           || lk == 139432          // 'json' 'where'
+           || lk == 139944          // 'json' 'while'
+           || lk == 141480          // 'json' 'with'
+           || lk == 144040          // 'json' '{'
+           || lk == 145064)         // 'json' '{|'
+          {
+            shiftT(168);            // 'json'
+          }
+          lookahead1W(266);         // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+          try_ExprSingle();
+          shiftT(165);              // 'into'
+          lookahead1W(266);         // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+          try_ExprSingle();
+          switch (l1)
+          {
+          case 82:                  // 'at'
+            lookahead2W(72);        // S^WS | '(:' | 'position'
+            break;
+          default:
+            lk = l1;
+          }
+          if (lk == 110162)         // 'at' 'position'
+          {
+            lk = memoized(14, e0);
+            if (lk == 0)
+            {
+              var b0B = b0; var e0B = e0; var l1B = l1;
+              var b1B = b1; var e1B = e1; var l2B = l2;
+              var b2B = b2; var e2B = e2;
+              try
+              {
+                shiftT(82);         // 'at'
+                lookahead1W(72);    // S^WS | '(:' | 'position'
+                shiftT(215);        // 'position'
+                lookahead1W(266);   // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+                try_ExprSingle();
+                memoize(14, e0B, -1);
+              }
+              catch (p1B)
+              {
+                b0 = b0B; e0 = e0B; l1 = l1B; if (l1 == 0) {end = e0B;} else {
+                b1 = b1B; e1 = e1B; l2 = l2B; if (l2 == 0) {end = e1B;} else {
+                b2 = b2B; e2 = e2B; end = e2B; }}
+                memoize(14, e0B, -2);
+              }
+              lk = -2;
+            }
+          }
+          if (lk == -1)
+          {
+            shiftT(82);             // 'at'
+            lookahead1W(72);        // S^WS | '(:' | 'position'
+            shiftT(215);            // 'position'
+            lookahead1W(266);       // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+            try_ExprSingle();
+          }
+          memoize(12, e0A, -1);
+          lk = -3;
+        }
+        catch (p1A)
+        {
+          lk = -2;
+          b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+          b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+          b2 = b2A; e2 = e2A; end = e2A; }}
+          memoize(12, e0A, -2);
+        }
+      }
+    }
+    switch (lk)
+    {
+    case -1:
+      shiftT(161);                  // 'insert'
+      lookahead1W(266);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      switch (l1)
+      {
+      case 168:                     // 'json'
+        lookahead2W(268);           // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+        break;
+      default:
+        lk = l1;
+      }
+      if (lk == 18088)              // 'json' '('
+      {
+        lk = memoized(13, e0);
+        if (lk == 0)
+        {
+          var b0B = b0; var e0B = e0; var l1B = l1;
+          var b1B = b1; var e1B = e1; var l2B = l2;
+          var b2B = b2; var e2B = e2;
+          try
+          {
+            shiftT(168);            // 'json'
+            memoize(13, e0B, -1);
+          }
+          catch (p1B)
+          {
+            b0 = b0B; e0 = e0B; l1 = l1B; if (l1 == 0) {end = e0B;} else {
+            b1 = b1B; e1 = e1B; l2 = l2B; if (l2 == 0) {end = e1B;} else {
+            b2 = b2B; e2 = e2B; end = e2B; }}
+            memoize(13, e0B, -2);
+          }
+          lk = -2;
+        }
+      }
+      if (lk == -1
+       || lk == 3240                // 'json' EQName^Token
+       || lk == 4264                // 'json' IntegerLiteral
+       || lk == 4776                // 'json' DecimalLiteral
+       || lk == 5288                // 'json' DoubleLiteral
+       || lk == 5800                // 'json' StringLiteral
+       || lk == 16040               // 'json' '$'
+       || lk == 16552               // 'json' '$$'
+       || lk == 17064               // 'json' '%'
+       || lk == 18600               // 'json' '(#'
+       || lk == 21160               // 'json' '+'
+       || lk == 22184               // 'json' '-'
+       || lk == 24232               // 'json' '/'
+       || lk == 24744               // 'json' '//'
+       || lk == 28328               // 'json' '<'
+       || lk == 28840               // 'json' '<!--'
+       || lk == 30888               // 'json' '<?'
+       || lk == 35496               // 'json' '['
+       || lk == 36520               // 'json' 'after'
+       || lk == 37544               // 'json' 'allowing'
+       || lk == 38056               // 'json' 'ancestor'
+       || lk == 38568               // 'json' 'ancestor-or-self'
+       || lk == 39080               // 'json' 'and'
+       || lk == 40104               // 'json' 'append'
+       || lk == 40616               // 'json' 'array'
+       || lk == 41128               // 'json' 'as'
+       || lk == 41640               // 'json' 'ascending'
+       || lk == 42152               // 'json' 'at'
+       || lk == 42664               // 'json' 'attribute'
+       || lk == 43176               // 'json' 'base-uri'
+       || lk == 43688               // 'json' 'before'
+       || lk == 44200               // 'json' 'boundary-space'
+       || lk == 44712               // 'json' 'break'
+       || lk == 45736               // 'json' 'case'
+       || lk == 46248               // 'json' 'cast'
+       || lk == 46760               // 'json' 'castable'
+       || lk == 47272               // 'json' 'catch'
+       || lk == 48296               // 'json' 'child'
+       || lk == 48808               // 'json' 'collation'
+       || lk == 49832               // 'json' 'comment'
+       || lk == 50344               // 'json' 'constraint'
+       || lk == 50856               // 'json' 'construction'
+       || lk == 52392               // 'json' 'context'
+       || lk == 52904               // 'json' 'continue'
+       || lk == 53416               // 'json' 'copy'
+       || lk == 53928               // 'json' 'copy-namespaces'
+       || lk == 54440               // 'json' 'count'
+       || lk == 54952               // 'json' 'decimal-format'
+       || lk == 55976               // 'json' 'declare'
+       || lk == 56488               // 'json' 'default'
+       || lk == 57000               // 'json' 'delete'
+       || lk == 57512               // 'json' 'descendant'
+       || lk == 58024               // 'json' 'descendant-or-self'
+       || lk == 58536               // 'json' 'descending'
+       || lk == 61096               // 'json' 'div'
+       || lk == 61608               // 'json' 'document'
+       || lk == 62120               // 'json' 'document-node'
+       || lk == 62632               // 'json' 'element'
+       || lk == 63144               // 'json' 'else'
+       || lk == 63656               // 'json' 'empty'
+       || lk == 64168               // 'json' 'empty-sequence'
+       || lk == 64680               // 'json' 'encoding'
+       || lk == 65192               // 'json' 'end'
+       || lk == 66216               // 'json' 'eq'
+       || lk == 66728               // 'json' 'every'
+       || lk == 67752               // 'json' 'except'
+       || lk == 68264               // 'json' 'exit'
+       || lk == 68776               // 'json' 'external'
+       || lk == 69288               // 'json' 'false'
+       || lk == 69800               // 'json' 'first'
+       || lk == 70312               // 'json' 'following'
+       || lk == 70824               // 'json' 'following-sibling'
+       || lk == 71336               // 'json' 'for'
+       || lk == 72872               // 'json' 'from'
+       || lk == 73384               // 'json' 'ft-option'
+       || lk == 75432               // 'json' 'function'
+       || lk == 75944               // 'json' 'ge'
+       || lk == 76968               // 'json' 'group'
+       || lk == 77992               // 'json' 'gt'
+       || lk == 78504               // 'json' 'idiv'
+       || lk == 79016               // 'json' 'if'
+       || lk == 79528               // 'json' 'import'
+       || lk == 800
