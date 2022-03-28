@@ -28943,4 +28943,382 @@ exports.JSONParseTreeHandler = function (code) {
 
   function try_CompPIConstructor()
   {
-    shiftT(220)
+    shiftT(220);                    // 'processing-instruction'
+    lookahead1W(241);               // NCName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    switch (l1)
+    {
+    case 281:                       // '{'
+      shiftT(281);                  // '{'
+      lookahead1W(266);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      try_Expr();
+      shiftT(287);                  // '}'
+      break;
+    default:
+      try_NCName();
+    }
+    lookahead1W(90);                // S^WS | '(:' | '{'
+    switch (l1)
+    {
+    case 281:                       // '{'
+      lookahead2W(280);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 147225)               // '{' '}'
+    {
+      lk = memoized(19, e0);
+      if (lk == 0)
+      {
+        var b0A = b0; var e0A = e0; var l1A = l1;
+        var b1A = b1; var e1A = e1; var l2A = l2;
+        var b2A = b2; var e2A = e2;
+        try
+        {
+          shiftT(281);              // '{'
+          lookahead1W(91);          // S^WS | '(:' | '}'
+          shiftT(287);              // '}'
+          memoize(19, e0A, -1);
+          lk = -3;
+        }
+        catch (p1A)
+        {
+          lk = -2;
+          b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+          b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+          b2 = b2A; e2 = e2A; end = e2A; }}
+          memoize(19, e0A, -2);
+        }
+      }
+    }
+    switch (lk)
+    {
+    case -1:
+      shiftT(281);                  // '{'
+      lookahead1W(91);              // S^WS | '(:' | '}'
+      shiftT(287);                  // '}'
+      break;
+    case -3:
+      break;
+    default:
+      try_BlockExpr();
+    }
+  }
+
+  function parse_CompCommentConstructor()
+  {
+    eventHandler.startNonterminal("CompCommentConstructor", e0);
+    shift(97);                      // 'comment'
+    lookahead1W(90);                // S^WS | '(:' | '{'
+    whitespace();
+    parse_BlockExpr();
+    eventHandler.endNonterminal("CompCommentConstructor", e0);
+  }
+
+  function try_CompCommentConstructor()
+  {
+    shiftT(97);                     // 'comment'
+    lookahead1W(90);                // S^WS | '(:' | '{'
+    try_BlockExpr();
+  }
+
+  function parse_CompTextConstructor()
+  {
+    eventHandler.startNonterminal("CompTextConstructor", e0);
+    shift(249);                     // 'text'
+    lookahead1W(90);                // S^WS | '(:' | '{'
+    whitespace();
+    parse_BlockExpr();
+    eventHandler.endNonterminal("CompTextConstructor", e0);
+  }
+
+  function try_CompTextConstructor()
+  {
+    shiftT(249);                    // 'text'
+    lookahead1W(90);                // S^WS | '(:' | '{'
+    try_BlockExpr();
+  }
+
+  function parse_PrimaryExpr()
+  {
+    eventHandler.startNonterminal("PrimaryExpr", e0);
+    switch (l1)
+    {
+    case 187:                       // 'namespace'
+      lookahead2W(246);             // NCName^Token | S^WS | '#' | '(' | '(:' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    case 220:                       // 'processing-instruction'
+      lookahead2W(244);             // NCName^Token | S^WS | '#' | '(:' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    case 281:                       // '{'
+      lookahead2W(282);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    case 83:                        // 'attribute'
+    case 122:                       // 'element'
+      lookahead2W(252);             // EQName^Token | S^WS | '#' | '(:' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    case 97:                        // 'comment'
+    case 249:                       // 'text'
+      lookahead2W(97);              // S^WS | '#' | '(:' | '{'
+      break;
+    case 120:                       // 'document'
+    case 206:                       // 'ordered'
+    case 262:                       // 'unordered'
+      lookahead2W(148);             // S^WS | '#' | '(' | '(:' | '{'
+      break;
+    case 135:                       // 'false'
+    case 197:                       // 'null'
+    case 255:                       // 'true'
+      lookahead2W(236);             // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '.' |
+      break;
+    case 6:                         // EQName^Token
+    case 71:                        // 'after'
+    case 73:                        // 'allowing'
+    case 74:                        // 'ancestor'
+    case 75:                        // 'ancestor-or-self'
+    case 76:                        // 'and'
+    case 78:                        // 'append'
+    case 80:                        // 'as'
+    case 81:                        // 'ascending'
+    case 82:                        // 'at'
+    case 84:                        // 'base-uri'
+    case 85:                        // 'before'
+    case 86:                        // 'boundary-space'
+    case 87:                        // 'break'
+    case 89:                        // 'case'
+    case 90:                        // 'cast'
+    case 91:                        // 'castable'
+    case 92:                        // 'catch'
+    case 94:                        // 'child'
+    case 95:                        // 'collation'
+    case 98:                        // 'constraint'
+    case 99:                        // 'construction'
+    case 102:                       // 'context'
+    case 103:                       // 'continue'
+    case 104:                       // 'copy'
+    case 105:                       // 'copy-namespaces'
+    case 106:                       // 'count'
+    case 107:                       // 'decimal-format'
+    case 109:                       // 'declare'
+    case 110:                       // 'default'
+    case 111:                       // 'delete'
+    case 112:                       // 'descendant'
+    case 113:                       // 'descendant-or-self'
+    case 114:                       // 'descending'
+    case 119:                       // 'div'
+    case 123:                       // 'else'
+    case 124:                       // 'empty'
+    case 126:                       // 'encoding'
+    case 127:                       // 'end'
+    case 129:                       // 'eq'
+    case 130:                       // 'every'
+    case 132:                       // 'except'
+    case 133:                       // 'exit'
+    case 134:                       // 'external'
+    case 136:                       // 'first'
+    case 137:                       // 'following'
+    case 138:                       // 'following-sibling'
+    case 139:                       // 'for'
+    case 142:                       // 'from'
+    case 143:                       // 'ft-option'
+    case 148:                       // 'ge'
+    case 150:                       // 'group'
+    case 152:                       // 'gt'
+    case 153:                       // 'idiv'
+    case 155:                       // 'import'
+    case 156:                       // 'in'
+    case 157:                       // 'index'
+    case 161:                       // 'insert'
+    case 162:                       // 'instance'
+    case 163:                       // 'integrity'
+    case 164:                       // 'intersect'
+    case 165:                       // 'into'
+    case 166:                       // 'is'
+    case 168:                       // 'json'
+    case 170:                       // 'jsoniq'
+    case 173:                       // 'last'
+    case 174:                       // 'lax'
+    case 175:                       // 'le'
+    case 177:                       // 'let'
+    case 179:                       // 'loop'
+    case 181:                       // 'lt'
+    case 183:                       // 'mod'
+    case 184:                       // 'modify'
+    case 185:                       // 'module'
+    case 189:                       // 'ne'
+    case 195:                       // 'nodes'
+    case 198:                       // 'object'
+    case 202:                       // 'only'
+    case 203:                       // 'option'
+    case 204:                       // 'or'
+    case 205:                       // 'order'
+    case 207:                       // 'ordering'
+    case 210:                       // 'parent'
+    case 216:                       // 'preceding'
+    case 217:                       // 'preceding-sibling'
+    case 222:                       // 'rename'
+    case 223:                       // 'replace'
+    case 224:                       // 'return'
+    case 225:                       // 'returning'
+    case 226:                       // 'revalidation'
+    case 228:                       // 'satisfies'
+    case 229:                       // 'schema'
+    case 232:                       // 'score'
+    case 233:                       // 'select'
+    case 234:                       // 'self'
+    case 239:                       // 'sliding'
+    case 240:                       // 'some'
+    case 241:                       // 'stable'
+    case 242:                       // 'start'
+    case 245:                       // 'strict'
+    case 253:                       // 'to'
+    case 254:                       // 'treat'
+    case 256:                       // 'try'
+    case 257:                       // 'tumbling'
+    case 258:                       // 'type'
+    case 260:                       // 'union'
+    case 263:                       // 'updating'
+    case 266:                       // 'validate'
+    case 267:                       // 'value'
+    case 268:                       // 'variable'
+    case 269:                       // 'version'
+    case 272:                       // 'where'
+    case 273:                       // 'while'
+    case 276:                       // 'with'
+      lookahead2W(95);              // S^WS | '#' | '(' | '(:'
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 3353                  // '{' EQName^Token
+     || lk == 4377                  // '{' IntegerLiteral
+     || lk == 4889                  // '{' DecimalLiteral
+     || lk == 5401                  // '{' DoubleLiteral
+     || lk == 5913                  // '{' StringLiteral
+     || lk == 16153                 // '{' '$'
+     || lk == 16665                 // '{' '$$'
+     || lk == 17177                 // '{' '%'
+     || lk == 18055                 // 'false' '('
+     || lk == 18117                 // 'null' '('
+     || lk == 18175                 // 'true' '('
+     || lk == 18201                 // '{' '('
+     || lk == 18713                 // '{' '(#'
+     || lk == 21273                 // '{' '+'
+     || lk == 22297                 // '{' '-'
+     || lk == 24345                 // '{' '/'
+     || lk == 24857                 // '{' '//'
+     || lk == 28441                 // '{' '<'
+     || lk == 28953                 // '{' '<!--'
+     || lk == 31001                 // '{' '<?'
+     || lk == 35609                 // '{' '['
+     || lk == 36633                 // '{' 'after'
+     || lk == 37657                 // '{' 'allowing'
+     || lk == 38169                 // '{' 'ancestor'
+     || lk == 38681                 // '{' 'ancestor-or-self'
+     || lk == 39193                 // '{' 'and'
+     || lk == 40217                 // '{' 'append'
+     || lk == 40729                 // '{' 'array'
+     || lk == 41241                 // '{' 'as'
+     || lk == 41753                 // '{' 'ascending'
+     || lk == 42265                 // '{' 'at'
+     || lk == 42777                 // '{' 'attribute'
+     || lk == 43289                 // '{' 'base-uri'
+     || lk == 43801                 // '{' 'before'
+     || lk == 44313                 // '{' 'boundary-space'
+     || lk == 44825                 // '{' 'break'
+     || lk == 45849                 // '{' 'case'
+     || lk == 46361                 // '{' 'cast'
+     || lk == 46873                 // '{' 'castable'
+     || lk == 47385                 // '{' 'catch'
+     || lk == 48409                 // '{' 'child'
+     || lk == 48921                 // '{' 'collation'
+     || lk == 49945                 // '{' 'comment'
+     || lk == 50457                 // '{' 'constraint'
+     || lk == 50969                 // '{' 'construction'
+     || lk == 52505                 // '{' 'context'
+     || lk == 53017                 // '{' 'continue'
+     || lk == 53529                 // '{' 'copy'
+     || lk == 54041                 // '{' 'copy-namespaces'
+     || lk == 54553                 // '{' 'count'
+     || lk == 55065                 // '{' 'decimal-format'
+     || lk == 56089                 // '{' 'declare'
+     || lk == 56601                 // '{' 'default'
+     || lk == 57113                 // '{' 'delete'
+     || lk == 57625                 // '{' 'descendant'
+     || lk == 58137                 // '{' 'descendant-or-self'
+     || lk == 58649                 // '{' 'descending'
+     || lk == 61209                 // '{' 'div'
+     || lk == 61721                 // '{' 'document'
+     || lk == 62233                 // '{' 'document-node'
+     || lk == 62745                 // '{' 'element'
+     || lk == 63257                 // '{' 'else'
+     || lk == 63769                 // '{' 'empty'
+     || lk == 64281                 // '{' 'empty-sequence'
+     || lk == 64793                 // '{' 'encoding'
+     || lk == 65305                 // '{' 'end'
+     || lk == 66329                 // '{' 'eq'
+     || lk == 66841                 // '{' 'every'
+     || lk == 67865                 // '{' 'except'
+     || lk == 68377                 // '{' 'exit'
+     || lk == 68889                 // '{' 'external'
+     || lk == 69401                 // '{' 'false'
+     || lk == 69913                 // '{' 'first'
+     || lk == 70425                 // '{' 'following'
+     || lk == 70937                 // '{' 'following-sibling'
+     || lk == 71449                 // '{' 'for'
+     || lk == 72985                 // '{' 'from'
+     || lk == 73497                 // '{' 'ft-option'
+     || lk == 75545                 // '{' 'function'
+     || lk == 76057                 // '{' 'ge'
+     || lk == 77081                 // '{' 'group'
+     || lk == 78105                 // '{' 'gt'
+     || lk == 78617                 // '{' 'idiv'
+     || lk == 79129                 // '{' 'if'
+     || lk == 79641                 // '{' 'import'
+     || lk == 80153                 // '{' 'in'
+     || lk == 80665                 // '{' 'index'
+     || lk == 82713                 // '{' 'insert'
+     || lk == 83225                 // '{' 'instance'
+     || lk == 83737                 // '{' 'integrity'
+     || lk == 84249                 // '{' 'intersect'
+     || lk == 84761                 // '{' 'into'
+     || lk == 85273                 // '{' 'is'
+     || lk == 85785                 // '{' 'item'
+     || lk == 86297                 // '{' 'json'
+     || lk == 86809                 // '{' 'json-item'
+     || lk == 87321                 // '{' 'jsoniq'
+     || lk == 88857                 // '{' 'last'
+     || lk == 89369                 // '{' 'lax'
+     || lk == 89881                 // '{' 'le'
+     || lk == 90905                 // '{' 'let'
+     || lk == 91929                 // '{' 'loop'
+     || lk == 92953                 // '{' 'lt'
+     || lk == 93977                 // '{' 'mod'
+     || lk == 94489                 // '{' 'modify'
+     || lk == 95001                 // '{' 'module'
+     || lk == 96025                 // '{' 'namespace'
+     || lk == 96537                 // '{' 'namespace-node'
+     || lk == 97049                 // '{' 'ne'
+     || lk == 99609                 // '{' 'node'
+     || lk == 100121                // '{' 'nodes'
+     || lk == 100633                // '{' 'not'
+     || lk == 101145                // '{' 'null'
+     || lk == 101657                // '{' 'object'
+     || lk == 103705                // '{' 'only'
+     || lk == 104217                // '{' 'option'
+     || lk == 104729                // '{' 'or'
+     || lk == 105241                // '{' 'order'
+     || lk == 105753                // '{' 'ordered'
+     || lk == 106265                // '{' 'ordering'
+     || lk == 107801                // '{' 'parent'
+     || lk == 110873                // '{' 'preceding'
+     || lk == 111385                // '{' 'preceding-sibling'
+     || lk == 112921                // '{' 'processing-instruction'
+     || lk == 113945                // '{' 'rename'
+     || lk == 114457                // '{' 'replace'
+     || lk == 114969                // '{' 'return'
+     || lk == 115481                // '{' 'returning'
+     || lk == 115993                // '{' 'revalidation'
+     || lk == 117017                // '{' 'satisfies'
+     || lk == 117529                // '{' 'schema'
+     
