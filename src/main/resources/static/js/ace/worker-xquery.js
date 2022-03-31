@@ -30689,4 +30689,380 @@ exports.JSONParseTreeHandler = function (code) {
     case 167:                       // 'item'
     case 169:                       // 'json-item'
     case 188:                       // 'namespace-node'
-    case 194:     
+    case 194:                       // 'node'
+    case 230:                       // 'schema-attribute'
+    case 231:                       // 'schema-element'
+    case 247:                       // 'structured-item'
+    case 248:                       // 'switch'
+    case 259:                       // 'typeswitch'
+    case 14854:                     // EQName^Token '#'
+    case 14919:                     // 'after' '#'
+    case 14921:                     // 'allowing' '#'
+    case 14922:                     // 'ancestor' '#'
+    case 14923:                     // 'ancestor-or-self' '#'
+    case 14924:                     // 'and' '#'
+    case 14926:                     // 'append' '#'
+    case 14928:                     // 'as' '#'
+    case 14929:                     // 'ascending' '#'
+    case 14930:                     // 'at' '#'
+    case 14931:                     // 'attribute' '#'
+    case 14932:                     // 'base-uri' '#'
+    case 14933:                     // 'before' '#'
+    case 14934:                     // 'boundary-space' '#'
+    case 14935:                     // 'break' '#'
+    case 14937:                     // 'case' '#'
+    case 14938:                     // 'cast' '#'
+    case 14939:                     // 'castable' '#'
+    case 14940:                     // 'catch' '#'
+    case 14942:                     // 'child' '#'
+    case 14943:                     // 'collation' '#'
+    case 14945:                     // 'comment' '#'
+    case 14946:                     // 'constraint' '#'
+    case 14947:                     // 'construction' '#'
+    case 14950:                     // 'context' '#'
+    case 14951:                     // 'continue' '#'
+    case 14952:                     // 'copy' '#'
+    case 14953:                     // 'copy-namespaces' '#'
+    case 14954:                     // 'count' '#'
+    case 14955:                     // 'decimal-format' '#'
+    case 14957:                     // 'declare' '#'
+    case 14958:                     // 'default' '#'
+    case 14959:                     // 'delete' '#'
+    case 14960:                     // 'descendant' '#'
+    case 14961:                     // 'descendant-or-self' '#'
+    case 14962:                     // 'descending' '#'
+    case 14967:                     // 'div' '#'
+    case 14968:                     // 'document' '#'
+    case 14970:                     // 'element' '#'
+    case 14971:                     // 'else' '#'
+    case 14972:                     // 'empty' '#'
+    case 14974:                     // 'encoding' '#'
+    case 14975:                     // 'end' '#'
+    case 14977:                     // 'eq' '#'
+    case 14978:                     // 'every' '#'
+    case 14980:                     // 'except' '#'
+    case 14981:                     // 'exit' '#'
+    case 14982:                     // 'external' '#'
+    case 14983:                     // 'false' '#'
+    case 14984:                     // 'first' '#'
+    case 14985:                     // 'following' '#'
+    case 14986:                     // 'following-sibling' '#'
+    case 14987:                     // 'for' '#'
+    case 14990:                     // 'from' '#'
+    case 14991:                     // 'ft-option' '#'
+    case 14996:                     // 'ge' '#'
+    case 14998:                     // 'group' '#'
+    case 15000:                     // 'gt' '#'
+    case 15001:                     // 'idiv' '#'
+    case 15003:                     // 'import' '#'
+    case 15004:                     // 'in' '#'
+    case 15005:                     // 'index' '#'
+    case 15009:                     // 'insert' '#'
+    case 15010:                     // 'instance' '#'
+    case 15011:                     // 'integrity' '#'
+    case 15012:                     // 'intersect' '#'
+    case 15013:                     // 'into' '#'
+    case 15014:                     // 'is' '#'
+    case 15016:                     // 'json' '#'
+    case 15018:                     // 'jsoniq' '#'
+    case 15021:                     // 'last' '#'
+    case 15022:                     // 'lax' '#'
+    case 15023:                     // 'le' '#'
+    case 15025:                     // 'let' '#'
+    case 15027:                     // 'loop' '#'
+    case 15029:                     // 'lt' '#'
+    case 15031:                     // 'mod' '#'
+    case 15032:                     // 'modify' '#'
+    case 15033:                     // 'module' '#'
+    case 15035:                     // 'namespace' '#'
+    case 15037:                     // 'ne' '#'
+    case 15043:                     // 'nodes' '#'
+    case 15045:                     // 'null' '#'
+    case 15046:                     // 'object' '#'
+    case 15050:                     // 'only' '#'
+    case 15051:                     // 'option' '#'
+    case 15052:                     // 'or' '#'
+    case 15053:                     // 'order' '#'
+    case 15054:                     // 'ordered' '#'
+    case 15055:                     // 'ordering' '#'
+    case 15058:                     // 'parent' '#'
+    case 15064:                     // 'preceding' '#'
+    case 15065:                     // 'preceding-sibling' '#'
+    case 15068:                     // 'processing-instruction' '#'
+    case 15070:                     // 'rename' '#'
+    case 15071:                     // 'replace' '#'
+    case 15072:                     // 'return' '#'
+    case 15073:                     // 'returning' '#'
+    case 15074:                     // 'revalidation' '#'
+    case 15076:                     // 'satisfies' '#'
+    case 15077:                     // 'schema' '#'
+    case 15080:                     // 'score' '#'
+    case 15081:                     // 'select' '#'
+    case 15082:                     // 'self' '#'
+    case 15087:                     // 'sliding' '#'
+    case 15088:                     // 'some' '#'
+    case 15089:                     // 'stable' '#'
+    case 15090:                     // 'start' '#'
+    case 15093:                     // 'strict' '#'
+    case 15097:                     // 'text' '#'
+    case 15101:                     // 'to' '#'
+    case 15102:                     // 'treat' '#'
+    case 15103:                     // 'true' '#'
+    case 15104:                     // 'try' '#'
+    case 15105:                     // 'tumbling' '#'
+    case 15106:                     // 'type' '#'
+    case 15108:                     // 'union' '#'
+    case 15110:                     // 'unordered' '#'
+    case 15111:                     // 'updating' '#'
+    case 15114:                     // 'validate' '#'
+    case 15115:                     // 'value' '#'
+    case 15116:                     // 'variable' '#'
+    case 15117:                     // 'version' '#'
+    case 15120:                     // 'where' '#'
+    case 15121:                     // 'while' '#'
+    case 15124:                     // 'with' '#'
+      try_FunctionItemExpr();
+      break;
+    case -10:
+    case 27929:                     // '{' ';'
+      try_BlockExpr();
+      break;
+    case -11:
+    case 10009:                     // '{' NCName^Token
+      try_ObjectConstructor();
+      break;
+    case 69:                        // '['
+      try_ArrayConstructor();
+      break;
+    case 283:                       // '{|'
+      try_JSONSimpleObjectUnion();
+      break;
+    case -14:
+      break;
+    default:
+      try_Constructor();
+    }
+  }
+
+  function parse_JSONSimpleObjectUnion()
+  {
+    eventHandler.startNonterminal("JSONSimpleObjectUnion", e0);
+    shift(283);                     // '{|'
+    lookahead1W(273);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    if (l1 != 286)                  // '|}'
+    {
+      whitespace();
+      parse_Expr();
+    }
+    shift(286);                     // '|}'
+    eventHandler.endNonterminal("JSONSimpleObjectUnion", e0);
+  }
+
+  function try_JSONSimpleObjectUnion()
+  {
+    shiftT(283);                    // '{|'
+    lookahead1W(273);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    if (l1 != 286)                  // '|}'
+    {
+      try_Expr();
+    }
+    shiftT(286);                    // '|}'
+  }
+
+  function parse_ObjectConstructor()
+  {
+    eventHandler.startNonterminal("ObjectConstructor", e0);
+    shift(281);                     // '{'
+    lookahead1W(276);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    if (l1 != 287)                  // '}'
+    {
+      whitespace();
+      parse_PairConstructorList();
+    }
+    shift(287);                     // '}'
+    eventHandler.endNonterminal("ObjectConstructor", e0);
+  }
+
+  function try_ObjectConstructor()
+  {
+    shiftT(281);                    // '{'
+    lookahead1W(276);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    if (l1 != 287)                  // '}'
+    {
+      try_PairConstructorList();
+    }
+    shiftT(287);                    // '}'
+  }
+
+  function parse_PairConstructorList()
+  {
+    eventHandler.startNonterminal("PairConstructorList", e0);
+    parse_PairConstructor();
+    for (;;)
+    {
+      if (l1 != 42)                 // ','
+      {
+        break;
+      }
+      shift(42);                    // ','
+      lookahead1W(267);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      whitespace();
+      parse_PairConstructor();
+    }
+    eventHandler.endNonterminal("PairConstructorList", e0);
+  }
+
+  function try_PairConstructorList()
+  {
+    try_PairConstructor();
+    for (;;)
+    {
+      if (l1 != 42)                 // ','
+      {
+        break;
+      }
+      shiftT(42);                   // ','
+      lookahead1W(267);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      try_PairConstructor();
+    }
+  }
+
+  function parse_PairConstructor()
+  {
+    eventHandler.startNonterminal("PairConstructor", e0);
+    switch (l1)
+    {
+    case 78:                        // 'append'
+      lookahead2W(278);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    case 139:                       // 'for'
+      lookahead2W(187);             // S^WS | '#' | '$' | '(' | '(:' | ':' | 'sliding' | 'tumbling'
+      break;
+    case 161:                       // 'insert'
+      lookahead2W(281);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    case 177:                       // 'let'
+      lookahead2W(178);             // S^WS | '#' | '$' | '(' | '(:' | ':' | 'score'
+      break;
+    case 187:                       // 'namespace'
+      lookahead2W(251);             // NCName^Token | S^WS | '#' | '(' | '(:' | ':' | 'after' | 'allowing' |
+      break;
+    case 220:                       // 'processing-instruction'
+      lookahead2W(247);             // NCName^Token | S^WS | '#' | '(:' | ':' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    case 223:                       // 'replace'
+      lookahead2W(180);             // S^WS | '#' | '(' | '(:' | ':' | 'node' | 'value'
+      break;
+    case 266:                       // 'validate'
+      lookahead2W(191);             // S^WS | '#' | '(' | '(:' | ':' | 'lax' | 'strict' | 'type' | '{'
+      break;
+    case 83:                        // 'attribute'
+    case 122:                       // 'element'
+      lookahead2W(256);             // EQName^Token | S^WS | '#' | '(:' | ':' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    case 97:                        // 'comment'
+    case 249:                       // 'text'
+      lookahead2W(149);             // S^WS | '#' | '(:' | ':' | '{'
+      break;
+    case 111:                       // 'delete'
+    case 222:                       // 'rename'
+      lookahead2W(261);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      break;
+    case 104:                       // 'copy'
+    case 130:                       // 'every'
+    case 240:                       // 'some'
+      lookahead2W(165);             // S^WS | '#' | '$' | '(' | '(:' | ':'
+      break;
+    case 135:                       // 'false'
+    case 197:                       // 'null'
+    case 255:                       // 'true'
+      lookahead2W(208);             // S^WS | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | '-' | '.' | '/' | '//' | ':' |
+      break;
+    case 120:                       // 'document'
+    case 206:                       // 'ordered'
+    case 256:                       // 'try'
+    case 262:                       // 'unordered'
+      lookahead2W(167);             // S^WS | '#' | '(' | '(:' | ':' | '{'
+      break;
+    case 121:                       // 'document-node'
+    case 125:                       // 'empty-sequence'
+    case 167:                       // 'item'
+    case 188:                       // 'namespace-node'
+    case 194:                       // 'node'
+    case 230:                       // 'schema-attribute'
+    case 231:                       // 'schema-element'
+      lookahead2W(96);              // S^WS | '#' | '(:' | ':'
+      break;
+    case 71:                        // 'after'
+    case 73:                        // 'allowing'
+    case 74:                        // 'ancestor'
+    case 75:                        // 'ancestor-or-self'
+    case 76:                        // 'and'
+    case 80:                        // 'as'
+    case 81:                        // 'ascending'
+    case 82:                        // 'at'
+    case 84:                        // 'base-uri'
+    case 85:                        // 'before'
+    case 86:                        // 'boundary-space'
+    case 87:                        // 'break'
+    case 89:                        // 'case'
+    case 90:                        // 'cast'
+    case 91:                        // 'castable'
+    case 92:                        // 'catch'
+    case 94:                        // 'child'
+    case 95:                        // 'collation'
+    case 98:                        // 'constraint'
+    case 99:                        // 'construction'
+    case 102:                       // 'context'
+    case 103:                       // 'continue'
+    case 105:                       // 'copy-namespaces'
+    case 106:                       // 'count'
+    case 107:                       // 'decimal-format'
+    case 109:                       // 'declare'
+    case 110:                       // 'default'
+    case 112:                       // 'descendant'
+    case 113:                       // 'descendant-or-self'
+    case 114:                       // 'descending'
+    case 119:                       // 'div'
+    case 123:                       // 'else'
+    case 124:                       // 'empty'
+    case 126:                       // 'encoding'
+    case 127:                       // 'end'
+    case 129:                       // 'eq'
+    case 132:                       // 'except'
+    case 133:                       // 'exit'
+    case 134:                       // 'external'
+    case 136:                       // 'first'
+    case 137:                       // 'following'
+    case 138:                       // 'following-sibling'
+    case 142:                       // 'from'
+    case 143:                       // 'ft-option'
+    case 147:                       // 'function'
+    case 148:                       // 'ge'
+    case 150:                       // 'group'
+    case 152:                       // 'gt'
+    case 153:                       // 'idiv'
+    case 154:                       // 'if'
+    case 155:                       // 'import'
+    case 156:                       // 'in'
+    case 157:                       // 'index'
+    case 162:                       // 'instance'
+    case 163:                       // 'integrity'
+    case 164:                       // 'intersect'
+    case 165:                       // 'into'
+    case 166:                       // 'is'
+    case 168:                       // 'json'
+    case 170:                       // 'jsoniq'
+    case 173:                       // 'last'
+    case 174:                       // 'lax'
+    case 175:                       // 'le'
+    case 179:                       // 'loop'
+    case 181:                       // 'lt'
+    case 183:                       // 'mod'
+    case 184:                       // 'modify'
+    case 185:                       // 'module'
+    case 189:                       // 'ne'
+    case 195:                       // 'nodes'
+    case 198:                       // 'object'
+    case 202:                       // 'only'
+    case 203:                       // 'op
