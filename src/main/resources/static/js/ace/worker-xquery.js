@@ -31416,4 +31416,513 @@ exports.JSONParseTreeHandler = function (code) {
     case 198:                       // 'object'
     case 202:                       // 'only'
     case 203:                       // 'option'
-    case 204:                       // 'or
+    case 204:                       // 'or'
+    case 205:                       // 'order'
+    case 207:                       // 'ordering'
+    case 210:                       // 'parent'
+    case 216:                       // 'preceding'
+    case 217:                       // 'preceding-sibling'
+    case 224:                       // 'return'
+    case 225:                       // 'returning'
+    case 226:                       // 'revalidation'
+    case 228:                       // 'satisfies'
+    case 229:                       // 'schema'
+    case 232:                       // 'score'
+    case 233:                       // 'select'
+    case 234:                       // 'self'
+    case 239:                       // 'sliding'
+    case 241:                       // 'stable'
+    case 242:                       // 'start'
+    case 245:                       // 'strict'
+    case 248:                       // 'switch'
+    case 253:                       // 'to'
+    case 254:                       // 'treat'
+    case 257:                       // 'tumbling'
+    case 258:                       // 'type'
+    case 259:                       // 'typeswitch'
+    case 260:                       // 'union'
+    case 263:                       // 'updating'
+    case 267:                       // 'value'
+    case 268:                       // 'variable'
+    case 269:                       // 'version'
+    case 272:                       // 'where'
+    case 273:                       // 'while'
+    case 276:                       // 'with'
+      lookahead2W(144);             // S^WS | '#' | '(' | '(:' | ':'
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 25735                 // 'false' ':'
+     || lk == 25797                 // 'null' ':'
+     || lk == 25855)                // 'true' ':'
+    {
+      lk = memoized(21, e0);
+      if (lk == 0)
+      {
+        var b0A = b0; var e0A = e0; var l1A = l1;
+        var b1A = b1; var e1A = e1; var l2A = l2;
+        var b2A = b2; var e2A = e2;
+        try
+        {
+          try_ExprSingle();
+          memoize(21, e0A, -1);
+          lk = -3;
+        }
+        catch (p1A)
+        {
+          lk = -2;
+          b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+          b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+          b2 = b2A; e2 = e2A; end = e2A; }}
+          memoize(21, e0A, -2);
+        }
+      }
+    }
+    switch (lk)
+    {
+    case -2:
+    case 19:                        // NCName^Token
+    case 25671:                     // 'after' ':'
+    case 25673:                     // 'allowing' ':'
+    case 25674:                     // 'ancestor' ':'
+    case 25675:                     // 'ancestor-or-self' ':'
+    case 25676:                     // 'and' ':'
+    case 25678:                     // 'append' ':'
+    case 25680:                     // 'as' ':'
+    case 25681:                     // 'ascending' ':'
+    case 25682:                     // 'at' ':'
+    case 25683:                     // 'attribute' ':'
+    case 25684:                     // 'base-uri' ':'
+    case 25685:                     // 'before' ':'
+    case 25686:                     // 'boundary-space' ':'
+    case 25687:                     // 'break' ':'
+    case 25689:                     // 'case' ':'
+    case 25690:                     // 'cast' ':'
+    case 25691:                     // 'castable' ':'
+    case 25692:                     // 'catch' ':'
+    case 25694:                     // 'child' ':'
+    case 25695:                     // 'collation' ':'
+    case 25697:                     // 'comment' ':'
+    case 25698:                     // 'constraint' ':'
+    case 25699:                     // 'construction' ':'
+    case 25702:                     // 'context' ':'
+    case 25703:                     // 'continue' ':'
+    case 25704:                     // 'copy' ':'
+    case 25705:                     // 'copy-namespaces' ':'
+    case 25706:                     // 'count' ':'
+    case 25707:                     // 'decimal-format' ':'
+    case 25709:                     // 'declare' ':'
+    case 25710:                     // 'default' ':'
+    case 25711:                     // 'delete' ':'
+    case 25712:                     // 'descendant' ':'
+    case 25713:                     // 'descendant-or-self' ':'
+    case 25714:                     // 'descending' ':'
+    case 25719:                     // 'div' ':'
+    case 25720:                     // 'document' ':'
+    case 25721:                     // 'document-node' ':'
+    case 25722:                     // 'element' ':'
+    case 25723:                     // 'else' ':'
+    case 25724:                     // 'empty' ':'
+    case 25725:                     // 'empty-sequence' ':'
+    case 25726:                     // 'encoding' ':'
+    case 25727:                     // 'end' ':'
+    case 25729:                     // 'eq' ':'
+    case 25730:                     // 'every' ':'
+    case 25732:                     // 'except' ':'
+    case 25733:                     // 'exit' ':'
+    case 25734:                     // 'external' ':'
+    case 25736:                     // 'first' ':'
+    case 25737:                     // 'following' ':'
+    case 25738:                     // 'following-sibling' ':'
+    case 25739:                     // 'for' ':'
+    case 25742:                     // 'from' ':'
+    case 25743:                     // 'ft-option' ':'
+    case 25747:                     // 'function' ':'
+    case 25748:                     // 'ge' ':'
+    case 25750:                     // 'group' ':'
+    case 25752:                     // 'gt' ':'
+    case 25753:                     // 'idiv' ':'
+    case 25754:                     // 'if' ':'
+    case 25755:                     // 'import' ':'
+    case 25756:                     // 'in' ':'
+    case 25757:                     // 'index' ':'
+    case 25761:                     // 'insert' ':'
+    case 25762:                     // 'instance' ':'
+    case 25763:                     // 'integrity' ':'
+    case 25764:                     // 'intersect' ':'
+    case 25765:                     // 'into' ':'
+    case 25766:                     // 'is' ':'
+    case 25767:                     // 'item' ':'
+    case 25768:                     // 'json' ':'
+    case 25770:                     // 'jsoniq' ':'
+    case 25773:                     // 'last' ':'
+    case 25774:                     // 'lax' ':'
+    case 25775:                     // 'le' ':'
+    case 25777:                     // 'let' ':'
+    case 25779:                     // 'loop' ':'
+    case 25781:                     // 'lt' ':'
+    case 25783:                     // 'mod' ':'
+    case 25784:                     // 'modify' ':'
+    case 25785:                     // 'module' ':'
+    case 25787:                     // 'namespace' ':'
+    case 25788:                     // 'namespace-node' ':'
+    case 25789:                     // 'ne' ':'
+    case 25794:                     // 'node' ':'
+    case 25795:                     // 'nodes' ':'
+    case 25798:                     // 'object' ':'
+    case 25802:                     // 'only' ':'
+    case 25803:                     // 'option' ':'
+    case 25804:                     // 'or' ':'
+    case 25805:                     // 'order' ':'
+    case 25806:                     // 'ordered' ':'
+    case 25807:                     // 'ordering' ':'
+    case 25810:                     // 'parent' ':'
+    case 25816:                     // 'preceding' ':'
+    case 25817:                     // 'preceding-sibling' ':'
+    case 25820:                     // 'processing-instruction' ':'
+    case 25822:                     // 'rename' ':'
+    case 25823:                     // 'replace' ':'
+    case 25824:                     // 'return' ':'
+    case 25825:                     // 'returning' ':'
+    case 25826:                     // 'revalidation' ':'
+    case 25828:                     // 'satisfies' ':'
+    case 25829:                     // 'schema' ':'
+    case 25830:                     // 'schema-attribute' ':'
+    case 25831:                     // 'schema-element' ':'
+    case 25832:                     // 'score' ':'
+    case 25833:                     // 'select' ':'
+    case 25834:                     // 'self' ':'
+    case 25839:                     // 'sliding' ':'
+    case 25840:                     // 'some' ':'
+    case 25841:                     // 'stable' ':'
+    case 25842:                     // 'start' ':'
+    case 25845:                     // 'strict' ':'
+    case 25848:                     // 'switch' ':'
+    case 25849:                     // 'text' ':'
+    case 25853:                     // 'to' ':'
+    case 25854:                     // 'treat' ':'
+    case 25856:                     // 'try' ':'
+    case 25857:                     // 'tumbling' ':'
+    case 25858:                     // 'type' ':'
+    case 25859:                     // 'typeswitch' ':'
+    case 25860:                     // 'union' ':'
+    case 25862:                     // 'unordered' ':'
+    case 25863:                     // 'updating' ':'
+    case 25866:                     // 'validate' ':'
+    case 25867:                     // 'value' ':'
+    case 25868:                     // 'variable' ':'
+    case 25869:                     // 'version' ':'
+    case 25872:                     // 'where' ':'
+    case 25873:                     // 'while' ':'
+    case 25876:                     // 'with' ':'
+      try_NCName();
+      break;
+    case -3:
+      break;
+    default:
+      try_ExprSingle();
+    }
+    lookahead1W(26);                // S^WS | '(:' | ':'
+    shiftT(50);                     // ':'
+    lookahead1W(266);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    try_ExprSingle();
+  }
+
+  function parse_ArrayConstructor()
+  {
+    eventHandler.startNonterminal("ArrayConstructor", e0);
+    shift(69);                      // '['
+    lookahead1W(272);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    if (l1 != 70)                   // ']'
+    {
+      whitespace();
+      parse_Expr();
+    }
+    shift(70);                      // ']'
+    eventHandler.endNonterminal("ArrayConstructor", e0);
+  }
+
+  function try_ArrayConstructor()
+  {
+    shiftT(69);                     // '['
+    lookahead1W(272);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    if (l1 != 70)                   // ']'
+    {
+      try_Expr();
+    }
+    shiftT(70);                     // ']'
+  }
+
+  function parse_BlockExpr()
+  {
+    eventHandler.startNonterminal("BlockExpr", e0);
+    shift(281);                     // '{'
+    lookahead1W(280);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    whitespace();
+    parse_StatementsAndOptionalExpr();
+    shift(287);                     // '}'
+    eventHandler.endNonterminal("BlockExpr", e0);
+  }
+
+  function try_BlockExpr()
+  {
+    shiftT(281);                    // '{'
+    lookahead1W(280);               // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+    try_StatementsAndOptionalExpr();
+    shiftT(287);                    // '}'
+  }
+
+  function parse_FunctionDecl()
+  {
+    eventHandler.startNonterminal("FunctionDecl", e0);
+    shift(147);                     // 'function'
+    lookahead1W(245);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_EQName();
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    shift(35);                      // '('
+    lookahead1W(98);                // S^WS | '$' | '(:' | ')'
+    if (l1 == 31)                   // '$'
+    {
+      whitespace();
+      parse_ParamList();
+    }
+    shift(38);                      // ')'
+    lookahead1W(158);               // S^WS | '(:' | 'as' | 'external' | '{'
+    if (l1 == 80)                   // 'as'
+    {
+      whitespace();
+      parse_ReturnType();
+    }
+    lookahead1W(122);               // S^WS | '(:' | 'external' | '{'
+    switch (l1)
+    {
+    case 281:                       // '{'
+      shift(281);                   // '{'
+      lookahead1W(280);             // EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral |
+      whitespace();
+      parse_StatementsAndOptionalExpr();
+      shift(287);                   // '}'
+      break;
+    default:
+      shift(134);                   // 'external'
+    }
+    eventHandler.endNonterminal("FunctionDecl", e0);
+  }
+
+  function parse_ReturnType()
+  {
+    eventHandler.startNonterminal("ReturnType", e0);
+    shift(80);                      // 'as'
+    lookahead1W(253);               // EQName^Token | S^WS | '%' | '(' | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_SequenceType();
+    eventHandler.endNonterminal("ReturnType", e0);
+  }
+
+  function shift(t)
+  {
+    if (l1 == t)
+    {
+      whitespace();
+      eventHandler.terminal(JSONiqParser.TOKEN[l1], b1, e1 > size ? size : e1);
+      b0 = b1; e0 = e1; l1 = l2; if (l1 != 0) {
+      b1 = b2; e1 = e2; l2 = 0; }
+    }
+    else
+    {
+      error(b1, e1, 0, l1, t);
+    }
+  }
+
+  function shiftT(t)
+  {
+    if (l1 == t)
+    {
+      b0 = b1; e0 = e1; l1 = l2; if (l1 != 0) {
+      b1 = b2; e1 = e2; l2 = 0; }
+    }
+    else
+    {
+      error(b1, e1, 0, l1, t);
+    }
+  }
+
+  function skip(code)
+  {
+    var b0W = b0; var e0W = e0; var l1W = l1;
+    var b1W = b1; var e1W = e1;
+
+    l1 = code; b1 = begin; e1 = end;
+    l2 = 0;
+
+    try_Whitespace();
+
+    b0 = b0W; e0 = e0W; l1 = l1W; if (l1 != 0) {
+    b1 = b1W; e1 = e1W; }
+  }
+
+  function whitespace()
+  {
+    if (e0 != b1)
+    {
+      eventHandler.whitespace(e0, b1);
+      e0 = b1;
+    }
+  }
+
+  function matchW(set)
+  {
+    var code;
+    for (;;)
+    {
+      code = match(set);
+      if (code != 22)               // S^WS
+      {
+        if (code != 37)             // '(:'
+        {
+          break;
+        }
+        skip(code);
+      }
+    }
+    return code;
+  }
+
+  function lookahead1W(set)
+  {
+    if (l1 == 0)
+    {
+      l1 = matchW(set);
+      b1 = begin;
+      e1 = end;
+    }
+  }
+
+  function lookahead2W(set)
+  {
+    if (l2 == 0)
+    {
+      l2 = matchW(set);
+      b2 = begin;
+      e2 = end;
+    }
+    lk = (l2 << 9) | l1;
+  }
+
+  function lookahead1(set)
+  {
+    if (l1 == 0)
+    {
+      l1 = match(set);
+      b1 = begin;
+      e1 = end;
+    }
+  }
+
+  function lookahead2(set)
+  {
+    if (l2 == 0)
+    {
+      l2 = match(set);
+      b2 = begin;
+      e2 = end;
+    }
+    lk = (l2 << 9) | l1;
+  }
+
+  function error(b, e, s, l, t)
+  {
+    if (e >= ex)
+    {
+      bx = b;
+      ex = e;
+      sx = s;
+      lx = l;
+      tx = t;
+    }
+    throw new self.ParseException(bx, ex, sx, lx, tx);
+  }
+
+  var lk, b0, e0;
+  var l1, b1, e1;
+  var l2, b2, e2;
+  var bx, ex, sx, lx, tx;
+  var eventHandler;
+  var memo;
+
+  function memoize(i, e, v)
+  {
+    memo[(e << 5) + i] = v;
+  }
+
+  function memoized(i, e)
+  {
+    var v = memo[(e << 5) + i];
+    return typeof v != "undefined" ? v : 0;
+  }
+
+  var input;
+  var size;
+  var begin;
+  var end;
+
+  function match(tokenSetId)
+  {
+    var nonbmp = false;
+    begin = end;
+    var current = end;
+    var result = JSONiqParser.INITIAL[tokenSetId];
+    var state = 0;
+
+    for (var code = result & 8191; code != 0; )
+    {
+      var charclass;
+      var c0 = current < size ? input.charCodeAt(current) : 0;
+      ++current;
+      if (c0 < 0x80)
+      {
+        charclass = JSONiqParser.MAP0[c0];
+      }
+      else if (c0 < 0xd800)
+      {
+        var c1 = c0 >> 4;
+        charclass = JSONiqParser.MAP1[(c0 & 15) + JSONiqParser.MAP1[(c1 & 31) + JSONiqParser.MAP1[c1 >> 5]]];
+      }
+      else
+      {
+        if (c0 < 0xdc00)
+        {
+          var c1 = current < size ? input.charCodeAt(current) : 0;
+          if (c1 >= 0xdc00 && c1 < 0xe000)
+          {
+            ++current;
+            c0 = ((c0 & 0x3ff) << 10) + (c1 & 0x3ff) + 0x10000;
+            nonbmp = true;
+          }
+        }
+        var lo = 0, hi = 5;
+        for (var m = 3; ; m = (hi + lo) >> 1)
+        {
+          if (JSONiqParser.MAP2[m] > c0) hi = m - 1;
+          else if (JSONiqParser.MAP2[6 + m] < c0) lo = m + 1;
+          else {charclass = JSONiqParser.MAP2[12 + m]; break;}
+          if (lo > hi) {charclass = 0; break;}
+        }
+      }
+
+      state = code;
+      var i0 = (charclass << 13) + code - 1;
+      code = JSONiqParser.TRANSITION[(i0 & 31) + JSONiqParser.TRANSITION[i0 >> 5]];
+
+      if (code > 8191)
+      {
+        result = code;
+        code &= 8191;
+        end = current;
+      }
+    }
+
+    result >>= 13;
+    if (re
