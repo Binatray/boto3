@@ -32407,4 +32407,506 @@ JSONiqParser.TOKEN =
     {
       parse_VersionDecl();
     }
-    lookah
+    lookahead1W(274);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    switch (l1)
+    {
+    case 182:                       // 'module'
+      lookahead2W(193);             // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 94390:                     // 'module' 'namespace'
+      whitespace();
+      parse_LibraryModule();
+      break;
+    default:
+      whitespace();
+      parse_MainModule();
+    }
+    eventHandler.endNonterminal("Module", e0);
+  }
+
+  function parse_VersionDecl()
+  {
+    eventHandler.startNonterminal("VersionDecl", e0);
+    shift(274);                     // 'xquery'
+    lookahead1W(116);               // S^WS | '(:' | 'encoding' | 'version'
+    switch (l1)
+    {
+    case 125:                       // 'encoding'
+      shift(125);                   // 'encoding'
+      lookahead1W(17);              // StringLiteral | S^WS | '(:'
+      shift(11);                    // StringLiteral
+      break;
+    default:
+      shift(263);                   // 'version'
+      lookahead1W(17);              // StringLiteral | S^WS | '(:'
+      shift(11);                    // StringLiteral
+      lookahead1W(109);             // S^WS | '(:' | ';' | 'encoding'
+      if (l1 == 125)                // 'encoding'
+      {
+        shift(125);                 // 'encoding'
+        lookahead1W(17);            // StringLiteral | S^WS | '(:'
+        shift(11);                  // StringLiteral
+      }
+    }
+    lookahead1W(28);                // S^WS | '(:' | ';'
+    whitespace();
+    parse_Separator();
+    eventHandler.endNonterminal("VersionDecl", e0);
+  }
+
+  function parse_LibraryModule()
+  {
+    eventHandler.startNonterminal("LibraryModule", e0);
+    parse_ModuleDecl();
+    lookahead1W(138);               // S^WS | EOF | '(:' | 'declare' | 'import'
+    whitespace();
+    parse_Prolog();
+    eventHandler.endNonterminal("LibraryModule", e0);
+  }
+
+  function parse_ModuleDecl()
+  {
+    eventHandler.startNonterminal("ModuleDecl", e0);
+    shift(182);                     // 'module'
+    lookahead1W(61);                // S^WS | '(:' | 'namespace'
+    shift(184);                     // 'namespace'
+    lookahead1W(248);               // NCName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_NCName();
+    lookahead1W(29);                // S^WS | '(:' | '='
+    shift(60);                      // '='
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shift(7);                       // URILiteral
+    lookahead1W(28);                // S^WS | '(:' | ';'
+    whitespace();
+    parse_Separator();
+    eventHandler.endNonterminal("ModuleDecl", e0);
+  }
+
+  function parse_Prolog()
+  {
+    eventHandler.startNonterminal("Prolog", e0);
+    for (;;)
+    {
+      lookahead1W(274);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      switch (l1)
+      {
+      case 108:                     // 'declare'
+        lookahead2W(213);           // S^WS | EOF | '!' | '!=' | '#' | '%' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' |
+        break;
+      case 153:                     // 'import'
+        lookahead2W(201);           // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+        break;
+      default:
+        lk = l1;
+      }
+      if (lk != 42604               // 'declare' 'base-uri'
+       && lk != 43628               // 'declare' 'boundary-space'
+       && lk != 50284               // 'declare' 'construction'
+       && lk != 53356               // 'declare' 'copy-namespaces'
+       && lk != 54380               // 'declare' 'decimal-format'
+       && lk != 55916               // 'declare' 'default'
+       && lk != 72300               // 'declare' 'ft-option'
+       && lk != 93337               // 'import' 'module'
+       && lk != 94316               // 'declare' 'namespace'
+       && lk != 104044              // 'declare' 'ordering'
+       && lk != 113772              // 'declare' 'revalidation'
+       && lk != 115353)             // 'import' 'schema'
+      {
+        break;
+      }
+      switch (l1)
+      {
+      case 108:                     // 'declare'
+        lookahead2W(178);           // S^WS | '(:' | 'base-uri' | 'boundary-space' | 'construction' |
+        break;
+      default:
+        lk = l1;
+      }
+      if (lk == 55916)              // 'declare' 'default'
+      {
+        lk = memoized(0, e0);
+        if (lk == 0)
+        {
+          var b0A = b0; var e0A = e0; var l1A = l1;
+          var b1A = b1; var e1A = e1; var l2A = l2;
+          var b2A = b2; var e2A = e2;
+          try
+          {
+            try_DefaultNamespaceDecl();
+            lk = -1;
+          }
+          catch (p1A)
+          {
+            lk = -2;
+          }
+          b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+          b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+          b2 = b2A; e2 = e2A; end = e2A; }}
+          memoize(0, e0, lk);
+        }
+      }
+      switch (lk)
+      {
+      case -1:
+        whitespace();
+        parse_DefaultNamespaceDecl();
+        break;
+      case 94316:                   // 'declare' 'namespace'
+        whitespace();
+        parse_NamespaceDecl();
+        break;
+      case 153:                     // 'import'
+        whitespace();
+        parse_Import();
+        break;
+      case 72300:                   // 'declare' 'ft-option'
+        whitespace();
+        parse_FTOptionDecl();
+        break;
+      default:
+        whitespace();
+        parse_Setter();
+      }
+      lookahead1W(28);              // S^WS | '(:' | ';'
+      whitespace();
+      parse_Separator();
+    }
+    for (;;)
+    {
+      lookahead1W(274);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      switch (l1)
+      {
+      case 108:                     // 'declare'
+        lookahead2W(210);           // S^WS | EOF | '!' | '!=' | '#' | '%' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' |
+        break;
+      default:
+        lk = l1;
+      }
+      if (lk != 16492               // 'declare' '%'
+       && lk != 48748               // 'declare' 'collection'
+       && lk != 51820               // 'declare' 'context'
+       && lk != 74348               // 'declare' 'function'
+       && lk != 79468               // 'declare' 'index'
+       && lk != 82540               // 'declare' 'integrity'
+       && lk != 101996              // 'declare' 'option'
+       && lk != 131692              // 'declare' 'updating'
+       && lk != 134252)             // 'declare' 'variable'
+      {
+        break;
+      }
+      switch (l1)
+      {
+      case 108:                     // 'declare'
+        lookahead2W(175);           // S^WS | '%' | '(:' | 'collection' | 'context' | 'function' | 'index' |
+        break;
+      default:
+        lk = l1;
+      }
+      switch (lk)
+      {
+      case 51820:                   // 'declare' 'context'
+        whitespace();
+        parse_ContextItemDecl();
+        break;
+      case 101996:                  // 'declare' 'option'
+        whitespace();
+        parse_OptionDecl();
+        break;
+      default:
+        whitespace();
+        parse_AnnotatedDecl();
+      }
+      lookahead1W(28);              // S^WS | '(:' | ';'
+      whitespace();
+      parse_Separator();
+    }
+    eventHandler.endNonterminal("Prolog", e0);
+  }
+
+  function parse_Separator()
+  {
+    eventHandler.startNonterminal("Separator", e0);
+    shift(53);                      // ';'
+    eventHandler.endNonterminal("Separator", e0);
+  }
+
+  function parse_Setter()
+  {
+    eventHandler.startNonterminal("Setter", e0);
+    switch (l1)
+    {
+    case 108:                       // 'declare'
+      lookahead2W(172);             // S^WS | '(:' | 'base-uri' | 'boundary-space' | 'construction' |
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 55916)                // 'declare' 'default'
+    {
+      lk = memoized(1, e0);
+      if (lk == 0)
+      {
+        var b0A = b0; var e0A = e0; var l1A = l1;
+        var b1A = b1; var e1A = e1; var l2A = l2;
+        var b2A = b2; var e2A = e2;
+        try
+        {
+          try_DefaultCollationDecl();
+          lk = -2;
+        }
+        catch (p2A)
+        {
+          try
+          {
+            b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+            b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+            b2 = b2A; e2 = e2A; end = e2A; }}
+            try_EmptyOrderDecl();
+            lk = -6;
+          }
+          catch (p6A)
+          {
+            lk = -9;
+          }
+        }
+        b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+        b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+        b2 = b2A; e2 = e2A; end = e2A; }}
+        memoize(1, e0, lk);
+      }
+    }
+    switch (lk)
+    {
+    case 43628:                     // 'declare' 'boundary-space'
+      parse_BoundarySpaceDecl();
+      break;
+    case -2:
+      parse_DefaultCollationDecl();
+      break;
+    case 42604:                     // 'declare' 'base-uri'
+      parse_BaseURIDecl();
+      break;
+    case 50284:                     // 'declare' 'construction'
+      parse_ConstructionDecl();
+      break;
+    case 104044:                    // 'declare' 'ordering'
+      parse_OrderingModeDecl();
+      break;
+    case -6:
+      parse_EmptyOrderDecl();
+      break;
+    case 113772:                    // 'declare' 'revalidation'
+      parse_RevalidationDecl();
+      break;
+    case 53356:                     // 'declare' 'copy-namespaces'
+      parse_CopyNamespacesDecl();
+      break;
+    default:
+      parse_DecimalFormatDecl();
+    }
+    eventHandler.endNonterminal("Setter", e0);
+  }
+
+  function parse_BoundarySpaceDecl()
+  {
+    eventHandler.startNonterminal("BoundarySpaceDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(33);                // S^WS | '(:' | 'boundary-space'
+    shift(85);                      // 'boundary-space'
+    lookahead1W(133);               // S^WS | '(:' | 'preserve' | 'strip'
+    switch (l1)
+    {
+    case 214:                       // 'preserve'
+      shift(214);                   // 'preserve'
+      break;
+    default:
+      shift(241);                   // 'strip'
+    }
+    eventHandler.endNonterminal("BoundarySpaceDecl", e0);
+  }
+
+  function parse_DefaultCollationDecl()
+  {
+    eventHandler.startNonterminal("DefaultCollationDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(46);                // S^WS | '(:' | 'default'
+    shift(109);                     // 'default'
+    lookahead1W(38);                // S^WS | '(:' | 'collation'
+    shift(94);                      // 'collation'
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shift(7);                       // URILiteral
+    eventHandler.endNonterminal("DefaultCollationDecl", e0);
+  }
+
+  function try_DefaultCollationDecl()
+  {
+    shiftT(108);                    // 'declare'
+    lookahead1W(46);                // S^WS | '(:' | 'default'
+    shiftT(109);                    // 'default'
+    lookahead1W(38);                // S^WS | '(:' | 'collation'
+    shiftT(94);                     // 'collation'
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shiftT(7);                      // URILiteral
+  }
+
+  function parse_BaseURIDecl()
+  {
+    eventHandler.startNonterminal("BaseURIDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(32);                // S^WS | '(:' | 'base-uri'
+    shift(83);                      // 'base-uri'
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shift(7);                       // URILiteral
+    eventHandler.endNonterminal("BaseURIDecl", e0);
+  }
+
+  function parse_ConstructionDecl()
+  {
+    eventHandler.startNonterminal("ConstructionDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(41);                // S^WS | '(:' | 'construction'
+    shift(98);                      // 'construction'
+    lookahead1W(133);               // S^WS | '(:' | 'preserve' | 'strip'
+    switch (l1)
+    {
+    case 241:                       // 'strip'
+      shift(241);                   // 'strip'
+      break;
+    default:
+      shift(214);                   // 'preserve'
+    }
+    eventHandler.endNonterminal("ConstructionDecl", e0);
+  }
+
+  function parse_OrderingModeDecl()
+  {
+    eventHandler.startNonterminal("OrderingModeDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(68);                // S^WS | '(:' | 'ordering'
+    shift(203);                     // 'ordering'
+    lookahead1W(131);               // S^WS | '(:' | 'ordered' | 'unordered'
+    switch (l1)
+    {
+    case 202:                       // 'ordered'
+      shift(202);                   // 'ordered'
+      break;
+    default:
+      shift(256);                   // 'unordered'
+    }
+    eventHandler.endNonterminal("OrderingModeDecl", e0);
+  }
+
+  function parse_EmptyOrderDecl()
+  {
+    eventHandler.startNonterminal("EmptyOrderDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(46);                // S^WS | '(:' | 'default'
+    shift(109);                     // 'default'
+    lookahead1W(67);                // S^WS | '(:' | 'order'
+    shift(201);                     // 'order'
+    lookahead1W(49);                // S^WS | '(:' | 'empty'
+    shift(123);                     // 'empty'
+    lookahead1W(121);               // S^WS | '(:' | 'greatest' | 'least'
+    switch (l1)
+    {
+    case 147:                       // 'greatest'
+      shift(147);                   // 'greatest'
+      break;
+    default:
+      shift(173);                   // 'least'
+    }
+    eventHandler.endNonterminal("EmptyOrderDecl", e0);
+  }
+
+  function try_EmptyOrderDecl()
+  {
+    shiftT(108);                    // 'declare'
+    lookahead1W(46);                // S^WS | '(:' | 'default'
+    shiftT(109);                    // 'default'
+    lookahead1W(67);                // S^WS | '(:' | 'order'
+    shiftT(201);                    // 'order'
+    lookahead1W(49);                // S^WS | '(:' | 'empty'
+    shiftT(123);                    // 'empty'
+    lookahead1W(121);               // S^WS | '(:' | 'greatest' | 'least'
+    switch (l1)
+    {
+    case 147:                       // 'greatest'
+      shiftT(147);                  // 'greatest'
+      break;
+    default:
+      shiftT(173);                  // 'least'
+    }
+  }
+
+  function parse_CopyNamespacesDecl()
+  {
+    eventHandler.startNonterminal("CopyNamespacesDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(44);                // S^WS | '(:' | 'copy-namespaces'
+    shift(104);                     // 'copy-namespaces'
+    lookahead1W(128);               // S^WS | '(:' | 'no-preserve' | 'preserve'
+    whitespace();
+    parse_PreserveMode();
+    lookahead1W(25);                // S^WS | '(:' | ','
+    shift(41);                      // ','
+    lookahead1W(123);               // S^WS | '(:' | 'inherit' | 'no-inherit'
+    whitespace();
+    parse_InheritMode();
+    eventHandler.endNonterminal("CopyNamespacesDecl", e0);
+  }
+
+  function parse_PreserveMode()
+  {
+    eventHandler.startNonterminal("PreserveMode", e0);
+    switch (l1)
+    {
+    case 214:                       // 'preserve'
+      shift(214);                   // 'preserve'
+      break;
+    default:
+      shift(190);                   // 'no-preserve'
+    }
+    eventHandler.endNonterminal("PreserveMode", e0);
+  }
+
+  function parse_InheritMode()
+  {
+    eventHandler.startNonterminal("InheritMode", e0);
+    switch (l1)
+    {
+    case 157:                       // 'inherit'
+      shift(157);                   // 'inherit'
+      break;
+    default:
+      shift(189);                   // 'no-inherit'
+    }
+    eventHandler.endNonterminal("InheritMode", e0);
+  }
+
+  function parse_DecimalFormatDecl()
+  {
+    eventHandler.startNonterminal("DecimalFormatDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(114);               // S^WS | '(:' | 'decimal-format' | 'default'
+    switch (l1)
+    {
+    case 106:                       // 'decimal-format'
+      shift(106);                   // 'decimal-format'
+      lookahead1W(254);             // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_EQName();
+      break;
+    default:
+      shift(109);                   // 'default'
+      lookahead1W(45);              // S^WS | '(:' | 'decimal-format'
+      shift(106);                   // 'decimal-format'
+    }
+    for (;;)
+    {
+      lookahead1W(180); 
