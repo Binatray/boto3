@@ -32909,4 +32909,514 @@ JSONiqParser.TOKEN =
     }
     for (;;)
     {
-      lookahead1W(180); 
+      lookahead1W(180);             // S^WS | '(:' | ';' | 'NaN' | 'decimal-separator' | 'digit' |
+      if (l1 == 53)                 // ';'
+      {
+        break;
+      }
+      whitespace();
+      parse_DFPropertyName();
+      lookahead1W(29);              // S^WS | '(:' | '='
+      shift(60);                    // '='
+      lookahead1W(17);              // StringLiteral | S^WS | '(:'
+      shift(11);                    // StringLiteral
+    }
+    eventHandler.endNonterminal("DecimalFormatDecl", e0);
+  }
+
+  function parse_DFPropertyName()
+  {
+    eventHandler.startNonterminal("DFPropertyName", e0);
+    switch (l1)
+    {
+    case 107:                       // 'decimal-separator'
+      shift(107);                   // 'decimal-separator'
+      break;
+    case 149:                       // 'grouping-separator'
+      shift(149);                   // 'grouping-separator'
+      break;
+    case 156:                       // 'infinity'
+      shift(156);                   // 'infinity'
+      break;
+    case 179:                       // 'minus-sign'
+      shift(179);                   // 'minus-sign'
+      break;
+    case 67:                        // 'NaN'
+      shift(67);                    // 'NaN'
+      break;
+    case 209:                       // 'percent'
+      shift(209);                   // 'percent'
+      break;
+    case 208:                       // 'per-mille'
+      shift(208);                   // 'per-mille'
+      break;
+    case 275:                       // 'zero-digit'
+      shift(275);                   // 'zero-digit'
+      break;
+    case 116:                       // 'digit'
+      shift(116);                   // 'digit'
+      break;
+    default:
+      shift(207);                   // 'pattern-separator'
+    }
+    eventHandler.endNonterminal("DFPropertyName", e0);
+  }
+
+  function parse_Import()
+  {
+    eventHandler.startNonterminal("Import", e0);
+    switch (l1)
+    {
+    case 153:                       // 'import'
+      lookahead2W(126);             // S^WS | '(:' | 'module' | 'schema'
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 115353:                    // 'import' 'schema'
+      parse_SchemaImport();
+      break;
+    default:
+      parse_ModuleImport();
+    }
+    eventHandler.endNonterminal("Import", e0);
+  }
+
+  function parse_SchemaImport()
+  {
+    eventHandler.startNonterminal("SchemaImport", e0);
+    shift(153);                     // 'import'
+    lookahead1W(73);                // S^WS | '(:' | 'schema'
+    shift(225);                     // 'schema'
+    lookahead1W(137);               // URILiteral | S^WS | '(:' | 'default' | 'namespace'
+    if (l1 != 7)                    // URILiteral
+    {
+      whitespace();
+      parse_SchemaPrefix();
+    }
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shift(7);                       // URILiteral
+    lookahead1W(108);               // S^WS | '(:' | ';' | 'at'
+    if (l1 == 81)                   // 'at'
+    {
+      shift(81);                    // 'at'
+      lookahead1W(15);              // URILiteral | S^WS | '(:'
+      shift(7);                     // URILiteral
+      for (;;)
+      {
+        lookahead1W(103);           // S^WS | '(:' | ',' | ';'
+        if (l1 != 41)               // ','
+        {
+          break;
+        }
+        shift(41);                  // ','
+        lookahead1W(15);            // URILiteral | S^WS | '(:'
+        shift(7);                   // URILiteral
+      }
+    }
+    eventHandler.endNonterminal("SchemaImport", e0);
+  }
+
+  function parse_SchemaPrefix()
+  {
+    eventHandler.startNonterminal("SchemaPrefix", e0);
+    switch (l1)
+    {
+    case 184:                       // 'namespace'
+      shift(184);                   // 'namespace'
+      lookahead1W(248);             // NCName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_NCName();
+      lookahead1W(29);              // S^WS | '(:' | '='
+      shift(60);                    // '='
+      break;
+    default:
+      shift(109);                   // 'default'
+      lookahead1W(47);              // S^WS | '(:' | 'element'
+      shift(121);                   // 'element'
+      lookahead1W(61);              // S^WS | '(:' | 'namespace'
+      shift(184);                   // 'namespace'
+    }
+    eventHandler.endNonterminal("SchemaPrefix", e0);
+  }
+
+  function parse_ModuleImport()
+  {
+    eventHandler.startNonterminal("ModuleImport", e0);
+    shift(153);                     // 'import'
+    lookahead1W(60);                // S^WS | '(:' | 'module'
+    shift(182);                     // 'module'
+    lookahead1W(90);                // URILiteral | S^WS | '(:' | 'namespace'
+    if (l1 == 184)                  // 'namespace'
+    {
+      shift(184);                   // 'namespace'
+      lookahead1W(248);             // NCName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_NCName();
+      lookahead1W(29);              // S^WS | '(:' | '='
+      shift(60);                    // '='
+    }
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shift(7);                       // URILiteral
+    lookahead1W(108);               // S^WS | '(:' | ';' | 'at'
+    if (l1 == 81)                   // 'at'
+    {
+      shift(81);                    // 'at'
+      lookahead1W(15);              // URILiteral | S^WS | '(:'
+      shift(7);                     // URILiteral
+      for (;;)
+      {
+        lookahead1W(103);           // S^WS | '(:' | ',' | ';'
+        if (l1 != 41)               // ','
+        {
+          break;
+        }
+        shift(41);                  // ','
+        lookahead1W(15);            // URILiteral | S^WS | '(:'
+        shift(7);                   // URILiteral
+      }
+    }
+    eventHandler.endNonterminal("ModuleImport", e0);
+  }
+
+  function parse_NamespaceDecl()
+  {
+    eventHandler.startNonterminal("NamespaceDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(61);                // S^WS | '(:' | 'namespace'
+    shift(184);                     // 'namespace'
+    lookahead1W(248);               // NCName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_NCName();
+    lookahead1W(29);                // S^WS | '(:' | '='
+    shift(60);                      // '='
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shift(7);                       // URILiteral
+    eventHandler.endNonterminal("NamespaceDecl", e0);
+  }
+
+  function parse_DefaultNamespaceDecl()
+  {
+    eventHandler.startNonterminal("DefaultNamespaceDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(46);                // S^WS | '(:' | 'default'
+    shift(109);                     // 'default'
+    lookahead1W(115);               // S^WS | '(:' | 'element' | 'function'
+    switch (l1)
+    {
+    case 121:                       // 'element'
+      shift(121);                   // 'element'
+      break;
+    default:
+      shift(145);                   // 'function'
+    }
+    lookahead1W(61);                // S^WS | '(:' | 'namespace'
+    shift(184);                     // 'namespace'
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shift(7);                       // URILiteral
+    eventHandler.endNonterminal("DefaultNamespaceDecl", e0);
+  }
+
+  function try_DefaultNamespaceDecl()
+  {
+    shiftT(108);                    // 'declare'
+    lookahead1W(46);                // S^WS | '(:' | 'default'
+    shiftT(109);                    // 'default'
+    lookahead1W(115);               // S^WS | '(:' | 'element' | 'function'
+    switch (l1)
+    {
+    case 121:                       // 'element'
+      shiftT(121);                  // 'element'
+      break;
+    default:
+      shiftT(145);                  // 'function'
+    }
+    lookahead1W(61);                // S^WS | '(:' | 'namespace'
+    shiftT(184);                    // 'namespace'
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shiftT(7);                      // URILiteral
+  }
+
+  function parse_FTOptionDecl()
+  {
+    eventHandler.startNonterminal("FTOptionDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(52);                // S^WS | '(:' | 'ft-option'
+    shift(141);                     // 'ft-option'
+    lookahead1W(81);                // S^WS | '(:' | 'using'
+    whitespace();
+    parse_FTMatchOptions();
+    eventHandler.endNonterminal("FTOptionDecl", e0);
+  }
+
+  function parse_AnnotatedDecl()
+  {
+    eventHandler.startNonterminal("AnnotatedDecl", e0);
+    shift(108);                     // 'declare'
+    for (;;)
+    {
+      lookahead1W(170);             // S^WS | '%' | '(:' | 'collection' | 'function' | 'index' | 'integrity' |
+      if (l1 != 32                  // '%'
+       && l1 != 257)                // 'updating'
+      {
+        break;
+      }
+      switch (l1)
+      {
+      case 257:                     // 'updating'
+        whitespace();
+        parse_CompatibilityAnnotation();
+        break;
+      default:
+        whitespace();
+        parse_Annotation();
+      }
+    }
+    switch (l1)
+    {
+    case 262:                       // 'variable'
+      whitespace();
+      parse_VarDecl();
+      break;
+    case 145:                       // 'function'
+      whitespace();
+      parse_FunctionDecl();
+      break;
+    case 95:                        // 'collection'
+      whitespace();
+      parse_CollectionDecl();
+      break;
+    case 155:                       // 'index'
+      whitespace();
+      parse_IndexDecl();
+      break;
+    default:
+      whitespace();
+      parse_ICDecl();
+    }
+    eventHandler.endNonterminal("AnnotatedDecl", e0);
+  }
+
+  function parse_CompatibilityAnnotation()
+  {
+    eventHandler.startNonterminal("CompatibilityAnnotation", e0);
+    shift(257);                     // 'updating'
+    eventHandler.endNonterminal("CompatibilityAnnotation", e0);
+  }
+
+  function parse_Annotation()
+  {
+    eventHandler.startNonterminal("Annotation", e0);
+    shift(32);                      // '%'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_EQName();
+    lookahead1W(171);               // S^WS | '%' | '(' | '(:' | 'collection' | 'function' | 'index' | 'integrity' |
+    if (l1 == 34)                   // '('
+    {
+      shift(34);                    // '('
+      lookahead1W(154);             // IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral | S^WS | '(:'
+      whitespace();
+      parse_Literal();
+      for (;;)
+      {
+        lookahead1W(101);           // S^WS | '(:' | ')' | ','
+        if (l1 != 41)               // ','
+        {
+          break;
+        }
+        shift(41);                  // ','
+        lookahead1W(154);           // IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral | S^WS | '(:'
+        whitespace();
+        parse_Literal();
+      }
+      shift(37);                    // ')'
+    }
+    eventHandler.endNonterminal("Annotation", e0);
+  }
+
+  function try_Annotation()
+  {
+    shiftT(32);                     // '%'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    try_EQName();
+    lookahead1W(171);               // S^WS | '%' | '(' | '(:' | 'collection' | 'function' | 'index' | 'integrity' |
+    if (l1 == 34)                   // '('
+    {
+      shiftT(34);                   // '('
+      lookahead1W(154);             // IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral | S^WS | '(:'
+      try_Literal();
+      for (;;)
+      {
+        lookahead1W(101);           // S^WS | '(:' | ')' | ','
+        if (l1 != 41)               // ','
+        {
+          break;
+        }
+        shiftT(41);                 // ','
+        lookahead1W(154);           // IntegerLiteral | DecimalLiteral | DoubleLiteral | StringLiteral | S^WS | '(:'
+        try_Literal();
+      }
+      shiftT(37);                   // ')'
+    }
+  }
+
+  function parse_VarDecl()
+  {
+    eventHandler.startNonterminal("VarDecl", e0);
+    shift(262);                     // 'variable'
+    lookahead1W(21);                // S^WS | '$' | '(:'
+    shift(31);                      // '$'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_VarName();
+    lookahead1W(147);               // S^WS | '(:' | ':=' | 'as' | 'external'
+    if (l1 == 79)                   // 'as'
+    {
+      whitespace();
+      parse_TypeDeclaration();
+    }
+    lookahead1W(106);               // S^WS | '(:' | ':=' | 'external'
+    switch (l1)
+    {
+    case 52:                        // ':='
+      shift(52);                    // ':='
+      lookahead1W(266);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      whitespace();
+      parse_VarValue();
+      break;
+    default:
+      shift(133);                   // 'external'
+      lookahead1W(104);             // S^WS | '(:' | ':=' | ';'
+      if (l1 == 52)                 // ':='
+      {
+        shift(52);                  // ':='
+        lookahead1W(266);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        whitespace();
+        parse_VarDefaultValue();
+      }
+    }
+    eventHandler.endNonterminal("VarDecl", e0);
+  }
+
+  function parse_VarValue()
+  {
+    eventHandler.startNonterminal("VarValue", e0);
+    parse_ExprSingle();
+    eventHandler.endNonterminal("VarValue", e0);
+  }
+
+  function parse_VarDefaultValue()
+  {
+    eventHandler.startNonterminal("VarDefaultValue", e0);
+    parse_ExprSingle();
+    eventHandler.endNonterminal("VarDefaultValue", e0);
+  }
+
+  function parse_ContextItemDecl()
+  {
+    eventHandler.startNonterminal("ContextItemDecl", e0);
+    shift(108);                     // 'declare'
+    lookahead1W(43);                // S^WS | '(:' | 'context'
+    shift(101);                     // 'context'
+    lookahead1W(55);                // S^WS | '(:' | 'item'
+    shift(165);                     // 'item'
+    lookahead1W(147);               // S^WS | '(:' | ':=' | 'as' | 'external'
+    if (l1 == 79)                   // 'as'
+    {
+      shift(79);                    // 'as'
+      lookahead1W(259);             // EQName^Token | S^WS | '%' | '(' | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_ItemType();
+    }
+    lookahead1W(106);               // S^WS | '(:' | ':=' | 'external'
+    switch (l1)
+    {
+    case 52:                        // ':='
+      shift(52);                    // ':='
+      lookahead1W(266);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      whitespace();
+      parse_VarValue();
+      break;
+    default:
+      shift(133);                   // 'external'
+      lookahead1W(104);             // S^WS | '(:' | ':=' | ';'
+      if (l1 == 52)                 // ':='
+      {
+        shift(52);                  // ':='
+        lookahead1W(266);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        whitespace();
+        parse_VarDefaultValue();
+      }
+    }
+    eventHandler.endNonterminal("ContextItemDecl", e0);
+  }
+
+  function parse_ParamList()
+  {
+    eventHandler.startNonterminal("ParamList", e0);
+    parse_Param();
+    for (;;)
+    {
+      lookahead1W(101);             // S^WS | '(:' | ')' | ','
+      if (l1 != 41)                 // ','
+      {
+        break;
+      }
+      shift(41);                    // ','
+      lookahead1W(21);              // S^WS | '$' | '(:'
+      whitespace();
+      parse_Param();
+    }
+    eventHandler.endNonterminal("ParamList", e0);
+  }
+
+  function try_ParamList()
+  {
+    try_Param();
+    for (;;)
+    {
+      lookahead1W(101);             // S^WS | '(:' | ')' | ','
+      if (l1 != 41)                 // ','
+      {
+        break;
+      }
+      shiftT(41);                   // ','
+      lookahead1W(21);              // S^WS | '$' | '(:'
+      try_Param();
+    }
+  }
+
+  function parse_Param()
+  {
+    eventHandler.startNonterminal("Param", e0);
+    shift(31);                      // '$'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_EQName();
+    lookahead1W(143);               // S^WS | '(:' | ')' | ',' | 'as'
+    if (l1 == 79)                   // 'as'
+    {
+      whitespace();
+      parse_TypeDeclaration();
+    }
+    eventHandler.endNonterminal("Param", e0);
+  }
+
+  function try_Param()
+  {
+    shiftT(31);                     // '$'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    try_EQName();
+    lookahead1W(143);               // S^WS | '(:' | ')' | ',' | 'as'
+    if (l1 == 79)                   // 'as'
+    {
+      try_TypeDeclaration();
+    }
+  }
+
+  function parse_FunctionBody()
+  {
+    eventHandler.startNonterminal("FunctionBody", e0);
