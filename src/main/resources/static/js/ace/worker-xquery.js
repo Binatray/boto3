@@ -38683,4 +38683,341 @@ JSONiqParser.TOKEN =
     case 90233:                     // 'element' 'loop'
     case 90296:                     // 'namespace' 'loop'
     case 90328:                     // 'processing-instruction' 'loop'
-    case 93266:                     // 'a
+    case 93266:                     // 'attribute' 'module'
+    case 93305:                     // 'element' 'module'
+    case 93368:                     // 'namespace' 'module'
+    case 93400:                     // 'processing-instruction' 'module'
+    case 94290:                     // 'attribute' 'namespace'
+    case 94329:                     // 'element' 'namespace'
+    case 94392:                     // 'namespace' 'namespace'
+    case 94424:                     // 'processing-instruction' 'namespace'
+    case 94802:                     // 'attribute' 'namespace-node'
+    case 94841:                     // 'element' 'namespace-node'
+    case 94904:                     // 'namespace' 'namespace-node'
+    case 94936:                     // 'processing-instruction' 'namespace-node'
+    case 97874:                     // 'attribute' 'node'
+    case 97913:                     // 'element' 'node'
+    case 97976:                     // 'namespace' 'node'
+    case 98008:                     // 'processing-instruction' 'node'
+    case 98386:                     // 'attribute' 'nodes'
+    case 98425:                     // 'element' 'nodes'
+    case 98488:                     // 'namespace' 'nodes'
+    case 98520:                     // 'processing-instruction' 'nodes'
+    case 99410:                     // 'attribute' 'object'
+    case 99449:                     // 'element' 'object'
+    case 99512:                     // 'namespace' 'object'
+    case 99544:                     // 'processing-instruction' 'object'
+    case 101970:                    // 'attribute' 'option'
+    case 102009:                    // 'element' 'option'
+    case 102072:                    // 'namespace' 'option'
+    case 102104:                    // 'processing-instruction' 'option'
+    case 103506:                    // 'attribute' 'ordered'
+    case 103545:                    // 'element' 'ordered'
+    case 103608:                    // 'namespace' 'ordered'
+    case 103640:                    // 'processing-instruction' 'ordered'
+    case 104018:                    // 'attribute' 'ordering'
+    case 104057:                    // 'element' 'ordering'
+    case 104120:                    // 'namespace' 'ordering'
+    case 104152:                    // 'processing-instruction' 'ordering'
+    case 105554:                    // 'attribute' 'parent'
+    case 105593:                    // 'element' 'parent'
+    case 105656:                    // 'namespace' 'parent'
+    case 105688:                    // 'processing-instruction' 'parent'
+    case 108626:                    // 'attribute' 'preceding'
+    case 108665:                    // 'element' 'preceding'
+    case 108728:                    // 'namespace' 'preceding'
+    case 108760:                    // 'processing-instruction' 'preceding'
+    case 109138:                    // 'attribute' 'preceding-sibling'
+    case 109177:                    // 'element' 'preceding-sibling'
+    case 109240:                    // 'namespace' 'preceding-sibling'
+    case 109272:                    // 'processing-instruction' 'preceding-sibling'
+    case 110674:                    // 'attribute' 'processing-instruction'
+    case 110713:                    // 'element' 'processing-instruction'
+    case 110776:                    // 'namespace' 'processing-instruction'
+    case 110808:                    // 'processing-instruction' 'processing-instruction'
+    case 111698:                    // 'attribute' 'rename'
+    case 111737:                    // 'element' 'rename'
+    case 111800:                    // 'namespace' 'rename'
+    case 111832:                    // 'processing-instruction' 'rename'
+    case 112210:                    // 'attribute' 'replace'
+    case 112249:                    // 'element' 'replace'
+    case 112312:                    // 'namespace' 'replace'
+    case 112344:                    // 'processing-instruction' 'replace'
+    case 113234:                    // 'attribute' 'returning'
+    case 113273:                    // 'element' 'returning'
+    case 113336:                    // 'namespace' 'returning'
+    case 113368:                    // 'processing-instruction' 'returning'
+    case 113746:                    // 'attribute' 'revalidation'
+    case 113785:                    // 'element' 'revalidation'
+    case 113848:                    // 'namespace' 'revalidation'
+    case 113880:                    // 'processing-instruction' 'revalidation'
+    case 115282:                    // 'attribute' 'schema'
+    case 115321:                    // 'element' 'schema'
+    case 115384:                    // 'namespace' 'schema'
+    case 115416:                    // 'processing-instruction' 'schema'
+    case 115794:                    // 'attribute' 'schema-attribute'
+    case 115833:                    // 'element' 'schema-attribute'
+    case 115896:                    // 'namespace' 'schema-attribute'
+    case 115928:                    // 'processing-instruction' 'schema-attribute'
+    case 116306:                    // 'attribute' 'schema-element'
+    case 116345:                    // 'element' 'schema-element'
+    case 116408:                    // 'namespace' 'schema-element'
+    case 116440:                    // 'processing-instruction' 'schema-element'
+    case 116818:                    // 'attribute' 'score'
+    case 116857:                    // 'element' 'score'
+    case 116920:                    // 'namespace' 'score'
+    case 116952:                    // 'processing-instruction' 'score'
+    case 117330:                    // 'attribute' 'self'
+    case 117369:                    // 'element' 'self'
+    case 117432:                    // 'namespace' 'self'
+    case 117464:                    // 'processing-instruction' 'self'
+    case 119890:                    // 'attribute' 'sliding'
+    case 119929:                    // 'element' 'sliding'
+    case 119992:                    // 'namespace' 'sliding'
+    case 120024:                    // 'processing-instruction' 'sliding'
+    case 120402:                    // 'attribute' 'some'
+    case 120441:                    // 'element' 'some'
+    case 120504:                    // 'namespace' 'some'
+    case 120536:                    // 'processing-instruction' 'some'
+    case 122962:                    // 'attribute' 'strict'
+    case 123001:                    // 'element' 'strict'
+    case 123064:                    // 'namespace' 'strict'
+    case 123096:                    // 'processing-instruction' 'strict'
+    case 123986:                    // 'attribute' 'structured-item'
+    case 124025:                    // 'element' 'structured-item'
+    case 124498:                    // 'attribute' 'switch'
+    case 124537:                    // 'element' 'switch'
+    case 124600:                    // 'namespace' 'switch'
+    case 124632:                    // 'processing-instruction' 'switch'
+    case 125010:                    // 'attribute' 'text'
+    case 125049:                    // 'element' 'text'
+    case 125112:                    // 'namespace' 'text'
+    case 125144:                    // 'processing-instruction' 'text'
+    case 128082:                    // 'attribute' 'try'
+    case 128121:                    // 'element' 'try'
+    case 128184:                    // 'namespace' 'try'
+    case 128216:                    // 'processing-instruction' 'try'
+    case 128594:                    // 'attribute' 'tumbling'
+    case 128633:                    // 'element' 'tumbling'
+    case 128696:                    // 'namespace' 'tumbling'
+    case 128728:                    // 'processing-instruction' 'tumbling'
+    case 129106:                    // 'attribute' 'type'
+    case 129145:                    // 'element' 'type'
+    case 129208:                    // 'namespace' 'type'
+    case 129240:                    // 'processing-instruction' 'type'
+    case 129618:                    // 'attribute' 'typeswitch'
+    case 129657:                    // 'element' 'typeswitch'
+    case 129720:                    // 'namespace' 'typeswitch'
+    case 129752:                    // 'processing-instruction' 'typeswitch'
+    case 131154:                    // 'attribute' 'unordered'
+    case 131193:                    // 'element' 'unordered'
+    case 131256:                    // 'namespace' 'unordered'
+    case 131288:                    // 'processing-instruction' 'unordered'
+    case 131666:                    // 'attribute' 'updating'
+    case 131705:                    // 'element' 'updating'
+    case 131768:                    // 'namespace' 'updating'
+    case 131800:                    // 'processing-instruction' 'updating'
+    case 133202:                    // 'attribute' 'validate'
+    case 133241:                    // 'element' 'validate'
+    case 133304:                    // 'namespace' 'validate'
+    case 133336:                    // 'processing-instruction' 'validate'
+    case 133714:                    // 'attribute' 'value'
+    case 133753:                    // 'element' 'value'
+    case 133816:                    // 'namespace' 'value'
+    case 133848:                    // 'processing-instruction' 'value'
+    case 134226:                    // 'attribute' 'variable'
+    case 134265:                    // 'element' 'variable'
+    case 134328:                    // 'namespace' 'variable'
+    case 134360:                    // 'processing-instruction' 'variable'
+    case 134738:                    // 'attribute' 'version'
+    case 134777:                    // 'element' 'version'
+    case 134840:                    // 'namespace' 'version'
+    case 134872:                    // 'processing-instruction' 'version'
+    case 136786:                    // 'attribute' 'while'
+    case 136825:                    // 'element' 'while'
+    case 136888:                    // 'namespace' 'while'
+    case 136920:                    // 'processing-instruction' 'while'
+    case 140370:                    // 'attribute' 'xquery'
+    case 140409:                    // 'element' 'xquery'
+    case 140472:                    // 'namespace' 'xquery'
+    case 140504:                    // 'processing-instruction' 'xquery'
+    case 141394:                    // 'attribute' '{'
+    case 141408:                    // 'comment' '{'
+    case 141431:                    // 'document' '{'
+    case 141433:                    // 'element' '{'
+    case 141496:                    // 'namespace' '{'
+    case 141514:                    // 'ordered' '{'
+    case 141528:                    // 'processing-instruction' '{'
+    case 141556:                    // 'text' '{'
+    case 141568:                    // 'unordered' '{'
+      try_PostfixExpr();
+      break;
+    case -3:
+      break;
+    default:
+      try_AxisStep();
+    }
+  }
+
+  function parse_AxisStep()
+  {
+    eventHandler.startNonterminal("AxisStep", e0);
+    switch (l1)
+    {
+    case 73:                        // 'ancestor'
+    case 74:                        // 'ancestor-or-self'
+    case 206:                       // 'parent'
+    case 212:                       // 'preceding'
+    case 213:                       // 'preceding-sibling'
+      lookahead2W(241);             // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 45:                        // '..'
+    case 26185:                     // 'ancestor' '::'
+    case 26186:                     // 'ancestor-or-self' '::'
+    case 26318:                     // 'parent' '::'
+    case 26324:                     // 'preceding' '::'
+    case 26325:                     // 'preceding-sibling' '::'
+      parse_ReverseStep();
+      break;
+    default:
+      parse_ForwardStep();
+    }
+    lookahead1W(237);               // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+    whitespace();
+    parse_PredicateList();
+    eventHandler.endNonterminal("AxisStep", e0);
+  }
+
+  function try_AxisStep()
+  {
+    switch (l1)
+    {
+    case 73:                        // 'ancestor'
+    case 74:                        // 'ancestor-or-self'
+    case 206:                       // 'parent'
+    case 212:                       // 'preceding'
+    case 213:                       // 'preceding-sibling'
+      lookahead2W(241);             // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 45:                        // '..'
+    case 26185:                     // 'ancestor' '::'
+    case 26186:                     // 'ancestor-or-self' '::'
+    case 26318:                     // 'parent' '::'
+    case 26324:                     // 'preceding' '::'
+    case 26325:                     // 'preceding-sibling' '::'
+      try_ReverseStep();
+      break;
+    default:
+      try_ForwardStep();
+    }
+    lookahead1W(237);               // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+    try_PredicateList();
+  }
+
+  function parse_ForwardStep()
+  {
+    eventHandler.startNonterminal("ForwardStep", e0);
+    switch (l1)
+    {
+    case 82:                        // 'attribute'
+      lookahead2W(244);             // S^WS | EOF | '!' | '!=' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' |
+      break;
+    case 93:                        // 'child'
+    case 111:                       // 'descendant'
+    case 112:                       // 'descendant-or-self'
+    case 135:                       // 'following'
+    case 136:                       // 'following-sibling'
+    case 229:                       // 'self'
+      lookahead2W(241);             // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 26194:                     // 'attribute' '::'
+    case 26205:                     // 'child' '::'
+    case 26223:                     // 'descendant' '::'
+    case 26224:                     // 'descendant-or-self' '::'
+    case 26247:                     // 'following' '::'
+    case 26248:                     // 'following-sibling' '::'
+    case 26341:                     // 'self' '::'
+      parse_ForwardAxis();
+      lookahead1W(256);             // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_NodeTest();
+      break;
+    default:
+      parse_AbbrevForwardStep();
+    }
+    eventHandler.endNonterminal("ForwardStep", e0);
+  }
+
+  function try_ForwardStep()
+  {
+    switch (l1)
+    {
+    case 82:                        // 'attribute'
+      lookahead2W(244);             // S^WS | EOF | '!' | '!=' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' |
+      break;
+    case 93:                        // 'child'
+    case 111:                       // 'descendant'
+    case 112:                       // 'descendant-or-self'
+    case 135:                       // 'following'
+    case 136:                       // 'following-sibling'
+    case 229:                       // 'self'
+      lookahead2W(241);             // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 26194:                     // 'attribute' '::'
+    case 26205:                     // 'child' '::'
+    case 26223:                     // 'descendant' '::'
+    case 26224:                     // 'descendant-or-self' '::'
+    case 26247:                     // 'following' '::'
+    case 26248:                     // 'following-sibling' '::'
+    case 26341:                     // 'self' '::'
+      try_ForwardAxis();
+      lookahead1W(256);             // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      try_NodeTest();
+      break;
+    default:
+      try_AbbrevForwardStep();
+    }
+  }
+
+  function parse_ForwardAxis()
+  {
+    eventHandler.startNonterminal("ForwardAxis", e0);
+    switch (l1)
+    {
+    case 93:                        // 'child'
+      shift(93);                    // 'child'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+      break;
+    case 111:                       // 'descendant'
+      shift(111);                   // 'descendant'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+      break;
+    case 82:                        // 'attribute'
+      shift(82);                    // 'attribute'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+      break;
+    case 229:                       // 'self'
+      s
