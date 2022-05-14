@@ -39565,4 +39565,619 @@ JSONiqParser.TOKEN =
   function try_ParenthesizedExpr()
   {
     shiftT(34);                     // '('
-    lookahead1W(268);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLi
+    lookahead1W(268);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    if (l1 != 37)                   // ')'
+    {
+      try_Expr();
+    }
+    shiftT(37);                     // ')'
+  }
+
+  function parse_ContextItemExpr()
+  {
+    eventHandler.startNonterminal("ContextItemExpr", e0);
+    shift(44);                      // '.'
+    eventHandler.endNonterminal("ContextItemExpr", e0);
+  }
+
+  function try_ContextItemExpr()
+  {
+    shiftT(44);                     // '.'
+  }
+
+  function parse_OrderedExpr()
+  {
+    eventHandler.startNonterminal("OrderedExpr", e0);
+    shift(202);                     // 'ordered'
+    lookahead1W(87);                // S^WS | '(:' | '{'
+    shift(276);                     // '{'
+    lookahead1W(266);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    whitespace();
+    parse_Expr();
+    shift(282);                     // '}'
+    eventHandler.endNonterminal("OrderedExpr", e0);
+  }
+
+  function try_OrderedExpr()
+  {
+    shiftT(202);                    // 'ordered'
+    lookahead1W(87);                // S^WS | '(:' | '{'
+    shiftT(276);                    // '{'
+    lookahead1W(266);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    try_Expr();
+    shiftT(282);                    // '}'
+  }
+
+  function parse_UnorderedExpr()
+  {
+    eventHandler.startNonterminal("UnorderedExpr", e0);
+    shift(256);                     // 'unordered'
+    lookahead1W(87);                // S^WS | '(:' | '{'
+    shift(276);                     // '{'
+    lookahead1W(266);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    whitespace();
+    parse_Expr();
+    shift(282);                     // '}'
+    eventHandler.endNonterminal("UnorderedExpr", e0);
+  }
+
+  function try_UnorderedExpr()
+  {
+    shiftT(256);                    // 'unordered'
+    lookahead1W(87);                // S^WS | '(:' | '{'
+    shiftT(276);                    // '{'
+    lookahead1W(266);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    try_Expr();
+    shiftT(282);                    // '}'
+  }
+
+  function parse_FunctionCall()
+  {
+    eventHandler.startNonterminal("FunctionCall", e0);
+    parse_FunctionName();
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    whitespace();
+    parse_ArgumentList();
+    eventHandler.endNonterminal("FunctionCall", e0);
+  }
+
+  function try_FunctionCall()
+  {
+    try_FunctionName();
+    lookahead1W(22);                // S^WS | '(' | '(:'
+    try_ArgumentList();
+  }
+
+  function parse_Argument()
+  {
+    eventHandler.startNonterminal("Argument", e0);
+    switch (l1)
+    {
+    case 64:                        // '?'
+      parse_ArgumentPlaceholder();
+      break;
+    default:
+      parse_ExprSingle();
+    }
+    eventHandler.endNonterminal("Argument", e0);
+  }
+
+  function try_Argument()
+  {
+    switch (l1)
+    {
+    case 64:                        // '?'
+      try_ArgumentPlaceholder();
+      break;
+    default:
+      try_ExprSingle();
+    }
+  }
+
+  function parse_ArgumentPlaceholder()
+  {
+    eventHandler.startNonterminal("ArgumentPlaceholder", e0);
+    shift(64);                      // '?'
+    eventHandler.endNonterminal("ArgumentPlaceholder", e0);
+  }
+
+  function try_ArgumentPlaceholder()
+  {
+    shiftT(64);                     // '?'
+  }
+
+  function parse_Constructor()
+  {
+    eventHandler.startNonterminal("Constructor", e0);
+    switch (l1)
+    {
+    case 54:                        // '<'
+    case 55:                        // '<!--'
+    case 59:                        // '<?'
+      parse_DirectConstructor();
+      break;
+    default:
+      parse_ComputedConstructor();
+    }
+    eventHandler.endNonterminal("Constructor", e0);
+  }
+
+  function try_Constructor()
+  {
+    switch (l1)
+    {
+    case 54:                        // '<'
+    case 55:                        // '<!--'
+    case 59:                        // '<?'
+      try_DirectConstructor();
+      break;
+    default:
+      try_ComputedConstructor();
+    }
+  }
+
+  function parse_DirectConstructor()
+  {
+    eventHandler.startNonterminal("DirectConstructor", e0);
+    switch (l1)
+    {
+    case 54:                        // '<'
+      parse_DirElemConstructor();
+      break;
+    case 55:                        // '<!--'
+      parse_DirCommentConstructor();
+      break;
+    default:
+      parse_DirPIConstructor();
+    }
+    eventHandler.endNonterminal("DirectConstructor", e0);
+  }
+
+  function try_DirectConstructor()
+  {
+    switch (l1)
+    {
+    case 54:                        // '<'
+      try_DirElemConstructor();
+      break;
+    case 55:                        // '<!--'
+      try_DirCommentConstructor();
+      break;
+    default:
+      try_DirPIConstructor();
+    }
+  }
+
+  function parse_DirElemConstructor()
+  {
+    eventHandler.startNonterminal("DirElemConstructor", e0);
+    shift(54);                      // '<'
+    lookahead1(4);                  // QName
+    shift(20);                      // QName
+    parse_DirAttributeList();
+    switch (l1)
+    {
+    case 48:                        // '/>'
+      shift(48);                    // '/>'
+      break;
+    default:
+      shift(61);                    // '>'
+      for (;;)
+      {
+        lookahead1(174);            // CDataSection | PredefinedEntityRef | ElementContentChar | CharRef | '<' |
+        if (l1 == 56)               // '</'
+        {
+          break;
+        }
+        parse_DirElemContent();
+      }
+      shift(56);                    // '</'
+      lookahead1(4);                // QName
+      shift(20);                    // QName
+      lookahead1(12);               // S | '>'
+      if (l1 == 21)                 // S
+      {
+        shift(21);                  // S
+      }
+      lookahead1(8);                // '>'
+      shift(61);                    // '>'
+    }
+    eventHandler.endNonterminal("DirElemConstructor", e0);
+  }
+
+  function try_DirElemConstructor()
+  {
+    shiftT(54);                     // '<'
+    lookahead1(4);                  // QName
+    shiftT(20);                     // QName
+    try_DirAttributeList();
+    switch (l1)
+    {
+    case 48:                        // '/>'
+      shiftT(48);                   // '/>'
+      break;
+    default:
+      shiftT(61);                   // '>'
+      for (;;)
+      {
+        lookahead1(174);            // CDataSection | PredefinedEntityRef | ElementContentChar | CharRef | '<' |
+        if (l1 == 56)               // '</'
+        {
+          break;
+        }
+        try_DirElemContent();
+      }
+      shiftT(56);                   // '</'
+      lookahead1(4);                // QName
+      shiftT(20);                   // QName
+      lookahead1(12);               // S | '>'
+      if (l1 == 21)                 // S
+      {
+        shiftT(21);                 // S
+      }
+      lookahead1(8);                // '>'
+      shiftT(61);                   // '>'
+    }
+  }
+
+  function parse_DirAttributeList()
+  {
+    eventHandler.startNonterminal("DirAttributeList", e0);
+    for (;;)
+    {
+      lookahead1(19);               // S | '/>' | '>'
+      if (l1 != 21)                 // S
+      {
+        break;
+      }
+      shift(21);                    // S
+      lookahead1(91);               // QName | S | '/>' | '>'
+      if (l1 == 20)                 // QName
+      {
+        shift(20);                  // QName
+        lookahead1(11);             // S | '='
+        if (l1 == 21)               // S
+        {
+          shift(21);                // S
+        }
+        lookahead1(7);              // '='
+        shift(60);                  // '='
+        lookahead1(18);             // S | '"' | "'"
+        if (l1 == 21)               // S
+        {
+          shift(21);                // S
+        }
+        parse_DirAttributeValue();
+      }
+    }
+    eventHandler.endNonterminal("DirAttributeList", e0);
+  }
+
+  function try_DirAttributeList()
+  {
+    for (;;)
+    {
+      lookahead1(19);               // S | '/>' | '>'
+      if (l1 != 21)                 // S
+      {
+        break;
+      }
+      shiftT(21);                   // S
+      lookahead1(91);               // QName | S | '/>' | '>'
+      if (l1 == 20)                 // QName
+      {
+        shiftT(20);                 // QName
+        lookahead1(11);             // S | '='
+        if (l1 == 21)               // S
+        {
+          shiftT(21);               // S
+        }
+        lookahead1(7);              // '='
+        shiftT(60);                 // '='
+        lookahead1(18);             // S | '"' | "'"
+        if (l1 == 21)               // S
+        {
+          shiftT(21);               // S
+        }
+        try_DirAttributeValue();
+      }
+    }
+  }
+
+  function parse_DirAttributeValue()
+  {
+    eventHandler.startNonterminal("DirAttributeValue", e0);
+    lookahead1(14);                 // '"' | "'"
+    switch (l1)
+    {
+    case 28:                        // '"'
+      shift(28);                    // '"'
+      for (;;)
+      {
+        lookahead1(167);            // PredefinedEntityRef | EscapeQuot | QuotAttrContentChar | CharRef | '"' | '{' |
+        if (l1 == 28)               // '"'
+        {
+          break;
+        }
+        switch (l1)
+        {
+        case 13:                    // EscapeQuot
+          shift(13);                // EscapeQuot
+          break;
+        default:
+          parse_QuotAttrValueContent();
+        }
+      }
+      shift(28);                    // '"'
+      break;
+    default:
+      shift(33);                    // "'"
+      for (;;)
+      {
+        lookahead1(168);            // PredefinedEntityRef | EscapeApos | AposAttrContentChar | CharRef | "'" | '{' |
+        if (l1 == 33)               // "'"
+        {
+          break;
+        }
+        switch (l1)
+        {
+        case 14:                    // EscapeApos
+          shift(14);                // EscapeApos
+          break;
+        default:
+          parse_AposAttrValueContent();
+        }
+      }
+      shift(33);                    // "'"
+    }
+    eventHandler.endNonterminal("DirAttributeValue", e0);
+  }
+
+  function try_DirAttributeValue()
+  {
+    lookahead1(14);                 // '"' | "'"
+    switch (l1)
+    {
+    case 28:                        // '"'
+      shiftT(28);                   // '"'
+      for (;;)
+      {
+        lookahead1(167);            // PredefinedEntityRef | EscapeQuot | QuotAttrContentChar | CharRef | '"' | '{' |
+        if (l1 == 28)               // '"'
+        {
+          break;
+        }
+        switch (l1)
+        {
+        case 13:                    // EscapeQuot
+          shiftT(13);               // EscapeQuot
+          break;
+        default:
+          try_QuotAttrValueContent();
+        }
+      }
+      shiftT(28);                   // '"'
+      break;
+    default:
+      shiftT(33);                   // "'"
+      for (;;)
+      {
+        lookahead1(168);            // PredefinedEntityRef | EscapeApos | AposAttrContentChar | CharRef | "'" | '{' |
+        if (l1 == 33)               // "'"
+        {
+          break;
+        }
+        switch (l1)
+        {
+        case 14:                    // EscapeApos
+          shiftT(14);               // EscapeApos
+          break;
+        default:
+          try_AposAttrValueContent();
+        }
+      }
+      shiftT(33);                   // "'"
+    }
+  }
+
+  function parse_QuotAttrValueContent()
+  {
+    eventHandler.startNonterminal("QuotAttrValueContent", e0);
+    switch (l1)
+    {
+    case 16:                        // QuotAttrContentChar
+      shift(16);                    // QuotAttrContentChar
+      break;
+    default:
+      parse_CommonContent();
+    }
+    eventHandler.endNonterminal("QuotAttrValueContent", e0);
+  }
+
+  function try_QuotAttrValueContent()
+  {
+    switch (l1)
+    {
+    case 16:                        // QuotAttrContentChar
+      shiftT(16);                   // QuotAttrContentChar
+      break;
+    default:
+      try_CommonContent();
+    }
+  }
+
+  function parse_AposAttrValueContent()
+  {
+    eventHandler.startNonterminal("AposAttrValueContent", e0);
+    switch (l1)
+    {
+    case 17:                        // AposAttrContentChar
+      shift(17);                    // AposAttrContentChar
+      break;
+    default:
+      parse_CommonContent();
+    }
+    eventHandler.endNonterminal("AposAttrValueContent", e0);
+  }
+
+  function try_AposAttrValueContent()
+  {
+    switch (l1)
+    {
+    case 17:                        // AposAttrContentChar
+      shiftT(17);                   // AposAttrContentChar
+      break;
+    default:
+      try_CommonContent();
+    }
+  }
+
+  function parse_DirElemContent()
+  {
+    eventHandler.startNonterminal("DirElemContent", e0);
+    switch (l1)
+    {
+    case 54:                        // '<'
+    case 55:                        // '<!--'
+    case 59:                        // '<?'
+      parse_DirectConstructor();
+      break;
+    case 4:                         // CDataSection
+      shift(4);                     // CDataSection
+      break;
+    case 15:                        // ElementContentChar
+      shift(15);                    // ElementContentChar
+      break;
+    default:
+      parse_CommonContent();
+    }
+    eventHandler.endNonterminal("DirElemContent", e0);
+  }
+
+  function try_DirElemContent()
+  {
+    switch (l1)
+    {
+    case 54:                        // '<'
+    case 55:                        // '<!--'
+    case 59:                        // '<?'
+      try_DirectConstructor();
+      break;
+    case 4:                         // CDataSection
+      shiftT(4);                    // CDataSection
+      break;
+    case 15:                        // ElementContentChar
+      shiftT(15);                   // ElementContentChar
+      break;
+    default:
+      try_CommonContent();
+    }
+  }
+
+  function parse_DirCommentConstructor()
+  {
+    eventHandler.startNonterminal("DirCommentConstructor", e0);
+    shift(55);                      // '<!--'
+    lookahead1(1);                  // DirCommentContents
+    shift(2);                       // DirCommentContents
+    lookahead1(6);                  // '-->'
+    shift(43);                      // '-->'
+    eventHandler.endNonterminal("DirCommentConstructor", e0);
+  }
+
+  function try_DirCommentConstructor()
+  {
+    shiftT(55);                     // '<!--'
+    lookahead1(1);                  // DirCommentContents
+    shiftT(2);                      // DirCommentContents
+    lookahead1(6);                  // '-->'
+    shiftT(43);                     // '-->'
+  }
+
+  function parse_DirPIConstructor()
+  {
+    eventHandler.startNonterminal("DirPIConstructor", e0);
+    shift(59);                      // '<?'
+    lookahead1(3);                  // PITarget
+    shift(18);                      // PITarget
+    lookahead1(13);                 // S | '?>'
+    if (l1 == 21)                   // S
+    {
+      shift(21);                    // S
+      lookahead1(2);                // DirPIContents
+      shift(3);                     // DirPIContents
+    }
+    lookahead1(9);                  // '?>'
+    shift(65);                      // '?>'
+    eventHandler.endNonterminal("DirPIConstructor", e0);
+  }
+
+  function try_DirPIConstructor()
+  {
+    shiftT(59);                     // '<?'
+    lookahead1(3);                  // PITarget
+    shiftT(18);                     // PITarget
+    lookahead1(13);                 // S | '?>'
+    if (l1 == 21)                   // S
+    {
+      shiftT(21);                   // S
+      lookahead1(2);                // DirPIContents
+      shiftT(3);                    // DirPIContents
+    }
+    lookahead1(9);                  // '?>'
+    shiftT(65);                     // '?>'
+  }
+
+  function parse_ComputedConstructor()
+  {
+    eventHandler.startNonterminal("ComputedConstructor", e0);
+    switch (l1)
+    {
+    case 119:                       // 'document'
+      parse_CompDocConstructor();
+      break;
+    case 121:                       // 'element'
+      parse_CompElemConstructor();
+      break;
+    case 82:                        // 'attribute'
+      parse_CompAttrConstructor();
+      break;
+    case 184:                       // 'namespace'
+      parse_CompNamespaceConstructor();
+      break;
+    case 244:                       // 'text'
+      parse_CompTextConstructor();
+      break;
+    case 96:                        // 'comment'
+      parse_CompCommentConstructor();
+      break;
+    default:
+      parse_CompPIConstructor();
+    }
+    eventHandler.endNonterminal("ComputedConstructor", e0);
+  }
+
+  function try_ComputedConstructor()
+  {
+    switch (l1)
+    {
+    case 119:                       // 'document'
+      try_CompDocConstructor();
+      break;
+    case 121:                       // 'element'
+      try_CompElemConstructor();
+      break;
+    case 82:                        // 'attribute'
+      try_CompAttrConstructor();
+      break;
+    case 184:                       // 'namespace'
+      try_CompNamespaceConstructor();
+      break;
+    case 244:                       // 'text'
+      try_CompTextConstructor();
+      break;
+    case 96:                        // 'comment'
+      try_CompCommentConstructor();
+      break;
+    default:
+      try_CompPIConst
