@@ -39020,4 +39020,549 @@ JSONiqParser.TOKEN =
       shift(51);                    // '::'
       break;
     case 229:                       // 'self'
-      s
+      shift(229);                   // 'self'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+      break;
+    case 112:                       // 'descendant-or-self'
+      shift(112);                   // 'descendant-or-self'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+      break;
+    case 136:                       // 'following-sibling'
+      shift(136);                   // 'following-sibling'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+      break;
+    default:
+      shift(135);                   // 'following'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+    }
+    eventHandler.endNonterminal("ForwardAxis", e0);
+  }
+
+  function try_ForwardAxis()
+  {
+    switch (l1)
+    {
+    case 93:                        // 'child'
+      shiftT(93);                   // 'child'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+      break;
+    case 111:                       // 'descendant'
+      shiftT(111);                  // 'descendant'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+      break;
+    case 82:                        // 'attribute'
+      shiftT(82);                   // 'attribute'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+      break;
+    case 229:                       // 'self'
+      shiftT(229);                  // 'self'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+      break;
+    case 112:                       // 'descendant-or-self'
+      shiftT(112);                  // 'descendant-or-self'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+      break;
+    case 136:                       // 'following-sibling'
+      shiftT(136);                  // 'following-sibling'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+      break;
+    default:
+      shiftT(135);                  // 'following'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+    }
+  }
+
+  function parse_AbbrevForwardStep()
+  {
+    eventHandler.startNonterminal("AbbrevForwardStep", e0);
+    if (l1 == 66)                   // '@'
+    {
+      shift(66);                    // '@'
+    }
+    lookahead1W(256);               // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_NodeTest();
+    eventHandler.endNonterminal("AbbrevForwardStep", e0);
+  }
+
+  function try_AbbrevForwardStep()
+  {
+    if (l1 == 66)                   // '@'
+    {
+      shiftT(66);                   // '@'
+    }
+    lookahead1W(256);               // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    try_NodeTest();
+  }
+
+  function parse_ReverseStep()
+  {
+    eventHandler.startNonterminal("ReverseStep", e0);
+    switch (l1)
+    {
+    case 45:                        // '..'
+      parse_AbbrevReverseStep();
+      break;
+    default:
+      parse_ReverseAxis();
+      lookahead1W(256);             // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      whitespace();
+      parse_NodeTest();
+    }
+    eventHandler.endNonterminal("ReverseStep", e0);
+  }
+
+  function try_ReverseStep()
+  {
+    switch (l1)
+    {
+    case 45:                        // '..'
+      try_AbbrevReverseStep();
+      break;
+    default:
+      try_ReverseAxis();
+      lookahead1W(256);             // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      try_NodeTest();
+    }
+  }
+
+  function parse_ReverseAxis()
+  {
+    eventHandler.startNonterminal("ReverseAxis", e0);
+    switch (l1)
+    {
+    case 206:                       // 'parent'
+      shift(206);                   // 'parent'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+      break;
+    case 73:                        // 'ancestor'
+      shift(73);                    // 'ancestor'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+      break;
+    case 213:                       // 'preceding-sibling'
+      shift(213);                   // 'preceding-sibling'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+      break;
+    case 212:                       // 'preceding'
+      shift(212);                   // 'preceding'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+      break;
+    default:
+      shift(74);                    // 'ancestor-or-self'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shift(51);                    // '::'
+    }
+    eventHandler.endNonterminal("ReverseAxis", e0);
+  }
+
+  function try_ReverseAxis()
+  {
+    switch (l1)
+    {
+    case 206:                       // 'parent'
+      shiftT(206);                  // 'parent'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+      break;
+    case 73:                        // 'ancestor'
+      shiftT(73);                   // 'ancestor'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+      break;
+    case 213:                       // 'preceding-sibling'
+      shiftT(213);                  // 'preceding-sibling'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+      break;
+    case 212:                       // 'preceding'
+      shiftT(212);                  // 'preceding'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+      break;
+    default:
+      shiftT(74);                   // 'ancestor-or-self'
+      lookahead1W(26);              // S^WS | '(:' | '::'
+      shiftT(51);                   // '::'
+    }
+  }
+
+  function parse_AbbrevReverseStep()
+  {
+    eventHandler.startNonterminal("AbbrevReverseStep", e0);
+    shift(45);                      // '..'
+    eventHandler.endNonterminal("AbbrevReverseStep", e0);
+  }
+
+  function try_AbbrevReverseStep()
+  {
+    shiftT(45);                     // '..'
+  }
+
+  function parse_NodeTest()
+  {
+    eventHandler.startNonterminal("NodeTest", e0);
+    switch (l1)
+    {
+    case 82:                        // 'attribute'
+    case 96:                        // 'comment'
+    case 120:                       // 'document-node'
+    case 121:                       // 'element'
+    case 185:                       // 'namespace-node'
+    case 191:                       // 'node'
+    case 216:                       // 'processing-instruction'
+    case 226:                       // 'schema-attribute'
+    case 227:                       // 'schema-element'
+    case 244:                       // 'text'
+      lookahead2W(240);             // S^WS | EOF | '!' | '!=' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 17490:                     // 'attribute' '('
+    case 17504:                     // 'comment' '('
+    case 17528:                     // 'document-node' '('
+    case 17529:                     // 'element' '('
+    case 17593:                     // 'namespace-node' '('
+    case 17599:                     // 'node' '('
+    case 17624:                     // 'processing-instruction' '('
+    case 17634:                     // 'schema-attribute' '('
+    case 17635:                     // 'schema-element' '('
+    case 17652:                     // 'text' '('
+      parse_KindTest();
+      break;
+    default:
+      parse_NameTest();
+    }
+    eventHandler.endNonterminal("NodeTest", e0);
+  }
+
+  function try_NodeTest()
+  {
+    switch (l1)
+    {
+    case 82:                        // 'attribute'
+    case 96:                        // 'comment'
+    case 120:                       // 'document-node'
+    case 121:                       // 'element'
+    case 185:                       // 'namespace-node'
+    case 191:                       // 'node'
+    case 216:                       // 'processing-instruction'
+    case 226:                       // 'schema-attribute'
+    case 227:                       // 'schema-element'
+    case 244:                       // 'text'
+      lookahead2W(240);             // S^WS | EOF | '!' | '!=' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' |
+      break;
+    default:
+      lk = l1;
+    }
+    switch (lk)
+    {
+    case 17490:                     // 'attribute' '('
+    case 17504:                     // 'comment' '('
+    case 17528:                     // 'document-node' '('
+    case 17529:                     // 'element' '('
+    case 17593:                     // 'namespace-node' '('
+    case 17599:                     // 'node' '('
+    case 17624:                     // 'processing-instruction' '('
+    case 17634:                     // 'schema-attribute' '('
+    case 17635:                     // 'schema-element' '('
+    case 17652:                     // 'text' '('
+      try_KindTest();
+      break;
+    default:
+      try_NameTest();
+    }
+  }
+
+  function parse_NameTest()
+  {
+    eventHandler.startNonterminal("NameTest", e0);
+    switch (l1)
+    {
+    case 5:                         // Wildcard
+      shift(5);                     // Wildcard
+      break;
+    default:
+      parse_EQName();
+    }
+    eventHandler.endNonterminal("NameTest", e0);
+  }
+
+  function try_NameTest()
+  {
+    switch (l1)
+    {
+    case 5:                         // Wildcard
+      shiftT(5);                    // Wildcard
+      break;
+    default:
+      try_EQName();
+    }
+  }
+
+  function parse_PostfixExpr()
+  {
+    eventHandler.startNonterminal("PostfixExpr", e0);
+    parse_PrimaryExpr();
+    for (;;)
+    {
+      lookahead1W(240);             // S^WS | EOF | '!' | '!=' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' |
+      if (l1 != 34                  // '('
+       && l1 != 68)                 // '['
+      {
+        break;
+      }
+      switch (l1)
+      {
+      case 68:                      // '['
+        whitespace();
+        parse_Predicate();
+        break;
+      default:
+        whitespace();
+        parse_ArgumentList();
+      }
+    }
+    eventHandler.endNonterminal("PostfixExpr", e0);
+  }
+
+  function try_PostfixExpr()
+  {
+    try_PrimaryExpr();
+    for (;;)
+    {
+      lookahead1W(240);             // S^WS | EOF | '!' | '!=' | '(' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' |
+      if (l1 != 34                  // '('
+       && l1 != 68)                 // '['
+      {
+        break;
+      }
+      switch (l1)
+      {
+      case 68:                      // '['
+        try_Predicate();
+        break;
+      default:
+        try_ArgumentList();
+      }
+    }
+  }
+
+  function parse_ArgumentList()
+  {
+    eventHandler.startNonterminal("ArgumentList", e0);
+    shift(34);                      // '('
+    lookahead1W(275);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    if (l1 != 37)                   // ')'
+    {
+      whitespace();
+      parse_Argument();
+      for (;;)
+      {
+        lookahead1W(101);           // S^WS | '(:' | ')' | ','
+        if (l1 != 41)               // ','
+        {
+          break;
+        }
+        shift(41);                  // ','
+        lookahead1W(270);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        whitespace();
+        parse_Argument();
+      }
+    }
+    shift(37);                      // ')'
+    eventHandler.endNonterminal("ArgumentList", e0);
+  }
+
+  function try_ArgumentList()
+  {
+    shiftT(34);                     // '('
+    lookahead1W(275);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    if (l1 != 37)                   // ')'
+    {
+      try_Argument();
+      for (;;)
+      {
+        lookahead1W(101);           // S^WS | '(:' | ')' | ','
+        if (l1 != 41)               // ','
+        {
+          break;
+        }
+        shiftT(41);                 // ','
+        lookahead1W(270);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        try_Argument();
+      }
+    }
+    shiftT(37);                     // ')'
+  }
+
+  function parse_PredicateList()
+  {
+    eventHandler.startNonterminal("PredicateList", e0);
+    for (;;)
+    {
+      lookahead1W(237);             // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+      if (l1 != 68)                 // '['
+      {
+        break;
+      }
+      whitespace();
+      parse_Predicate();
+    }
+    eventHandler.endNonterminal("PredicateList", e0);
+  }
+
+  function try_PredicateList()
+  {
+    for (;;)
+    {
+      lookahead1W(237);             // S^WS | EOF | '!' | '!=' | '(:' | ')' | '*' | '+' | ',' | '-' | '/' | '//' | ':' |
+      if (l1 != 68)                 // '['
+      {
+        break;
+      }
+      try_Predicate();
+    }
+  }
+
+  function parse_Predicate()
+  {
+    eventHandler.startNonterminal("Predicate", e0);
+    shift(68);                      // '['
+    lookahead1W(266);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    whitespace();
+    parse_Expr();
+    shift(69);                      // ']'
+    eventHandler.endNonterminal("Predicate", e0);
+  }
+
+  function try_Predicate()
+  {
+    shiftT(68);                     // '['
+    lookahead1W(266);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    try_Expr();
+    shiftT(69);                     // ']'
+  }
+
+  function parse_Literal()
+  {
+    eventHandler.startNonterminal("Literal", e0);
+    switch (l1)
+    {
+    case 11:                        // StringLiteral
+      shift(11);                    // StringLiteral
+      break;
+    default:
+      parse_NumericLiteral();
+    }
+    eventHandler.endNonterminal("Literal", e0);
+  }
+
+  function try_Literal()
+  {
+    switch (l1)
+    {
+    case 11:                        // StringLiteral
+      shiftT(11);                   // StringLiteral
+      break;
+    default:
+      try_NumericLiteral();
+    }
+  }
+
+  function parse_NumericLiteral()
+  {
+    eventHandler.startNonterminal("NumericLiteral", e0);
+    switch (l1)
+    {
+    case 8:                         // IntegerLiteral
+      shift(8);                     // IntegerLiteral
+      break;
+    case 9:                         // DecimalLiteral
+      shift(9);                     // DecimalLiteral
+      break;
+    default:
+      shift(10);                    // DoubleLiteral
+    }
+    eventHandler.endNonterminal("NumericLiteral", e0);
+  }
+
+  function try_NumericLiteral()
+  {
+    switch (l1)
+    {
+    case 8:                         // IntegerLiteral
+      shiftT(8);                    // IntegerLiteral
+      break;
+    case 9:                         // DecimalLiteral
+      shiftT(9);                    // DecimalLiteral
+      break;
+    default:
+      shiftT(10);                   // DoubleLiteral
+    }
+  }
+
+  function parse_VarRef()
+  {
+    eventHandler.startNonterminal("VarRef", e0);
+    shift(31);                      // '$'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_VarName();
+    eventHandler.endNonterminal("VarRef", e0);
+  }
+
+  function try_VarRef()
+  {
+    shiftT(31);                     // '$'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    try_VarName();
+  }
+
+  function parse_VarName()
+  {
+    eventHandler.startNonterminal("VarName", e0);
+    parse_EQName();
+    eventHandler.endNonterminal("VarName", e0);
+  }
+
+  function try_VarName()
+  {
+    try_EQName();
+  }
+
+  function parse_ParenthesizedExpr()
+  {
+    eventHandler.startNonterminal("ParenthesizedExpr", e0);
+    shift(34);                      // '('
+    lookahead1W(268);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    if (l1 != 37)                   // ')'
+    {
+      whitespace();
+      parse_Expr();
+    }
+    shift(37);                      // ')'
+    eventHandler.endNonterminal("ParenthesizedExpr", e0);
+  }
+
+  function try_ParenthesizedExpr()
+  {
+    shiftT(34);                     // '('
+    lookahead1W(268);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLi
