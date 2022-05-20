@@ -42924,4 +42924,524 @@ JSONiqParser.TOKEN =
       break;
     default:
       shift(188);                   // 'no'
-  
+      lookahead1W(74);              // S^WS | '(:' | 'stemming'
+      shift(238);                   // 'stemming'
+    }
+    eventHandler.endNonterminal("FTStemOption", e0);
+  }
+
+  function try_FTStemOption()
+  {
+    switch (l1)
+    {
+    case 238:                       // 'stemming'
+      shiftT(238);                  // 'stemming'
+      break;
+    default:
+      shiftT(188);                  // 'no'
+      lookahead1W(74);              // S^WS | '(:' | 'stemming'
+      shiftT(238);                  // 'stemming'
+    }
+  }
+
+  function parse_FTThesaurusOption()
+  {
+    eventHandler.startNonterminal("FTThesaurusOption", e0);
+    switch (l1)
+    {
+    case 246:                       // 'thesaurus'
+      shift(246);                   // 'thesaurus'
+      lookahead1W(142);             // S^WS | '(' | '(:' | 'at' | 'default'
+      switch (l1)
+      {
+      case 81:                      // 'at'
+        whitespace();
+        parse_FTThesaurusID();
+        break;
+      case 109:                     // 'default'
+        shift(109);                 // 'default'
+        break;
+      default:
+        shift(34);                  // '('
+        lookahead1W(112);           // S^WS | '(:' | 'at' | 'default'
+        switch (l1)
+        {
+        case 81:                    // 'at'
+          whitespace();
+          parse_FTThesaurusID();
+          break;
+        default:
+          shift(109);               // 'default'
+        }
+        for (;;)
+        {
+          lookahead1W(101);         // S^WS | '(:' | ')' | ','
+          if (l1 != 41)             // ','
+          {
+            break;
+          }
+          shift(41);                // ','
+          lookahead1W(31);          // S^WS | '(:' | 'at'
+          whitespace();
+          parse_FTThesaurusID();
+        }
+        shift(37);                  // ')'
+      }
+      break;
+    default:
+      shift(188);                   // 'no'
+      lookahead1W(78);              // S^WS | '(:' | 'thesaurus'
+      shift(246);                   // 'thesaurus'
+    }
+    eventHandler.endNonterminal("FTThesaurusOption", e0);
+  }
+
+  function try_FTThesaurusOption()
+  {
+    switch (l1)
+    {
+    case 246:                       // 'thesaurus'
+      shiftT(246);                  // 'thesaurus'
+      lookahead1W(142);             // S^WS | '(' | '(:' | 'at' | 'default'
+      switch (l1)
+      {
+      case 81:                      // 'at'
+        try_FTThesaurusID();
+        break;
+      case 109:                     // 'default'
+        shiftT(109);                // 'default'
+        break;
+      default:
+        shiftT(34);                 // '('
+        lookahead1W(112);           // S^WS | '(:' | 'at' | 'default'
+        switch (l1)
+        {
+        case 81:                    // 'at'
+          try_FTThesaurusID();
+          break;
+        default:
+          shiftT(109);              // 'default'
+        }
+        for (;;)
+        {
+          lookahead1W(101);         // S^WS | '(:' | ')' | ','
+          if (l1 != 41)             // ','
+          {
+            break;
+          }
+          shiftT(41);               // ','
+          lookahead1W(31);          // S^WS | '(:' | 'at'
+          try_FTThesaurusID();
+        }
+        shiftT(37);                 // ')'
+      }
+      break;
+    default:
+      shiftT(188);                  // 'no'
+      lookahead1W(78);              // S^WS | '(:' | 'thesaurus'
+      shiftT(246);                  // 'thesaurus'
+    }
+  }
+
+  function parse_FTThesaurusID()
+  {
+    eventHandler.startNonterminal("FTThesaurusID", e0);
+    shift(81);                      // 'at'
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shift(7);                       // URILiteral
+    lookahead1W(220);               // S^WS | EOF | '!=' | '(:' | ')' | ',' | ':' | ';' | '<' | '<<' | '<=' | '=' |
+    if (l1 == 217)                  // 'relationship'
+    {
+      shift(217);                   // 'relationship'
+      lookahead1W(17);              // StringLiteral | S^WS | '(:'
+      shift(11);                    // StringLiteral
+    }
+    lookahead1W(216);               // S^WS | EOF | '!=' | '(:' | ')' | ',' | ':' | ';' | '<' | '<<' | '<=' | '=' |
+    switch (l1)
+    {
+    case 81:                        // 'at'
+      lookahead2W(165);             // S^WS | '(:' | 'end' | 'least' | 'most' | 'position' | 'start'
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 130                   // 'exactly'
+     || lk == 140                   // 'from'
+     || lk == 88657                 // 'at' 'least'
+     || lk == 93777)                // 'at' 'most'
+    {
+      whitespace();
+      parse_FTLiteralRange();
+      lookahead1W(58);              // S^WS | '(:' | 'levels'
+      shift(175);                   // 'levels'
+    }
+    eventHandler.endNonterminal("FTThesaurusID", e0);
+  }
+
+  function try_FTThesaurusID()
+  {
+    shiftT(81);                     // 'at'
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shiftT(7);                      // URILiteral
+    lookahead1W(220);               // S^WS | EOF | '!=' | '(:' | ')' | ',' | ':' | ';' | '<' | '<<' | '<=' | '=' |
+    if (l1 == 217)                  // 'relationship'
+    {
+      shiftT(217);                  // 'relationship'
+      lookahead1W(17);              // StringLiteral | S^WS | '(:'
+      shiftT(11);                   // StringLiteral
+    }
+    lookahead1W(216);               // S^WS | EOF | '!=' | '(:' | ')' | ',' | ':' | ';' | '<' | '<<' | '<=' | '=' |
+    switch (l1)
+    {
+    case 81:                        // 'at'
+      lookahead2W(165);             // S^WS | '(:' | 'end' | 'least' | 'most' | 'position' | 'start'
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 130                   // 'exactly'
+     || lk == 140                   // 'from'
+     || lk == 88657                 // 'at' 'least'
+     || lk == 93777)                // 'at' 'most'
+    {
+      try_FTLiteralRange();
+      lookahead1W(58);              // S^WS | '(:' | 'levels'
+      shiftT(175);                  // 'levels'
+    }
+  }
+
+  function parse_FTLiteralRange()
+  {
+    eventHandler.startNonterminal("FTLiteralRange", e0);
+    switch (l1)
+    {
+    case 130:                       // 'exactly'
+      shift(130);                   // 'exactly'
+      lookahead1W(16);              // IntegerLiteral | S^WS | '(:'
+      shift(8);                     // IntegerLiteral
+      break;
+    case 81:                        // 'at'
+      shift(81);                    // 'at'
+      lookahead1W(125);             // S^WS | '(:' | 'least' | 'most'
+      switch (l1)
+      {
+      case 173:                     // 'least'
+        shift(173);                 // 'least'
+        lookahead1W(16);            // IntegerLiteral | S^WS | '(:'
+        shift(8);                   // IntegerLiteral
+        break;
+      default:
+        shift(183);                 // 'most'
+        lookahead1W(16);            // IntegerLiteral | S^WS | '(:'
+        shift(8);                   // IntegerLiteral
+      }
+      break;
+    default:
+      shift(140);                   // 'from'
+      lookahead1W(16);              // IntegerLiteral | S^WS | '(:'
+      shift(8);                     // IntegerLiteral
+      lookahead1W(79);              // S^WS | '(:' | 'to'
+      shift(248);                   // 'to'
+      lookahead1W(16);              // IntegerLiteral | S^WS | '(:'
+      shift(8);                     // IntegerLiteral
+    }
+    eventHandler.endNonterminal("FTLiteralRange", e0);
+  }
+
+  function try_FTLiteralRange()
+  {
+    switch (l1)
+    {
+    case 130:                       // 'exactly'
+      shiftT(130);                  // 'exactly'
+      lookahead1W(16);              // IntegerLiteral | S^WS | '(:'
+      shiftT(8);                    // IntegerLiteral
+      break;
+    case 81:                        // 'at'
+      shiftT(81);                   // 'at'
+      lookahead1W(125);             // S^WS | '(:' | 'least' | 'most'
+      switch (l1)
+      {
+      case 173:                     // 'least'
+        shiftT(173);                // 'least'
+        lookahead1W(16);            // IntegerLiteral | S^WS | '(:'
+        shiftT(8);                  // IntegerLiteral
+        break;
+      default:
+        shiftT(183);                // 'most'
+        lookahead1W(16);            // IntegerLiteral | S^WS | '(:'
+        shiftT(8);                  // IntegerLiteral
+      }
+      break;
+    default:
+      shiftT(140);                  // 'from'
+      lookahead1W(16);              // IntegerLiteral | S^WS | '(:'
+      shiftT(8);                    // IntegerLiteral
+      lookahead1W(79);              // S^WS | '(:' | 'to'
+      shiftT(248);                  // 'to'
+      lookahead1W(16);              // IntegerLiteral | S^WS | '(:'
+      shiftT(8);                    // IntegerLiteral
+    }
+  }
+
+  function parse_FTStopWordOption()
+  {
+    eventHandler.startNonterminal("FTStopWordOption", e0);
+    switch (l1)
+    {
+    case 239:                       // 'stop'
+      shift(239);                   // 'stop'
+      lookahead1W(86);              // S^WS | '(:' | 'words'
+      shift(273);                   // 'words'
+      lookahead1W(142);             // S^WS | '(' | '(:' | 'at' | 'default'
+      switch (l1)
+      {
+      case 109:                     // 'default'
+        shift(109);                 // 'default'
+        for (;;)
+        {
+          lookahead1W(217);         // S^WS | EOF | '!=' | '(:' | ')' | ',' | ':' | ';' | '<' | '<<' | '<=' | '=' |
+          if (l1 != 131             // 'except'
+           && l1 != 254)            // 'union'
+          {
+            break;
+          }
+          whitespace();
+          parse_FTStopWordsInclExcl();
+        }
+        break;
+      default:
+        whitespace();
+        parse_FTStopWords();
+        for (;;)
+        {
+          lookahead1W(217);         // S^WS | EOF | '!=' | '(:' | ')' | ',' | ':' | ';' | '<' | '<<' | '<=' | '=' |
+          if (l1 != 131             // 'except'
+           && l1 != 254)            // 'union'
+          {
+            break;
+          }
+          whitespace();
+          parse_FTStopWordsInclExcl();
+        }
+      }
+      break;
+    default:
+      shift(188);                   // 'no'
+      lookahead1W(75);              // S^WS | '(:' | 'stop'
+      shift(239);                   // 'stop'
+      lookahead1W(86);              // S^WS | '(:' | 'words'
+      shift(273);                   // 'words'
+    }
+    eventHandler.endNonterminal("FTStopWordOption", e0);
+  }
+
+  function try_FTStopWordOption()
+  {
+    switch (l1)
+    {
+    case 239:                       // 'stop'
+      shiftT(239);                  // 'stop'
+      lookahead1W(86);              // S^WS | '(:' | 'words'
+      shiftT(273);                  // 'words'
+      lookahead1W(142);             // S^WS | '(' | '(:' | 'at' | 'default'
+      switch (l1)
+      {
+      case 109:                     // 'default'
+        shiftT(109);                // 'default'
+        for (;;)
+        {
+          lookahead1W(217);         // S^WS | EOF | '!=' | '(:' | ')' | ',' | ':' | ';' | '<' | '<<' | '<=' | '=' |
+          if (l1 != 131             // 'except'
+           && l1 != 254)            // 'union'
+          {
+            break;
+          }
+          try_FTStopWordsInclExcl();
+        }
+        break;
+      default:
+        try_FTStopWords();
+        for (;;)
+        {
+          lookahead1W(217);         // S^WS | EOF | '!=' | '(:' | ')' | ',' | ':' | ';' | '<' | '<<' | '<=' | '=' |
+          if (l1 != 131             // 'except'
+           && l1 != 254)            // 'union'
+          {
+            break;
+          }
+          try_FTStopWordsInclExcl();
+        }
+      }
+      break;
+    default:
+      shiftT(188);                  // 'no'
+      lookahead1W(75);              // S^WS | '(:' | 'stop'
+      shiftT(239);                  // 'stop'
+      lookahead1W(86);              // S^WS | '(:' | 'words'
+      shiftT(273);                  // 'words'
+    }
+  }
+
+  function parse_FTStopWords()
+  {
+    eventHandler.startNonterminal("FTStopWords", e0);
+    switch (l1)
+    {
+    case 81:                        // 'at'
+      shift(81);                    // 'at'
+      lookahead1W(15);              // URILiteral | S^WS | '(:'
+      shift(7);                     // URILiteral
+      break;
+    default:
+      shift(34);                    // '('
+      lookahead1W(17);              // StringLiteral | S^WS | '(:'
+      shift(11);                    // StringLiteral
+      for (;;)
+      {
+        lookahead1W(101);           // S^WS | '(:' | ')' | ','
+        if (l1 != 41)               // ','
+        {
+          break;
+        }
+        shift(41);                  // ','
+        lookahead1W(17);            // StringLiteral | S^WS | '(:'
+        shift(11);                  // StringLiteral
+      }
+      shift(37);                    // ')'
+    }
+    eventHandler.endNonterminal("FTStopWords", e0);
+  }
+
+  function try_FTStopWords()
+  {
+    switch (l1)
+    {
+    case 81:                        // 'at'
+      shiftT(81);                   // 'at'
+      lookahead1W(15);              // URILiteral | S^WS | '(:'
+      shiftT(7);                    // URILiteral
+      break;
+    default:
+      shiftT(34);                   // '('
+      lookahead1W(17);              // StringLiteral | S^WS | '(:'
+      shiftT(11);                   // StringLiteral
+      for (;;)
+      {
+        lookahead1W(101);           // S^WS | '(:' | ')' | ','
+        if (l1 != 41)               // ','
+        {
+          break;
+        }
+        shiftT(41);                 // ','
+        lookahead1W(17);            // StringLiteral | S^WS | '(:'
+        shiftT(11);                 // StringLiteral
+      }
+      shiftT(37);                   // ')'
+    }
+  }
+
+  function parse_FTStopWordsInclExcl()
+  {
+    eventHandler.startNonterminal("FTStopWordsInclExcl", e0);
+    switch (l1)
+    {
+    case 254:                       // 'union'
+      shift(254);                   // 'union'
+      break;
+    default:
+      shift(131);                   // 'except'
+    }
+    lookahead1W(99);                // S^WS | '(' | '(:' | 'at'
+    whitespace();
+    parse_FTStopWords();
+    eventHandler.endNonterminal("FTStopWordsInclExcl", e0);
+  }
+
+  function try_FTStopWordsInclExcl()
+  {
+    switch (l1)
+    {
+    case 254:                       // 'union'
+      shiftT(254);                  // 'union'
+      break;
+    default:
+      shiftT(131);                  // 'except'
+    }
+    lookahead1W(99);                // S^WS | '(' | '(:' | 'at'
+    try_FTStopWords();
+  }
+
+  function parse_FTLanguageOption()
+  {
+    eventHandler.startNonterminal("FTLanguageOption", e0);
+    shift(169);                     // 'language'
+    lookahead1W(17);                // StringLiteral | S^WS | '(:'
+    shift(11);                      // StringLiteral
+    eventHandler.endNonterminal("FTLanguageOption", e0);
+  }
+
+  function try_FTLanguageOption()
+  {
+    shiftT(169);                    // 'language'
+    lookahead1W(17);                // StringLiteral | S^WS | '(:'
+    shiftT(11);                     // StringLiteral
+  }
+
+  function parse_FTWildCardOption()
+  {
+    eventHandler.startNonterminal("FTWildCardOption", e0);
+    switch (l1)
+    {
+    case 268:                       // 'wildcards'
+      shift(268);                   // 'wildcards'
+      break;
+    default:
+      shift(188);                   // 'no'
+      lookahead1W(84);              // S^WS | '(:' | 'wildcards'
+      shift(268);                   // 'wildcards'
+    }
+    eventHandler.endNonterminal("FTWildCardOption", e0);
+  }
+
+  function try_FTWildCardOption()
+  {
+    switch (l1)
+    {
+    case 268:                       // 'wildcards'
+      shiftT(268);                  // 'wildcards'
+      break;
+    default:
+      shiftT(188);                  // 'no'
+      lookahead1W(84);              // S^WS | '(:' | 'wildcards'
+      shiftT(268);                  // 'wildcards'
+    }
+  }
+
+  function parse_FTExtensionOption()
+  {
+    eventHandler.startNonterminal("FTExtensionOption", e0);
+    shift(199);                     // 'option'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_EQName();
+    lookahead1W(17);                // StringLiteral | S^WS | '(:'
+    shift(11);                      // StringLiteral
+    eventHandler.endNonterminal("FTExtensionOption", e0);
+  }
+
+  function try_FTExtensionOption()
+  {
+    shiftT(199);                    // 'option'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    try_EQName();
+    lookahead1W(17);                // StringLiteral | S^WS | '(:'
+    shiftT(11);                     // StringLiteral
+  }
+
+  function parse_FTIgnoreOption()
+  {
+    eventHandler.startNonterminal("FTIgnoreOption", e0);
+    shift(271);                     // 'without'
+    lookahead1W(42);                // S^WS | '(:' | 'content'
+    shift(100);           
