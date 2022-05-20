@@ -43444,4 +43444,500 @@ JSONiqParser.TOKEN =
     eventHandler.startNonterminal("FTIgnoreOption", e0);
     shift(271);                     // 'without'
     lookahead1W(42);                // S^WS | '(:' | 'content'
-    shift(100);           
+    shift(100);                     // 'content'
+    lookahead1W(266);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    whitespace();
+    parse_UnionExpr();
+    eventHandler.endNonterminal("FTIgnoreOption", e0);
+  }
+
+  function try_FTIgnoreOption()
+  {
+    shiftT(271);                    // 'without'
+    lookahead1W(42);                // S^WS | '(:' | 'content'
+    shiftT(100);                    // 'content'
+    lookahead1W(266);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    try_UnionExpr();
+  }
+
+  function parse_CollectionDecl()
+  {
+    eventHandler.startNonterminal("CollectionDecl", e0);
+    shift(95);                      // 'collection'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_EQName();
+    lookahead1W(107);               // S^WS | '(:' | ';' | 'as'
+    if (l1 == 79)                   // 'as'
+    {
+      whitespace();
+      parse_CollectionTypeDecl();
+    }
+    eventHandler.endNonterminal("CollectionDecl", e0);
+  }
+
+  function parse_CollectionTypeDecl()
+  {
+    eventHandler.startNonterminal("CollectionTypeDecl", e0);
+    shift(79);                      // 'as'
+    lookahead1W(259);               // EQName^Token | S^WS | '%' | '(' | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_ItemType();
+    lookahead1W(156);               // S^WS | '(:' | '*' | '+' | ';' | '?'
+    if (l1 != 53)                   // ';'
+    {
+      whitespace();
+      parse_OccurrenceIndicator();
+    }
+    eventHandler.endNonterminal("CollectionTypeDecl", e0);
+  }
+
+  function parse_IndexName()
+  {
+    eventHandler.startNonterminal("IndexName", e0);
+    parse_EQName();
+    eventHandler.endNonterminal("IndexName", e0);
+  }
+
+  function parse_IndexDomainExpr()
+  {
+    eventHandler.startNonterminal("IndexDomainExpr", e0);
+    parse_PathExpr();
+    eventHandler.endNonterminal("IndexDomainExpr", e0);
+  }
+
+  function parse_IndexKeySpec()
+  {
+    eventHandler.startNonterminal("IndexKeySpec", e0);
+    parse_IndexKeyExpr();
+    if (l1 == 79)                   // 'as'
+    {
+      whitespace();
+      parse_IndexKeyTypeDecl();
+    }
+    lookahead1W(146);               // S^WS | '(:' | ',' | ';' | 'collation'
+    if (l1 == 94)                   // 'collation'
+    {
+      whitespace();
+      parse_IndexKeyCollation();
+    }
+    eventHandler.endNonterminal("IndexKeySpec", e0);
+  }
+
+  function parse_IndexKeyExpr()
+  {
+    eventHandler.startNonterminal("IndexKeyExpr", e0);
+    parse_PathExpr();
+    eventHandler.endNonterminal("IndexKeyExpr", e0);
+  }
+
+  function parse_IndexKeyTypeDecl()
+  {
+    eventHandler.startNonterminal("IndexKeyTypeDecl", e0);
+    shift(79);                      // 'as'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_AtomicType();
+    lookahead1W(169);               // S^WS | '(:' | '*' | '+' | ',' | ';' | '?' | 'collation'
+    if (l1 == 39                    // '*'
+     || l1 == 40                    // '+'
+     || l1 == 64)                   // '?'
+    {
+      whitespace();
+      parse_OccurrenceIndicator();
+    }
+    eventHandler.endNonterminal("IndexKeyTypeDecl", e0);
+  }
+
+  function parse_AtomicType()
+  {
+    eventHandler.startNonterminal("AtomicType", e0);
+    parse_EQName();
+    eventHandler.endNonterminal("AtomicType", e0);
+  }
+
+  function parse_IndexKeyCollation()
+  {
+    eventHandler.startNonterminal("IndexKeyCollation", e0);
+    shift(94);                      // 'collation'
+    lookahead1W(15);                // URILiteral | S^WS | '(:'
+    shift(7);                       // URILiteral
+    eventHandler.endNonterminal("IndexKeyCollation", e0);
+  }
+
+  function parse_IndexDecl()
+  {
+    eventHandler.startNonterminal("IndexDecl", e0);
+    shift(155);                     // 'index'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_IndexName();
+    lookahead1W(65);                // S^WS | '(:' | 'on'
+    shift(197);                     // 'on'
+    lookahead1W(63);                // S^WS | '(:' | 'nodes'
+    shift(192);                     // 'nodes'
+    lookahead1W(265);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    whitespace();
+    parse_IndexDomainExpr();
+    shift(87);                      // 'by'
+    lookahead1W(265);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    whitespace();
+    parse_IndexKeySpec();
+    for (;;)
+    {
+      lookahead1W(103);             // S^WS | '(:' | ',' | ';'
+      if (l1 != 41)                 // ','
+      {
+        break;
+      }
+      shift(41);                    // ','
+      lookahead1W(265);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      whitespace();
+      parse_IndexKeySpec();
+    }
+    eventHandler.endNonterminal("IndexDecl", e0);
+  }
+
+  function parse_ICDecl()
+  {
+    eventHandler.startNonterminal("ICDecl", e0);
+    shift(161);                     // 'integrity'
+    lookahead1W(40);                // S^WS | '(:' | 'constraint'
+    shift(97);                      // 'constraint'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_EQName();
+    lookahead1W(120);               // S^WS | '(:' | 'foreign' | 'on'
+    switch (l1)
+    {
+    case 197:                       // 'on'
+      whitespace();
+      parse_ICCollection();
+      break;
+    default:
+      whitespace();
+      parse_ICForeignKey();
+    }
+    eventHandler.endNonterminal("ICDecl", e0);
+  }
+
+  function parse_ICCollection()
+  {
+    eventHandler.startNonterminal("ICCollection", e0);
+    shift(197);                     // 'on'
+    lookahead1W(39);                // S^WS | '(:' | 'collection'
+    shift(95);                      // 'collection'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_EQName();
+    lookahead1W(140);               // S^WS | '$' | '(:' | 'foreach' | 'node'
+    switch (l1)
+    {
+    case 31:                        // '$'
+      whitespace();
+      parse_ICCollSequence();
+      break;
+    case 191:                       // 'node'
+      whitespace();
+      parse_ICCollSequenceUnique();
+      break;
+    default:
+      whitespace();
+      parse_ICCollNode();
+    }
+    eventHandler.endNonterminal("ICCollection", e0);
+  }
+
+  function parse_ICCollSequence()
+  {
+    eventHandler.startNonterminal("ICCollSequence", e0);
+    parse_VarRef();
+    lookahead1W(37);                // S^WS | '(:' | 'check'
+    shift(92);                      // 'check'
+    lookahead1W(266);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    whitespace();
+    parse_ExprSingle();
+    eventHandler.endNonterminal("ICCollSequence", e0);
+  }
+
+  function parse_ICCollSequenceUnique()
+  {
+    eventHandler.startNonterminal("ICCollSequenceUnique", e0);
+    shift(191);                     // 'node'
+    lookahead1W(21);                // S^WS | '$' | '(:'
+    whitespace();
+    parse_VarRef();
+    lookahead1W(37);                // S^WS | '(:' | 'check'
+    shift(92);                      // 'check'
+    lookahead1W(80);                // S^WS | '(:' | 'unique'
+    shift(255);                     // 'unique'
+    lookahead1W(57);                // S^WS | '(:' | 'key'
+    shift(168);                     // 'key'
+    lookahead1W(265);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    whitespace();
+    parse_PathExpr();
+    eventHandler.endNonterminal("ICCollSequenceUnique", e0);
+  }
+
+  function parse_ICCollNode()
+  {
+    eventHandler.startNonterminal("ICCollNode", e0);
+    shift(138);                     // 'foreach'
+    lookahead1W(62);                // S^WS | '(:' | 'node'
+    shift(191);                     // 'node'
+    lookahead1W(21);                // S^WS | '$' | '(:'
+    whitespace();
+    parse_VarRef();
+    lookahead1W(37);                // S^WS | '(:' | 'check'
+    shift(92);                      // 'check'
+    lookahead1W(266);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    whitespace();
+    parse_ExprSingle();
+    eventHandler.endNonterminal("ICCollNode", e0);
+  }
+
+  function parse_ICForeignKey()
+  {
+    eventHandler.startNonterminal("ICForeignKey", e0);
+    shift(139);                     // 'foreign'
+    lookahead1W(57);                // S^WS | '(:' | 'key'
+    shift(168);                     // 'key'
+    lookahead1W(51);                // S^WS | '(:' | 'from'
+    whitespace();
+    parse_ICForeignKeySource();
+    whitespace();
+    parse_ICForeignKeyTarget();
+    eventHandler.endNonterminal("ICForeignKey", e0);
+  }
+
+  function parse_ICForeignKeySource()
+  {
+    eventHandler.startNonterminal("ICForeignKeySource", e0);
+    shift(140);                     // 'from'
+    lookahead1W(39);                // S^WS | '(:' | 'collection'
+    whitespace();
+    parse_ICForeignKeyValues();
+    eventHandler.endNonterminal("ICForeignKeySource", e0);
+  }
+
+  function parse_ICForeignKeyTarget()
+  {
+    eventHandler.startNonterminal("ICForeignKeyTarget", e0);
+    shift(248);                     // 'to'
+    lookahead1W(39);                // S^WS | '(:' | 'collection'
+    whitespace();
+    parse_ICForeignKeyValues();
+    eventHandler.endNonterminal("ICForeignKeyTarget", e0);
+  }
+
+  function parse_ICForeignKeyValues()
+  {
+    eventHandler.startNonterminal("ICForeignKeyValues", e0);
+    shift(95);                      // 'collection'
+    lookahead1W(254);               // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+    whitespace();
+    parse_EQName();
+    lookahead1W(62);                // S^WS | '(:' | 'node'
+    shift(191);                     // 'node'
+    lookahead1W(21);                // S^WS | '$' | '(:'
+    whitespace();
+    parse_VarRef();
+    lookahead1W(57);                // S^WS | '(:' | 'key'
+    shift(168);                     // 'key'
+    lookahead1W(265);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    whitespace();
+    parse_PathExpr();
+    eventHandler.endNonterminal("ICForeignKeyValues", e0);
+  }
+
+  function try_Comment()
+  {
+    shiftT(36);                     // '(:'
+    for (;;)
+    {
+      lookahead1(89);               // CommentContents | '(:' | ':)'
+      if (l1 == 50)                 // ':)'
+      {
+        break;
+      }
+      switch (l1)
+      {
+      case 24:                      // CommentContents
+        shiftT(24);                 // CommentContents
+        break;
+      default:
+        try_Comment();
+      }
+    }
+    shiftT(50);                     // ':)'
+  }
+
+  function try_Whitespace()
+  {
+    switch (l1)
+    {
+    case 22:                        // S^WS
+      shiftT(22);                   // S^WS
+      break;
+    default:
+      try_Comment();
+    }
+  }
+
+  function parse_EQName()
+  {
+    eventHandler.startNonterminal("EQName", e0);
+    lookahead1(249);                // EQName^Token | 'after' | 'allowing' | 'ancestor' | 'ancestor-or-self' | 'and' |
+    switch (l1)
+    {
+    case 82:                        // 'attribute'
+      shift(82);                    // 'attribute'
+      break;
+    case 96:                        // 'comment'
+      shift(96);                    // 'comment'
+      break;
+    case 120:                       // 'document-node'
+      shift(120);                   // 'document-node'
+      break;
+    case 121:                       // 'element'
+      shift(121);                   // 'element'
+      break;
+    case 124:                       // 'empty-sequence'
+      shift(124);                   // 'empty-sequence'
+      break;
+    case 145:                       // 'function'
+      shift(145);                   // 'function'
+      break;
+    case 152:                       // 'if'
+      shift(152);                   // 'if'
+      break;
+    case 165:                       // 'item'
+      shift(165);                   // 'item'
+      break;
+    case 185:                       // 'namespace-node'
+      shift(185);                   // 'namespace-node'
+      break;
+    case 191:                       // 'node'
+      shift(191);                   // 'node'
+      break;
+    case 216:                       // 'processing-instruction'
+      shift(216);                   // 'processing-instruction'
+      break;
+    case 226:                       // 'schema-attribute'
+      shift(226);                   // 'schema-attribute'
+      break;
+    case 227:                       // 'schema-element'
+      shift(227);                   // 'schema-element'
+      break;
+    case 243:                       // 'switch'
+      shift(243);                   // 'switch'
+      break;
+    case 244:                       // 'text'
+      shift(244);                   // 'text'
+      break;
+    case 253:                       // 'typeswitch'
+      shift(253);                   // 'typeswitch'
+      break;
+    case 78:                        // 'array'
+      shift(78);                    // 'array'
+      break;
+    case 167:                       // 'json-item'
+      shift(167);                   // 'json-item'
+      break;
+    case 242:                       // 'structured-item'
+      shift(242);                   // 'structured-item'
+      break;
+    default:
+      parse_FunctionName();
+    }
+    eventHandler.endNonterminal("EQName", e0);
+  }
+
+  function try_EQName()
+  {
+    lookahead1(249);                // EQName^Token | 'after' | 'allowing' | 'ancestor' | 'ancestor-or-self' | 'and' |
+    switch (l1)
+    {
+    case 82:                        // 'attribute'
+      shiftT(82);                   // 'attribute'
+      break;
+    case 96:                        // 'comment'
+      shiftT(96);                   // 'comment'
+      break;
+    case 120:                       // 'document-node'
+      shiftT(120);                  // 'document-node'
+      break;
+    case 121:                       // 'element'
+      shiftT(121);                  // 'element'
+      break;
+    case 124:                       // 'empty-sequence'
+      shiftT(124);                  // 'empty-sequence'
+      break;
+    case 145:                       // 'function'
+      shiftT(145);                  // 'function'
+      break;
+    case 152:                       // 'if'
+      shiftT(152);                  // 'if'
+      break;
+    case 165:                       // 'item'
+      shiftT(165);                  // 'item'
+      break;
+    case 185:                       // 'namespace-node'
+      shiftT(185);                  // 'namespace-node'
+      break;
+    case 191:                       // 'node'
+      shiftT(191);                  // 'node'
+      break;
+    case 216:                       // 'processing-instruction'
+      shiftT(216);                  // 'processing-instruction'
+      break;
+    case 226:                       // 'schema-attribute'
+      shiftT(226);                  // 'schema-attribute'
+      break;
+    case 227:                       // 'schema-element'
+      shiftT(227);                  // 'schema-element'
+      break;
+    case 243:                       // 'switch'
+      shiftT(243);                  // 'switch'
+      break;
+    case 244:                       // 'text'
+      shiftT(244);                  // 'text'
+      break;
+    case 253:                       // 'typeswitch'
+      shiftT(253);                  // 'typeswitch'
+      break;
+    case 78:                        // 'array'
+      shiftT(78);                   // 'array'
+      break;
+    case 167:                       // 'json-item'
+      shiftT(167);                  // 'json-item'
+      break;
+    case 242:                       // 'structured-item'
+      shiftT(242);                  // 'structured-item'
+      break;
+    default:
+      try_FunctionName();
+    }
+  }
+
+  function parse_FunctionName()
+  {
+    eventHandler.startNonterminal("FunctionName", e0);
+    switch (l1)
+    {
+    case 6:                         // EQName^Token
+      shift(6);                     // EQName^Token
+      break;
+    case 70:                        // 'after'
+      shift(70);                    // 'after'
+      break;
+    case 73:                        // 'ancestor'
+      shift(73);                    // 'ancestor'
+      break;
+    case 74:                        // 'ancestor-or-self'
+      shift(74);                    // 'ancestor-or-self'
+      break;
+    case 75:                        // 'and'
+      shift(75);                    // 'and'
+      break;
+    
