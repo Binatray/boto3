@@ -45323,4 +45323,373 @@ JSONiqParser.TOKEN =
     case 81:                        // 'at'
       shiftT(81);                   // 'at'
       break;
-    case 83:       
+    case 83:                        // 'base-uri'
+      shiftT(83);                   // 'base-uri'
+      break;
+    case 85:                        // 'boundary-space'
+      shiftT(85);                   // 'boundary-space'
+      break;
+    case 86:                        // 'break'
+      shiftT(86);                   // 'break'
+      break;
+    case 91:                        // 'catch'
+      shiftT(91);                   // 'catch'
+      break;
+    case 98:                        // 'construction'
+      shiftT(98);                   // 'construction'
+      break;
+    case 101:                       // 'context'
+      shiftT(101);                  // 'context'
+      break;
+    case 102:                       // 'continue'
+      shiftT(102);                  // 'continue'
+      break;
+    case 104:                       // 'copy-namespaces'
+      shiftT(104);                  // 'copy-namespaces'
+      break;
+    case 106:                       // 'decimal-format'
+      shiftT(106);                  // 'decimal-format'
+      break;
+    case 125:                       // 'encoding'
+      shiftT(125);                  // 'encoding'
+      break;
+    case 132:                       // 'exit'
+      shiftT(132);                  // 'exit'
+      break;
+    case 133:                       // 'external'
+      shiftT(133);                  // 'external'
+      break;
+    case 141:                       // 'ft-option'
+      shiftT(141);                  // 'ft-option'
+      break;
+    case 154:                       // 'in'
+      shiftT(154);                  // 'in'
+      break;
+    case 155:                       // 'index'
+      shiftT(155);                  // 'index'
+      break;
+    case 161:                       // 'integrity'
+      shiftT(161);                  // 'integrity'
+      break;
+    case 171:                       // 'lax'
+      shiftT(171);                  // 'lax'
+      break;
+    case 192:                       // 'nodes'
+      shiftT(192);                  // 'nodes'
+      break;
+    case 199:                       // 'option'
+      shiftT(199);                  // 'option'
+      break;
+    case 203:                       // 'ordering'
+      shiftT(203);                  // 'ordering'
+      break;
+    case 222:                       // 'revalidation'
+      shiftT(222);                  // 'revalidation'
+      break;
+    case 225:                       // 'schema'
+      shiftT(225);                  // 'schema'
+      break;
+    case 228:                       // 'score'
+      shiftT(228);                  // 'score'
+      break;
+    case 234:                       // 'sliding'
+      shiftT(234);                  // 'sliding'
+      break;
+    case 240:                       // 'strict'
+      shiftT(240);                  // 'strict'
+      break;
+    case 251:                       // 'tumbling'
+      shiftT(251);                  // 'tumbling'
+      break;
+    case 252:                       // 'type'
+      shiftT(252);                  // 'type'
+      break;
+    case 257:                       // 'updating'
+      shiftT(257);                  // 'updating'
+      break;
+    case 261:                       // 'value'
+      shiftT(261);                  // 'value'
+      break;
+    case 263:                       // 'version'
+      shiftT(263);                  // 'version'
+      break;
+    case 267:                       // 'while'
+      shiftT(267);                  // 'while'
+      break;
+    case 97:                        // 'constraint'
+      shiftT(97);                   // 'constraint'
+      break;
+    case 176:                       // 'loop'
+      shiftT(176);                  // 'loop'
+      break;
+    case 221:                       // 'returning'
+      shiftT(221);                  // 'returning'
+      break;
+    case 77:                        // 'append'
+      shiftT(77);                   // 'append'
+      break;
+    case 166:                       // 'json'
+      shiftT(166);                  // 'json'
+      break;
+    default:
+      shiftT(194);                  // 'object'
+    }
+  }
+
+  function parse_MainModule()
+  {
+    eventHandler.startNonterminal("MainModule", e0);
+    parse_Prolog();
+    whitespace();
+    parse_Program();
+    eventHandler.endNonterminal("MainModule", e0);
+  }
+
+  function parse_Program()
+  {
+    eventHandler.startNonterminal("Program", e0);
+    parse_StatementsAndOptionalExpr();
+    eventHandler.endNonterminal("Program", e0);
+  }
+
+  function parse_Statements()
+  {
+    eventHandler.startNonterminal("Statements", e0);
+    for (;;)
+    {
+      lookahead1W(277);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      switch (l1)
+      {
+      case 34:                      // '('
+        lookahead2W(268);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        break;
+      case 35:                      // '(#'
+        lookahead2(251);            // EQName^Token | S | 'after' | 'allowing' | 'ancestor' | 'ancestor-or-self' |
+        break;
+      case 46:                      // '/'
+        lookahead2W(283);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        break;
+      case 47:                      // '//'
+        lookahead2W(264);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        break;
+      case 54:                      // '<'
+        lookahead2(4);              // QName
+        break;
+      case 55:                      // '<!--'
+        lookahead2(1);              // DirCommentContents
+        break;
+      case 59:                      // '<?'
+        lookahead2(3);              // PITarget
+        break;
+      case 66:                      // '@'
+        lookahead2W(256);           // Wildcard | EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+        break;
+      case 68:                      // '['
+        lookahead2W(271);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        break;
+      case 77:                      // 'append'
+        lookahead2W(199);           // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+        break;
+      case 82:                      // 'attribute'
+        lookahead2W(280);           // EQName^Token | S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' |
+        break;
+      case 121:                     // 'element'
+        lookahead2W(279);           // EQName^Token | S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' |
+        break;
+      case 132:                     // 'exit'
+        lookahead2W(202);           // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+        break;
+      case 137:                     // 'for'
+        lookahead2W(207);           // S^WS | EOF | '!' | '!=' | '#' | '$' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' |
+        break;
+      case 174:                     // 'let'
+        lookahead2W(204);           // S^WS | EOF | '!' | '!=' | '#' | '$' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' |
+        break;
+      case 218:                     // 'rename'
+        lookahead2W(205);           // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+        break;
+      case 219:                     // 'replace'
+        lookahead2W(206);           // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+        break;
+      case 260:                     // 'validate'
+        lookahead2W(209);           // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+        break;
+      case 276:                     // '{'
+        lookahead2W(276);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        break;
+      case 278:                     // '{|'
+        lookahead2W(272);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        break;
+      case 5:                       // Wildcard
+      case 45:                      // '..'
+        lookahead2W(185);           // S^WS | EOF | '!' | '!=' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' | ';' | '<' |
+        break;
+      case 31:                      // '$'
+      case 32:                      // '%'
+        lookahead2W(254);           // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+        break;
+      case 40:                      // '+'
+      case 42:                      // '-'
+        lookahead2W(266);           // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+        break;
+      case 86:                      // 'break'
+      case 102:                     // 'continue'
+        lookahead2W(200);           // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+        break;
+      case 110:                     // 'delete'
+      case 159:                     // 'insert'
+        lookahead2W(208);           // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+        break;
+      case 184:                     // 'namespace'
+      case 216:                     // 'processing-instruction'
+        lookahead2W(267);           // NCName^Token | S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' |
+        break;
+      case 103:                     // 'copy'
+      case 129:                     // 'every'
+      case 235:                     // 'some'
+      case 262:                     // 'variable'
+        lookahead2W(196);           // S^WS | EOF | '!' | '!=' | '#' | '$' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' |
+        break;
+      case 8:                       // IntegerLiteral
+      case 9:                       // DecimalLiteral
+      case 10:                      // DoubleLiteral
+      case 11:                      // StringLiteral
+      case 44:                      // '.'
+        lookahead2W(191);           // S^WS | EOF | '!' | '!=' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' | ';' |
+        break;
+      case 78:                      // 'array'
+      case 124:                     // 'empty-sequence'
+      case 165:                     // 'item'
+      case 167:                     // 'json-item'
+      case 242:                     // 'structured-item'
+        lookahead2W(190);           // S^WS | EOF | '!' | '!=' | '#' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' | ';' |
+        break;
+      case 96:                      // 'comment'
+      case 119:                     // 'document'
+      case 202:                     // 'ordered'
+      case 244:                     // 'text'
+      case 250:                     // 'try'
+      case 256:                     // 'unordered'
+        lookahead2W(203);           // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+        break;
+      case 73:                      // 'ancestor'
+      case 74:                      // 'ancestor-or-self'
+      case 93:                      // 'child'
+      case 111:                     // 'descendant'
+      case 112:                     // 'descendant-or-self'
+      case 135:                     // 'following'
+      case 136:                     // 'following-sibling'
+      case 206:                     // 'parent'
+      case 212:                     // 'preceding'
+      case 213:                     // 'preceding-sibling'
+      case 229:                     // 'self'
+        lookahead2W(197);           // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+        break;
+      case 6:                       // EQName^Token
+      case 70:                      // 'after'
+      case 72:                      // 'allowing'
+      case 75:                      // 'and'
+      case 79:                      // 'as'
+      case 80:                      // 'ascending'
+      case 81:                      // 'at'
+      case 83:                      // 'base-uri'
+      case 84:                      // 'before'
+      case 85:                      // 'boundary-space'
+      case 88:                      // 'case'
+      case 89:                      // 'cast'
+      case 90:                      // 'castable'
+      case 91:                      // 'catch'
+      case 94:                      // 'collation'
+      case 97:                      // 'constraint'
+      case 98:                      // 'construction'
+      case 101:                     // 'context'
+      case 104:                     // 'copy-namespaces'
+      case 105:                     // 'count'
+      case 106:                     // 'decimal-format'
+      case 108:                     // 'declare'
+      case 109:                     // 'default'
+      case 113:                     // 'descending'
+      case 118:                     // 'div'
+      case 120:                     // 'document-node'
+      case 122:                     // 'else'
+      case 123:                     // 'empty'
+      case 125:                     // 'encoding'
+      case 126:                     // 'end'
+      case 128:                     // 'eq'
+      case 131:                     // 'except'
+      case 133:                     // 'external'
+      case 134:                     // 'first'
+      case 141:                     // 'ft-option'
+      case 145:                     // 'function'
+      case 146:                     // 'ge'
+      case 148:                     // 'group'
+      case 150:                     // 'gt'
+      case 151:                     // 'idiv'
+      case 152:                     // 'if'
+      case 153:                     // 'import'
+      case 154:                     // 'in'
+      case 155:                     // 'index'
+      case 160:                     // 'instance'
+      case 161:                     // 'integrity'
+      case 162:                     // 'intersect'
+      case 163:                     // 'into'
+      case 164:                     // 'is'
+      case 166:                     // 'json'
+      case 170:                     // 'last'
+      case 171:                     // 'lax'
+      case 172:                     // 'le'
+      case 176:                     // 'loop'
+      case 178:                     // 'lt'
+      case 180:                     // 'mod'
+      case 181:                     // 'modify'
+      case 182:                     // 'module'
+      case 185:                     // 'namespace-node'
+      case 186:                     // 'ne'
+      case 191:                     // 'node'
+      case 192:                     // 'nodes'
+      case 194:                     // 'object'
+      case 198:                     // 'only'
+      case 199:                     // 'option'
+      case 200:                     // 'or'
+      case 201:                     // 'order'
+      case 203:                     // 'ordering'
+      case 220:                     // 'return'
+      case 221:                     // 'returning'
+      case 222:                     // 'revalidation'
+      case 224:                     // 'satisfies'
+      case 225:                     // 'schema'
+      case 226:                     // 'schema-attribute'
+      case 227:                     // 'schema-element'
+      case 228:                     // 'score'
+      case 234:                     // 'sliding'
+      case 236:                     // 'stable'
+      case 237:                     // 'start'
+      case 240:                     // 'strict'
+      case 243:                     // 'switch'
+      case 248:                     // 'to'
+      case 249:                     // 'treat'
+      case 251:                     // 'tumbling'
+      case 252:                     // 'type'
+      case 253:                     // 'typeswitch'
+      case 254:                     // 'union'
+      case 257:                     // 'updating'
+      case 261:                     // 'value'
+      case 263:                     // 'version'
+      case 266:                     // 'where'
+      case 267:                     // 'while'
+      case 270:                     // 'with'
+      case 274:                     // 'xquery'
+        lookahead2W(194);           // S^WS | EOF | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | ',' | '-' | '/' | '//' |
+        break;
+      default:
+        lk = l1;
+      }
+      if (lk != 25                  // EOF
+       && lk != 53                  // ';'
+       && lk != 282                 // '}'
+       && lk != 12805               // Wildcard EOF
+       && lk != 12806               // EQName^Token EOF
+       && lk != 12808               // IntegerLiteral EOF
+       && lk != 12809               // DecimalLiteral EOF
+       && lk != 12810               // DoubleLiteral EOF
+       && lk != 12811             
