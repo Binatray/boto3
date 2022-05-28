@@ -47319,4 +47319,350 @@ JSONiqParser.TOKEN =
        && lk != 27241               // 'count' ';'
        && lk != 27242               // 'decimal-format' ';'
        && lk != 27244               // 'declare' ';'
-       && lk != 
+       && lk != 27245               // 'default' ';'
+       && lk != 27246               // 'delete' ';'
+       && lk != 27247               // 'descendant' ';'
+       && lk != 27248               // 'descendant-or-self' ';'
+       && lk != 27249               // 'descending' ';'
+       && lk != 27254               // 'div' ';'
+       && lk != 27255               // 'document' ';'
+       && lk != 27256               // 'document-node' ';'
+       && lk != 27257               // 'element' ';'
+       && lk != 27258               // 'else' ';'
+       && lk != 27259               // 'empty' ';'
+       && lk != 27260               // 'empty-sequence' ';'
+       && lk != 27261               // 'encoding' ';'
+       && lk != 27262               // 'end' ';'
+       && lk != 27264               // 'eq' ';'
+       && lk != 27265               // 'every' ';'
+       && lk != 27267               // 'except' ';'
+       && lk != 27268               // 'exit' ';'
+       && lk != 27269               // 'external' ';'
+       && lk != 27270               // 'first' ';'
+       && lk != 27271               // 'following' ';'
+       && lk != 27272               // 'following-sibling' ';'
+       && lk != 27273               // 'for' ';'
+       && lk != 27277               // 'ft-option' ';'
+       && lk != 27281               // 'function' ';'
+       && lk != 27282               // 'ge' ';'
+       && lk != 27284               // 'group' ';'
+       && lk != 27286               // 'gt' ';'
+       && lk != 27287               // 'idiv' ';'
+       && lk != 27288               // 'if' ';'
+       && lk != 27289               // 'import' ';'
+       && lk != 27290               // 'in' ';'
+       && lk != 27291               // 'index' ';'
+       && lk != 27295               // 'insert' ';'
+       && lk != 27296               // 'instance' ';'
+       && lk != 27297               // 'integrity' ';'
+       && lk != 27298               // 'intersect' ';'
+       && lk != 27299               // 'into' ';'
+       && lk != 27300               // 'is' ';'
+       && lk != 27301               // 'item' ';'
+       && lk != 27302               // 'json' ';'
+       && lk != 27303               // 'json-item' ';'
+       && lk != 27306               // 'last' ';'
+       && lk != 27307               // 'lax' ';'
+       && lk != 27308               // 'le' ';'
+       && lk != 27310               // 'let' ';'
+       && lk != 27312               // 'loop' ';'
+       && lk != 27314               // 'lt' ';'
+       && lk != 27316               // 'mod' ';'
+       && lk != 27317               // 'modify' ';'
+       && lk != 27318               // 'module' ';'
+       && lk != 27320               // 'namespace' ';'
+       && lk != 27321               // 'namespace-node' ';'
+       && lk != 27322               // 'ne' ';'
+       && lk != 27327               // 'node' ';'
+       && lk != 27328               // 'nodes' ';'
+       && lk != 27330               // 'object' ';'
+       && lk != 27334               // 'only' ';'
+       && lk != 27335               // 'option' ';'
+       && lk != 27336               // 'or' ';'
+       && lk != 27337               // 'order' ';'
+       && lk != 27338               // 'ordered' ';'
+       && lk != 27339               // 'ordering' ';'
+       && lk != 27342               // 'parent' ';'
+       && lk != 27348               // 'preceding' ';'
+       && lk != 27349               // 'preceding-sibling' ';'
+       && lk != 27352               // 'processing-instruction' ';'
+       && lk != 27354               // 'rename' ';'
+       && lk != 27355               // 'replace' ';'
+       && lk != 27356               // 'return' ';'
+       && lk != 27357               // 'returning' ';'
+       && lk != 27358               // 'revalidation' ';'
+       && lk != 27360               // 'satisfies' ';'
+       && lk != 27361               // 'schema' ';'
+       && lk != 27362               // 'schema-attribute' ';'
+       && lk != 27363               // 'schema-element' ';'
+       && lk != 27364               // 'score' ';'
+       && lk != 27365               // 'self' ';'
+       && lk != 27370               // 'sliding' ';'
+       && lk != 27371               // 'some' ';'
+       && lk != 27372               // 'stable' ';'
+       && lk != 27373               // 'start' ';'
+       && lk != 27376               // 'strict' ';'
+       && lk != 27378               // 'structured-item' ';'
+       && lk != 27379               // 'switch' ';'
+       && lk != 27380               // 'text' ';'
+       && lk != 27384               // 'to' ';'
+       && lk != 27385               // 'treat' ';'
+       && lk != 27386               // 'try' ';'
+       && lk != 27387               // 'tumbling' ';'
+       && lk != 27388               // 'type' ';'
+       && lk != 27389               // 'typeswitch' ';'
+       && lk != 27390               // 'union' ';'
+       && lk != 27392               // 'unordered' ';'
+       && lk != 27393               // 'updating' ';'
+       && lk != 27396               // 'validate' ';'
+       && lk != 27397               // 'value' ';'
+       && lk != 27398               // 'variable' ';'
+       && lk != 27399               // 'version' ';'
+       && lk != 27402               // 'where' ';'
+       && lk != 27403               // 'while' ';'
+       && lk != 27406               // 'with' ';'
+       && lk != 27410               // 'xquery' ';'
+       && lk != 90198               // 'break' 'loop'
+       && lk != 90214               // 'continue' 'loop'
+       && lk != 113284)             // 'exit' 'returning'
+      {
+        break;
+      }
+      try_Statement();
+    }
+  }
+
+  function parse_StatementsAndExpr()
+  {
+    eventHandler.startNonterminal("StatementsAndExpr", e0);
+    parse_Statements();
+    whitespace();
+    parse_Expr();
+    eventHandler.endNonterminal("StatementsAndExpr", e0);
+  }
+
+  function try_StatementsAndExpr()
+  {
+    try_Statements();
+    try_Expr();
+  }
+
+  function parse_StatementsAndOptionalExpr()
+  {
+    eventHandler.startNonterminal("StatementsAndOptionalExpr", e0);
+    parse_Statements();
+    if (l1 != 25                    // EOF
+     && l1 != 282)                  // '}'
+    {
+      whitespace();
+      parse_Expr();
+    }
+    eventHandler.endNonterminal("StatementsAndOptionalExpr", e0);
+  }
+
+  function try_StatementsAndOptionalExpr()
+  {
+    try_Statements();
+    if (l1 != 25                    // EOF
+     && l1 != 282)                  // '}'
+    {
+      try_Expr();
+    }
+  }
+
+  function parse_Statement()
+  {
+    eventHandler.startNonterminal("Statement", e0);
+    switch (l1)
+    {
+    case 132:                       // 'exit'
+      lookahead2W(188);             // S^WS | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | '-' | '/' | '//' | ';' | '<' |
+      break;
+    case 137:                       // 'for'
+      lookahead2W(195);             // S^WS | '!' | '!=' | '#' | '$' | '(' | '(:' | '*' | '+' | '-' | '/' | '//' | ';' |
+      break;
+    case 174:                       // 'let'
+      lookahead2W(192);             // S^WS | '!' | '!=' | '#' | '$' | '(' | '(:' | '*' | '+' | '-' | '/' | '//' | ';' |
+      break;
+    case 250:                       // 'try'
+      lookahead2W(189);             // S^WS | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | '-' | '/' | '//' | ';' | '<' |
+      break;
+    case 262:                       // 'variable'
+      lookahead2W(186);             // S^WS | '!' | '!=' | '#' | '$' | '(' | '(:' | '*' | '+' | '-' | '/' | '//' | ';' |
+      break;
+    case 276:                       // '{'
+      lookahead2W(276);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      break;
+    case 31:                        // '$'
+    case 32:                        // '%'
+      lookahead2W(254);             // EQName^Token | S^WS | '(:' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    case 86:                        // 'break'
+    case 102:                       // 'continue'
+      lookahead2W(187);             // S^WS | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | '-' | '/' | '//' | ';' | '<' |
+      break;
+    case 152:                       // 'if'
+    case 243:                       // 'switch'
+    case 253:                       // 'typeswitch'
+    case 267:                       // 'while'
+      lookahead2W(184);             // S^WS | '!' | '!=' | '#' | '(' | '(:' | '*' | '+' | '-' | '/' | '//' | ';' | '<' |
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 2836                  // '{' Wildcard
+     || lk == 3103                  // '$' EQName^Token
+     || lk == 3104                  // '%' EQName^Token
+     || lk == 3348                  // '{' EQName^Token
+     || lk == 4372                  // '{' IntegerLiteral
+     || lk == 4884                  // '{' DecimalLiteral
+     || lk == 5396                  // '{' DoubleLiteral
+     || lk == 5908                  // '{' StringLiteral
+     || lk == 16148                 // '{' '$'
+     || lk == 16660                 // '{' '%'
+     || lk == 17675                 // 'while' '('
+     || lk == 17684                 // '{' '('
+     || lk == 18196                 // '{' '(#'
+     || lk == 20756                 // '{' '+'
+     || lk == 21780                 // '{' '-'
+     || lk == 22804                 // '{' '.'
+     || lk == 23316                 // '{' '..'
+     || lk == 23828                 // '{' '/'
+     || lk == 24340                 // '{' '//'
+     || lk == 27412                 // '{' ';'
+     || lk == 27924                 // '{' '<'
+     || lk == 28436                 // '{' '<!--'
+     || lk == 30484                 // '{' '<?'
+     || lk == 34068                 // '{' '@'
+     || lk == 35092                 // '{' '['
+     || lk == 35871                 // '$' 'after'
+     || lk == 35872                 // '%' 'after'
+     || lk == 36116                 // '{' 'after'
+     || lk == 36895                 // '$' 'allowing'
+     || lk == 36896                 // '%' 'allowing'
+     || lk == 37140                 // '{' 'allowing'
+     || lk == 37407                 // '$' 'ancestor'
+     || lk == 37408                 // '%' 'ancestor'
+     || lk == 37652                 // '{' 'ancestor'
+     || lk == 37919                 // '$' 'ancestor-or-self'
+     || lk == 37920                 // '%' 'ancestor-or-self'
+     || lk == 38164                 // '{' 'ancestor-or-self'
+     || lk == 38431                 // '$' 'and'
+     || lk == 38432                 // '%' 'and'
+     || lk == 38676                 // '{' 'and'
+     || lk == 39455                 // '$' 'append'
+     || lk == 39456                 // '%' 'append'
+     || lk == 39700                 // '{' 'append'
+     || lk == 39967                 // '$' 'array'
+     || lk == 39968                 // '%' 'array'
+     || lk == 40212                 // '{' 'array'
+     || lk == 40479                 // '$' 'as'
+     || lk == 40480                 // '%' 'as'
+     || lk == 40724                 // '{' 'as'
+     || lk == 40991                 // '$' 'ascending'
+     || lk == 40992                 // '%' 'ascending'
+     || lk == 41236                 // '{' 'ascending'
+     || lk == 41503                 // '$' 'at'
+     || lk == 41504                 // '%' 'at'
+     || lk == 41748                 // '{' 'at'
+     || lk == 42015                 // '$' 'attribute'
+     || lk == 42016                 // '%' 'attribute'
+     || lk == 42260                 // '{' 'attribute'
+     || lk == 42527                 // '$' 'base-uri'
+     || lk == 42528                 // '%' 'base-uri'
+     || lk == 42772                 // '{' 'base-uri'
+     || lk == 43039                 // '$' 'before'
+     || lk == 43040                 // '%' 'before'
+     || lk == 43284                 // '{' 'before'
+     || lk == 43551                 // '$' 'boundary-space'
+     || lk == 43552                 // '%' 'boundary-space'
+     || lk == 43796                 // '{' 'boundary-space'
+     || lk == 44063                 // '$' 'break'
+     || lk == 44064                 // '%' 'break'
+     || lk == 44308                 // '{' 'break'
+     || lk == 45087                 // '$' 'case'
+     || lk == 45088                 // '%' 'case'
+     || lk == 45332                 // '{' 'case'
+     || lk == 45599                 // '$' 'cast'
+     || lk == 45600                 // '%' 'cast'
+     || lk == 45844                 // '{' 'cast'
+     || lk == 46111                 // '$' 'castable'
+     || lk == 46112                 // '%' 'castable'
+     || lk == 46356                 // '{' 'castable'
+     || lk == 46623                 // '$' 'catch'
+     || lk == 46624                 // '%' 'catch'
+     || lk == 46868                 // '{' 'catch'
+     || lk == 47647                 // '$' 'child'
+     || lk == 47648                 // '%' 'child'
+     || lk == 47892                 // '{' 'child'
+     || lk == 48159                 // '$' 'collation'
+     || lk == 48160                 // '%' 'collation'
+     || lk == 48404                 // '{' 'collation'
+     || lk == 49183                 // '$' 'comment'
+     || lk == 49184                 // '%' 'comment'
+     || lk == 49428                 // '{' 'comment'
+     || lk == 49695                 // '$' 'constraint'
+     || lk == 49696                 // '%' 'constraint'
+     || lk == 49940                 // '{' 'constraint'
+     || lk == 50207                 // '$' 'construction'
+     || lk == 50208                 // '%' 'construction'
+     || lk == 50452                 // '{' 'construction'
+     || lk == 51743                 // '$' 'context'
+     || lk == 51744                 // '%' 'context'
+     || lk == 51988                 // '{' 'context'
+     || lk == 52255                 // '$' 'continue'
+     || lk == 52256                 // '%' 'continue'
+     || lk == 52500                 // '{' 'continue'
+     || lk == 52767                 // '$' 'copy'
+     || lk == 52768                 // '%' 'copy'
+     || lk == 53012                 // '{' 'copy'
+     || lk == 53279                 // '$' 'copy-namespaces'
+     || lk == 53280                 // '%' 'copy-namespaces'
+     || lk == 53524                 // '{' 'copy-namespaces'
+     || lk == 53791                 // '$' 'count'
+     || lk == 53792                 // '%' 'count'
+     || lk == 54036                 // '{' 'count'
+     || lk == 54303                 // '$' 'decimal-format'
+     || lk == 54304                 // '%' 'decimal-format'
+     || lk == 54548                 // '{' 'decimal-format'
+     || lk == 55327                 // '$' 'declare'
+     || lk == 55328                 // '%' 'declare'
+     || lk == 55572                 // '{' 'declare'
+     || lk == 55839                 // '$' 'default'
+     || lk == 55840                 // '%' 'default'
+     || lk == 56084                 // '{' 'default'
+     || lk == 56351                 // '$' 'delete'
+     || lk == 56352                 // '%' 'delete'
+     || lk == 56596                 // '{' 'delete'
+     || lk == 56863                 // '$' 'descendant'
+     || lk == 56864                 // '%' 'descendant'
+     || lk == 57108                 // '{' 'descendant'
+     || lk == 57375                 // '$' 'descendant-or-self'
+     || lk == 57376                 // '%' 'descendant-or-self'
+     || lk == 57620                 // '{' 'descendant-or-self'
+     || lk == 57887                 // '$' 'descending'
+     || lk == 57888                 // '%' 'descending'
+     || lk == 58132                 // '{' 'descending'
+     || lk == 60447                 // '$' 'div'
+     || lk == 60448                 // '%' 'div'
+     || lk == 60692                 // '{' 'div'
+     || lk == 60959                 // '$' 'document'
+     || lk == 60960                 // '%' 'document'
+     || lk == 61204                 // '{' 'document'
+     || lk == 61471                 // '$' 'document-node'
+     || lk == 61472                 // '%' 'document-node'
+     || lk == 61716                 // '{' 'document-node'
+     || lk == 61983                 // '$' 'element'
+     || lk == 61984                 // '%' 'element'
+     || lk == 62228                 // '{' 'element'
+     || lk == 62495                 // '$' 'else'
+     || lk == 62496                 // '%' 'else'
+     || lk == 62740                 // '{' 'else'
+     || lk == 63007                 // '$' 'empty'
+     || lk == 63008                 // '%' 'empty'
+     || lk == 63252                 // '{' 'empty'
+     || lk == 63519                 // '$' 'empty-sequence'
+     || lk == 63520                 // '%' 'empty-sequence'
+     || lk == 63764                 // '{' 'empty-sequence'
+     || lk == 64031                 // '$' 'encoding'
+     || l
