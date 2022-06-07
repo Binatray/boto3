@@ -51272,4 +51272,366 @@ JSONiqParser.TOKEN =
     case 15115:                     // 'while' '#'
     case 15118:                     // 'with' '#'
     case 15122:                     // 'xquery' '#'
-      p
+      parse_FunctionItemExpr();
+      break;
+    case -10:
+    case 27412:                     // '{' ';'
+      parse_BlockExpr();
+      break;
+    case -11:
+      parse_ObjectConstructor();
+      break;
+    case 68:                        // '['
+      parse_ArrayConstructor();
+      break;
+    case 278:                       // '{|'
+      parse_JSONSimpleObjectUnion();
+      break;
+    default:
+      parse_Constructor();
+    }
+    eventHandler.endNonterminal("PrimaryExpr", e0);
+  }
+
+  function try_PrimaryExpr()
+  {
+    switch (l1)
+    {
+    case 184:                       // 'namespace'
+      lookahead2W(255);             // NCName^Token | S^WS | '#' | '(' | '(:' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    case 216:                       // 'processing-instruction'
+      lookahead2W(253);             // NCName^Token | S^WS | '#' | '(:' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    case 276:                       // '{'
+      lookahead2W(276);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      break;
+    case 82:                        // 'attribute'
+    case 121:                       // 'element'
+      lookahead2W(258);             // EQName^Token | S^WS | '#' | '(:' | 'after' | 'allowing' | 'ancestor' |
+      break;
+    case 96:                        // 'comment'
+    case 244:                       // 'text'
+      lookahead2W(93);              // S^WS | '#' | '(:' | '{'
+      break;
+    case 119:                       // 'document'
+    case 202:                       // 'ordered'
+    case 256:                       // 'unordered'
+      lookahead2W(139);             // S^WS | '#' | '(' | '(:' | '{'
+      break;
+    case 6:                         // EQName^Token
+    case 70:                        // 'after'
+    case 72:                        // 'allowing'
+    case 73:                        // 'ancestor'
+    case 74:                        // 'ancestor-or-self'
+    case 75:                        // 'and'
+    case 77:                        // 'append'
+    case 79:                        // 'as'
+    case 80:                        // 'ascending'
+    case 81:                        // 'at'
+    case 83:                        // 'base-uri'
+    case 84:                        // 'before'
+    case 85:                        // 'boundary-space'
+    case 86:                        // 'break'
+    case 88:                        // 'case'
+    case 89:                        // 'cast'
+    case 90:                        // 'castable'
+    case 91:                        // 'catch'
+    case 93:                        // 'child'
+    case 94:                        // 'collation'
+    case 97:                        // 'constraint'
+    case 98:                        // 'construction'
+    case 101:                       // 'context'
+    case 102:                       // 'continue'
+    case 103:                       // 'copy'
+    case 104:                       // 'copy-namespaces'
+    case 105:                       // 'count'
+    case 106:                       // 'decimal-format'
+    case 108:                       // 'declare'
+    case 109:                       // 'default'
+    case 110:                       // 'delete'
+    case 111:                       // 'descendant'
+    case 112:                       // 'descendant-or-self'
+    case 113:                       // 'descending'
+    case 118:                       // 'div'
+    case 122:                       // 'else'
+    case 123:                       // 'empty'
+    case 125:                       // 'encoding'
+    case 126:                       // 'end'
+    case 128:                       // 'eq'
+    case 129:                       // 'every'
+    case 131:                       // 'except'
+    case 132:                       // 'exit'
+    case 133:                       // 'external'
+    case 134:                       // 'first'
+    case 135:                       // 'following'
+    case 136:                       // 'following-sibling'
+    case 137:                       // 'for'
+    case 141:                       // 'ft-option'
+    case 146:                       // 'ge'
+    case 148:                       // 'group'
+    case 150:                       // 'gt'
+    case 151:                       // 'idiv'
+    case 153:                       // 'import'
+    case 154:                       // 'in'
+    case 155:                       // 'index'
+    case 159:                       // 'insert'
+    case 160:                       // 'instance'
+    case 161:                       // 'integrity'
+    case 162:                       // 'intersect'
+    case 163:                       // 'into'
+    case 164:                       // 'is'
+    case 166:                       // 'json'
+    case 170:                       // 'last'
+    case 171:                       // 'lax'
+    case 172:                       // 'le'
+    case 174:                       // 'let'
+    case 176:                       // 'loop'
+    case 178:                       // 'lt'
+    case 180:                       // 'mod'
+    case 181:                       // 'modify'
+    case 182:                       // 'module'
+    case 186:                       // 'ne'
+    case 192:                       // 'nodes'
+    case 194:                       // 'object'
+    case 198:                       // 'only'
+    case 199:                       // 'option'
+    case 200:                       // 'or'
+    case 201:                       // 'order'
+    case 203:                       // 'ordering'
+    case 206:                       // 'parent'
+    case 212:                       // 'preceding'
+    case 213:                       // 'preceding-sibling'
+    case 218:                       // 'rename'
+    case 219:                       // 'replace'
+    case 220:                       // 'return'
+    case 221:                       // 'returning'
+    case 222:                       // 'revalidation'
+    case 224:                       // 'satisfies'
+    case 225:                       // 'schema'
+    case 228:                       // 'score'
+    case 229:                       // 'self'
+    case 234:                       // 'sliding'
+    case 235:                       // 'some'
+    case 236:                       // 'stable'
+    case 237:                       // 'start'
+    case 240:                       // 'strict'
+    case 248:                       // 'to'
+    case 249:                       // 'treat'
+    case 250:                       // 'try'
+    case 251:                       // 'tumbling'
+    case 252:                       // 'type'
+    case 254:                       // 'union'
+    case 257:                       // 'updating'
+    case 260:                       // 'validate'
+    case 261:                       // 'value'
+    case 262:                       // 'variable'
+    case 263:                       // 'version'
+    case 266:                       // 'where'
+    case 267:                       // 'while'
+    case 270:                       // 'with'
+    case 274:                       // 'xquery'
+      lookahead2W(92);              // S^WS | '#' | '(' | '(:'
+      break;
+    default:
+      lk = l1;
+    }
+    if (lk == 2836                  // '{' Wildcard
+     || lk == 3348                  // '{' EQName^Token
+     || lk == 4372                  // '{' IntegerLiteral
+     || lk == 4884                  // '{' DecimalLiteral
+     || lk == 5396                  // '{' DoubleLiteral
+     || lk == 5908                  // '{' StringLiteral
+     || lk == 16148                 // '{' '$'
+     || lk == 16660                 // '{' '%'
+     || lk == 17684                 // '{' '('
+     || lk == 18196                 // '{' '(#'
+     || lk == 20756                 // '{' '+'
+     || lk == 21780                 // '{' '-'
+     || lk == 22804                 // '{' '.'
+     || lk == 23316                 // '{' '..'
+     || lk == 23828                 // '{' '/'
+     || lk == 24340                 // '{' '//'
+     || lk == 27924                 // '{' '<'
+     || lk == 28436                 // '{' '<!--'
+     || lk == 30484                 // '{' '<?'
+     || lk == 34068                 // '{' '@'
+     || lk == 35092                 // '{' '['
+     || lk == 36116                 // '{' 'after'
+     || lk == 37140                 // '{' 'allowing'
+     || lk == 37652                 // '{' 'ancestor'
+     || lk == 38164                 // '{' 'ancestor-or-self'
+     || lk == 38676                 // '{' 'and'
+     || lk == 39700                 // '{' 'append'
+     || lk == 40212                 // '{' 'array'
+     || lk == 40724                 // '{' 'as'
+     || lk == 41236                 // '{' 'ascending'
+     || lk == 41748                 // '{' 'at'
+     || lk == 42260                 // '{' 'attribute'
+     || lk == 42772                 // '{' 'base-uri'
+     || lk == 43284                 // '{' 'before'
+     || lk == 43796                 // '{' 'boundary-space'
+     || lk == 44308                 // '{' 'break'
+     || lk == 45332                 // '{' 'case'
+     || lk == 45844                 // '{' 'cast'
+     || lk == 46356                 // '{' 'castable'
+     || lk == 46868                 // '{' 'catch'
+     || lk == 47892                 // '{' 'child'
+     || lk == 48404                 // '{' 'collation'
+     || lk == 49428                 // '{' 'comment'
+     || lk == 49940                 // '{' 'constraint'
+     || lk == 50452                 // '{' 'construction'
+     || lk == 51988                 // '{' 'context'
+     || lk == 52500                 // '{' 'continue'
+     || lk == 53012                 // '{' 'copy'
+     || lk == 53524                 // '{' 'copy-namespaces'
+     || lk == 54036                 // '{' 'count'
+     || lk == 54548                 // '{' 'decimal-format'
+     || lk == 55572                 // '{' 'declare'
+     || lk == 56084                 // '{' 'default'
+     || lk == 56596                 // '{' 'delete'
+     || lk == 57108                 // '{' 'descendant'
+     || lk == 57620                 // '{' 'descendant-or-self'
+     || lk == 58132                 // '{' 'descending'
+     || lk == 60692                 // '{' 'div'
+     || lk == 61204                 // '{' 'document'
+     || lk == 61716                 // '{' 'document-node'
+     || lk == 62228                 // '{' 'element'
+     || lk == 62740                 // '{' 'else'
+     || lk == 63252                 // '{' 'empty'
+     || lk == 63764                 // '{' 'empty-sequence'
+     || lk == 64276                 // '{' 'encoding'
+     || lk == 64788                 // '{' 'end'
+     || lk == 65812                 // '{' 'eq'
+     || lk == 66324                 // '{' 'every'
+     || lk == 67348                 // '{' 'except'
+     || lk == 67860                 // '{' 'exit'
+     || lk == 68372                 // '{' 'external'
+     || lk == 68884                 // '{' 'first'
+     || lk == 69396                 // '{' 'following'
+     || lk == 69908                 // '{' 'following-sibling'
+     || lk == 70420                 // '{' 'for'
+     || lk == 72468                 // '{' 'ft-option'
+     || lk == 74516                 // '{' 'function'
+     || lk == 75028                 // '{' 'ge'
+     || lk == 76052                 // '{' 'group'
+     || lk == 77076                 // '{' 'gt'
+     || lk == 77588                 // '{' 'idiv'
+     || lk == 78100                 // '{' 'if'
+     || lk == 78612                 // '{' 'import'
+     || lk == 79124                 // '{' 'in'
+     || lk == 79636                 // '{' 'index'
+     || lk == 81684                 // '{' 'insert'
+     || lk == 82196                 // '{' 'instance'
+     || lk == 82708                 // '{' 'integrity'
+     || lk == 83220                 // '{' 'intersect'
+     || lk == 83732                 // '{' 'into'
+     || lk == 84244                 // '{' 'is'
+     || lk == 84756                 // '{' 'item'
+     || lk == 85268                 // '{' 'json'
+     || lk == 85780                 // '{' 'json-item'
+     || lk == 87316                 // '{' 'last'
+     || lk == 87828                 // '{' 'lax'
+     || lk == 88340                 // '{' 'le'
+     || lk == 89364                 // '{' 'let'
+     || lk == 90388                 // '{' 'loop'
+     || lk == 91412                 // '{' 'lt'
+     || lk == 92436                 // '{' 'mod'
+     || lk == 92948                 // '{' 'modify'
+     || lk == 93460                 // '{' 'module'
+     || lk == 94484                 // '{' 'namespace'
+     || lk == 94996                 // '{' 'namespace-node'
+     || lk == 95508                 // '{' 'ne'
+     || lk == 98068                 // '{' 'node'
+     || lk == 98580                 // '{' 'nodes'
+     || lk == 99604                 // '{' 'object'
+     || lk == 101652                // '{' 'only'
+     || lk == 102164                // '{' 'option'
+     || lk == 102676                // '{' 'or'
+     || lk == 103188                // '{' 'order'
+     || lk == 103700                // '{' 'ordered'
+     || lk == 104212                // '{' 'ordering'
+     || lk == 105748                // '{' 'parent'
+     || lk == 108820                // '{' 'preceding'
+     || lk == 109332                // '{' 'preceding-sibling'
+     || lk == 110868                // '{' 'processing-instruction'
+     || lk == 111892                // '{' 'rename'
+     || lk == 112404                // '{' 'replace'
+     || lk == 112916                // '{' 'return'
+     || lk == 113428                // '{' 'returning'
+     || lk == 113940                // '{' 'revalidation'
+     || lk == 114964                // '{' 'satisfies'
+     || lk == 115476                // '{' 'schema'
+     || lk == 115988                // '{' 'schema-attribute'
+     || lk == 116500                // '{' 'schema-element'
+     || lk == 117012                // '{' 'score'
+     || lk == 117524                // '{' 'self'
+     || lk == 120084                // '{' 'sliding'
+     || lk == 120596                // '{' 'some'
+     || lk == 121108                // '{' 'stable'
+     || lk == 121620                // '{' 'start'
+     || lk == 123156                // '{' 'strict'
+     || lk == 124180                // '{' 'structured-item'
+     || lk == 124692                // '{' 'switch'
+     || lk == 125204                // '{' 'text'
+     || lk == 127252                // '{' 'to'
+     || lk == 127764                // '{' 'treat'
+     || lk == 128276                // '{' 'try'
+     || lk == 128788                // '{' 'tumbling'
+     || lk == 129300                // '{' 'type'
+     || lk == 129812                // '{' 'typeswitch'
+     || lk == 130324                // '{' 'union'
+     || lk == 131348                // '{' 'unordered'
+     || lk == 131860                // '{' 'updating'
+     || lk == 133396                // '{' 'validate'
+     || lk == 133908                // '{' 'value'
+     || lk == 134420                // '{' 'variable'
+     || lk == 134932                // '{' 'version'
+     || lk == 136468                // '{' 'where'
+     || lk == 136980                // '{' 'while'
+     || lk == 138516                // '{' 'with'
+     || lk == 140564                // '{' 'xquery'
+     || lk == 141588                // '{' '{'
+     || lk == 142612                // '{' '{|'
+     || lk == 144660)               // '{' '}'
+    {
+      lk = memoized(14, e0);
+      if (lk == 0)
+      {
+        var b0A = b0; var e0A = e0; var l1A = l1;
+        var b1A = b1; var e1A = e1; var l2A = l2;
+        var b2A = b2; var e2A = e2;
+        try
+        {
+          try_BlockExpr();
+          memoize(14, e0A, -10);
+          lk = -14;
+        }
+        catch (p10A)
+        {
+          lk = -11;
+          b0 = b0A; e0 = e0A; l1 = l1A; if (l1 == 0) {end = e0A;} else {
+          b1 = b1A; e1 = e1A; l2 = l2A; if (l2 == 0) {end = e1A;} else {
+          b2 = b2A; e2 = e2A; end = e2A; }}
+          memoize(14, e0A, -11);
+        }
+      }
+    }
+    switch (lk)
+    {
+    case 8:                         // IntegerLiteral
+    case 9:                         // DecimalLiteral
+    case 10:                        // DoubleLiteral
+    case 11:                        // StringLiteral
+      try_Literal();
+      break;
+    case 31:                        // '$'
+      try_VarRef();
+      break;
+    case 34:                        // '('
+      try_ParenthesizedExpr();
+      break;
+    case 44:                        // '.'
+      try_ContextItemExpr();
+      break;
+    case 17414:         
