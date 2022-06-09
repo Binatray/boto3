@@ -51634,4 +51634,375 @@ JSONiqParser.TOKEN =
     case 44:                        // '.'
       try_ContextItemExpr();
       break;
-    case 17414:         
+    case 17414:                     // EQName^Token '('
+    case 17478:                     // 'after' '('
+    case 17480:                     // 'allowing' '('
+    case 17481:                     // 'ancestor' '('
+    case 17482:                     // 'ancestor-or-self' '('
+    case 17483:                     // 'and' '('
+    case 17485:                     // 'append' '('
+    case 17487:                     // 'as' '('
+    case 17488:                     // 'ascending' '('
+    case 17489:                     // 'at' '('
+    case 17491:                     // 'base-uri' '('
+    case 17492:                     // 'before' '('
+    case 17493:                     // 'boundary-space' '('
+    case 17494:                     // 'break' '('
+    case 17496:                     // 'case' '('
+    case 17497:                     // 'cast' '('
+    case 17498:                     // 'castable' '('
+    case 17499:                     // 'catch' '('
+    case 17501:                     // 'child' '('
+    case 17502:                     // 'collation' '('
+    case 17505:                     // 'constraint' '('
+    case 17506:                     // 'construction' '('
+    case 17509:                     // 'context' '('
+    case 17510:                     // 'continue' '('
+    case 17511:                     // 'copy' '('
+    case 17512:                     // 'copy-namespaces' '('
+    case 17513:                     // 'count' '('
+    case 17514:                     // 'decimal-format' '('
+    case 17516:                     // 'declare' '('
+    case 17517:                     // 'default' '('
+    case 17518:                     // 'delete' '('
+    case 17519:                     // 'descendant' '('
+    case 17520:                     // 'descendant-or-self' '('
+    case 17521:                     // 'descending' '('
+    case 17526:                     // 'div' '('
+    case 17527:                     // 'document' '('
+    case 17530:                     // 'else' '('
+    case 17531:                     // 'empty' '('
+    case 17533:                     // 'encoding' '('
+    case 17534:                     // 'end' '('
+    case 17536:                     // 'eq' '('
+    case 17537:                     // 'every' '('
+    case 17539:                     // 'except' '('
+    case 17540:                     // 'exit' '('
+    case 17541:                     // 'external' '('
+    case 17542:                     // 'first' '('
+    case 17543:                     // 'following' '('
+    case 17544:                     // 'following-sibling' '('
+    case 17545:                     // 'for' '('
+    case 17549:                     // 'ft-option' '('
+    case 17554:                     // 'ge' '('
+    case 17556:                     // 'group' '('
+    case 17558:                     // 'gt' '('
+    case 17559:                     // 'idiv' '('
+    case 17561:                     // 'import' '('
+    case 17562:                     // 'in' '('
+    case 17563:                     // 'index' '('
+    case 17567:                     // 'insert' '('
+    case 17568:                     // 'instance' '('
+    case 17569:                     // 'integrity' '('
+    case 17570:                     // 'intersect' '('
+    case 17571:                     // 'into' '('
+    case 17572:                     // 'is' '('
+    case 17574:                     // 'json' '('
+    case 17578:                     // 'last' '('
+    case 17579:                     // 'lax' '('
+    case 17580:                     // 'le' '('
+    case 17582:                     // 'let' '('
+    case 17584:                     // 'loop' '('
+    case 17586:                     // 'lt' '('
+    case 17588:                     // 'mod' '('
+    case 17589:                     // 'modify' '('
+    case 17590:                     // 'module' '('
+    case 17592:                     // 'namespace' '('
+    case 17594:                     // 'ne' '('
+    case 17600:                     // 'nodes' '('
+    case 17602:                     // 'object' '('
+    case 17606:                     // 'only' '('
+    case 17607:                     // 'option' '('
+    case 17608:                     // 'or' '('
+    case 17609:                     // 'order' '('
+    case 17610:                     // 'ordered' '('
+    case 17611:                     // 'ordering' '('
+    case 17614:                     // 'parent' '('
+    case 17620:                     // 'preceding' '('
+    case 17621:                     // 'preceding-sibling' '('
+    case 17626:                     // 'rename' '('
+    case 17627:                     // 'replace' '('
+    case 17628:                     // 'return' '('
+    case 17629:                     // 'returning' '('
+    case 17630:                     // 'revalidation' '('
+    case 17632:                     // 'satisfies' '('
+    case 17633:                     // 'schema' '('
+    case 17636:                     // 'score' '('
+    case 17637:                     // 'self' '('
+    case 17642:                     // 'sliding' '('
+    case 17643:                     // 'some' '('
+    case 17644:                     // 'stable' '('
+    case 17645:                     // 'start' '('
+    case 17648:                     // 'strict' '('
+    case 17656:                     // 'to' '('
+    case 17657:                     // 'treat' '('
+    case 17658:                     // 'try' '('
+    case 17659:                     // 'tumbling' '('
+    case 17660:                     // 'type' '('
+    case 17662:                     // 'union' '('
+    case 17664:                     // 'unordered' '('
+    case 17665:                     // 'updating' '('
+    case 17668:                     // 'validate' '('
+    case 17669:                     // 'value' '('
+    case 17670:                     // 'variable' '('
+    case 17671:                     // 'version' '('
+    case 17674:                     // 'where' '('
+    case 17675:                     // 'while' '('
+    case 17678:                     // 'with' '('
+    case 17682:                     // 'xquery' '('
+      try_FunctionCall();
+      break;
+    case 141514:                    // 'ordered' '{'
+      try_OrderedExpr();
+      break;
+    case 141568:                    // 'unordered' '{'
+      try_UnorderedExpr();
+      break;
+    case 32:                        // '%'
+    case 78:                        // 'array'
+    case 120:                       // 'document-node'
+    case 124:                       // 'empty-sequence'
+    case 145:                       // 'function'
+    case 152:                       // 'if'
+    case 165:                       // 'item'
+    case 167:                       // 'json-item'
+    case 185:                       // 'namespace-node'
+    case 191:                       // 'node'
+    case 226:                       // 'schema-attribute'
+    case 227:                       // 'schema-element'
+    case 242:                       // 'structured-item'
+    case 243:                       // 'switch'
+    case 253:                       // 'typeswitch'
+    case 14854:                     // EQName^Token '#'
+    case 14918:                     // 'after' '#'
+    case 14920:                     // 'allowing' '#'
+    case 14921:                     // 'ancestor' '#'
+    case 14922:                     // 'ancestor-or-self' '#'
+    case 14923:                     // 'and' '#'
+    case 14925:                     // 'append' '#'
+    case 14927:                     // 'as' '#'
+    case 14928:                     // 'ascending' '#'
+    case 14929:                     // 'at' '#'
+    case 14930:                     // 'attribute' '#'
+    case 14931:                     // 'base-uri' '#'
+    case 14932:                     // 'before' '#'
+    case 14933:                     // 'boundary-space' '#'
+    case 14934:                     // 'break' '#'
+    case 14936:                     // 'case' '#'
+    case 14937:                     // 'cast' '#'
+    case 14938:                     // 'castable' '#'
+    case 14939:                     // 'catch' '#'
+    case 14941:                     // 'child' '#'
+    case 14942:                     // 'collation' '#'
+    case 14944:                     // 'comment' '#'
+    case 14945:                     // 'constraint' '#'
+    case 14946:                     // 'construction' '#'
+    case 14949:                     // 'context' '#'
+    case 14950:                     // 'continue' '#'
+    case 14951:                     // 'copy' '#'
+    case 14952:                     // 'copy-namespaces' '#'
+    case 14953:                     // 'count' '#'
+    case 14954:                     // 'decimal-format' '#'
+    case 14956:                     // 'declare' '#'
+    case 14957:                     // 'default' '#'
+    case 14958:                     // 'delete' '#'
+    case 14959:                     // 'descendant' '#'
+    case 14960:                     // 'descendant-or-self' '#'
+    case 14961:                     // 'descending' '#'
+    case 14966:                     // 'div' '#'
+    case 14967:                     // 'document' '#'
+    case 14969:                     // 'element' '#'
+    case 14970:                     // 'else' '#'
+    case 14971:                     // 'empty' '#'
+    case 14973:                     // 'encoding' '#'
+    case 14974:                     // 'end' '#'
+    case 14976:                     // 'eq' '#'
+    case 14977:                     // 'every' '#'
+    case 14979:                     // 'except' '#'
+    case 14980:                     // 'exit' '#'
+    case 14981:                     // 'external' '#'
+    case 14982:                     // 'first' '#'
+    case 14983:                     // 'following' '#'
+    case 14984:                     // 'following-sibling' '#'
+    case 14985:                     // 'for' '#'
+    case 14989:                     // 'ft-option' '#'
+    case 14994:                     // 'ge' '#'
+    case 14996:                     // 'group' '#'
+    case 14998:                     // 'gt' '#'
+    case 14999:                     // 'idiv' '#'
+    case 15001:                     // 'import' '#'
+    case 15002:                     // 'in' '#'
+    case 15003:                     // 'index' '#'
+    case 15007:                     // 'insert' '#'
+    case 15008:                     // 'instance' '#'
+    case 15009:                     // 'integrity' '#'
+    case 15010:                     // 'intersect' '#'
+    case 15011:                     // 'into' '#'
+    case 15012:                     // 'is' '#'
+    case 15014:                     // 'json' '#'
+    case 15018:                     // 'last' '#'
+    case 15019:                     // 'lax' '#'
+    case 15020:                     // 'le' '#'
+    case 15022:                     // 'let' '#'
+    case 15024:                     // 'loop' '#'
+    case 15026:                     // 'lt' '#'
+    case 15028:                     // 'mod' '#'
+    case 15029:                     // 'modify' '#'
+    case 15030:                     // 'module' '#'
+    case 15032:                     // 'namespace' '#'
+    case 15034:                     // 'ne' '#'
+    case 15040:                     // 'nodes' '#'
+    case 15042:                     // 'object' '#'
+    case 15046:                     // 'only' '#'
+    case 15047:                     // 'option' '#'
+    case 15048:                     // 'or' '#'
+    case 15049:                     // 'order' '#'
+    case 15050:                     // 'ordered' '#'
+    case 15051:                     // 'ordering' '#'
+    case 15054:                     // 'parent' '#'
+    case 15060:                     // 'preceding' '#'
+    case 15061:                     // 'preceding-sibling' '#'
+    case 15064:                     // 'processing-instruction' '#'
+    case 15066:                     // 'rename' '#'
+    case 15067:                     // 'replace' '#'
+    case 15068:                     // 'return' '#'
+    case 15069:                     // 'returning' '#'
+    case 15070:                     // 'revalidation' '#'
+    case 15072:                     // 'satisfies' '#'
+    case 15073:                     // 'schema' '#'
+    case 15076:                     // 'score' '#'
+    case 15077:                     // 'self' '#'
+    case 15082:                     // 'sliding' '#'
+    case 15083:                     // 'some' '#'
+    case 15084:                     // 'stable' '#'
+    case 15085:                     // 'start' '#'
+    case 15088:                     // 'strict' '#'
+    case 15092:                     // 'text' '#'
+    case 15096:                     // 'to' '#'
+    case 15097:                     // 'treat' '#'
+    case 15098:                     // 'try' '#'
+    case 15099:                     // 'tumbling' '#'
+    case 15100:                     // 'type' '#'
+    case 15102:                     // 'union' '#'
+    case 15104:                     // 'unordered' '#'
+    case 15105:                     // 'updating' '#'
+    case 15108:                     // 'validate' '#'
+    case 15109:                     // 'value' '#'
+    case 15110:                     // 'variable' '#'
+    case 15111:                     // 'version' '#'
+    case 15114:                     // 'where' '#'
+    case 15115:                     // 'while' '#'
+    case 15118:                     // 'with' '#'
+    case 15122:                     // 'xquery' '#'
+      try_FunctionItemExpr();
+      break;
+    case -10:
+    case 27412:                     // '{' ';'
+      try_BlockExpr();
+      break;
+    case -11:
+      try_ObjectConstructor();
+      break;
+    case 68:                        // '['
+      try_ArrayConstructor();
+      break;
+    case 278:                       // '{|'
+      try_JSONSimpleObjectUnion();
+      break;
+    case -14:
+      break;
+    default:
+      try_Constructor();
+    }
+  }
+
+  function parse_JSONSimpleObjectUnion()
+  {
+    eventHandler.startNonterminal("JSONSimpleObjectUnion", e0);
+    shift(278);                     // '{|'
+    lookahead1W(272);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    if (l1 != 281)                  // '|}'
+    {
+      whitespace();
+      parse_Expr();
+    }
+    shift(281);                     // '|}'
+    eventHandler.endNonterminal("JSONSimpleObjectUnion", e0);
+  }
+
+  function try_JSONSimpleObjectUnion()
+  {
+    shiftT(278);                    // '{|'
+    lookahead1W(272);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    if (l1 != 281)                  // '|}'
+    {
+      try_Expr();
+    }
+    shiftT(281);                    // '|}'
+  }
+
+  function parse_ObjectConstructor()
+  {
+    eventHandler.startNonterminal("ObjectConstructor", e0);
+    shift(276);                     // '{'
+    lookahead1W(273);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    if (l1 != 282)                  // '}'
+    {
+      whitespace();
+      parse_PairConstructorList();
+    }
+    shift(282);                     // '}'
+    eventHandler.endNonterminal("ObjectConstructor", e0);
+  }
+
+  function try_ObjectConstructor()
+  {
+    shiftT(276);                    // '{'
+    lookahead1W(273);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    if (l1 != 282)                  // '}'
+    {
+      try_PairConstructorList();
+    }
+    shiftT(282);                    // '}'
+  }
+
+  function parse_PairConstructorList()
+  {
+    eventHandler.startNonterminal("PairConstructorList", e0);
+    parse_PairConstructor();
+    for (;;)
+    {
+      if (l1 != 41)                 // ','
+      {
+        break;
+      }
+      shift(41);                    // ','
+      lookahead1W(266);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      whitespace();
+      parse_PairConstructor();
+    }
+    eventHandler.endNonterminal("PairConstructorList", e0);
+  }
+
+  function try_PairConstructorList()
+  {
+    try_PairConstructor();
+    for (;;)
+    {
+      if (l1 != 41)                 // ','
+      {
+        break;
+      }
+      shiftT(41);                   // ','
+      lookahead1W(266);             // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+      try_PairConstructor();
+    }
+  }
+
+  function parse_PairConstructor()
+  {
+    eventHandler.startNonterminal("PairConstructor", e0);
+    parse_ExprSingle();
+    shift(49);                      // ':'
+    lookahead1W(266);               // Wildcard | EQName^Token | IntegerLiteral | DecimalLiteral | DoubleLiteral |
+    whitespace();
