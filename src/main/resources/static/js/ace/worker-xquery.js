@@ -52902,4 +52902,473 @@ var createStaticContext = exports.createStaticContext = function(){
 
 var convertPosition = function (code, begin, end) {
     var before = code.substring(0, begin);
-    var after = cod
+    var after = code.substring(0, end);
+    var startline = before.split('\n').length;
+    var startcolumn = begin - before.lastIndexOf('\n');
+    var endline = after.split('\n').length;
+    var endcolumn = end - after.lastIndexOf('\n');
+    var pos = {
+        sl: startline - 1,
+        sc: startcolumn - 1,
+        el: endline - 1,
+        ec: endcolumn - 1
+    };
+    return pos;
+};
+
+exports.JSONiqLexer = _dereq_('./lexers/jsoniq_lexer').JSONiqLexer;
+exports.XQueryLexer = _dereq_('./lexers/xquery_lexer').XQueryLexer;
+exports.XQLint = function (source, opts) {
+    if(_.defaults) {
+        opts = _.defaults(opts ? opts : {}, { styleCheck: false });
+    }
+
+    var ast, xqdoc;
+    var sctx = opts.staticContext ? opts.staticContext : createStaticContext();
+
+    this.getAST = function () {
+        return ast;
+    };
+    
+    this.printAST = function () {
+        return TreeOps.astAsXML(ast, '  ');
+    };
+
+    this.getXQDoc = function () {
+        return xqdoc.getXQDoc(sctx);
+    };
+
+    var markers = [];
+    this.getMarkers = function () {
+        return markers;
+    };
+    
+    this.getMarkers = function(type){
+        var m = [];
+        markers.forEach(function(marker){
+            if(marker.type === type || type === undefined){
+                m.push(marker);
+            }
+        });
+        return m;
+    };
+
+    this.getErrors = function(){
+        return this.getMarkers('error');
+    };
+
+    this.getWarnings = function(){
+        return this.getMarkers('warning');
+    };
+    
+    this.getCompletions = function(pos){
+        return completer.complete(source, ast, sctx, pos);
+    };
+
+    var syntaxError = false;
+    this.hasSyntaxError = function () {
+        return syntaxError;
+    };
+
+    var file = opts.fileName ? opts.fileName : '';
+    var isJSONiq = ((file.substring(file.length - '.jq'.length).indexOf('.jq') !== -1) && source.indexOf('xquery version') !== 0) || source.indexOf('jsoniq version') === 0;
+    var h = new JSONParseTreeHandler(source);
+    var parser = isJSONiq ? new JSONiqParser(source, h) : new XQueryParser(source, h);
+    try {
+        parser.parse_XQuery();
+    } catch (e) {
+        if (e instanceof parser.ParseException) {
+            syntaxError = true;
+            h.closeParseTree();
+            var pos = convertPosition(source, e.getBegin(), e.getEnd());
+            var message = parser.getErrorMessage(e);
+            if (pos.sc === pos.ec) {
+                pos.ec++;
+            }
+            markers.push({
+                pos: pos,
+                type: 'error',
+                level: 'error',
+                message: message
+            });
+        } else {
+            throw e;
+        }
+    }
+    ast = h.getParseTree();
+    if(opts.styleCheck) {
+        markers = markers.concat(new StyleChecker(ast, source).getMarkers());
+    }
+    xqdoc = new XQDoc(ast);
+    var translator = new Translator(sctx, ast);
+    markers = markers.concat(translator.getMarkers());
+};
+
+},{"../lib/completion/completer":"/node_modules/xqlint/lib/completion/completer.js","./compiler/static_context":"/node_modules/xqlint/lib/compiler/static_context.js","./compiler/translator":"/node_modules/xqlint/lib/compiler/translator.js","./formatter/style_checker":"/node_modules/xqlint/lib/formatter/style_checker.js","./lexers/jsoniq_lexer":"/node_modules/xqlint/lib/lexers/jsoniq_lexer.js","./lexers/xquery_lexer":"/node_modules/xqlint/lib/lexers/xquery_lexer.js","./parsers/JSONParseTreeHandler":"/node_modules/xqlint/lib/parsers/JSONParseTreeHandler.js","./parsers/JSONiqParser":"/node_modules/xqlint/lib/parsers/JSONiqParser.js","./parsers/XQueryParser":"/node_modules/xqlint/lib/parsers/XQueryParser.js","./tree_ops":"/node_modules/xqlint/lib/tree_ops.js","./xqdoc/xqdoc":"/node_modules/xqlint/lib/xqdoc/xqdoc.js","lodash":"/node_modules/xqlint/node_modules/lodash/index.js"}],"/node_modules/xqlint/node_modules/lodash/index.js":[function(_dereq_,module,exports){
+(function (global){
+;(function() {
+  var undefined;
+  var VERSION = '3.10.1';
+  var BIND_FLAG = 1,
+      BIND_KEY_FLAG = 2,
+      CURRY_BOUND_FLAG = 4,
+      CURRY_FLAG = 8,
+      CURRY_RIGHT_FLAG = 16,
+      PARTIAL_FLAG = 32,
+      PARTIAL_RIGHT_FLAG = 64,
+      ARY_FLAG = 128,
+      REARG_FLAG = 256;
+  var DEFAULT_TRUNC_LENGTH = 30,
+      DEFAULT_TRUNC_OMISSION = '...';
+  var HOT_COUNT = 150,
+      HOT_SPAN = 16;
+  var LARGE_ARRAY_SIZE = 200;
+  var LAZY_FILTER_FLAG = 1,
+      LAZY_MAP_FLAG = 2;
+  var FUNC_ERROR_TEXT = 'Expected a function';
+  var PLACEHOLDER = '__lodash_placeholder__';
+  var argsTag = '[object Arguments]',
+      arrayTag = '[object Array]',
+      boolTag = '[object Boolean]',
+      dateTag = '[object Date]',
+      errorTag = '[object Error]',
+      funcTag = '[object Function]',
+      mapTag = '[object Map]',
+      numberTag = '[object Number]',
+      objectTag = '[object Object]',
+      regexpTag = '[object RegExp]',
+      setTag = '[object Set]',
+      stringTag = '[object String]',
+      weakMapTag = '[object WeakMap]';
+
+  var arrayBufferTag = '[object ArrayBuffer]',
+      float32Tag = '[object Float32Array]',
+      float64Tag = '[object Float64Array]',
+      int8Tag = '[object Int8Array]',
+      int16Tag = '[object Int16Array]',
+      int32Tag = '[object Int32Array]',
+      uint8Tag = '[object Uint8Array]',
+      uint8ClampedTag = '[object Uint8ClampedArray]',
+      uint16Tag = '[object Uint16Array]',
+      uint32Tag = '[object Uint32Array]';
+  var reEmptyStringLeading = /\b__p \+= '';/g,
+      reEmptyStringMiddle = /\b(__p \+=) '' \+/g,
+      reEmptyStringTrailing = /(__e\(.*?\)|\b__t\)) \+\n'';/g;
+  var reEscapedHtml = /&(?:amp|lt|gt|quot|#39|#96);/g,
+      reUnescapedHtml = /[&<>"'`]/g,
+      reHasEscapedHtml = RegExp(reEscapedHtml.source),
+      reHasUnescapedHtml = RegExp(reUnescapedHtml.source);
+  var reEscape = /<%-([\s\S]+?)%>/g,
+      reEvaluate = /<%([\s\S]+?)%>/g,
+      reInterpolate = /<%=([\s\S]+?)%>/g;
+  var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\n\\]|\\.)*?\1)\]/,
+      reIsPlainProp = /^\w*$/,
+      rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\n\\]|\\.)*?)\2)\]/g;
+  var reRegExpChars = /^[:!,]|[\\^$.*+?()[\]{}|\/]|(^[0-9a-fA-Fnrtuvx])|([\n\r\u2028\u2029])/g,
+      reHasRegExpChars = RegExp(reRegExpChars.source);
+  var reComboMark = /[\u0300-\u036f\ufe20-\ufe23]/g;
+  var reEscapeChar = /\\(\\)?/g;
+  var reEsTemplate = /\$\{([^\\}]*(?:\\.[^\\}]*)*)\}/g;
+  var reFlags = /\w*$/;
+  var reHasHexPrefix = /^0[xX]/;
+  var reIsHostCtor = /^\[object .+?Constructor\]$/;
+  var reIsUint = /^\d+$/;
+  var reLatin1 = /[\xc0-\xd6\xd8-\xde\xdf-\xf6\xf8-\xff]/g;
+  var reNoMatch = /($^)/;
+  var reUnescapedString = /['\n\r\u2028\u2029\\]/g;
+  var reWords = (function() {
+    var upper = '[A-Z\\xc0-\\xd6\\xd8-\\xde]',
+        lower = '[a-z\\xdf-\\xf6\\xf8-\\xff]+';
+
+    return RegExp(upper + '+(?=' + upper + lower + ')|' + upper + '?' + lower + '|' + upper + '+|[0-9]+', 'g');
+  }());
+  var contextProps = [
+    'Array', 'ArrayBuffer', 'Date', 'Error', 'Float32Array', 'Float64Array',
+    'Function', 'Int8Array', 'Int16Array', 'Int32Array', 'Math', 'Number',
+    'Object', 'RegExp', 'Set', 'String', '_', 'clearTimeout', 'isFinite',
+    'parseFloat', 'parseInt', 'setTimeout', 'TypeError', 'Uint8Array',
+    'Uint8ClampedArray', 'Uint16Array', 'Uint32Array', 'WeakMap'
+  ];
+  var templateCounter = -1;
+  var typedArrayTags = {};
+  typedArrayTags[float32Tag] = typedArrayTags[float64Tag] =
+  typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
+  typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
+  typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
+  typedArrayTags[uint32Tag] = true;
+  typedArrayTags[argsTag] = typedArrayTags[arrayTag] =
+  typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
+  typedArrayTags[dateTag] = typedArrayTags[errorTag] =
+  typedArrayTags[funcTag] = typedArrayTags[mapTag] =
+  typedArrayTags[numberTag] = typedArrayTags[objectTag] =
+  typedArrayTags[regexpTag] = typedArrayTags[setTag] =
+  typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
+  var cloneableTags = {};
+  cloneableTags[argsTag] = cloneableTags[arrayTag] =
+  cloneableTags[arrayBufferTag] = cloneableTags[boolTag] =
+  cloneableTags[dateTag] = cloneableTags[float32Tag] =
+  cloneableTags[float64Tag] = cloneableTags[int8Tag] =
+  cloneableTags[int16Tag] = cloneableTags[int32Tag] =
+  cloneableTags[numberTag] = cloneableTags[objectTag] =
+  cloneableTags[regexpTag] = cloneableTags[stringTag] =
+  cloneableTags[uint8Tag] = cloneableTags[uint8ClampedTag] =
+  cloneableTags[uint16Tag] = cloneableTags[uint32Tag] = true;
+  cloneableTags[errorTag] = cloneableTags[funcTag] =
+  cloneableTags[mapTag] = cloneableTags[setTag] =
+  cloneableTags[weakMapTag] = false;
+  var deburredLetters = {
+    '\xc0': 'A',  '\xc1': 'A', '\xc2': 'A', '\xc3': 'A', '\xc4': 'A', '\xc5': 'A',
+    '\xe0': 'a',  '\xe1': 'a', '\xe2': 'a', '\xe3': 'a', '\xe4': 'a', '\xe5': 'a',
+    '\xc7': 'C',  '\xe7': 'c',
+    '\xd0': 'D',  '\xf0': 'd',
+    '\xc8': 'E',  '\xc9': 'E', '\xca': 'E', '\xcb': 'E',
+    '\xe8': 'e',  '\xe9': 'e', '\xea': 'e', '\xeb': 'e',
+    '\xcC': 'I',  '\xcd': 'I', '\xce': 'I', '\xcf': 'I',
+    '\xeC': 'i',  '\xed': 'i', '\xee': 'i', '\xef': 'i',
+    '\xd1': 'N',  '\xf1': 'n',
+    '\xd2': 'O',  '\xd3': 'O', '\xd4': 'O', '\xd5': 'O', '\xd6': 'O', '\xd8': 'O',
+    '\xf2': 'o',  '\xf3': 'o', '\xf4': 'o', '\xf5': 'o', '\xf6': 'o', '\xf8': 'o',
+    '\xd9': 'U',  '\xda': 'U', '\xdb': 'U', '\xdc': 'U',
+    '\xf9': 'u',  '\xfa': 'u', '\xfb': 'u', '\xfc': 'u',
+    '\xdd': 'Y',  '\xfd': 'y', '\xff': 'y',
+    '\xc6': 'Ae', '\xe6': 'ae',
+    '\xde': 'Th', '\xfe': 'th',
+    '\xdf': 'ss'
+  };
+  var htmlEscapes = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+    '`': '&#96;'
+  };
+  var htmlUnescapes = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'",
+    '&#96;': '`'
+  };
+  var objectTypes = {
+    'function': true,
+    'object': true
+  };
+  var regexpEscapes = {
+    '0': 'x30', '1': 'x31', '2': 'x32', '3': 'x33', '4': 'x34',
+    '5': 'x35', '6': 'x36', '7': 'x37', '8': 'x38', '9': 'x39',
+    'A': 'x41', 'B': 'x42', 'C': 'x43', 'D': 'x44', 'E': 'x45', 'F': 'x46',
+    'a': 'x61', 'b': 'x62', 'c': 'x63', 'd': 'x64', 'e': 'x65', 'f': 'x66',
+    'n': 'x6e', 'r': 'x72', 't': 'x74', 'u': 'x75', 'v': 'x76', 'x': 'x78'
+  };
+  var stringEscapes = {
+    '\\': '\\',
+    "'": "'",
+    '\n': 'n',
+    '\r': 'r',
+    '\u2028': 'u2028',
+    '\u2029': 'u2029'
+  };
+  var freeExports = objectTypes[typeof exports] && exports && !exports.nodeType && exports;
+  var freeModule = objectTypes[typeof module] && module && !module.nodeType && module;
+  var freeGlobal = freeExports && freeModule && typeof global == 'object' && global && global.Object && global;
+  var freeSelf = objectTypes[typeof self] && self && self.Object && self;
+  var freeWindow = objectTypes[typeof window] && window && window.Object && window;
+  var moduleExports = freeModule && freeModule.exports === freeExports && freeExports;
+  var root = freeGlobal || ((freeWindow !== (this && this.window)) && freeWindow) || freeSelf || this;
+  function baseCompareAscending(value, other) {
+    if (value !== other) {
+      var valIsNull = value === null,
+          valIsUndef = value === undefined,
+          valIsReflexive = value === value;
+
+      var othIsNull = other === null,
+          othIsUndef = other === undefined,
+          othIsReflexive = other === other;
+
+      if ((value > other && !othIsNull) || !valIsReflexive ||
+          (valIsNull && !othIsUndef && othIsReflexive) ||
+          (valIsUndef && othIsReflexive)) {
+        return 1;
+      }
+      if ((value < other && !valIsNull) || !othIsReflexive ||
+          (othIsNull && !valIsUndef && valIsReflexive) ||
+          (othIsUndef && valIsReflexive)) {
+        return -1;
+      }
+    }
+    return 0;
+  }
+  function baseFindIndex(array, predicate, fromRight) {
+    var length = array.length,
+        index = fromRight ? length : -1;
+
+    while ((fromRight ? index-- : ++index < length)) {
+      if (predicate(array[index], index, array)) {
+        return index;
+      }
+    }
+    return -1;
+  }
+  function baseIndexOf(array, value, fromIndex) {
+    if (value !== value) {
+      return indexOfNaN(array, fromIndex);
+    }
+    var index = fromIndex - 1,
+        length = array.length;
+
+    while (++index < length) {
+      if (array[index] === value) {
+        return index;
+      }
+    }
+    return -1;
+  }
+  function baseIsFunction(value) {
+    return typeof value == 'function' || false;
+  }
+  function baseToString(value) {
+    return value == null ? '' : (value + '');
+  }
+  function charsLeftIndex(string, chars) {
+    var index = -1,
+        length = string.length;
+
+    while (++index < length && chars.indexOf(string.charAt(index)) > -1) {}
+    return index;
+  }
+  function charsRightIndex(string, chars) {
+    var index = string.length;
+
+    while (index-- && chars.indexOf(string.charAt(index)) > -1) {}
+    return index;
+  }
+  function compareAscending(object, other) {
+    return baseCompareAscending(object.criteria, other.criteria) || (object.index - other.index);
+  }
+  function compareMultiple(object, other, orders) {
+    var index = -1,
+        objCriteria = object.criteria,
+        othCriteria = other.criteria,
+        length = objCriteria.length,
+        ordersLength = orders.length;
+
+    while (++index < length) {
+      var result = baseCompareAscending(objCriteria[index], othCriteria[index]);
+      if (result) {
+        if (index >= ordersLength) {
+          return result;
+        }
+        var order = orders[index];
+        return result * ((order === 'asc' || order === true) ? 1 : -1);
+      }
+    }
+    return object.index - other.index;
+  }
+  function deburrLetter(letter) {
+    return deburredLetters[letter];
+  }
+  function escapeHtmlChar(chr) {
+    return htmlEscapes[chr];
+  }
+  function escapeRegExpChar(chr, leadingChar, whitespaceChar) {
+    if (leadingChar) {
+      chr = regexpEscapes[chr];
+    } else if (whitespaceChar) {
+      chr = stringEscapes[chr];
+    }
+    return '\\' + chr;
+  }
+  function escapeStringChar(chr) {
+    return '\\' + stringEscapes[chr];
+  }
+  function indexOfNaN(array, fromIndex, fromRight) {
+    var length = array.length,
+        index = fromIndex + (fromRight ? 0 : -1);
+
+    while ((fromRight ? index-- : ++index < length)) {
+      var other = array[index];
+      if (other !== other) {
+        return index;
+      }
+    }
+    return -1;
+  }
+  function isObjectLike(value) {
+    return !!value && typeof value == 'object';
+  }
+  function isSpace(charCode) {
+    return ((charCode <= 160 && (charCode >= 9 && charCode <= 13) || charCode == 32 || charCode == 160) || charCode == 5760 || charCode == 6158 ||
+      (charCode >= 8192 && (charCode <= 8202 || charCode == 8232 || charCode == 8233 || charCode == 8239 || charCode == 8287 || charCode == 12288 || charCode == 65279)));
+  }
+  function replaceHolders(array, placeholder) {
+    var index = -1,
+        length = array.length,
+        resIndex = -1,
+        result = [];
+
+    while (++index < length) {
+      if (array[index] === placeholder) {
+        array[index] = PLACEHOLDER;
+        result[++resIndex] = index;
+      }
+    }
+    return result;
+  }
+  function sortedUniq(array, iteratee) {
+    var seen,
+        index = -1,
+        length = array.length,
+        resIndex = -1,
+        result = [];
+
+    while (++index < length) {
+      var value = array[index],
+          computed = iteratee ? iteratee(value, index, array) : value;
+
+      if (!index || seen !== computed) {
+        seen = computed;
+        result[++resIndex] = value;
+      }
+    }
+    return result;
+  }
+  function trimmedLeftIndex(string) {
+    var index = -1,
+        length = string.length;
+
+    while (++index < length && isSpace(string.charCodeAt(index))) {}
+    return index;
+  }
+  function trimmedRightIndex(string) {
+    var index = string.length;
+
+    while (index-- && isSpace(string.charCodeAt(index))) {}
+    return index;
+  }
+  function unescapeHtmlChar(chr) {
+    return htmlUnescapes[chr];
+  }
+  function runInContext(context) {
+    context = context ? _.defaults(root.Object(), context, _.pick(root, contextProps)) : root;
+    var Array = context.Array,
+        Date = context.Date,
+        Error = context.Error,
+        Function = context.Function,
+        Math = context.Math,
+        Number = context.Number,
+        Object = context.Object,
+        RegExp = context.RegExp,
+        String = context.String,
+        TypeError = context.TypeError;
+    var arrayProto = Array.prototype,
+        objectProto = Object.prototype,
+        stringProto = String.prototype;
+    var fnToString = Function.prototype.toString;
+    var hasOwnProperty = objectProto.hasOwnProperty;
+    var idCounter = 0;
+    var objToString = objectProto.toString;
+    var oldDash = root._;
+    var reIsNative = RegExp('^' +
+    
