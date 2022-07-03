@@ -55449,4 +55449,507 @@ exports.XQLint = function (source, opts) {
         start = 0;
         end = length;
       }
-     
+      return baseFill(array, value, start, end);
+    }
+    var findIndex = createFindIndex();
+    var findLastIndex = createFindIndex(true);
+    function first(array) {
+      return array ? array[0] : undefined;
+    }
+    function flatten(array, isDeep, guard) {
+      var length = array ? array.length : 0;
+      if (guard && isIterateeCall(array, isDeep, guard)) {
+        isDeep = false;
+      }
+      return length ? baseFlatten(array, isDeep) : [];
+    }
+    function flattenDeep(array) {
+      var length = array ? array.length : 0;
+      return length ? baseFlatten(array, true) : [];
+    }
+    function indexOf(array, value, fromIndex) {
+      var length = array ? array.length : 0;
+      if (!length) {
+        return -1;
+      }
+      if (typeof fromIndex == 'number') {
+        fromIndex = fromIndex < 0 ? nativeMax(length + fromIndex, 0) : fromIndex;
+      } else if (fromIndex) {
+        var index = binaryIndex(array, value);
+        if (index < length &&
+            (value === value ? (value === array[index]) : (array[index] !== array[index]))) {
+          return index;
+        }
+        return -1;
+      }
+      return baseIndexOf(array, value, fromIndex || 0);
+    }
+    function initial(array) {
+      return dropRight(array, 1);
+    }
+    var intersection = restParam(function(arrays) {
+      var othLength = arrays.length,
+          othIndex = othLength,
+          caches = Array(length),
+          indexOf = getIndexOf(),
+          isCommon = indexOf == baseIndexOf,
+          result = [];
+
+      while (othIndex--) {
+        var value = arrays[othIndex] = isArrayLike(value = arrays[othIndex]) ? value : [];
+        caches[othIndex] = (isCommon && value.length >= 120) ? createCache(othIndex && value) : null;
+      }
+      var array = arrays[0],
+          index = -1,
+          length = array ? array.length : 0,
+          seen = caches[0];
+
+      outer:
+      while (++index < length) {
+        value = array[index];
+        if ((seen ? cacheIndexOf(seen, value) : indexOf(result, value, 0)) < 0) {
+          var othIndex = othLength;
+          while (--othIndex) {
+            var cache = caches[othIndex];
+            if ((cache ? cacheIndexOf(cache, value) : indexOf(arrays[othIndex], value, 0)) < 0) {
+              continue outer;
+            }
+          }
+          if (seen) {
+            seen.push(value);
+          }
+          result.push(value);
+        }
+      }
+      return result;
+    });
+    function last(array) {
+      var length = array ? array.length : 0;
+      return length ? array[length - 1] : undefined;
+    }
+    function lastIndexOf(array, value, fromIndex) {
+      var length = array ? array.length : 0;
+      if (!length) {
+        return -1;
+      }
+      var index = length;
+      if (typeof fromIndex == 'number') {
+        index = (fromIndex < 0 ? nativeMax(length + fromIndex, 0) : nativeMin(fromIndex || 0, length - 1)) + 1;
+      } else if (fromIndex) {
+        index = binaryIndex(array, value, true) - 1;
+        var other = array[index];
+        if (value === value ? (value === other) : (other !== other)) {
+          return index;
+        }
+        return -1;
+      }
+      if (value !== value) {
+        return indexOfNaN(array, index, true);
+      }
+      while (index--) {
+        if (array[index] === value) {
+          return index;
+        }
+      }
+      return -1;
+    }
+    function pull() {
+      var args = arguments,
+          array = args[0];
+
+      if (!(array && array.length)) {
+        return array;
+      }
+      var index = 0,
+          indexOf = getIndexOf(),
+          length = args.length;
+
+      while (++index < length) {
+        var fromIndex = 0,
+            value = args[index];
+
+        while ((fromIndex = indexOf(array, value, fromIndex)) > -1) {
+          splice.call(array, fromIndex, 1);
+        }
+      }
+      return array;
+    }
+    var pullAt = restParam(function(array, indexes) {
+      indexes = baseFlatten(indexes);
+
+      var result = baseAt(array, indexes);
+      basePullAt(array, indexes.sort(baseCompareAscending));
+      return result;
+    });
+    function remove(array, predicate, thisArg) {
+      var result = [];
+      if (!(array && array.length)) {
+        return result;
+      }
+      var index = -1,
+          indexes = [],
+          length = array.length;
+
+      predicate = getCallback(predicate, thisArg, 3);
+      while (++index < length) {
+        var value = array[index];
+        if (predicate(value, index, array)) {
+          result.push(value);
+          indexes.push(index);
+        }
+      }
+      basePullAt(array, indexes);
+      return result;
+    }
+    function rest(array) {
+      return drop(array, 1);
+    }
+    function slice(array, start, end) {
+      var length = array ? array.length : 0;
+      if (!length) {
+        return [];
+      }
+      if (end && typeof end != 'number' && isIterateeCall(array, start, end)) {
+        start = 0;
+        end = length;
+      }
+      return baseSlice(array, start, end);
+    }
+    var sortedIndex = createSortedIndex();
+    var sortedLastIndex = createSortedIndex(true);
+    function take(array, n, guard) {
+      var length = array ? array.length : 0;
+      if (!length) {
+        return [];
+      }
+      if (guard ? isIterateeCall(array, n, guard) : n == null) {
+        n = 1;
+      }
+      return baseSlice(array, 0, n < 0 ? 0 : n);
+    }
+    function takeRight(array, n, guard) {
+      var length = array ? array.length : 0;
+      if (!length) {
+        return [];
+      }
+      if (guard ? isIterateeCall(array, n, guard) : n == null) {
+        n = 1;
+      }
+      n = length - (+n || 0);
+      return baseSlice(array, n < 0 ? 0 : n);
+    }
+    function takeRightWhile(array, predicate, thisArg) {
+      return (array && array.length)
+        ? baseWhile(array, getCallback(predicate, thisArg, 3), false, true)
+        : [];
+    }
+    function takeWhile(array, predicate, thisArg) {
+      return (array && array.length)
+        ? baseWhile(array, getCallback(predicate, thisArg, 3))
+        : [];
+    }
+    var union = restParam(function(arrays) {
+      return baseUniq(baseFlatten(arrays, false, true));
+    });
+    function uniq(array, isSorted, iteratee, thisArg) {
+      var length = array ? array.length : 0;
+      if (!length) {
+        return [];
+      }
+      if (isSorted != null && typeof isSorted != 'boolean') {
+        thisArg = iteratee;
+        iteratee = isIterateeCall(array, isSorted, thisArg) ? undefined : isSorted;
+        isSorted = false;
+      }
+      var callback = getCallback();
+      if (!(iteratee == null && callback === baseCallback)) {
+        iteratee = callback(iteratee, thisArg, 3);
+      }
+      return (isSorted && getIndexOf() == baseIndexOf)
+        ? sortedUniq(array, iteratee)
+        : baseUniq(array, iteratee);
+    }
+    function unzip(array) {
+      if (!(array && array.length)) {
+        return [];
+      }
+      var index = -1,
+          length = 0;
+
+      array = arrayFilter(array, function(group) {
+        if (isArrayLike(group)) {
+          length = nativeMax(group.length, length);
+          return true;
+        }
+      });
+      var result = Array(length);
+      while (++index < length) {
+        result[index] = arrayMap(array, baseProperty(index));
+      }
+      return result;
+    }
+    function unzipWith(array, iteratee, thisArg) {
+      var length = array ? array.length : 0;
+      if (!length) {
+        return [];
+      }
+      var result = unzip(array);
+      if (iteratee == null) {
+        return result;
+      }
+      iteratee = bindCallback(iteratee, thisArg, 4);
+      return arrayMap(result, function(group) {
+        return arrayReduce(group, iteratee, undefined, true);
+      });
+    }
+    var without = restParam(function(array, values) {
+      return isArrayLike(array)
+        ? baseDifference(array, values)
+        : [];
+    });
+    function xor() {
+      var index = -1,
+          length = arguments.length;
+
+      while (++index < length) {
+        var array = arguments[index];
+        if (isArrayLike(array)) {
+          var result = result
+            ? arrayPush(baseDifference(result, array), baseDifference(array, result))
+            : array;
+        }
+      }
+      return result ? baseUniq(result) : [];
+    }
+    var zip = restParam(unzip);
+    function zipObject(props, values) {
+      var index = -1,
+          length = props ? props.length : 0,
+          result = {};
+
+      if (length && !values && !isArray(props[0])) {
+        values = [];
+      }
+      while (++index < length) {
+        var key = props[index];
+        if (values) {
+          result[key] = values[index];
+        } else if (key) {
+          result[key[0]] = key[1];
+        }
+      }
+      return result;
+    }
+    var zipWith = restParam(function(arrays) {
+      var length = arrays.length,
+          iteratee = length > 2 ? arrays[length - 2] : undefined,
+          thisArg = length > 1 ? arrays[length - 1] : undefined;
+
+      if (length > 2 && typeof iteratee == 'function') {
+        length -= 2;
+      } else {
+        iteratee = (length > 1 && typeof thisArg == 'function') ? (--length, thisArg) : undefined;
+        thisArg = undefined;
+      }
+      arrays.length = length;
+      return unzipWith(arrays, iteratee, thisArg);
+    });
+    function chain(value) {
+      var result = lodash(value);
+      result.__chain__ = true;
+      return result;
+    }
+    function tap(value, interceptor, thisArg) {
+      interceptor.call(thisArg, value);
+      return value;
+    }
+    function thru(value, interceptor, thisArg) {
+      return interceptor.call(thisArg, value);
+    }
+    function wrapperChain() {
+      return chain(this);
+    }
+    function wrapperCommit() {
+      return new LodashWrapper(this.value(), this.__chain__);
+    }
+    var wrapperConcat = restParam(function(values) {
+      values = baseFlatten(values);
+      return this.thru(function(array) {
+        return arrayConcat(isArray(array) ? array : [toObject(array)], values);
+      });
+    });
+    function wrapperPlant(value) {
+      var result,
+          parent = this;
+
+      while (parent instanceof baseLodash) {
+        var clone = wrapperClone(parent);
+        if (result) {
+          previous.__wrapped__ = clone;
+        } else {
+          result = clone;
+        }
+        var previous = clone;
+        parent = parent.__wrapped__;
+      }
+      previous.__wrapped__ = value;
+      return result;
+    }
+    function wrapperReverse() {
+      var value = this.__wrapped__;
+
+      var interceptor = function(value) {
+        return (wrapped && wrapped.__dir__ < 0) ? value : value.reverse();
+      };
+      if (value instanceof LazyWrapper) {
+        var wrapped = value;
+        if (this.__actions__.length) {
+          wrapped = new LazyWrapper(this);
+        }
+        wrapped = wrapped.reverse();
+        wrapped.__actions__.push({ 'func': thru, 'args': [interceptor], 'thisArg': undefined });
+        return new LodashWrapper(wrapped, this.__chain__);
+      }
+      return this.thru(interceptor);
+    }
+    function wrapperToString() {
+      return (this.value() + '');
+    }
+    function wrapperValue() {
+      return baseWrapperValue(this.__wrapped__, this.__actions__);
+    }
+    var at = restParam(function(collection, props) {
+      return baseAt(collection, baseFlatten(props));
+    });
+    var countBy = createAggregator(function(result, value, key) {
+      hasOwnProperty.call(result, key) ? ++result[key] : (result[key] = 1);
+    });
+    function every(collection, predicate, thisArg) {
+      var func = isArray(collection) ? arrayEvery : baseEvery;
+      if (thisArg && isIterateeCall(collection, predicate, thisArg)) {
+        predicate = undefined;
+      }
+      if (typeof predicate != 'function' || thisArg !== undefined) {
+        predicate = getCallback(predicate, thisArg, 3);
+      }
+      return func(collection, predicate);
+    }
+    function filter(collection, predicate, thisArg) {
+      var func = isArray(collection) ? arrayFilter : baseFilter;
+      predicate = getCallback(predicate, thisArg, 3);
+      return func(collection, predicate);
+    }
+    var find = createFind(baseEach);
+    var findLast = createFind(baseEachRight, true);
+    function findWhere(collection, source) {
+      return find(collection, baseMatches(source));
+    }
+    var forEach = createForEach(arrayEach, baseEach);
+    var forEachRight = createForEach(arrayEachRight, baseEachRight);
+    var groupBy = createAggregator(function(result, value, key) {
+      if (hasOwnProperty.call(result, key)) {
+        result[key].push(value);
+      } else {
+        result[key] = [value];
+      }
+    });
+    function includes(collection, target, fromIndex, guard) {
+      var length = collection ? getLength(collection) : 0;
+      if (!isLength(length)) {
+        collection = values(collection);
+        length = collection.length;
+      }
+      if (typeof fromIndex != 'number' || (guard && isIterateeCall(target, fromIndex, guard))) {
+        fromIndex = 0;
+      } else {
+        fromIndex = fromIndex < 0 ? nativeMax(length + fromIndex, 0) : (fromIndex || 0);
+      }
+      return (typeof collection == 'string' || !isArray(collection) && isString(collection))
+        ? (fromIndex <= length && collection.indexOf(target, fromIndex) > -1)
+        : (!!length && getIndexOf(collection, target, fromIndex) > -1);
+    }
+    var indexBy = createAggregator(function(result, value, key) {
+      result[key] = value;
+    });
+    var invoke = restParam(function(collection, path, args) {
+      var index = -1,
+          isFunc = typeof path == 'function',
+          isProp = isKey(path),
+          result = isArrayLike(collection) ? Array(collection.length) : [];
+
+      baseEach(collection, function(value) {
+        var func = isFunc ? path : ((isProp && value != null) ? value[path] : undefined);
+        result[++index] = func ? func.apply(value, args) : invokePath(value, path, args);
+      });
+      return result;
+    });
+    function map(collection, iteratee, thisArg) {
+      var func = isArray(collection) ? arrayMap : baseMap;
+      iteratee = getCallback(iteratee, thisArg, 3);
+      return func(collection, iteratee);
+    }
+    var partition = createAggregator(function(result, value, key) {
+      result[key ? 0 : 1].push(value);
+    }, function() { return [[], []]; });
+    function pluck(collection, path) {
+      return map(collection, property(path));
+    }
+    var reduce = createReduce(arrayReduce, baseEach);
+    var reduceRight = createReduce(arrayReduceRight, baseEachRight);
+    function reject(collection, predicate, thisArg) {
+      var func = isArray(collection) ? arrayFilter : baseFilter;
+      predicate = getCallback(predicate, thisArg, 3);
+      return func(collection, function(value, index, collection) {
+        return !predicate(value, index, collection);
+      });
+    }
+    function sample(collection, n, guard) {
+      if (guard ? isIterateeCall(collection, n, guard) : n == null) {
+        collection = toIterable(collection);
+        var length = collection.length;
+        return length > 0 ? collection[baseRandom(0, length - 1)] : undefined;
+      }
+      var index = -1,
+          result = toArray(collection),
+          length = result.length,
+          lastIndex = length - 1;
+
+      n = nativeMin(n < 0 ? 0 : (+n || 0), length);
+      while (++index < n) {
+        var rand = baseRandom(index, lastIndex),
+            value = result[rand];
+
+        result[rand] = result[index];
+        result[index] = value;
+      }
+      result.length = n;
+      return result;
+    }
+    function shuffle(collection) {
+      return sample(collection, POSITIVE_INFINITY);
+    }
+    function size(collection) {
+      var length = collection ? getLength(collection) : 0;
+      return isLength(length) ? length : keys(collection).length;
+    }
+    function some(collection, predicate, thisArg) {
+      var func = isArray(collection) ? arraySome : baseSome;
+      if (thisArg && isIterateeCall(collection, predicate, thisArg)) {
+        predicate = undefined;
+      }
+      if (typeof predicate != 'function' || thisArg !== undefined) {
+        predicate = getCallback(predicate, thisArg, 3);
+      }
+      return func(collection, predicate);
+    }
+    function sortBy(collection, iteratee, thisArg) {
+      if (collection == null) {
+        return [];
+      }
+      if (thisArg && isIterateeCall(collection, iteratee, thisArg)) {
+        iteratee = undefined;
+      }
+      var index = -1;
+      iteratee = getCallback(iteratee, thisArg, 3);
+
+      var result = baseMap(
