@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>View管理</title>
+    <link rel="shortcut icon" href="/img/icon/logo.ico">
+    <!-- Google font -->
+    <!--<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">-->
+    <!-- Bootstrap -->
+    <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css"/>
+    <!-- Slick -->
+    <link type="text/css" rel="stylesheet" href="/css/slick.css"/>
+    <link type="text/css" rel="stylesheet" href="/css/slick-theme.css"/>
+    <!-- nouislider -->
+    <link type="text/css" rel="stylesheet" href="/css/nouislider.min.css"/>
+    <!-- Font Awesome Icon -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css"/>
+    <!-- Custom stlylesheet -->
+    <link type="text/css" rel="stylesheet" href="/css/style.css"/>
+    <link type="text/css" rel="stylesheet" href="/css/realdb/form.css"/>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="/js/html5shiv.min.js"></script>
+    <script type="text/javascript" src="/js/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+<div th:include="/common/header::header"></div>
+
+<!-- SECTION -->
+<div style="text-align: center; margin-left: 24%;margin-top: 13%;">
+    <input id="id" type="hidden" /><br/>
+    <div class="form-horizontal" role="form">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">视图库</label>
+            <div class="col-sm-10">
+                <input style="width: 33%" class="form-control" type="text" id="viewsName" placeholder="请输入视图库名称">
+            </div>
+        </div>
+
+    </div>
+</div>
+<div style="text-align: center; margin-left: 9%;">
+
+
+    <button id="saveButton" onclick="submitSaveSQL()" class="btn btn-danger">保存</button>
+    <button id="returnButton" onclick="returnSQL()" class="btn btn-warning">返回</button>
+</div>
+<!-- /SECTION -->
+
+<div th:include="/common/footer::footer" id="footerDiv"></div>
+<!-- jQuery Plugins -->
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/layer/layer.js"></script>
+<script src="/js/slick.min.js"></script>
+<script src="/js/nouislider.min.js"></script>
+<script src="/js/jquery.zoom.min.js"></script>
+<script src="/js/main.js"></script>
+<script type="text/javascript">
+
+    //保存
+    function submitSaveSQL() {
+        var id = $("#id").val();
+        var viewsName = $("#viewsName").val();
+        if (viewsName == null || viewsName == "") {
+            layer.msg("视图库名称不能为空,请输入");
+            return;
+        }
+        $.post(
+            "/views/saveView",
+            {"id":id , "viewsName": viewsName},
+            function (result) {
+                if (result.code == 200) {
+                    layer.msg("保存成功,请授权后使用");
+                    window.location.href="/views/1"
+                } else if (result.code == 1001 || result.code == 1003) {
+                    layer.alert(result.msg + ",请重新输入");
+                }
+            });
+    }
+    function returnSQL() {
+        location.href="/views/1"
+    }
+
+</script>
+
+</body>
+
+
+</html>

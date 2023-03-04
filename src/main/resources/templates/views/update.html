@@ -103,4 +103,198 @@
 
                     <select class="form-control" name="vId" id="vId" style=" margin-top: 10px;">
                         <option th:value="0">请选择类型</option>
-                        <option th:selected="${viewsLists.viewsId eq list.id}"  th:each="list:${select}" th:value="${list.id}" th:text="${list.nam
+                        <option th:selected="${viewsLists.viewsId eq list.id}"  th:each="list:${select}" th:value="${list.id}" th:text="${list.name }"></option>
+                    </select>
+
+                    <input id="id" type="hidden"/><br/>
+
+                    <button id="runButton" onclick="submitRunSQL()" class="btn btn-info">查询</button>
+                    <!--<button id="saveButton" onclick="submitSaveSQL()" class="btn btn-run waves-effect">保存</button>
+                    <button id="saveViewButton" onclick="submitView()" class="btn btn-run waves-effect">添加视图库</button>-->
+                </div>
+                <div class="div-table" id="divTable">
+                </div>
+            </div>
+            <!-- /STORE -->
+        </div>
+        <!--/row-->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+
+<div th:include="/common/footer::footer" id="footerDiv"></div>
+
+<!-- jQuery Plugins -->
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/jquery.ztree.all.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/layer/layer.js"></script>
+<script type="text/javascript" src="/js/slick.min.js"></script>
+<script type="text/javascript" src="/js/nouislider.min.js"></script>
+<script type="text/javascript" src="/js/jquery.zoom.min.js"></script>
+<script type="text/javascript" src="/js/ace/ace.js"></script>
+<script type="text/javascript" src="/js/ace/ext-language_tools.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+    var setting = {
+        data: {
+            simpleData: {
+                enable: true
+            }
+        }
+    };
+    // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
+    var viewNodes = [[${realZList}]];
+    $.fn.zTree.init($("#treeReal"), setting, viewNodes);
+    ace.require("ace/ext/language_tools");
+
+    //编辑器
+    ace.require("ace/ext/language_tools");
+    var editor = ace.edit('editor');
+    var viewsTablesCode = "";
+    //修改回显
+    var viewsTables = [[${viewsLists}]];
+    if (viewsTables != null) {
+
+        viewsTablesCode = viewsTables.code;
+
+        $("#sqlName").val(viewsTables.name);
+        $("#id").val(viewsTables.id);
+
+
+    }
+
+    editorInit(editor);
+
+    function editorInit(editor) {
+
+        editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true
+        });
+        editor.setTheme("ace/theme/twilight");
+        editor.getSession().setMode("ace/mode/sql");
+        editor.setHighlightActiveLine(true);
+        editor.setFontSize(16);
+        if (viewsTablesCode != null && viewsTablesCode != "") {
+            editor.setValue(viewsTablesCode);
+        } else {
+            editor.setValue("欢迎使用");
+        }
+    }
+
+    /*]]>*/
+</script>
+
+<script type="text/javascript">
+    //查询
+    const columns = [];
+    // use keys to get column
+    const tableData = [];
+    function submitRunSQL() {
+        var sql = editor.getValue();
+        var sqlName = $("#sqlName").val();
+        if (sql == null || sql == "") {
+            layer.msg("请输入sql");
+            return;
+        }
+        if (sqlName == null || sqlName == "") {
+            layer.msg("请输入sql name");
+            return;
+        }
+        $.post("/run/script", {"sql": sql, "sqlName": sqlName}, function (result) {
+
+            if(result.code==200){
+                let data = JSON.parse(result.content);
+
+                //alert(result.content);
+
+                console.log(data);
+                let keys = [];
+                let basket = {};
+
+                //collect all keys
+                for(let i in data){
+                    for (let key in data[i]) {
+                        if (!basket[key]) {
+                            keys.push(key);
+                            basket[key] = true
+                        }
+                    }
+                }
+
+                let html = "<div class=\"div-table-row\">";
+                for (let column in keys) {
+                    html+="<div class=\"div-table-col\">"+keys[column]+"</div>";
+
+                }
+                html+="</div>";
+                for (let i in data) {
+                    let items = data[i];
+                    html+="<div class=\"div-table-row\">";
+                    for (let item in items) {
+                        html+="<div class=\"div-table-col\">"+items[item]+"</div>";
+                    }
+                    html+="</div>";
+                }
+                $("#divTable").empty();
+                $("#divTable").append(html);
+            }else{
+                layer.alert(result.content);
+            }
+
+        });
+    }
+
+
+ /*   //保存
+    function submitSaveSQL() {
+        var sql = editor.getValue();
+        var sqlName = $("#sqlName").val();
+        var id = $("#id").val();
+        var vId = $("#vId").val();
+       /!* var viewsName = $("#viewsName").val();*!/
+        if (sql == null || sql == "") {
+            layer.msg("请输入sql");
+            return;
+        }
+        if (sqlName == null || sqlName == "") {
+            layer.msg("请输入sql name");
+            return;
+        }
+        $.post(
+            "/viewsTables/save",
+            {
+                "sql": sql,
+                "sqlName": sqlName,
+                "id": id,
+                "vId": vId,
+               /!* "viewsName": viewsName*!/
+            },
+            function (result) {
+            if (result.code == 200) {
+                layer.msg("保存成功");
+            } else if (result.code == 1001 || result.code == 1003) {
+                layer.alert(result.msg + ",请重新输入");
+            }
+        });
+    }*/
+
+
+    //新增视图库
+   /* function submitView() {
+        location.href="/views/addView"
+    }*/
+
+
+</script>
+
+
+<script src="/js/mould/select/edit.js"></script>
+
+</body>
+</html>
