@@ -1,0 +1,132 @@
+
+<div th:fragment="header">
+
+<!-- HEADER -->
+<header>
+    <!-- TOP HEADER -->
+    <div id="top-header">
+        <div class="container">
+            <ul class="header-links pull-left">
+                <li style="color:#FFF;"><i class="fa fa-phone"></i> 400-0389-155</li>
+                <li style="color:#FFF;"><i class="fa fa-envelope-o"></i> bd@redoop.com</li>
+                <li style="color:#FFF;"><i class="fa fa-map-marker"></i>北京海淀区中关村软件园二期互联网创新中心506</li>
+            </ul>
+
+            <ul class="header-links pull-right">
+                <li>
+                    <!--<a href="/">-->
+                        <i class="fa fa-user-o"></i>
+                        <span style="font-size: 12px;color: red" th:text="${nickName}" aria-describedby="basic-addon0"></span>
+                        <a href="/user/logout" style="font-size: 12px;color: red">注销</a>
+                    <!--</a>-->
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- /TOP HEADER -->
+
+    <!-- MAIN HEADER -->
+    <div id="header">
+        <!-- container -->
+        <div class="container">
+            <!-- row -->
+            <div class="row">
+                <!-- LOGO -->
+                <div class="col-md-3">
+                    <div class="header-logo">
+                        <a href="/analysis/1" class="logo">
+                            <img src="/img/logo.png" alt="">
+                        </a>
+                    </div>
+                </div>
+                <!-- /LOGO -->
+
+                <!-- SEARCH BAR -->
+
+                <!-- /SEARCH BAR -->
+
+                <!-- NAVIGATION -->
+                <nav id="navigation">
+                    <!-- container -->
+                    <div class="container">
+                        <!-- responsive-nav -->
+                        <div id="responsive-nav" >
+                            <!-- NAV -->
+                            <ul class="main-nav nav navbar-nav">
+                                <li th:if="${permissionList != null}" th:each="item : ${permissionList}">
+                                    <a  th:href="${item.url}" th:text="${item.name}"></a>
+                                </li>
+                                <li th:class="${activeType eq 6}? 'active' : ''">
+                                    <a href="/process/1">工作流</a>
+                                </li>
+                               <!-- <li>
+                                    <a href="http://192.168.0.163:8089">调度器</a>
+                                </li>-->
+                                <!--<li th:class="${activeType eq 1}? 'active' : ''">
+                                    <a href="/virtual/1">查询</a>
+                                </li>
+                                <li th:class="${activeType eq 4}? 'active' : ''">
+                                    <a href="/viewsTables/1" style="">视图</a>
+                                </li>
+                                <li th:class="${activeType eq 6}? 'active' : ''">
+                                    <a href="/function/1" style="">函数</a>
+                                </li>
+                                <li th:class="${activeType eq 3}? 'active' : ''">
+                                    <a href="/analysis/1" style="">分析</a>
+                                </li>
+                                <li th:class="${activeType eq 2}? 'active' : ''">
+                                    <a href="/real/1" style="">数据源</a>
+                                </li>
+                                <li th:class="${activeType eq 5}? 'active' : ''">
+                                    <a href="/views/1" style="">视图库管理</a>
+                                </li>
+                                <li th:class="${activeType eq 7}? 'active' : ''">
+                                    <a href="/sys/manage" style="">系统管理</a>
+                                </li>-->
+                            </ul>
+                            <!-- /NAV -->
+                        </div>
+                        <!-- /responsive-nav -->
+                    </div>
+                    <!-- /container -->
+                </nav>
+                <!-- /NAVIGATION -->
+            </div>
+            <!-- row -->
+        </div>
+        <!-- container -->
+    </div>
+    <!-- /MAIN HEADER -->
+</header>
+<!-- /HEADER -->
+</div>
+
+<script th:inline="javascript" >
+   /* $(document).ready(function(){
+        $("#responsive-nav ul li  a").each(function(){
+            $this = $(this);
+            if($this[0].href==String(window.location)){
+                $this.css({"border-bottom":"2px solid #ca1828"});
+            }
+        });
+
+    });*/
+
+/*$(function () {
+       $("#responsive-nav ul li  a").click(function () {
+           $("#examtype a").each(function () {
+               $(this).removeClass("cur");
+           });
+           $(this).attr('class', 'item cur');
+       });
+});*/
+  /* $(document).ready(function(){
+       $("#responsive-nav ul li  a").each(function(){
+           $this = $(this);
+           if($this[0].href==String(window.location)){
+               $this.css({"a":"active" , "color":"red","text-decoration":"blink"});
+           }
+       });
+   });*/
+
+</script>

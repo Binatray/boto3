@@ -1,0 +1,256 @@
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>查询详情</title>
+    <link rel="shortcut icon" href="/img/icon/logo.ico">
+    <!-- Google font -->
+  <!--  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">-->
+
+    <!-- Bootstrap -->
+    <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css"/>
+
+    <!-- Slick -->
+    <link type="text/css" rel="stylesheet" href="/css/slick.css"/>
+    <link type="text/css" rel="stylesheet" href="/css/slick-theme.css"/>
+
+    <!-- nouislider -->
+    <link type="text/css" rel="stylesheet" href="/css/nouislider.min.css"/>
+
+    <!-- Font Awesome Icon -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css"/>
+
+    <!-- Custom stlylesheet -->
+    <link type="text/css" rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link href=/css/mlsql/app.61ee2da75fc002e22f47d5f70b881c8d.css rel=stylesheet>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="/js/html5shiv.min.js"></script>
+    <script type="text/javascript" src="/js/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        #editor {
+            width: 100%;
+            height: 300px;
+        }
+        .div-table {
+            display: table;
+            width: auto;
+            background-color: #eee;
+            border: 1px solid #666666;
+            border-spacing: 5px; /* cellspacing:poor IE support for  this */
+        }
+
+        .div-table-row {
+            display: table-row;
+            width: auto;
+            clear: both;
+        }
+
+        .div-table-col {
+            float: left; /* fix for  buggy browsers */
+            display: table-column;
+            width: 200px;
+            background-color: #ccc;
+            border-right: antiquewhite solid;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<div th:include="/common/header::header"></div>
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <!-- STORE -->
+            <div id="store" style="width: 100%" class="col-md-9">
+                <div class="row">
+                    <div id="editor"></div>
+                </div>
+                <div>
+
+                    <input id="sqlName" placeholder="请填写sql name"/><br/>
+                    <input id="id" type="hidden"/><br/>
+                    <button id="runButton" onclick="submitRunSQL()" class="btn btn-info">查询</button>
+                    <button id="saveButton" onclick="submitSaveSQL()" class="btn btn-success">保存</button>
+
+                   <!-- <button id="save" onclick="saveSQL()" class="btn btn-run waves-effect">下载</button>-->
+                </div>
+                <div class="div-table" id="divTable">
+                </div>
+            </div>
+            <!-- /STORE -->
+        </div>
+        <!-- /row -->
+    </div>
+    <!-- /container -->
+</div>
+<!-- /SECTION -->
+
+<div th:include="/common/footer::footer" id="footerDiv"></div>
+
+<!-- jQuery Plugins -->
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/jquery.ztree.all.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/layer/layer.js"></script>
+<script type="text/javascript" src="/js/slick.min.js"></script>
+<script type="text/javascript" src="/js/nouislider.min.js"></script>
+<script type="text/javascript" src="/js/jquery.zoom.min.js"></script>
+<script type="text/javascript" src="/js/ace/ace.js"></script>
+<script type="text/javascript" src="/js/ace/ext-language_tools.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+    var setting = {
+        data: {
+            simpleData: {
+                enable: true
+            }
+        }
+    };
+    // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
+    var realNodes = [[${realZList}]];
+    var virtualNodes = [[${virtualZList}]];
+    $.fn.zTree.init($("#treeReal"), setting, realNodes);
+    $.fn.zTree.init($("#treeVirtual"), setting, virtualNodes);
+    ace.require("ace/ext/language_tools");
+    var editor = ace.edit('editor');
+    var virtualCode = "";
+    var virtual = [[${virtual}]];
+    if (virtual != null) {
+        virtualCode = virtual.code;
+        $("#sqlName").val(virtual.name);
+        $("#id").val(virtual.id);
+    }
+    editorInit(editor);
+
+
+    function editorInit(editor) {
+
+
+        editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true
+        });
+        editor.setTheme("ace/theme/twilight");
+        editor.getSession().setMode("ace/mode/sql");
+        editor.setHighlightActiveLine(true);
+        editor.setFontSize(16);
+        // editor.execCommand('find');
+        if (virtualCode != null && virtualCode != "") {
+            editor.setValue(virtualCode);
+        } else {
+            editor.setValue("欢迎使用");
+        }
+    }
+
+    /*]]>*/
+</script>
+<script type="text/javascript">
+    const columns = [];
+    // use keys to get column
+    const tableData = [];
+    function submitRunSQL() {
+        var sql = editor.getValue();
+        var sqlName = $("#sqlName").val();
+        if (sql == null || sql == "") {
+            layer.msg("请输入sql");
+            return;
+        }
+        if (sqlName == null || sqlName == "") {
+            layer.msg("请输入sql name");
+            return;
+        }
+        $.post("/run/script", {"sql": sql, "sqlName": sqlName}, function (result) {
+
+            if(result.code==200){
+                let data = JSON.parse(result.content);
+                console.log(data);
+                let keys = [];
+                let basket = {};
+
+                //collect all keys
+                for(let i in data){
+                    for (let key in data[i]) {
+                        if (!basket[key]) {
+                            keys.push(key);
+                            basket[key] = true
+                        }
+                    }
+                }
+
+                let html = "<div class=\"div-table-row\">";
+                for (let column in keys) {
+                    html+="<div class=\"div-table-col\">"+keys[column]+"</div>";
+
+                }
+                html+="</div>";
+                for (let i in data) {
+                    let items = data[i];
+                    html+="<div class=\"div-table-row\">";
+                    for (let item in items) {
+                        html+="<div class=\"div-table-col\">"+JSON.stringify(items[item])+"</div>";
+                    }
+                    html+="</div>";
+                }
+                $("#divTable").empty();
+                $("#divTable").append(html);
+            }else{
+                layer.alert(result.content);
+            }
+
+        });
+    }
+
+    function submitSaveSQL() {
+        //debugger;
+        var sql = editor.getValue();
+        var sqlName = $("#sqlName").val();
+        var id = $("#id").val();
+        if (sql == null || sql == "") {
+            layer.msg("请输入sql");
+            return;
+        }
+        if (sqlName == null || sqlName == "") {
+            layer.msg("请输入sql name");
+            return;
+        }
+        $.post("/function/save", {"code": sql, "name": sqlName, "id": id}, function (result) {
+            if (result.code == 200) {
+                layer.msg("保存成功,请授权后使用");
+            } else if (result.code == 1001) {
+                layer.alert(result.msg)
+            }
+        });
+    }
+    /**
+     * 导出
+     */
+   /* function saveSQL() {
+        var sql = editor.getValue();
+       var sqlName = $("#sqlName").val();
+        if (sqlName == null || sqlName == "") {
+            layer.msg("sqlName找不到");
+            return;
+        }
+        location.href="/function/download/"+sqlName;
+    }*/
+
+</script>
+
+<script src="/js/mould/select/edit.js"></script>
+
+</body>
+</html>
