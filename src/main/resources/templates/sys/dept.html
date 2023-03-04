@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="shortcut icon" href="/img/icon/logo.ico"/>
+    <title>部门管理</title>
+
+    <link rel="stylesheet" href="/sys/bootstrap/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/sys/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="/sys/jqgrid/ui.jqgrid-bootstrap.css"/>
+    <link rel="stylesheet" href="/sys/ztree/css/metroStyle/metroStyle.css"/>
+    <!--<link rel="stylesheet" href="/sys/css/main.css"/>-->
+
+    <link rel="stylesheet" href="/sys/bootstrap/bootstrap-table.min.css">
+    <link rel="stylesheet" href="/sys/treegrid/jquery.treegrid.css">
+    <link rel="stylesheet" href="/sys/css/dept.css"/>
+    <!-- Slick -->
+    <link type="text/css" rel="stylesheet" href="/css/slick.css"/>
+    <link type="text/css" rel="stylesheet" href="/css/slick-theme.css"/>
+
+    <!-- nouislider -->
+    <link type="text/css" rel="stylesheet" href="/css/nouislider.min.css"/>
+
+    <!-- Font Awesome Icon -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css"/>
+
+    <!-- Custom stlylesheet -->
+    <link type="text/css" rel="stylesheet" href="/css/style.css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="/js/html5shiv.min.js"></script>
+    <script type="text/javascript" src="/js/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div th:include="/common/header::header"></div>
+
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+
+            <!-- STORE -->
+            <div id="store" class="col-md-12">
+                <!-- store products -->
+                <div class="row">
+
+                    <div id="rrapp" v-cloak>
+                        <div v-show="showList">
+                            <div class="grid-btn">
+                                <!--<shiro:hasPermission name="sys:dept:save">
+                                    <a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+                                </shiro:hasPermission>
+                                <shiro:hasPermission name="sys:dept:update">
+                                    <a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+                                </shiro:hasPermission>
+                                <shiro:hasPermission name="sys:dept:delete">
+                                    <a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+                                </shiro:hasPermission>-->
+                                <a class="btn btn-primary" @click="add"><i class="fa fa-plus"></i>&nbsp;新增</a>
+                                <a class="btn btn-primary" @click="update"><i class="fa fa-pencil-square-o"></i>&nbsp;修改</a>
+                                <a class="btn btn-primary" @click="del"><i class="fa fa-trash-o"></i>&nbsp;删除</a>
+                            </div>
+                            <div id="span">
+                                <b> <span>部门管理</span></b>
+                            </div>
+                            <table id="deptTable" data-mobile-responsive="true" data-click-to-select="true">
+                                <thead>
+                                <tr>
+                                    <th data-field="selectItem" data-checkbox="true"></th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+
+                        <div v-show="!showList" class="panel panel-default">
+                            <div id="span02">
+                                <b> <span>部门管理</span></b>
+                            </div>
+                            <div class="panel-heading">{{title}}</div>
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <div class="col-sm-2 control-label">部门名称</div>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" v-model="dept.name" placeholder="部门名称"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-2 control-label">上级部门</div>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" style="cursor:pointer;"
+                                               v-model="dept.parentName" @click="deptTree" readonly="readonly"
+                                               placeholder="一级部门"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-2 control-label">排序号</div>
+                                    <div class="col-sm-10">
+                                        <input type="number" class="form-control" v-model="dept.orderNum"
+                                               placeholder="排序号"/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-2 control-label"></div>
+                                    <input type="button" class="btn btn-primary" @click="saveOrUpdate" value="确定"/>
+                                    &nbsp;&nbsp;<input type="button" class="btn btn-warning" @click="reload"
+                                                       value="返回"/>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 选择部门 -->
+                    <div id="deptLayer" style="display: none;padding:10px;">
+                        <ul id="deptTree" class="ztree"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:include="/common/footer::footer" id="footerDiv"></div>
+<script type="text/javascript" src="/sys/js/jquery.min.js"></script>
+<!--<script type="text/javascript" src="/js/jquery.min.js"></script>-->
+<script type="text/javascript" src="/js/layer/layer.js"></script>
+<script type="text/javascript" src="/sys/vue.min.js"></script>
+<script type="text/javascript" src="/sys/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="/sys/jqgrid/grid.locale-cn.js"></script>
+<script type="text/javascript" src="/sys/jqgrid/jquery.jqGrid.min.js"></script>
+<script type="text/javascript" src="/sys/ztree/jquery.ztree.all.min.js"></script>
+<script type="text/javascript" src="/sys/js/common.js"></script>
+<script type="text/javascript" src="/sys/bootstrap/bootstrap-table.min.js"></script>
+<script type="text/javascript" src="/sys/treegrid/jquery.treegrid.min.js"></script>
+<script type="text/javascript" src="/sys/treegrid/jquery.treegrid.bootstrap3.js"></script>
+<script type="text/javascript" src="/sys/treegrid/jquery.treegrid.extension.js"></script>
+<script type="text/javascript" src="/sys/treegrid/tree.table.js"></script>
+<script type="text/javascript" src="/sys/js/dept.js"></script>
+<script th:inline="javascript">
+    $(document).ready(function () {
+        $("#responsive-nav ul li  a").each(function () {
+            $this = $(this);
+            if ($this[0].href == String(window.location)) {
+                $this.css({"a": "active", "color": "red", "text-decoration": "blink",
+                    "border-bottom":"2px solid #ff0000","padding-bottom": "0px"});
+            }
+        });
+    });
+</script>
+</body>
+</html>

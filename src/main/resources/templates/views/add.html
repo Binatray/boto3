@@ -1,3 +1,4 @@
+
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
@@ -5,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <title>查询详情</title>
+    <title>分析更新</title>
     <link rel="shortcut icon" href="/img/icon/logo.ico">
     <!-- Google font -->
-   <!-- <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">-->
+    <!--<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">-->
 
     <!-- Bootstrap -->
     <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css"/>
@@ -74,29 +75,9 @@
             <div id="aside" class="col-md-3">
                 <!-- aside Widget -->
                 <div class="aside">
-                    <h3 class="aside-title">真实库</h3>
+                    <h3 class="aside-title">视图</h3>
                     <div>
                         <ul id="treeReal" class="ztree"></ul>
-                    </div>
-                </div>
-                <!-- /aside Widget -->
-                <div class="aside">
-                    <h3 class="aside-title">视图库</h3>
-                    <div>
-                        <ul id="treeView" class="ztree"></ul>
-                    </div>
-                </div>
-                <!-- aside Widget -->
-                <div class="aside">
-                    <h3 class="aside-title">虚拟库</h3>
-                    <div>
-                        <ul id="treeVirtual" class="ztree"></ul>
-                    </div>
-                </div>
-                <div class="aside">
-                    <h3 class="aside-title">函数库</h3>
-                    <div>
-                        <ul id="treeFunction" class="ztree"></ul>
                     </div>
                 </div>
                 <!-- /aside Widget -->
@@ -109,31 +90,35 @@
                     <div id="editor"></div>
                 </div>
                 <div>
+                    <!--<input id="sqlName" placeholder="请填写sql name" th:value="${viewsLists.name}"/>
+                    &lt;!&ndash;<input id="viewsName" placeholder="请输入新的视图库名称"/>&ndash;&gt;
 
-                    <!--<input id="sqlName" th:value="${virtual.name}" placeholder="请填写sql name"/><br/>
-                    <input id="id" type="hidden" th:value="${virtual.id}" placeholder="请填写sql name"/><br/>
-                    <button id="runButton" onclick="submitRunSQL()" class="btn btn-run waves-effect">查询</button>
-                    <button id="saveButton"  onclick="submitSaveSQL()" class="btn btn-run waves-effect">保存</button>-->
+                    <select class="form-control" name="vId" id="vId" style=" margin-top: 10px;">
+                        <option th:value="0">请选择类型</option>
+                        <option th:selected="${viewsLists.viewsId eq list.id}"  th:each="list:${select}" th:value="${list.id}" th:text="${list.name }"></option>
+                    </select>
 
-                    <input id="sqlName" placeholder="请填写sql name"/><br/>
+
+                    <input id="id" type="text" th:value="${viewsLists.id}"/><br/>-->
+                    <input id="sqlName" placeholder="请填写sql name" />
+
+                    <select class="form-control" name="vId" id="vId" style=" margin-top: 10px;">
+                        <option th:value="0">请选择类型</option>
+                        <option th:each="list:${select}" th:value="${list.id}" th:text="${list.name }"></option>
+                    </select>
+
+
                     <input id="id" type="hidden"/><br/>
                     <button id="runButton" onclick="submitRunSQL()" class="btn btn-info">查询</button>
                     <button id="saveButton" onclick="submitSaveSQL()" class="btn btn-success">保存</button>
-                    <button id="save" onclick="downSQL()" class="btn btn-danger">下载</button>
-
+                    <button id="saveViewButton" onclick="submitView()" class="btn btn-primary">添加视图库</button>
                 </div>
                 <div class="div-table" id="divTable">
-                    <!--<div class="div-table-row">
-                        <div class="div-table-col" th:for="(item,index) in columns">{{item}}</div>
-                    </div>
-                    <div class="div-table-row" v-for="(items,index) in tableData">
-                        <div class="div-table-col" v-for="(item,index) in items">{{item}}</div>
-                    </div>-->
                 </div>
             </div>
             <!-- /STORE -->
         </div>
-        <!-- /row -->
+        <!--/row-->
     </div>
     <!-- /container -->
 </div>
@@ -163,30 +148,29 @@
         }
     };
     // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
-    var realNodes = [[${realZList}]];
-    var virtualNodes = [[${virtualZList}]];
-    var viewsNodes = [[${viewsZList}]];
-    var funNodes = [[${funZList}]];
+    var viewNodes = [[${realZList}]];
+    $.fn.zTree.init($("#treeReal"), setting, viewNodes);
+    ace.require("ace/ext/language_tools");
 
-    $.fn.zTree.init($("#treeReal"), setting, realNodes);
-    $.fn.zTree.init($("#treeVirtual"), setting, virtualNodes);
-    $.fn.zTree.init($("#treeView"), setting, viewsNodes);
-    $.fn.zTree.init($("#treeFunction"), setting, funNodes);
-
+    //编辑器
     ace.require("ace/ext/language_tools");
     var editor = ace.edit('editor');
-    var virtualCode = "";
-    var virtual = [[${virtual}]];
-    if (virtual != null) {
-        virtualCode = virtual.code;
-        $("#sqlName").val(virtual.name);
-        $("#id").val(virtual.id);
+    var viewsTablesCode = "";
+    //修改回显
+    var viewsTables = [[${viewsLists}]];
+    if (viewsTables != null) {
+
+        viewsTablesCode = viewsTables.code;
+
+        $("#sqlName").val(viewsTables.name);
+        $("#id").val(viewsTables.id);
+
+
     }
+
     editorInit(editor);
 
-
     function editorInit(editor) {
-
 
         editor.setOptions({
             enableBasicAutocompletion: true,
@@ -197,9 +181,8 @@
         editor.getSession().setMode("ace/mode/sql");
         editor.setHighlightActiveLine(true);
         editor.setFontSize(16);
-        // editor.execCommand('find');
-        if (virtualCode != null && virtualCode != "") {
-            editor.setValue(virtualCode);
+        if (viewsTablesCode != null && viewsTablesCode != "") {
+            editor.setValue(viewsTablesCode);
         } else {
             editor.setValue("欢迎使用");
         }
@@ -207,7 +190,9 @@
 
     /*]]>*/
 </script>
+
 <script type="text/javascript">
+    //查询
     const columns = [];
     // use keys to get column
     const tableData = [];
@@ -226,6 +211,9 @@
 
             if(result.code==200){
                 let data = JSON.parse(result.content);
+
+                //alert(result.content);
+
                 console.log(data);
                 let keys = [];
                 let basket = {};
@@ -239,6 +227,7 @@
                         }
                     }
                 }
+
                 let html = "<div class=\"div-table-row\">";
                 for (let column in keys) {
                     html+="<div class=\"div-table-col\">"+keys[column]+"</div>";
@@ -249,8 +238,7 @@
                     let items = data[i];
                     html+="<div class=\"div-table-row\">";
                     for (let item in items) {
-//                        debugger
-                        html+="<div class=\"div-table-col\">"+JSON.stringify(items[item])+"</div>";
+                        html+="<div class=\"div-table-col\">"+items[item]+"</div>";
                     }
                     html+="</div>";
                 }
@@ -263,10 +251,14 @@
         });
     }
 
+
+    //保存
     function submitSaveSQL() {
         var sql = editor.getValue();
         var sqlName = $("#sqlName").val();
         var id = $("#id").val();
+        var vId = $("#vId").val();
+       /* var viewsName = $("#viewsName").val();*/
         if (sql == null || sql == "") {
             layer.msg("请输入sql");
             return;
@@ -275,28 +267,43 @@
             layer.msg("请输入sql name");
             return;
         }
-        $.post("/run/save", {"sql": sql, "sqlName": sqlName, "id": id}, function (result) {
+        $.post(
+            "/viewsTables/save",
+            {
+                "sql": sql,
+                "sqlName": sqlName,
+                "id": id,
+                "vId": vId,
+               /* "viewsName": viewsName*/
+            },
+            function (result) {
             if (result.code == 200) {
                 layer.msg("保存成功,请授权后使用");
             } else if (result.code == 1001) {
                 layer.alert(result.msg + ",请重新输入");
+            }else if (result.code == 1004){
+                layer.alert(result.msg );
             }
         });
     }
-    /**
-     * 导出
-     */
-    function downSQL() {
-        var sql = editor.getValue();
-       var sqlName = $("#sqlName").val();
-        if (sqlName == null || sqlName == "") {
-            layer.msg("sqlName找不到");
-            return;
-        }
-        location.href="/run/download/"+sqlName;
+
+
+    //新增视图库
+    function submitView() {
+        location.href="/views/addView"
     }
+    $(document).ready(function () {
+        $("#responsive-nav ul li  a").each(function () {
+            $this = $(this);
+            if ($this[0].href == String(window.location)) {
+                $this.css({"a": "active", "color": "red", "text-decoration": "blink",
+                    "border-bottom":"2px solid #ff0000","padding-bottom": "0px"});
+            }
+        });
+    });
 
 </script>
+
 
 <script src="/js/mould/select/edit.js"></script>
 

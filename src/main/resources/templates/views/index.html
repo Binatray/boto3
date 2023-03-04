@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+		<title>视图列表</title>
+		<link rel="shortcut icon" href="/img/icon/logo.ico">
+ 		<!-- Google font -->
+ 		<!--<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">-->
+
+ 		<!-- Bootstrap -->
+ 		<link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css" />
+
+ 		<!-- Slick -->
+ 		<link type="text/css" rel="stylesheet" href="/css/slick.css" />
+ 		<link type="text/css" rel="stylesheet" href="/css/slick-theme.css" />
+
+ 		<!-- nouislider -->
+ 		<link type="text/css" rel="stylesheet" href="/css/nouislider.min.css" />
+
+ 		<!-- Font Awesome Icon -->
+ 		<link rel="stylesheet" href="/css/font-awesome.min.css" />
+
+ 		<!-- Custom stlylesheet -->
+ 		<link type="text/css" rel="stylesheet" href="/css/style.css" />
+
+		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+		<!--[if lt IE 9]>
+		<script type="text/javascript" src="/js/html5shiv.min.js"></script>
+		<script type="text/javascript" src="/js/respond.min.js"></script>
+		<![endif]-->
+
+    </head>
+	<body>
+	<div th:include="/common/header::header"></div>
+
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+
+					<!-- STORE -->
+					<div id="store" class="col-md-12">
+						<!-- store products -->
+						<div class="row">
+							<!-- product -->
+							<div class="col-md-3 col-xs-6">
+								<div class="product">
+									<div class="product-img">
+										<img src="/img/logo.jpg">
+									</div>
+									<div class="product-body">
+										<!--<p class="product-category" th:text=""></p>-->
+										<h3 class="product-name">新建视图表</h3>
+										<div class="product-btns">
+											<button class="add-to-wishlist" onclick="toAdd()"><i class="fa fa-plus"></i><span class="tooltipp">新增</span></button>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- product -->
+							<div class="col-md-3 col-xs-6" th:if="${items != null}" th:each="item : ${items}">
+								<div class="product">
+									<div class="product-img">
+										<img src="/img/logoList.jpg" alt="">
+									</div>
+									<div class="product-body">
+										<h3 class="product-name"><a href="#" th:text="${item.name}"></a></h3>
+										<div class="product-btns">
+											<!--<button class="add-to-wishlist" th:onclick="'javascript:toEdit('+${item.id}+')'" ><i class="fa fa-edit"></i><span class="tooltipp">修改</span></button>-->
+											<button class="add-to-compare" th:onclick="'javascript:toDel('+${item.id}+')'"><i class="fa fa-remove"></i><span class="tooltipp">删除</span></button>
+											<button class="quick-view" th:onclick="'javascript:toEdit('+${item.id}+')'"><i class="fa fa-eye"></i><span class="tooltipp">查看</span></button>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- /product -->
+						</div>
+						<!-- /store products -->
+
+						<!-- store bottom filter -->
+						<div class="store-filter clearfix" style="text-align: center;">
+							<div id="page" class="pagination"></div>
+						</div>
+						<!-- /store bottom filter -->
+					</div>
+					<!-- /STORE -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+
+	<div th:include="/common/footer::footer" id="footerDiv"></div>
+	<!-- jQuery Plugins -->
+	<script type="text/javascript" src="/js/jquery.min.js"></script>
+	<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/js/slick.min.js"></script>
+	<script type="text/javascript" src="/js/nouislider.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.zoom.min.js"></script>
+	<script type="text/javascript" src="/js/jqpaginator.min.js"></script>
+	<script type="text/javascript" src="/js/main.js"></script>
+	<script type="text/javascript" src="/js/layer/layer.js"></script>
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+	$('#page').jqPaginator({
+		totalPages: [[${pages}]],
+		visiblePages: 10,
+		currentPage: [[${pageNum}]],
+
+		first: '<li class="first"><a href="javascript:void(0);">首页</a></li>',
+		prev: '<li class="prev"><a href="javascript:void(0);">上一页</a></li>',
+		next: '<li class="next"><a href="javascript:void(0);">下一页</a></li>',
+		last: '<li class="last"><a href="javascript:void(0);">末页</a></li>',
+		page: '<li class="page"><a href="javascript:void(0);">{{page}}</a></li>',
+		onPageChange: function (num,type) {
+            if(type=="change"){
+                window.location.href="/viewsTables/"+num;
+            }
+		}
+	});
+	function toAdd() {
+		window.location.href="/viewsTables/add";
+	}
+	function toEdit(id) {
+		window.location.href="/viewsTables/edit/"+id;
+	}
+	function toDel(id) {
+
+		$.ajax({
+			url: "/viewsTables/delete/"+id,
+			type:"GET",
+			dataType:"json",
+			success: function(data){
+				if(data.code==200){
+					layer.msg("删除成功");
+                    window.location.reload()
+ 				}else if (data.code==500){
+					layer.alert("删除失败")
+				}
+			},
+			error: function () {
+			}
+		});
+	}
+    $(document).ready(function () {
+        $("#responsive-nav ul li  a").each(function () {
+            $this = $(this);
+            if ($this[0].href == String(window.location)) {
+                $this.css({"a": "active", "color": "red", "text-decoration": "blink",
+                    "border-bottom":"2px solid #ff0000","padding-bottom": "0px"});
+            }
+        });
+    });
+	/*]]>*/
+</script>
+</body>
+</html>

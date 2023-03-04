@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="shortcut icon" href="/img/icon/logo.ico"/>
+    <title>系统管理</title>
+    <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css" />
+</head>
+<body style="background-color: aliceblue;">
+
+<div style="margin-top: 22%;    margin-left: 40%;">
+
+
+    <div th:if="${permissionList != null}" th:each="item : ${permissionList}">
+        <!--<button type="button" class="btn btn-default">
+            <a th:href="${item.url}">
+                    <span th:text="${item.name}"></span>
+            </a>
+        </button>-->
+            <a th:href="${item.url}">
+                <input type="button" th:value="${item.name}"></input>
+            </a>
+
+            <!--<a th:href="${item.url}">
+                   <span th:text="${item.name}"></span>
+               </a>-->
+    </div>
+
+
+</div>
+
+
+
+</body>
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+</html>

@@ -1,0 +1,106 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>视图表查看</title>
+    <link rel="shortcut icon" href="/img/icon/logo.ico">
+    <!-- Google font -->
+    <!--<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">-->
+
+    <!-- Bootstrap -->
+    <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css"/>
+
+    <!-- Slick -->
+    <link type="text/css" rel="stylesheet" href="/css/slick.css"/>
+    <link type="text/css" rel="stylesheet" href="/css/slick-theme.css"/>
+
+    <!-- nouislider -->
+    <link type="text/css" rel="stylesheet" href="/css/nouislider.min.css"/>
+
+    <!-- Font Awesome Icon -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css"/>
+
+    <!-- Custom stlylesheet -->
+    <link type="text/css" rel="stylesheet" href="/css/style.css"/>
+    <link rel="stylesheet" href="/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <link href=/css/mlsql/app.61ee2da75fc002e22f47d5f70b881c8d.css rel=stylesheet>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="/js/html5shiv.min.js"></script>
+    <script type="text/javascript" src="/js/respond.min.js"></script>
+    <![endif]-->
+    <style>
+        #editor {
+            width: 100%;
+            height: 300px;
+        }
+        .div-table {
+            display: table;
+            width: auto;
+            background-color: #eee;
+            border: 1px solid #666666;
+            border-spacing: 5px; /* cellspacing:poor IE support for  this */
+        }
+
+        .div-table-row {
+            display: table-row;
+            width: auto;
+            clear: both;
+        }
+
+        .div-table-col {
+            float: left; /* fix for  buggy browsers */
+            display: table-column;
+            width: 200px;
+            background-color: #ccc;
+            border-right: antiquewhite solid;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<div th:include="/common/header::header"></div>
+<!-- SECTION -->
+<div class="section">
+    <!-- container -->
+    <div class="container">
+        <!-- row -->
+        <div class="row">
+            <!-- ASIDE -->
+            <div id="aside" class="col-md-3">
+                <!-- aside Widget -->
+                <div class="aside">
+                    <h3 class="aside-title">视图</h3>
+                    <div>
+                        <ul id="treeReal" class="ztree"></ul>
+                    </div>
+                </div>
+                <!-- /aside Widget -->
+            </div>
+            <!-- /ASIDE -->
+
+            <!-- STORE -->
+            <div id="store" class="col-md-9">
+                <div class="row">
+                    <div id="editor"></div>
+                </div>
+                <div>
+                    <!--<input id="sqlName" placeholder="请填写sql name" th:value="${viewsLists.name}"/>
+                    &lt;!&ndash;<input id="viewsName" placeholder="请输入新的视图库名称"/>&ndash;&gt;
+
+                    <select class="form-control" name="vId" id="vId" style=" margin-top: 10px;">
+                        <option th:value="0">请选择类型</option>
+                        <option th:selected="${viewsLists.viewsId eq list.id}"  th:each="list:${select}" th:value="${list.id}" th:text="${list.name }"></option>
+                    </select>
+
+
+                    <input id="id" type="text" th:value="${viewsLists.id}"/><br/>-->
+                    <input id="sqlName" placeholder="请填写sql name" />
+
+                    <select class="form-control" name="vId" id="vId" style=" margin-top: 10px;">
+                        <option th:value="0">请选择类型</option>
+                        <option th:selected="${viewsLists.viewsId eq list.id}"  th:each="list:${select}" th:value="${list.id}" th:text="${list.nam
