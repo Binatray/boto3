@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <!--<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">-->
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
@@ -10,10 +11,34 @@
     <link href="/css/pintuer.css" rel="stylesheet"/>
     <link href="/css/admin.css" rel="stylesheet"/>
     <title>登录</title>
-    <!-- Google font -->
+
 </head>
 <body>
 
+
+
+<!--
+
+    <form class="form-horizontal" th:action="@{/user/login}"  method="post">
+        <div>
+            <span id="basic-addon0">&nbsp;</span>
+            <span style="font-size: 12px;color: red" th:text="${error}" aria-describedby="basic-addon0"></span>
+            <br />
+        </div>
+        <div>
+            <span id="basic-addon1">用户名</span>
+            <input id="username" name="username" type="text" placeholder="用户名"  />
+        </div>
+        <br />
+        <div>
+            <span id="basic-addon2">密码</span>
+            <input id="password" name="password" type="password" placeholder="密码" />
+        </div>
+        <br />
+        <button type="submit" style="width:190px;">登 录</button>
+
+    </form>
+-->
 
     <div class="bg"></div>
     <div class="container">
@@ -28,7 +53,7 @@
                         <br />
                     </div>
                     <div class="panel loginbox">
-                        <div class="text-center margin-big padding-big-top"><h1>Redoop</h1></div>
+                        <div class="text-center margin-big padding-big-top"><h1>SeasBase</h1></div>
                         <div class="panel-body" style="padding:30px; padding-bottom:10px; padding-top:10px;">
                             <div class="form-group">
                                 <div class="field field-icon-right">

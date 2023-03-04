@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>数据源详情</title>
+    <link rel="shortcut icon" href="/img/icon/logo.ico">
+    <!-- Google font -->
+    <!--<link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">-->
+    <!-- Bootstrap -->
+    <link type="text/css" rel="stylesheet" href="/css/bootstrap.min.css" />
+    <!-- Slick -->
+    <link type="text/css" rel="stylesheet" href="/css/slick.css" />
+    <link type="text/css" rel="stylesheet" href="/css/slick-theme.css" />
+    <!-- nouislider -->
+    <link type="text/css" rel="stylesheet" href="/css/nouislider.min.css" />
+    <!-- Font Awesome Icon -->
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+    <!-- Custom stlylesheet -->
+    <link type="text/css" rel="stylesheet" href="/css/style.css" />
+    <link type="text/css" rel="stylesheet" href="/css/realdb/form.css" />
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="/js/html5shiv.min.js"></script>
+    <script type="text/javascript" src="/js/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+<div th:include="/common/header::header"></div>
+
+<form class="form-horizontal" role="form" style="margin-top: 33px" th:action="@{/real/update}" th:object="${realDb}"  th:method="post">
+
+    <input type="hidden" th:name="id" th:value="${realDb.id}" />
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">IP</label>
+        <div class="col-sm-10">
+            <input  style="width: 33%" class="form-control" type="text" id="ip" th:value="${realDb.ip}"  th:name="ip" placeholder="Enter ip" >
+            <label style="color:red" th:if="${#fields.hasErrors('ip')}" th:errors="${realDb.ip}">ip Error</label>
+            <!--<label style="color:red" th:if="${#fields.hasErrors('ip')}" th:errors="*{ip}">ip Error</label>-->
+        </div>
+    </div>
+   <div class="form-group">
+        <label class="col-sm-2 control-label">端口</label>
+        <div class="col-sm-10">
+            <input  style="width: 33%" class="form-control" id="port" type="text" th:value="${realDb.port}"   th:name="port" placeholder="Enter 端口" >
+            <label style="color:red" th:if="${#fields.hasErrors('port')}" th:errors="${realDb.port}">port Error</label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">驱动</label>
+        <div class="col-sm-10">
+            <select  id="dbType"  th:name="dbType" th:field="${realDb.dbType}" th:value="${realDb.dbType}">
+                <option value="1" th:selected="${realDb.dbType=='1'}" >mysql</option>
+                <option value="2" th:selected="${realDb.dbType=='2'}" >oracle</option>
+                <option value="3" th:selected="${realDb.dbType=='3'}" >pgsql</option>
+                <option value="4" th:selected="${realDb.dbType=='4'}" >sqlServer</option>
+                <option value="5" th:selected="${realDb.dbType=='5'}" >hive</option>
+                <option value="6" th:selected="${realDb.dbType=='6'}" >redis</option>
+                <option value="7" th:selected="${realDb.dbType=='7'}" >kafka</option>
+                <!--<option value="7" th:selected="${realDb.dbType=='8'}" >phoenix</option>-->
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">数据库名</label>
+        <div class="col-sm-10">
+            <input style="width: 33%" class="form-control" id="name" type="text" th:value="${realDb.name}"  th:name="name" placeholder="Enter 数据库名" >
+            <label style="color:red" th:if="${#fields.hasErrors('name')}" th:errors="${realDb.name}">name Error</label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">数据库用户</label>
+        <div class="col-sm-10">
+            <input style="width: 33%" class="form-control" id="dbName" type="text" th:value="${realDb.dbName}"   th:name="dbName" placeholder="Enter 数据库用户">
+            <label style="color:red" th:if="${#fields.hasErrors('dbName')}" th:errors="${realDb.dbName}">dbName Error</label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">数据库密码</label>
+        <div class="col-sm-10">
+            <input style="width: 33%" class="form-control" id="dbPassword" type="text" th:value="${realDb.dbPassword}"  th:name="dbPassword" placeholder="Enter 数据库密码">
+            <label style="color:red" th:if="${#fields.hasErrors('dbPassword')}" th:errors="${realDb.dbPassword}">dbPassword Error</label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-2 control-label">数据源名</label>
+        <div class="col-sm-10">
+            <input  style="width: 33%" class="form-control" id="nikeName" type="text"th:value="${realDb.nikeName}"   th:name="nikeName" placeholder="Enter 数据源名">
+            <div th:text="${hintMessage}"style="color: red; font-weight: 700;"/>
+            <label style="color:red" th:if="${#fields.hasErrors('nikeName')}" th:errors="${realDb.nikeName}">nikeName Error</label>
+        </div>
+    </div>
+    <div id="realFormButtn">
+        <input type="reset" class="btn btn-warning" value="返回" onclick="window.open('/real/1')"/>
+    </div>
+
+</form>
+
+
+
+<div th:include="/common/footer::footer" id="footerDiv"></div>
+<!-- jQuery Plugins -->
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/slick.min.js"></script>
+<script src="/js/nouislider.min.js"></script>
+<script src="/js/jquery.zoom.min.js"></script>
+<script src="/js/main.js"></script>
+<script th:inline="javascript">
+    $(document).ready(function () {
+        $("#responsive-nav ul li  a").each(function () {
+            $this = $(this);
+            if ($this[0].href == String(window.location)) {
+                $this.css({"a": "active", "color": "red", "text-decoration": "blink",
+                    "border-bottom":"2px solid #ff0000","padding-bottom": "0px"});
+            }
+        });
+    });
+</script>
+</body>
+
+</html>
